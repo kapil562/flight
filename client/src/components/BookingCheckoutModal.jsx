@@ -251,13 +251,18 @@ export default function BookingCheckoutModal({
   // Step 1 Validation -> Proceed to Step 2 (Seat Selection)
   const handleProceedToSeats = () => {
     for (let i = 0; i < passengers.length; i++) {
-      if (!passengers[i].firstName || !passengers[i].lastName) {
+      if (!passengers[i].firstName?.trim() || !passengers[i].lastName?.trim()) {
         alert(`Please enter First & Last Name for Traveller ${i + 1}`);
         return;
       }
     }
-    if (!contact.email || !contact.phone) {
-      alert('Please enter your contact Email and Phone number');
+    if (!contact.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) {
+      alert('Please enter a valid email address (e.g. name@example.com)');
+      return;
+    }
+    const cleanPhone = (contact.phone || '').replace(/\D/g, '');
+    if (cleanPhone.length !== 10) {
+      alert('Please enter a valid 10-digit mobile number');
       return;
     }
     setStep(2);
@@ -620,14 +625,25 @@ export default function BookingCheckoutModal({
                       </div>
                       <div>
                         <label className="block text-[11px] font-bold text-slate-500 mb-1">Mobile Number (WhatsApp) *</label>
-                        <input
-                          type="tel"
-                          required
-                          placeholder="+91 98765 43210"
-                          value={contact.phone}
-                          onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:ring-2 focus:ring-sky-500"
-                        />
+                        <div className="relative flex items-center">
+                          <span className="absolute left-3 text-xs font-bold text-slate-500 font-mono select-none">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            inputMode="numeric"
+                            maxLength={10}
+                            required
+                            placeholder="98765 43210"
+                            value={contact.phone}
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                              setContact({ ...contact, phone: digits });
+                            }}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-3.5 py-2.5 text-xs font-bold font-mono tracking-wider focus:ring-2 focus:ring-sky-500"
+                          />
+                        </div>
+                        <span className="text-[10px] text-slate-400 mt-1 block">Maximum 10 digits (WhatsApp enabled)</span>
                       </div>
                     </div>
                   </div>
