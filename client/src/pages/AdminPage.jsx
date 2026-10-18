@@ -4,7 +4,7 @@ import {
   Plane, Tag, MapPin, Ticket, Save, Plus, Trash2, Edit2, RefreshCw, KeyRound,
   CheckCircle, ArrowUpRight, Search, Check, AlertTriangle, UserCheck, Cpu, Globe, ExternalLink, Radio,
   Palette, Building2, Compass, Train, Users, Phone, MessageCircle, Menu, X, ChevronRight, LayoutDashboard,
-  Palmtree, Clock, ToggleLeft, ToggleRight, Database, QrCode, Key
+  Palmtree, Clock, ToggleLeft, ToggleRight, Database, QrCode, Key, Sliders, Sparkles
 } from 'lucide-react';
 import { api } from '../utils/api';
 import AdminPaymentsUpi from '../components/AdminPaymentsUpi';
@@ -832,6 +832,8 @@ export default function AdminPage() {
     {
       heading: 'Settings & Systems',
       items: [
+        { id: 'services_modules', icon: Sliders, label: 'Service Tabs (ON / OFF)' },
+        { id: 'footer_crm', icon: Sparkles, label: 'Footer & Contact CMS' },
         { id: 'brand_crm', icon: Palette, label: 'Brand & Website CRM' },
         { id: 'api_settings', icon: Key, label: 'API Keys' },
         { id: 'payments_upi', icon: QrCode, label: 'Payments & UPI' },
@@ -2601,6 +2603,16 @@ export default function AdminPage() {
         {/* TAB: UNIFIED BRAND & WEBSITE CRM */}
         {(activeTab === 'brand_crm' || activeTab === 'brand' || activeTab === 'settings') && (
           <AdminBrandCmsSettings />
+        )}
+
+        {/* TAB: SERVICE TABS (ON / OFF) */}
+        {(activeTab === 'services_modules' || activeTab === 'service_modules') && (
+          <AdminBrandCmsSettings initialSection="sec-services" />
+        )}
+
+        {/* TAB: FOOTER & CONTACT DETAILS CMS */}
+        {activeTab === 'footer_crm' && (
+          <AdminBrandCmsSettings initialSection="sec-footer" />
         )}
 
         {/* TAB: PAYMENTS & UPI GATEWAY */}

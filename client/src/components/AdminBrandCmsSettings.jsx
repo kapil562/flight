@@ -152,7 +152,9 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
       card2Desc: 'Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.',
       card3Title: '24x7 Aviation Support',
       card3Desc: 'Hassle-free web check-in support and instant automated cancellations with swift refund processing.',
-      partnerAirlines: 'IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines'
+      partnerAirlines: 'IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines',
+      domesticRoutes: 'DEL-BOM: Delhi to Mumbai Flights, DEL-BLR: Delhi to Bengaluru Flights, BOM-GOI: Mumbai to Goa Flights, DEL-GOI: Delhi to Goa Flights',
+      intlRoutes: 'DEL-DXB: Delhi to Dubai Flights, BLR-DEL: Bengaluru to Delhi Flights, BOM-DEL: Mumbai to Delhi Flights, DEL-HYD: Delhi to Hyderabad Flights'
     },
 
     // CMS: Policies & Pricing
@@ -268,7 +270,9 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
             card2Desc: brandData.footer?.card2Desc || siteData.footer?.card2Desc || prev.footer.card2Desc,
             card3Title: brandData.footer?.card3Title || siteData.footer?.card3Title || prev.footer.card3Title,
             card3Desc: brandData.footer?.card3Desc || siteData.footer?.card3Desc || prev.footer.card3Desc,
-            partnerAirlines: brandData.footer?.partnerAirlines || siteData.footer?.partnerAirlines || prev.footer.partnerAirlines
+            partnerAirlines: brandData.footer?.partnerAirlines || siteData.footer?.partnerAirlines || prev.footer.partnerAirlines,
+            domesticRoutes: brandData.footer?.domesticRoutes || siteData.footer?.domesticRoutes || prev.footer.domesticRoutes,
+            intlRoutes: brandData.footer?.intlRoutes || siteData.footer?.intlRoutes || prev.footer.intlRoutes
           },
 
           // CMS data
@@ -1030,7 +1034,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
       </div>
 
       {/* SECTION 6: FOOTER & WEBSITE CUSTOMIZATION (CMS) */}
-      <div id="sec-footer" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-5">
+      <div id="sec-footer" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -1038,15 +1042,92 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
             </div>
             <div>
               <h4 className="text-base font-extrabold text-slate-900">6. Footer &amp; Website Customization (CMS)</h4>
-              <p className="text-xs text-slate-500">Footer tagline description, copyright notice, 3 value cards aur partner airlines customize karein.</p>
+              <p className="text-xs text-slate-500">Footer me dikhne wala Address, Phone Number, Email, WhatsApp, Flight Routes, Copyright aur Partner Airlines yahan se customize karein.</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* 6.1 Footer Contact Details: Address, Phone, Email, WhatsApp */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <h5 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                  Footer Contact Info (Address, Phone, Email &amp; WhatsApp)
+                </h5>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                Live in Footer
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Yeh details website ke footer ke left column me live display hoti hain. Yahan se badalte hi website par turant change ho jayegi.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <span>📞</span>
+                  <span>Footer Helpline Phone</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.phone || ''}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  placeholder="+91 72248 28030"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold focus:outline-hidden focus:border-indigo-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <span>✉️</span>
+                  <span>Footer Support Email</span>
+                </label>
+                <input
+                  type="email"
+                  value={form.email || ''}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  placeholder="care@airskyindia.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold focus:outline-hidden focus:border-indigo-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <span>💬</span>
+                  <span>WhatsApp Number</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.whatsapp || ''}
+                  onChange={(e) => handleChange('whatsapp', e.target.value)}
+                  placeholder="+918077680310"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold focus:outline-hidden focus:border-indigo-500 bg-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                <span>📍</span>
+                <span>Footer Registered Office Address</span>
+              </label>
+              <textarea
+                rows={2}
+                value={form.address || ''}
+                onChange={(e) => handleChange('address', e.target.value)}
+                placeholder="Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold focus:outline-hidden focus:border-indigo-500 bg-white"
+              />
+            </div>
+          </div>
+
+          {/* 6.2 Footer Brand Description & Copyright Notice */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">Footer Brand Description</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">Footer Brand Tagline / Description</label>
               <textarea
                 rows={2}
                 value={form.footer?.description || ''}
@@ -1055,7 +1136,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
                   footer: { ...form.footer, description: e.target.value }
                 })}
                 placeholder="e.g. Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers..."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500 bg-white"
               />
             </div>
 
@@ -1068,12 +1149,50 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
                   ...form,
                   footer: { ...form.footer, copyright: e.target.value }
                 })}
-                placeholder="e.g. © 2026 AIR SKY. All rights reserved."
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+                placeholder="e.g. © 2026 AIR SKY Go. All rights reserved."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500 bg-white"
               />
             </div>
           </div>
 
+          {/* 6.3 Footer Flight Routes Customization */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700">
+                Top Flight Routes (Domestic Column)
+              </label>
+              <span className="text-[11px] text-slate-500 block">Format: CODE1-CODE2: Label (Comma separated)</span>
+              <input
+                type="text"
+                value={form.footer?.domesticRoutes || ''}
+                onChange={(e) => setForm({
+                  ...form,
+                  footer: { ...form.footer, domesticRoutes: e.target.value }
+                })}
+                placeholder="DEL-BOM: Delhi to Mumbai Flights, DEL-BLR: Delhi to Bengaluru Flights, BOM-GOI: Mumbai to Goa Flights, DEL-GOI: Delhi to Goa Flights"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-hidden focus:border-indigo-500 bg-white"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700">
+                International &amp; Metro Routes Column
+              </label>
+              <span className="text-[11px] text-slate-500 block">Format: CODE1-CODE2: Label (Comma separated)</span>
+              <input
+                type="text"
+                value={form.footer?.intlRoutes || ''}
+                onChange={(e) => setForm({
+                  ...form,
+                  footer: { ...form.footer, intlRoutes: e.target.value }
+                })}
+                placeholder="DEL-DXB: Delhi to Dubai Flights, BLR-DEL: Bengaluru to Delhi Flights, BOM-DEL: Mumbai to Delhi Flights, DEL-HYD: Delhi to Hyderabad Flights"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-hidden focus:border-indigo-500 bg-white"
+              />
+            </div>
+          </div>
+
+          {/* 6.4 Partner Airlines */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">Partner Airlines (Comma Separated)</label>
             <input
@@ -1084,11 +1203,47 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
                 footer: { ...form.footer, partnerAirlines: e.target.value }
               })}
               placeholder="IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500 bg-white"
             />
           </div>
 
-          {/* 3 Value Proposition Cards */}
+          {/* 6.5 Live Real-Time Footer Preview Box */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 text-slate-300 border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>👁️</span>
+                <span>Live Footer Preview (Website par aisa dikhega)</span>
+              </span>
+              <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                Live Preview
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-extrabold text-white">{form.name || 'AIR SKY Go'}</span>
+                <span className="text-xs text-slate-400">• {form.tagline || 'Premium Luxury Travel'}</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                {form.footer?.description || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.'}
+              </p>
+              {form.address && (
+                <p className="text-xs text-slate-300 flex items-start gap-1.5">
+                  <span className="shrink-0">📍</span>
+                  <span>{form.address}</span>
+                </p>
+              )}
+              <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300 pt-1">
+                {form.phone && <span className="hover:text-white">📞 Phone: {form.phone}</span>}
+                {form.email && <span className="hover:text-white">✉️ Email: {form.email}</span>}
+              </div>
+              <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-800">
+                {form.footer?.copyright || `© ${new Date().getFullYear()} ${form.name || 'AIR SKY Go'}. All rights reserved.`}
+              </p>
+            </div>
+          </div>
+
+          {/* 6.6 3 Value Proposition Cards */}
           <div className="pt-2">
             <span className="text-xs font-extrabold text-slate-800 block mb-2">3 Value Proposition Feature Badges (Top of Footer)</span>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

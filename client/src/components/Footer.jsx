@@ -1,25 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart, ArrowUpRight, HelpCircle, FileText } from 'lucide-react';
 
-export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
-  const routes = [
+export default function Footer({ onSelectRoute, brand: propBrand = null, settings: propSettings = {} }) {
+  const [brand, setBrand] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_brand_live');
+      return saved ? JSON.parse(saved) : (propBrand || {});
+    } catch {
+      return propBrand || {};
+    }
+  });
+
+  useEffect(() => {
+    if (propBrand && Object.keys(propBrand).length > 0) {
+      setBrand(propBrand);
+    }
+  }, [propBrand]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail) {
+        setBrand(prev => ({ ...prev, ...e.detail }));
+      } else {
+        try {
+          const saved = localStorage.getItem('asg_brand_live');
+          if (saved) setBrand(JSON.parse(saved));
+        } catch {}
+      }
+    };
+    window.addEventListener('asg_brand_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('asg_brand_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const defaultDomestic = [
     { from: 'DEL', to: 'BOM', label: 'Delhi to Mumbai Flights' },
     { from: 'DEL', to: 'BLR', label: 'Delhi to Bengaluru Flights' },
     { from: 'BOM', to: 'GOI', label: 'Mumbai to Goa Flights' },
-    { from: 'DEL', to: 'GOI', label: 'Delhi to Goa Flights' },
+    { from: 'DEL', to: 'GOI', label: 'Delhi to Goa Flights' }
+  ];
+
+  const defaultIntl = [
     { from: 'DEL', to: 'DXB', label: 'Delhi to Dubai Flights' },
     { from: 'BLR', to: 'DEL', label: 'Bengaluru to Delhi Flights' },
     { from: 'BOM', to: 'DEL', label: 'Mumbai to Delhi Flights' },
     { from: 'DEL', to: 'HYD', label: 'Delhi to Hyderabad Flights' }
   ];
 
+  const domesticRoutes = brand?.footer?.domesticRoutes
+    ? brand.footer.domesticRoutes.split(',').map(item => {
+        const parts = item.trim().split(':');
+        if (parts.length >= 2) {
+          const codes = parts[0].trim().split('-');
+          return { from: codes[0]?.trim() || 'DEL', to: codes[1]?.trim() || 'BOM', label: parts[1].trim() };
+        }
+        return { from: 'DEL', to: 'BOM', label: item.trim() };
+      }).filter(r => r.label)
+    : defaultDomestic;
+
+  const intlRoutes = brand?.footer?.intlRoutes
+    ? brand.footer.intlRoutes.split(',').map(item => {
+        const parts = item.trim().split(':');
+        if (parts.length >= 2) {
+          const codes = parts[0].trim().split('-');
+          return { from: codes[0]?.trim() || 'DEL', to: codes[1]?.trim() || 'DXB', label: parts[1].trim() };
+        }
+        return { from: 'DEL', to: 'DXB', label: item.trim() };
+      }).filter(r => r.label)
+    : defaultIntl;
+
   const partnerAirlinesList = brand?.footer?.partnerAirlines
     ? brand.footer.partnerAirlines.split(',').map(s => s.trim()).filter(Boolean)
     : ['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'];
 
-  const footerDesc = brand?.footer?.description || brand?.tagline || settings.siteTagline || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.';
-  const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || 'AIR SKY'}. All rights reserved.`;
+  const footerDesc = brand?.footer?.description || brand?.tagline || propSettings?.siteTagline || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.';
+  const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || propSettings?.siteName || 'AIR SKY Go'}. All rights reserved.`;
+  const addressText = brand?.address || propSettings?.address || 'Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075';
+  const phoneText = brand?.phone || propSettings?.supportPhone || '+91 72248 28030';
+  const emailText = brand?.email || propSettings?.supportEmail || 'care@airskyindia.com';
 
   return (
     <footer className="bg-slate-900 text-slate-300 pt-14 pb-10 border-t border-slate-800">
@@ -91,20 +153,35 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
                 </div>
               )}
               <span className="text-xl font-extrabold text-white tracking-tight">
-                {brand?.name || 'AIR SKY'}
+                {brand?.name || propSettings?.siteName || 'AIR SKY Go'}
               </span>
             </div>
             <p className="text-slate-400 leading-relaxed mb-3">
               {footerDesc}
             </p>
-            {brand?.address && (
-              <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
-                📍 {brand.address}
+            {addressText && (
+              <p className="text-[11px] text-slate-400 leading-relaxed mb-2 flex items-start gap-1">
+                <span className="shrink-0">📍</span>
+                <span>{addressText}</span>
               </p>
             )}
             <div className="space-y-1 text-[11px] text-slate-400 mb-3">
-              {brand?.phone && <div>📞 Phone: <a href={`tel:${brand.phone.replace(/\s+/g, '')}`} className="text-slate-300 font-bold hover:text-white">{brand.phone}</a></div>}
-              {brand?.email && <div>✉️ Email: <a href={`mailto:${brand.email}`} className="text-slate-300 font-bold hover:text-white">{brand.email}</a></div>}
+              {phoneText && (
+                <div className="flex items-center gap-1">
+                  <span>📞 Phone:</span>
+                  <a href={`tel:${phoneText.replace(/\s+/g, '')}`} className="text-slate-300 font-bold hover:text-white transition-colors">
+                    {phoneText}
+                  </a>
+                </div>
+              )}
+              {emailText && (
+                <div className="flex items-center gap-1">
+                  <span>✉️ Email:</span>
+                  <a href={`mailto:${emailText}`} className="text-slate-300 font-bold hover:text-white transition-colors">
+                    {emailText}
+                  </a>
+                </div>
+              )}
             </div>
             <div className="text-[11px] text-slate-500">
               {copyrightText}
@@ -173,7 +250,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
           <div>
             <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">Top Flight Routes</h5>
             <ul className="space-y-2">
-              {routes.slice(0, 4).map(r => (
+              {domesticRoutes.map(r => (
                 <li key={r.label}>
                   <button
                     onClick={() => onSelectRoute(r.from, r.to)}
@@ -190,7 +267,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
           <div>
             <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">International & Metro</h5>
             <ul className="space-y-2">
-              {routes.slice(4).map(r => (
+              {intlRoutes.map(r => (
                 <li key={r.label}>
                   <button
                     onClick={() => onSelectRoute(r.from, r.to)}

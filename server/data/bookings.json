@@ -241,7 +241,7 @@
       "paidToVpa": "paytm.s2zbyoe@pty"
     },
     "checkInStatus": "Pending Verification",
-    "status": "VERIFICATION_PENDING",
+    "status": "CONFIRMED",
     "createdAt": "2026-10-18T11:29:14.159Z"
   },
   {
