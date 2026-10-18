@@ -210,7 +210,7 @@ export default function RealAircraftSeatMap({
       {/* ======================================================== */}
       {/* REAL AIRLINER FUSELAGE WITH WINGS & INTERIOR CABIN */}
       {/* ======================================================== */}
-      <div className="relative bg-slate-200/80 p-4 sm:p-8 rounded-3xl border border-slate-300 flex justify-center overflow-x-auto select-none">
+      <div className="relative bg-slate-100/90 p-2 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 flex justify-center overflow-x-auto select-none">
         
         {/* Left Aerodynamic Wing (Port Side - Red Light) */}
         <div className="hidden lg:block absolute left-2 top-[38%] -translate-y-1/2 w-28 h-72 border-t-2 border-l-2 border-slate-400/80 bg-gradient-to-r from-slate-300/40 to-transparent rounded-tl-[4rem] pointer-events-none">
@@ -229,7 +229,7 @@ export default function RealAircraftSeatMap({
         </div>
 
         {/* Realistic Fuselage Body */}
-        <div className="w-full max-w-md bg-white rounded-t-[5.5rem] rounded-b-[3.5rem] border-2 border-slate-300 shadow-2xl p-4 sm:p-6 pt-12 relative">
+        <div className="w-full max-w-md min-w-[305px] bg-white rounded-t-[4.5rem] sm:rounded-t-[5.5rem] rounded-b-[2.5rem] sm:rounded-b-[3.5rem] border-2 border-slate-200 shadow-xl p-2.5 sm:p-6 pt-10 sm:pt-12 relative">
           
           {/* Cockpit Nose Cone & Windshield */}
           <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-36 h-12 bg-slate-300 rounded-t-full border-t-2 border-x-2 border-slate-400 flex flex-col items-center justify-center shadow-inner">
@@ -337,16 +337,16 @@ export default function RealAircraftSeatMap({
                           onMouseEnter={() => setHoveredSeat(seat)}
                           onMouseLeave={() => setHoveredSeat(null)}
                           onClick={() => onSeatClick(seat)}
-                          className={`h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
+                          className={`h-10 sm:h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
                           title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
-                          <div className={`w-full h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
+                          <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
 
                           {/* Seat Code & Passenger Badge */}
-                          <div className="flex items-center justify-center font-mono font-black text-[10px] leading-none">
+                          <div className="flex items-center justify-center font-mono font-black text-[9px] sm:text-[10px] leading-none">
                             {isSelectedForAny ? (
-                              <span className="font-extrabold text-[9px]">
+                              <span className="font-extrabold text-[8px] sm:text-[9px]">
                                 P{assignedPaxIdx + 1}
                               </span>
                             ) : (
@@ -355,7 +355,7 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[8px] font-bold opacity-75 font-mono">
+                          <div className="text-[7.5px] sm:text-[8px] font-bold opacity-75 font-mono">
                             {seat.price > 0 ? `₹${seat.price}` : 'Free'}
                           </div>
                         </motion.button>
@@ -363,7 +363,7 @@ export default function RealAircraftSeatMap({
                     })}
 
                     {/* Aisle Row Number Marker */}
-                    <div className="text-center font-black text-[11px] text-slate-400 font-mono py-1">
+                    <div className="text-center font-black text-[10px] sm:text-[11px] text-slate-400 font-mono py-1">
                       {row.rowNumber}
                     </div>
 
@@ -407,16 +407,16 @@ export default function RealAircraftSeatMap({
                           onMouseEnter={() => setHoveredSeat(seat)}
                           onMouseLeave={() => setHoveredSeat(null)}
                           onClick={() => onSeatClick(seat)}
-                          className={`h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
+                          className={`h-10 sm:h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
                           title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
-                          <div className={`w-full h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
+                          <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
 
                           {/* Seat Code & Passenger Badge */}
-                          <div className="flex items-center justify-center font-mono font-black text-[10px] leading-none">
+                          <div className="flex items-center justify-center font-mono font-black text-[9px] sm:text-[10px] leading-none">
                             {isSelectedForAny ? (
-                              <span className="font-extrabold text-[9px]">
+                              <span className="font-extrabold text-[8px] sm:text-[9px]">
                                 P{assignedPaxIdx + 1}
                               </span>
                             ) : (
@@ -425,7 +425,7 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[8px] font-bold opacity-75 font-mono">
+                          <div className="text-[7.5px] sm:text-[8px] font-bold opacity-75 font-mono">
                             {seat.price > 0 ? `₹${seat.price}` : 'Free'}
                           </div>
                         </motion.button>
@@ -439,21 +439,21 @@ export default function RealAircraftSeatMap({
           </div>
 
           {/* Rear Galley & Tail Lavatories */}
-          <div className="mt-5 bg-slate-100 rounded-2xl p-3 border border-slate-200 space-y-2">
+          <div className="mt-4 sm:mt-5 bg-slate-100/90 rounded-2xl p-2.5 sm:p-3 border border-slate-200 space-y-2">
             <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
-              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
+              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1 shadow-2xs">
                 <span>🚻 Rear Lavatory L</span>
               </div>
-              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
+              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1 shadow-2xs">
                 <span>🚻 Rear Lavatory R</span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
-              <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+            <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+              <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded flex items-center gap-1">
                 🚪 Rear Exit 2L
               </span>
-              <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+              <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded flex items-center gap-1">
                 Rear Exit 2R 🚪
               </span>
             </div>

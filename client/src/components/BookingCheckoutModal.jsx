@@ -356,23 +356,23 @@ export default function BookingCheckoutModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-1.5 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-slate-50 rounded-3xl w-full max-w-5xl my-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[94vh]"
+        className="bg-slate-50 rounded-2xl sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[96vh] sm:max-h-[94vh]"
       >
         {/* Header */}
-        <div className="bg-white px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="bg-white px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 overflow-hidden">
             <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
-            <div>
-              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+            <div className="min-w-0">
+              <h3 className="text-sm sm:text-lg font-extrabold text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <span>
-                  {step === 1 && `1. Review Travellers (${passengers.length} Person${passengers.length > 1 ? 's' : ''})`}
-                  {step === 2 && `2. Select Seats for Each Traveller`}
+                  {step === 1 && `1. Review Travellers (${passengers.length})`}
+                  {step === 2 && `2. Select Seats for Travellers`}
                   {step === 3 && `3. Secure Payment Gateway`}
                 </span>
                 {discountAmount > 0 && (
@@ -382,7 +382,7 @@ export default function BookingCheckoutModal({
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">
                 {flight.airline} • {flight.flightNumber} • {flight.from} ({flight.fromCity}) ➔ {flight.to} ({flight.toCity})
               </p>
             </div>
@@ -390,67 +390,68 @@ export default function BookingCheckoutModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="overflow-y-auto p-4 sm:p-6 flex-1">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+        <div className="overflow-y-auto p-3 sm:p-6 flex-1">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Left Column: Form / Steps */}
-            <div className="lg:col-span-8 space-y-5">
+            <div className="lg:col-span-8 space-y-4 sm:space-y-5">
               
               {/* 3-Step Flow Indicators */}
-              <div className="flex items-center justify-between bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between bg-white p-2.5 sm:p-3 rounded-2xl border border-slate-200 shadow-xs gap-1 sm:gap-2">
                 
                 {/* Step 1 Pill */}
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className={`flex items-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all cursor-pointer ${
                     step === 1 ? 'text-sky-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                     step === 1 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600'
                   }`}>
                     1
                   </span>
-                  <span>Travellers ({passengers.length})</span>
+                  <span>Travellers</span>
+                  <span className="hidden sm:inline">({passengers.length})</span>
                 </button>
 
-                <div className="w-6 sm:w-10 h-0.5 bg-slate-200"></div>
+                <div className="w-4 sm:w-10 h-0.5 bg-slate-200 shrink-0"></div>
 
                 {/* Step 2 Pill */}
                 <button
                   type="button"
                   onClick={() => step > 1 ? setStep(2) : handleProceedToSeats()}
-                  className={`flex items-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all cursor-pointer ${
                     step === 2 ? 'text-sky-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                     step === 2 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600'
                   }`}>
                     2
                   </span>
-                  <span>Select Seats</span>
+                  <span>Seats</span>
                 </button>
 
-                <div className="w-6 sm:w-10 h-0.5 bg-slate-200"></div>
+                <div className="w-4 sm:w-10 h-0.5 bg-slate-200 shrink-0"></div>
 
                 {/* Step 3 Pill */}
                 <button
                   type="button"
                   onClick={() => step === 2 && handleProceedToPayment()}
-                  className={`flex items-center gap-2 text-xs font-bold transition-all ${
+                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all ${
                     step === 3 ? 'text-sky-600 font-extrabold' : 'text-slate-400'
                   }`}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
                     step === 3 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
                     3
@@ -745,11 +746,11 @@ export default function BookingCheckoutModal({
                   </div>
 
                   {/* Bottom Next Button -> Moves to Seat Selection */}
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 cursor-pointer"
+                      className="h-11 px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       Cancel
                     </button>
@@ -757,7 +758,7 @@ export default function BookingCheckoutModal({
                     <button
                       type="button"
                       onClick={handleProceedToSeats}
-                      className="px-7 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 flex items-center gap-2 cursor-pointer transition-all"
+                      className="h-11 px-5 sm:px-6 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0"
                     >
                       <span>Next: Select Seats ({passengers.length})</span>
                       <ArrowRight className="w-4 h-4" />
@@ -772,7 +773,7 @@ export default function BookingCheckoutModal({
               {/* STEP 2: SELECT SEATS FOR EACH TRAVELLER (CABIN MAP) */}
               {/* ======================================================== */}
               {step === 2 && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4 animate-fadeIn">
+                <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-5 shadow-xs space-y-4 animate-fadeIn">
                   
                   <RealAircraftSeatMap
                     flight={flight}
@@ -786,11 +787,11 @@ export default function BookingCheckoutModal({
                   />
 
                   {/* Seat Navigation Buttons */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
+                      className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Back to Travellers</span>
@@ -799,9 +800,9 @@ export default function BookingCheckoutModal({
                     <button
                       type="button"
                       onClick={handleProceedToPayment}
-                      className="px-7 py-3 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 flex items-center gap-2 cursor-pointer transition-all"
+                      className="h-11 px-5 sm:px-6 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0"
                     >
-                      <span>Next: Proceed to Payment (Step 3)</span>
+                      <span>Proceed to Payment (Step 3)</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -1064,11 +1065,11 @@ export default function BookingCheckoutModal({
                   </div>
 
                   {/* Payment Navigation Buttons */}
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 flex items-center gap-1 cursor-pointer"
+                      className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Back to Seats</span>
@@ -1078,7 +1079,7 @@ export default function BookingCheckoutModal({
                       type="button"
                       disabled={isProcessing}
                       onClick={handleFinalBooking}
-                      className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm shadow-md shadow-emerald-600/30 flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                      className="h-11 px-5 sm:px-7 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 shrink-0"
                     >
                       {isProcessing ? (
                         <>
