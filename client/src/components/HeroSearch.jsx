@@ -233,9 +233,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   };
 
   return (
-    <div className="relative pt-3 sm:pt-6 pb-6 sm:pb-12 overflow-hidden bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 text-white rounded-b-2xl sm:rounded-b-[2.5rem] shadow-xl">
+    <div className="relative pt-3 sm:pt-6 pb-6 sm:pb-12 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 text-white rounded-b-2xl sm:rounded-b-[2.5rem] shadow-xl z-30">
       {/* Background ambient lighting */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
+      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden rounded-b-2xl sm:rounded-b-[2.5rem]">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
       </div>
@@ -905,6 +905,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                   subText="Return Savings"
                   from={toCode}
                   to={fromCode}
+                  align="right"
                 />
               </div>
             )}

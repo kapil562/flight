@@ -45,6 +45,7 @@ export default function CustomDatePicker({
   from = 'DEL',
   to = 'BOM',
   compact = false,
+  align = 'left',
   className = ''
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,16 +58,14 @@ export default function CustomDatePicker({
   const [viewYear, setViewYear] = useState(() => selectedDateObj.getFullYear());
   const [viewMonth, setViewMonth] = useState(() => selectedDateObj.getMonth());
 
-  // Keep view aligned when value changes
+  // Reset to selected date's month whenever opened
   useEffect(() => {
-    if (value) {
-      const d = parseYMD(value);
-      if (d) {
-        setViewYear(d.getFullYear());
-        setViewMonth(d.getMonth());
-      }
+    if (isOpen) {
+      const d = parseYMD(value) || new Date();
+      setViewYear(d.getFullYear());
+      setViewMonth(d.getMonth());
     }
-  }, [value]);
+  }, [isOpen, value]);
 
   // Close on outside click
   useEffect(() => {
@@ -308,7 +307,9 @@ export default function CustomDatePicker({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.98 }}
               transition={{ duration: 0.16 }}
-              className="fixed sm:absolute top-1/2 left-1/2 sm:top-full sm:left-0 -translate-x-1/2 -translate-y-1/2 sm:translate-x-0 sm:translate-y-0 sm:mt-2 z-50 w-[92vw] sm:w-[360px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden text-slate-900"
+              className={`fixed sm:absolute top-1/2 left-1/2 sm:top-full ${
+                align === 'right' ? 'sm:left-auto sm:right-0' : 'sm:left-0 sm:right-auto'
+              } -translate-x-1/2 -translate-y-1/2 sm:translate-x-0 sm:translate-y-0 sm:mt-2.5 z-50 w-[92vw] sm:w-[380px] md:w-[410px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden text-slate-900`}
             >
               {/* Header */}
               <div className="bg-gradient-to-r from-sky-600 to-blue-700 px-4 py-3.5 text-white flex items-center justify-between">
@@ -316,7 +317,7 @@ export default function CustomDatePicker({
                   <div className="text-[10px] font-bold uppercase tracking-wider text-sky-200">
                     {label} Calendar
                   </div>
-                  <div className="text-base font-black flex items-center gap-1.5">
+                  <div className="text-base sm:text-lg font-black flex items-center gap-1.5">
                     <span>{MONTH_NAMES[viewMonth]} {viewYear}</span>
                   </div>
                 </div>
@@ -349,7 +350,7 @@ export default function CustomDatePicker({
                     type="button"
                     onClick={() => setIsOpen(false)}
                     aria-label="Close calendar"
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center ml-1 sm:hidden cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center ml-1 cursor-pointer transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -387,7 +388,7 @@ export default function CustomDatePicker({
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((day) => {
                     if (day.empty) {
-                      return <div key={day.key} className="h-11 sm:h-12" />;
+                      return <div key={day.key} className="h-11 sm:h-12 md:h-13" />;
                     }
 
                     const isPast = day.isPast;
@@ -400,7 +401,7 @@ export default function CustomDatePicker({
                         type="button"
                         disabled={isPast}
                         onClick={() => handleSelectDay(day)}
-                        className={`h-11 sm:h-12 rounded-xl flex flex-col items-center justify-center transition-all relative text-center select-none cursor-pointer ${
+                        className={`h-11 sm:h-12 md:h-13 rounded-xl flex flex-col items-center justify-center transition-all relative text-center select-none cursor-pointer ${
                           isSelected
                             ? 'bg-sky-600 text-white shadow-md font-black scale-105 z-10 ring-2 ring-sky-300'
                             : isPast
@@ -410,14 +411,14 @@ export default function CustomDatePicker({
                             : 'hover:bg-sky-50 text-slate-700 hover:text-sky-700'
                         }`}
                       >
-                        <span className={`text-xs sm:text-sm font-bold leading-none ${
+                        <span className={`text-xs sm:text-sm md:text-base font-bold leading-none ${
                           isSelected ? 'text-white' : isPast ? 'text-slate-300' : 'text-slate-800'
                         }`}>
                           {day.dayNumber}
                         </span>
 
                         {!isPast && day.fare && (
-                          <span className={`text-[9px] font-extrabold leading-none mt-1 tracking-tight ${
+                          <span className={`text-[9px] sm:text-[10px] font-extrabold leading-none mt-1 tracking-tight ${
                             isSelected
                               ? 'text-sky-100'
                               : isLowest
