@@ -166,48 +166,17 @@ export default function FlightCard({ flight, travelClass = 'economy', onBookFlig
                 <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
               </div>
 
-              {/* Primary & Quick Booking Buttons */}
-              <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto justify-start md:justify-end">
-                {/* Method 1: Instant Online Book Now */}
+              {/* Primary Booking Action */}
+              <div className="w-full md:w-auto">
                 <motion.button
                   onClick={() => onBookFlight(flight, currentPrice, selectedFareTier)}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex-1 md:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer whitespace-nowrap"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full md:w-auto px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
                   title="Instant Online Seat & Passenger Booking"
                 >
                   Book Now
                 </motion.button>
-
-                {/* Method 2: Book on WhatsApp */}
-                <button
-                  onClick={handleWhatsAppBooking}
-                  className="p-2 sm:px-2.5 sm:py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all cursor-pointer"
-                  title="Book Instantly via WhatsApp"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span className="hidden sm:inline">WhatsApp</span>
-                </button>
-
-                {/* Method 3: Call to Book */}
-                <button
-                  onClick={handleCallToBook}
-                  className="p-2 sm:px-2.5 sm:py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
-                  title={`Call 24x7 to book: ${phone}`}
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Call</span>
-                </button>
-
-                {/* Method 4: Hold Fare for 24-48h */}
-                <button
-                  onClick={() => setShowHoldModal(true)}
-                  className="p-2 sm:px-2.5 sm:py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer"
-                  title="Lock & Hold this fare for 24-48 hours"
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Hold Fare</span>
-                </button>
               </div>
 
               {/* Quick Coupon Chip */}
