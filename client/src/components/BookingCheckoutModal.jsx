@@ -370,108 +370,112 @@ export default function BookingCheckoutModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-1.5 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-slate-50 rounded-2xl sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[96vh] sm:max-h-[94vh]"
+        exit={{ opacity: 0, scale: 0.96, y: 20 }}
+        className="bg-slate-50 rounded-none sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border-0 sm:border sm:border-slate-200 overflow-hidden flex flex-col h-full sm:h-auto max-h-full sm:max-h-[94vh]"
       >
         {/* Header */}
-        <div className="bg-white px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5 sm:gap-3 overflow-hidden">
+        <div className="bg-white px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
             <div className="min-w-0">
-              <h3 className="text-sm sm:text-lg font-extrabold text-slate-900 flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5 truncate">
                 <span>
-                  {step === 1 && `1. Review Travellers (${passengers.length})`}
-                  {step === 2 && `2. Select Seats for Travellers`}
-                  {step === 3 && `3. Secure Payment Gateway`}
+                  {step === 1 && 'Review Travellers'}
+                  {step === 2 && 'Select Seats'}
+                  {step === 3 && 'Payment Gateway'}
                 </span>
+                <span className="text-[11px] font-bold text-slate-400">({passengers.length})</span>
                 {discountAmount > 0 && (
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Tag className="w-3 h-3" />
-                    <span>Saved ₹{discountAmount.toLocaleString('en-IN')}</span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full flex items-center gap-0.5 shrink-0">
+                    <Tag className="w-2.5 h-2.5" />
+                    <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
                   </span>
                 )}
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">
-                {flight.airline} • {flight.flightNumber} • {flight.from} ({flight.fromCity}) ➔ {flight.to} ({flight.toCity})
+              <p className="text-[11px] text-slate-500 font-medium truncate">
+                {flight.airline} • {flight.flightNumber} • {flight.from} ➔ {flight.to}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="overflow-y-auto p-3 sm:p-6 flex-1">
+        <div className="overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Left Column: Form / Steps */}
             <div className="lg:col-span-8 space-y-4 sm:space-y-5">
               
-              {/* 3-Step Flow Indicators */}
-              <div className="flex items-center justify-between bg-white p-2.5 sm:p-3 rounded-2xl border border-slate-200 shadow-xs gap-1 sm:gap-2">
-                
-                {/* Step 1 Pill */}
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all cursor-pointer ${
-                    step === 1 ? 'text-sky-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                    step === 1 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    1
-                  </span>
-                  <span>Travellers</span>
-                  <span className="hidden sm:inline">({passengers.length})</span>
-                </button>
+              {/* 3-Step Flow Indicators - Fluid & Responsive */}
+              <div className="bg-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+                <div className="flex items-center justify-between w-full">
+                  
+                  {/* Step 1 */}
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
+                      step === 1 ? 'bg-sky-600 text-white shadow-xs' : step > 1 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {step > 1 ? '✓' : '1'}
+                    </span>
+                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 1 ? 'text-sky-600' : 'text-slate-600'}`}>
+                      Travellers
+                    </span>
+                  </button>
 
-                <div className="w-4 sm:w-10 h-0.5 bg-slate-200 shrink-0"></div>
+                  {/* Flexible connecting line */}
+                  <div className={`flex-1 h-0.5 mx-1.5 sm:mx-3 transition-colors ${step > 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
-                {/* Step 2 Pill */}
-                <button
-                  type="button"
-                  onClick={() => step > 1 ? setStep(2) : handleProceedToSeats()}
-                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all cursor-pointer ${
-                    step === 2 ? 'text-sky-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                    step === 2 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    2
-                  </span>
-                  <span>Seats</span>
-                </button>
+                  {/* Step 2 */}
+                  <button
+                    type="button"
+                    onClick={() => step > 1 ? setStep(2) : handleProceedToSeats()}
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
+                      step === 2 ? 'bg-sky-600 text-white shadow-xs' : step > 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {step > 2 ? '✓' : '2'}
+                    </span>
+                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 2 ? 'text-sky-600' : 'text-slate-600'}`}>
+                      Seats
+                    </span>
+                  </button>
 
-                <div className="w-4 sm:w-10 h-0.5 bg-slate-200 shrink-0"></div>
+                  {/* Flexible connecting line */}
+                  <div className={`flex-1 h-0.5 mx-1.5 sm:mx-3 transition-colors ${step > 2 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
-                {/* Step 3 Pill */}
-                <button
-                  type="button"
-                  onClick={() => step === 2 && handleProceedToPayment()}
-                  className={`flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition-all ${
-                    step === 3 ? 'text-sky-600 font-extrabold' : 'text-slate-400'
-                  }`}
-                >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                    step === 3 ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-400'
-                  }`}>
-                    3
-                  </span>
-                  <span>Payment</span>
-                </button>
+                  {/* Step 3 */}
+                  <button
+                    type="button"
+                    onClick={() => step === 2 && handleProceedToPayment()}
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
+                      step === 3 ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      3
+                    </span>
+                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 3 ? 'text-sky-600' : 'text-slate-400'}`}>
+                      Payment
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* ======================================================== */}
