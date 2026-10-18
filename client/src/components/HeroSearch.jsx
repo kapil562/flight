@@ -14,8 +14,8 @@ const getTodayDateString = (offsetDays = 0) => {
 
 export default function HeroSearch({ airports, onSearch, searchParams, settings = {}, brand = null }) {
   const [tripType, setTripType] = useState(searchParams?.tripType || 'oneWay'); // 'oneWay' | 'roundTrip' | 'multiCity'
-  const [fromCode, setFromCode] = useState(searchParams?.from || 'DEL');
-  const [toCode, setToCode] = useState(searchParams?.to || 'BOM');
+  const [fromCode, setFromCode] = useState(searchParams?.from || '');
+  const [toCode, setToCode] = useState(searchParams?.to || '');
   const [departureDate, setDepartureDate] = useState(searchParams?.date || getTodayDateString());
   const [returnDate, setReturnDate] = useState('');
   const [travelClass, setTravelClass] = useState(searchParams?.travelClass || 'economy');
@@ -28,8 +28,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
       return searchParams.legs;
     }
     return [
-      { from: 'DEL', to: 'BOM', date: getTodayDateString() },
-      { from: 'BOM', to: 'BLR', date: getTodayDateString(2) }
+      { from: '', to: '', date: getTodayDateString() },
+      { from: '', to: '', date: getTodayDateString(2) }
     ];
   });
   const [activeLegDrop, setActiveLegDrop] = useState(null); // { index: number, field: 'from' | 'to' } | null
@@ -76,14 +76,21 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   }, []);
 
   // Resolve airport details accurately by code or city
-  const resolveAirport = (code, fallbackCity, fallbackName) => {
-    if (!code) return { code: 'DEL', city: fallbackCity || 'Delhi', name: fallbackName || 'Indira Gandhi International Airport' };
+  const resolveAirport = (code, placeholderCity = 'Select City', placeholderName = 'Airport or city') => {
+    if (!code || !code.trim()) {
+      return {
+        isEmpty: true,
+        code: '--',
+        city: placeholderCity,
+        name: placeholderName
+      };
+    }
     const clean = code.trim().toUpperCase();
     const found = airports.find(a => 
       a.code.toUpperCase() === clean || 
       a.city.toUpperCase() === clean
     );
-    if (found) return found;
+    if (found) return { ...found, isEmpty: false };
 
     // Capitalize first letter properly for display
     const formattedCity = clean.length === 3 
@@ -91,14 +98,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
       : clean.charAt(0) + clean.slice(1).toLowerCase();
 
     return {
+      isEmpty: false,
       code: clean.slice(0, 4),
       city: formattedCity,
       name: `${formattedCity} Airport`
     };
   };
 
-  const fromAirport = resolveAirport(fromCode, 'Delhi', 'Indira Gandhi Intl Airport');
-  const toAirport = resolveAirport(toCode, 'Mumbai', 'Chhatrapati Shivaji Maharaj Intl');
+  const fromAirport = resolveAirport(fromCode, 'Select Origin', 'Where from?');
+  const toAirport = resolveAirport(toCode, 'Select Destination', 'Where to?');
 
   const handleSelectFrom = (val) => {
     const matched = airports.find(a => 
@@ -132,9 +140,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   const handleAddLeg = () => {
     if (legs.length >= 5) return;
     const lastLeg = legs[legs.length - 1];
-    const nextFrom = lastLeg.to || 'DEL';
-    const hubCandidates = ['BLR', 'GOI', 'CCU', 'HYD', 'MAA', 'JAI', 'DXB'].filter(c => c !== nextFrom);
-    const nextTo = hubCandidates[0] || 'BOM';
+    const nextFrom = lastLeg.to || '';
+    const nextTo = '';
     
     let nextDate = getTodayDateString(1);
     try {
@@ -201,7 +208,12 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
       return;
     }
 
-    if (fromCode === toCode) {
+    if (!fromCode || !toCode) {
+      alert('Please select both Origin (From) and Destination (To) airports!');
+      return;
+    }
+
+    if (fromCode.trim().toUpperCase() === toCode.trim().toUpperCase()) {
       alert('Origin and Destination airports cannot be the same!');
       return;
     }
@@ -345,8 +357,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               </div>
 
               {legs.map((leg, idx) => {
-                const legFromAirport = resolveAirport(leg.from, 'Delhi', 'Origin Airport');
-                const legToAirport = resolveAirport(leg.to, 'Mumbai', 'Destination Airport');
+                const legFromAirport = resolveAirport(leg.from, 'Select Origin', 'Origin Airport');
+                const legToAirport = resolveAirport(leg.to, 'Select Destination', 'Destination Airport');
                 const isFromOpen = activeLegDrop?.index === idx && activeLegDrop?.field === 'from';
                 const isToOpen = activeLegDrop?.index === idx && activeLegDrop?.field === 'to';
 
@@ -361,7 +373,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                           Flight {idx + 1}
                         </span>
                         <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
-                          ({legFromAirport.city} ➔ {legToAirport.city})
+                          ({legFromAirport.isEmpty ? 'Origin' : legFromAirport.city} ➔ {legToAirport.isEmpty ? 'Destination' : legToAirport.city})
                         </span>
                       </div>
 
@@ -385,7 +397,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                             setActiveLegDrop(isFromOpen ? null : { index: idx, field: 'from' });
                             setLegSearch('');
                           }}
-                          className="cursor-pointer p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-white hover:border-sky-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between"
+                          className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border bg-white hover:border-sky-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between ${
+                            legFromAirport.isEmpty ? 'border-dashed border-slate-300' : 'border-slate-200'
+                          }`}
                         >
                           <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                             <PlaneTakeoff className="w-3 h-3 text-sky-600 shrink-0" />
@@ -393,10 +407,10 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                           </div>
                           <div className="flex items-baseline justify-between">
                             <div className="min-w-0 pr-1">
-                              <h4 className="text-sm sm:text-base font-extrabold text-slate-900 leading-none truncate">{legFromAirport.city}</h4>
-                              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate max-w-[120px] sm:max-w-[150px] mt-0.5">{legFromAirport.name}</p>
+                              <h4 className={`text-sm sm:text-base font-extrabold leading-none truncate ${legFromAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{legFromAirport.city}</h4>
+                              <p className={`text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-[150px] mt-0.5 ${legFromAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{legFromAirport.name}</p>
                             </div>
-                            <span className="text-base sm:text-xl font-black text-sky-600 font-mono shrink-0">{legFromAirport.code}</span>
+                            <span className={`text-base sm:text-xl font-black font-mono shrink-0 ${legFromAirport.isEmpty ? 'text-slate-300' : 'text-sky-600'}`}>{legFromAirport.code}</span>
                           </div>
                         </div>
 
@@ -475,7 +489,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                             setActiveLegDrop(isToOpen ? null : { index: idx, field: 'to' });
                             setLegSearch('');
                           }}
-                          className="cursor-pointer p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between"
+                          className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border bg-white hover:border-blue-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between ${
+                            legToAirport.isEmpty ? 'border-dashed border-slate-300' : 'border-slate-200'
+                          }`}
                         >
                           <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                             <PlaneLanding className="w-3 h-3 text-blue-600 shrink-0" />
@@ -483,10 +499,10 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                           </div>
                           <div className="flex items-baseline justify-between">
                             <div className="min-w-0 pr-1">
-                              <h4 className="text-sm sm:text-base font-extrabold text-slate-900 leading-none truncate">{legToAirport.city}</h4>
-                              <p className="text-[10px] sm:text-[11px] text-slate-500 truncate max-w-[120px] sm:max-w-[150px] mt-0.5">{legToAirport.name}</p>
+                              <h4 className={`text-sm sm:text-base font-extrabold leading-none truncate ${legToAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{legToAirport.city}</h4>
+                              <p className={`text-[10px] sm:text-[11px] truncate max-w-[120px] sm:max-w-[150px] mt-0.5 ${legToAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{legToAirport.name}</p>
                             </div>
-                            <span className="text-base sm:text-xl font-black text-blue-600 font-mono shrink-0">{legToAirport.code}</span>
+                            <span className={`text-base sm:text-xl font-black font-mono shrink-0 ${legToAirport.isEmpty ? 'text-slate-300' : 'text-blue-600'}`}>{legToAirport.code}</span>
                           </div>
                         </div>
 
@@ -690,7 +706,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             <div className="col-span-2 md:col-span-3 relative" ref={fromRef}>
               <div
                 onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
-                className="cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-colors bg-slate-50/50 hover:bg-white"
+                className={`cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors bg-slate-50/50 hover:bg-white ${
+                  fromAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-sky-500' : 'border-slate-200 hover:border-sky-500'
+                }`}
               >
                 <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
                   <PlaneTakeoff className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600" />
@@ -698,10 +716,10 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </div>
                 <div className="flex items-baseline justify-between">
                   <div className="min-w-0 pr-2">
-                    <h3 className="text-sm sm:text-lg font-extrabold text-slate-900 leading-none truncate">{fromAirport.city}</h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 truncate max-w-[150px] sm:max-w-[170px] mt-0.5">{fromAirport.name}</p>
+                    <h3 className={`text-sm sm:text-lg font-extrabold leading-none truncate ${fromAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{fromAirport.city}</h3>
+                    <p className={`text-[10px] sm:text-xs truncate max-w-[150px] sm:max-w-[170px] mt-0.5 ${fromAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{fromAirport.name}</p>
                   </div>
-                  <span className="text-lg sm:text-2xl font-black text-sky-600 font-mono shrink-0">{fromAirport.code}</span>
+                  <span className={`text-lg sm:text-2xl font-black font-mono shrink-0 ${fromAirport.isEmpty ? 'text-slate-300' : 'text-sky-600'}`}>{fromAirport.code}</span>
                 </div>
               </div>
 
@@ -800,7 +818,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             <div className="col-span-2 md:col-span-3 relative" ref={toRef}>
               <div
                 onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
-                className="cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-colors bg-slate-50/50 hover:bg-white"
+                className={`cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors bg-slate-50/50 hover:bg-white ${
+                  toAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-blue-500' : 'border-slate-200 hover:border-blue-500'
+                }`}
               >
                 <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
                   <PlaneLanding className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
@@ -808,10 +828,10 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </div>
                 <div className="flex items-baseline justify-between">
                   <div className="min-w-0 pr-2">
-                    <h3 className="text-sm sm:text-lg font-extrabold text-slate-900 leading-none truncate">{toAirport.city}</h3>
-                    <p className="text-[10px] sm:text-xs text-slate-500 truncate max-w-[150px] sm:max-w-[170px] mt-0.5">{toAirport.name}</p>
+                    <h3 className={`text-sm sm:text-lg font-extrabold leading-none truncate ${toAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{toAirport.city}</h3>
+                    <p className={`text-[10px] sm:text-xs truncate max-w-[150px] sm:max-w-[170px] mt-0.5 ${toAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{toAirport.name}</p>
                   </div>
-                  <span className="text-lg sm:text-2xl font-black text-blue-600 font-mono shrink-0">{toAirport.code}</span>
+                  <span className={`text-lg sm:text-2xl font-black font-mono shrink-0 ${toAirport.isEmpty ? 'text-slate-300' : 'text-blue-600'}`}>{toAirport.code}</span>
                 </div>
               </div>
 

@@ -59,8 +59,8 @@ function MainWebsite() {
   // Search parameters for Flights
   const [searchParams, setSearchParams] = useState({
     tripType: 'oneWay',
-    from: 'DEL',
-    to: 'BOM',
+    from: '',
+    to: '',
     date: (() => {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -166,7 +166,7 @@ function MainWebsite() {
   };
 
   useEffect(() => {
-    if (activeService === 'flights' && hasSearched) {
+    if (activeService === 'flights' && hasSearched && (searchParams.tripType === 'multiCity' || (searchParams.from && searchParams.to))) {
       executeFlightSearch(searchParams);
     }
   }, [
