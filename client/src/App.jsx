@@ -204,16 +204,12 @@ function MainWebsite() {
   // Step 1: User clicks "Book Now" -> Opens Checkout Modal DIRECTLY (Seat option upfront blocked nahi hoga)
   const handleInitiateBooking = (flight, currentPrice, initialFareTier = 'saver', initialCoupon = '') => {
     const totalPax = (searchParams.passengers?.adults || 1) + (searchParams.passengers?.children || 0);
-    const autoSeats = Array.from({ length: totalPax }).map((_, i) => ({
-      seatNumber: `${12 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`,
-      price: 0
-    }));
 
     setCheckoutModalData({
       flight,
       currentPrice,
       travelClass: searchParams.travelClass,
-      selectedSeats: autoSeats,
+      selectedSeats: [],
       passengersCount: totalPax,
       initialCoupon: initialCoupon || '',
       initialFareTier: initialFareTier || 'saver'

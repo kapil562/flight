@@ -31,7 +31,7 @@ export default function BookingCheckoutModal({
       firstName: '',
       lastName: '',
       type: 'Adult',
-      seat: selectedSeats[idx]?.seatNumber || `${12 + idx}${['A', 'B', 'C', 'D', 'E', 'F'][idx % 6]}`,
+      seat: selectedSeats[idx]?.seatNumber || '',
       seatPrice: selectedSeats[idx]?.price || 0,
       meal: 'No Meal',
       mealPrice: 0
@@ -528,9 +528,16 @@ export default function BookingCheckoutModal({
                               <span className="text-xs font-black text-slate-800 uppercase tracking-wide">
                                 Traveller {idx + 1} ({p.type || 'Adult'})
                               </span>
-                              <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                Seat: <strong className="text-sky-700">{p.type === 'Infant' ? 'Lap Infant' : (p.seat || 'Auto')}</strong>
-                              </span>
+                              {p.type === 'Infant' && (
+                                <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                                  Lap Infant
+                                </span>
+                              )}
+                              {p.seat && p.type !== 'Infant' && (
+                                <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                                  Seat: <strong className="text-sky-700">{p.seat}</strong>
+                                </span>
+                              )}
                             </div>
 
                             {/* Delete User button (if more than 1 traveller) */}
