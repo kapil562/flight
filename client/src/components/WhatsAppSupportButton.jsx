@@ -63,21 +63,6 @@ export default function WhatsAppSupportButton({ onOpenQuickPnr, brand = null }) 
                 <ChevronRight className="w-4 h-4 text-emerald-600" />
               </a>
 
-              <a
-                href={`tel:${cleanPhone.replace(/\s+/g, '')}`}
-                className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Call Toll-Free Helpline</div>
-                    <div className="text-[10px] text-slate-500">1800-419-7175 / +91 9663787175</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </a>
 
               <button
                 type="button"
