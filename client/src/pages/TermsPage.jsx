@@ -26,14 +26,34 @@ import { api } from '../utils/api';
 
 export default function TermsPage() {
   const navigate = useNavigate();
-  const [brand, setBrand] = useState(null);
-  const [settings, setSettings] = useState({});
+  const [brand, setBrand] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_brand');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_settings');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [quickPnrOpen, setQuickPnrOpen] = useState(false);
   const [webCheckInOpen, setWebCheckInOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('acceptance');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const handleBrandUpdate = (e) => {
+      if (e.detail) setBrand(e.detail);
+    };
+    window.addEventListener('asg_brand_updated', handleBrandUpdate);
+
     const loadData = async () => {
       try {
         const [brandRes, settingsRes] = await Promise.all([
@@ -50,6 +70,8 @@ export default function TermsPage() {
       }
     };
     loadData();
+
+    return () => window.removeEventListener('asg_brand_updated', handleBrandUpdate);
   }, []);
 
   const brandName = brand?.name || 'AIR SKY';

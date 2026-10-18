@@ -77,7 +77,14 @@ function MainWebsite() {
   const [checkoutModalData, setCheckoutModalData] = useState(null);
   const [ticketModalBooking, setTicketModalBooking] = useState(null);
   const [myBookingsOpen, setMyBookingsOpen] = useState(false);
-  const [brand, setBrand] = useState(null);
+  const [brand, setBrand] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_brand');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Load site settings, airports & brand identity initially
   const loadInitialData = async () => {
@@ -90,12 +97,15 @@ function MainWebsite() {
 
       if (settingsRes.success && settingsRes.data) {
         setSettings(settingsRes.data);
+        try { localStorage.setItem('asg_settings', JSON.stringify(settingsRes.data)); } catch (e) {}
         if (settingsRes.data.brand) {
           setBrand(settingsRes.data.brand);
+          try { localStorage.setItem('asg_brand', JSON.stringify(settingsRes.data.brand)); } catch (e) {}
         }
       }
       if (brandRes && brandRes.success && brandRes.data) {
         setBrand(brandRes.data);
+        try { localStorage.setItem('asg_brand', JSON.stringify(brandRes.data)); } catch (e) {}
       }
       if (airportsRes.success) {
         setAirports(airportsRes.data);
@@ -107,6 +117,19 @@ function MainWebsite() {
 
   useEffect(() => {
     loadInitialData();
+
+    const handleBrandUpdate = (e) => {
+      if (e.detail) {
+        setBrand(e.detail);
+      } else {
+        try {
+          const saved = localStorage.getItem('asg_brand');
+          if (saved) setBrand(JSON.parse(saved));
+        } catch {}
+      }
+    };
+    window.addEventListener('asg_brand_updated', handleBrandUpdate);
+    return () => window.removeEventListener('asg_brand_updated', handleBrandUpdate);
   }, []);
 
   // Synchronize dynamic brand styling & CSS root variables across whole application

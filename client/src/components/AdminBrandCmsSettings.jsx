@@ -125,6 +125,19 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
       subtitle: 'Ixigo & Cleartrip style live airfares, lowest fare trend, instant seat map & verified PNR tickets.'
     },
 
+    // CMS: Complete Footer Customization
+    footer: {
+      description: 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.',
+      copyright: '© 2026 AIR SKY. All rights reserved.',
+      card1Title: 'Real-Time Live Inventory',
+      card1Desc: 'Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.',
+      card2Title: 'Instant PNR & Digital Tickets',
+      card2Desc: 'Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.',
+      card3Title: '24x7 Aviation Support',
+      card3Desc: 'Hassle-free web check-in support and instant automated cancellations with swift refund processing.',
+      partnerAirlines: 'IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines'
+    },
+
     // CMS: Policies & Pricing
     currency: '₹',
     currencyCode: 'INR',
@@ -140,6 +153,37 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
   const loadData = async () => {
     setLoading(true);
     setErrorMessage('');
+
+    // Pre-populate from localStorage for zero delay
+    try {
+      const localBrand = localStorage.getItem('asg_brand');
+      const localSettings = localStorage.getItem('asg_settings');
+      if (localBrand || localSettings) {
+        const b = localBrand ? JSON.parse(localBrand) : {};
+        const s = localSettings ? JSON.parse(localSettings) : {};
+        setForm(prev => ({
+          ...prev,
+          name: b.name || s.siteName || prev.name,
+          short_name: b.short_name || prev.short_name,
+          tagline: b.tagline || s.siteTagline || prev.tagline,
+          logo: b.logo !== undefined ? b.logo : prev.logo,
+          primary_color: b.primary_color || prev.primary_color,
+          hover_color: b.hover_color || prev.hover_color,
+          dark_color: b.dark_color || prev.dark_color,
+          light_color: b.light_color || prev.light_color,
+          brand_text_color: b.brand_text_color || prev.brand_text_color,
+          tagline_color: b.tagline_color || prev.tagline_color,
+          email: b.email || s.supportEmail || prev.email,
+          phone: b.phone || s.supportPhone || prev.phone,
+          whatsapp: b.whatsapp || prev.whatsapp,
+          address: b.address || prev.address,
+          footer: { ...prev.footer, ...(b.footer || s.footer || {}) },
+          announcement: { ...prev.announcement, ...(s.announcement || {}) },
+          hero: { ...prev.hero, ...(s.hero || {}) }
+        }));
+      }
+    } catch (e) {}
+
     try {
       const [brandRes, settingsRes] = await Promise.all([
         api.getBrand().catch(() => ({ success: false })),
@@ -167,6 +211,19 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
           phone: brandData.phone || siteData.supportPhone || prev.phone,
           whatsapp: brandData.whatsapp || prev.whatsapp,
           address: brandData.address || prev.address,
+
+          // Footer CMS data
+          footer: {
+            description: brandData.footer?.description || siteData.footer?.description || prev.footer.description,
+            copyright: brandData.footer?.copyright || siteData.footer?.copyright || prev.footer.copyright,
+            card1Title: brandData.footer?.card1Title || siteData.footer?.card1Title || prev.footer.card1Title,
+            card1Desc: brandData.footer?.card1Desc || siteData.footer?.card1Desc || prev.footer.card1Desc,
+            card2Title: brandData.footer?.card2Title || siteData.footer?.card2Title || prev.footer.card2Title,
+            card2Desc: brandData.footer?.card2Desc || siteData.footer?.card2Desc || prev.footer.card2Desc,
+            card3Title: brandData.footer?.card3Title || siteData.footer?.card3Title || prev.footer.card3Title,
+            card3Desc: brandData.footer?.card3Desc || siteData.footer?.card3Desc || prev.footer.card3Desc,
+            partnerAirlines: brandData.footer?.partnerAirlines || siteData.footer?.partnerAirlines || prev.footer.partnerAirlines
+          },
 
           // CMS data
           announcement: {
@@ -216,7 +273,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
     }));
   };
 
-  // Handle local image file upload & convert to Base64
+  // Handle local image file upload & optimize/compress via Canvas for ultra-fast loading
   const handleLogoFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -226,14 +283,45 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image file size should be less than 2MB for fast page loading.');
-      return;
-    }
-
     const reader = new FileReader();
-    reader.onload = () => {
-      setForm(prev => ({ ...prev, logo: reader.result }));
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          // Optimize logo to max 400x120 preserving transparency & aspect ratio
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_W = 400;
+          const MAX_H = 120;
+
+          if (width > height) {
+            if (width > MAX_W) {
+              height = Math.round((height * MAX_W) / width);
+              width = MAX_W;
+            }
+          } else {
+            if (height > MAX_H) {
+              width = Math.round((width * MAX_H) / height);
+              height = MAX_H;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const optimizedUrl = canvas.toDataURL('image/png', 0.95);
+          setForm(prev => ({ ...prev, logo: optimizedUrl }));
+        } catch (canvasErr) {
+          setForm(prev => ({ ...prev, logo: event.target.result }));
+        }
+      };
+      img.onerror = () => {
+        setForm(prev => ({ ...prev, logo: event.target.result }));
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
@@ -247,6 +335,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
 
   const handleRemoveLogo = () => {
     setForm(prev => ({ ...prev, logo: '' }));
+    setTempLogoUrl('');
     setFileInputKey(Date.now());
   };
 
@@ -258,6 +347,8 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
     setErrorMessage('');
 
     try {
+      const finalLogo = tempLogoUrl.trim() ? tempLogoUrl.trim() : form.logo;
+
       const brandPayload = {
         name: form.name,
         short_name: form.short_name,
@@ -268,11 +359,12 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
         light_color: form.light_color,
         brand_text_color: form.brand_text_color,
         tagline_color: form.tagline_color,
-        logo: form.logo,
+        logo: finalLogo,
         email: form.email,
         phone: form.phone,
         whatsapp: form.whatsapp,
-        address: form.address
+        address: form.address,
+        footer: form.footer
       };
 
       const settingsPayload = {
@@ -287,6 +379,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
         insuranceFee: Number(form.insuranceFee),
         announcement: form.announcement,
         hero: form.hero,
+        footer: form.footer,
         brand: brandPayload
       };
 
@@ -296,7 +389,14 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
       ]);
 
       if (brandRes?.success || settingsRes?.success) {
-        setSaveSuccessMsg('Brand Identity & Website CRM Saved Live! Logo, colors, texts, ticker & policies are active across the entire website.');
+        setSaveSuccessMsg('Brand Identity, Logo & Website CRM Saved Live! Logo, colors, footer, ticker & policies are active across the entire website.');
+
+        // Save into localStorage for instant 100% persistent hydration everywhere
+        try {
+          localStorage.setItem('asg_brand', JSON.stringify(brandPayload));
+          localStorage.setItem('asg_settings', JSON.stringify(settingsPayload));
+          window.dispatchEvent(new CustomEvent('asg_brand_updated', { detail: brandPayload }));
+        } catch (storageErr) {}
 
         // Live DOM Root Update
         document.documentElement.style.setProperty('--brand', form.primary_color);
@@ -398,7 +498,8 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
           { id: 'sec-contact', label: '3. Contact & WhatsApp', icon: Phone },
           { id: 'sec-ticker', label: '4. Announcement Ticker', icon: Megaphone },
           { id: 'sec-hero', label: '5. Hero Headlines', icon: Layout },
-          { id: 'sec-policies', label: '6. Tax & Pricing', icon: Percent }
+          { id: 'sec-footer', label: '6. Footer & Website CMS', icon: Sparkles },
+          { id: 'sec-policies', label: '7. Tax & Pricing', icon: Percent }
         ].map((item) => (
           <button
             key={item.id}
@@ -515,7 +616,13 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
                     type="url"
                     placeholder="https://example.com/logo.png"
                     value={tempLogoUrl}
-                    onChange={(e) => setTempLogoUrl(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setTempLogoUrl(val);
+                      if (val.trim()) {
+                        setForm(p => ({ ...p, logo: val.trim() }));
+                      }
+                    }}
                     className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:outline-hidden"
                   />
                   <button
@@ -872,7 +979,146 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
         </div>
       </div>
 
-      {/* SECTION 6: PRICING, TAX & POLICIES (CMS) */}
+      {/* SECTION 6: FOOTER & WEBSITE CUSTOMIZATION (CMS) */}
+      <div id="sec-footer" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-5">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-base font-extrabold text-slate-900">6. Footer &amp; Website Customization (CMS)</h4>
+              <p className="text-xs text-slate-500">Footer tagline description, copyright notice, 3 value cards aur partner airlines customize karein.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">Footer Brand Description</label>
+              <textarea
+                rows={2}
+                value={form.footer?.description || ''}
+                onChange={(e) => setForm({
+                  ...form,
+                  footer: { ...form.footer, description: e.target.value }
+                })}
+                placeholder="e.g. Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">Footer Copyright Text</label>
+              <input
+                type="text"
+                value={form.footer?.copyright || ''}
+                onChange={(e) => setForm({
+                  ...form,
+                  footer: { ...form.footer, copyright: e.target.value }
+                })}
+                placeholder="e.g. © 2026 AIR SKY. All rights reserved."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">Partner Airlines (Comma Separated)</label>
+            <input
+              type="text"
+              value={form.footer?.partnerAirlines || ''}
+              onChange={(e) => setForm({
+                ...form,
+                footer: { ...form.footer, partnerAirlines: e.target.value }
+              })}
+              placeholder="IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium focus:outline-hidden focus:border-indigo-500"
+            />
+          </div>
+
+          {/* 3 Value Proposition Cards */}
+          <div className="pt-2">
+            <span className="text-xs font-extrabold text-slate-800 block mb-2">3 Value Proposition Feature Badges (Top of Footer)</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[11px] font-black text-sky-600 uppercase">Card 1 (Speed/Inventory)</span>
+                <input
+                  type="text"
+                  placeholder="Card Title"
+                  value={form.footer?.card1Title || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card1Title: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white"
+                />
+                <textarea
+                  rows={2}
+                  placeholder="Card Description"
+                  value={form.footer?.card1Desc || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card1Desc: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] bg-white resize-none"
+                />
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[11px] font-black text-emerald-600 uppercase">Card 2 (Security/Tickets)</span>
+                <input
+                  type="text"
+                  placeholder="Card Title"
+                  value={form.footer?.card2Title || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card2Title: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white"
+                />
+                <textarea
+                  rows={2}
+                  placeholder="Card Description"
+                  value={form.footer?.card2Desc || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card2Desc: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] bg-white resize-none"
+                />
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span className="text-[11px] font-black text-amber-600 uppercase">Card 3 (24x7 Support)</span>
+                <input
+                  type="text"
+                  placeholder="Card Title"
+                  value={form.footer?.card3Title || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card3Title: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white"
+                />
+                <textarea
+                  rows={2}
+                  placeholder="Card Description"
+                  value={form.footer?.card3Desc || ''}
+                  onChange={(e) => setForm({
+                    ...form,
+                    footer: { ...form.footer, card3Desc: e.target.value }
+                  })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] bg-white resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 7: PRICING, TAX & POLICIES (CMS) */}
       <div id="sec-policies" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-5">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-3">
@@ -880,7 +1126,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
               <Percent className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-base font-extrabold text-slate-900">6. Pricing, GST Tax &amp; Penalty Policy (CMS)</h4>
+              <h4 className="text-base font-extrabold text-slate-900">7. Pricing, GST Tax &amp; Penalty Policy (CMS)</h4>
               <p className="text-xs text-slate-500">Booking breakdown taxes, cancellation fee, and currency settings.</p>
             </div>
           </div>

@@ -7,7 +7,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Paths
 const AIRPORTS_FILE = path.join(__dirname, 'data', 'airports.json');
@@ -521,21 +522,25 @@ app.get('/api/brand', (req, res) => {
 // 1.06 Save Brand Settings
 app.post('/api/admin/brand', (req, res) => {
   try {
+    const currentBrand = readJSON(BRAND_FILE, {});
     const updatedBrand = {
-      name: req.body.name || "AIR SKY",
-      short_name: req.body.short_name || "Air Sky",
-      tagline: req.body.tagline || "Premium Luxury Travel",
-      primary_color: req.body.primary_color || "#ff6d01",
-      hover_color: req.body.hover_color || "#e65700",
-      dark_color: req.body.dark_color || "#272c33",
-      light_color: req.body.light_color || "#fff4eb",
-      brand_text_color: req.body.brand_text_color || "#0B1F3A",
-      tagline_color: req.body.tagline_color || "#6b7280",
-      logo: req.body.logo !== undefined ? req.body.logo : "",
-      email: req.body.email || "care@airskyindia.com",
-      phone: req.body.phone || "+91 72248 28030",
-      whatsapp: req.body.whatsapp || "+918077680310",
-      address: req.body.address || "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
+      ...currentBrand,
+      name: req.body.name || currentBrand.name || "AIR SKY",
+      short_name: req.body.short_name || currentBrand.short_name || "Air Sky",
+      tagline: req.body.tagline || currentBrand.tagline || "Premium Luxury Travel",
+      primary_color: req.body.primary_color || currentBrand.primary_color || "#ff6d01",
+      hover_color: req.body.hover_color || currentBrand.hover_color || "#e65700",
+      dark_color: req.body.dark_color || currentBrand.dark_color || "#272c33",
+      light_color: req.body.light_color || currentBrand.light_color || "#fff4eb",
+      brand_text_color: req.body.brand_text_color || currentBrand.brand_text_color || "#0B1F3A",
+      tagline_color: req.body.tagline_color || currentBrand.tagline_color || "#6b7280",
+      logo: req.body.logo !== undefined ? req.body.logo : (currentBrand.logo || ""),
+      email: req.body.email || currentBrand.email || "care@airskyindia.com",
+      phone: req.body.phone || currentBrand.phone || "+91 72248 28030",
+      whatsapp: req.body.whatsapp || currentBrand.whatsapp || "+918077680310",
+      address: req.body.address || currentBrand.address || "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
+      footer: req.body.footer ? { ...(currentBrand.footer || {}), ...req.body.footer } : (currentBrand.footer || {}),
+      about: req.body.about ? { ...(currentBrand.about || {}), ...req.body.about } : (currentBrand.about || {}),
       updatedAt: new Date().toISOString()
     };
 
@@ -549,12 +554,13 @@ app.post('/api/admin/brand', (req, res) => {
       currentSettings.supportEmail = updatedBrand.email;
       currentSettings.supportPhone = updatedBrand.phone;
       currentSettings.brand = updatedBrand;
+      if (req.body.footer) currentSettings.footer = updatedBrand.footer;
       writeJSON(SETTINGS_FILE, currentSettings);
     } catch (e) {}
 
     res.json({
       success: true,
-      message: 'Brand identity & styling saved securely! Changes are now active live across the entire website.',
+      message: 'Brand identity, logo & Website CMS saved successfully! Changes are active live across the website.',
       data: updatedBrand
     });
   } catch (err) {

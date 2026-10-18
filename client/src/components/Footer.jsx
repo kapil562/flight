@@ -14,6 +14,13 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
     { from: 'DEL', to: 'HYD', label: 'Delhi to Hyderabad Flights' }
   ];
 
+  const partnerAirlinesList = brand?.footer?.partnerAirlines
+    ? brand.footer.partnerAirlines.split(',').map(s => s.trim()).filter(Boolean)
+    : ['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'];
+
+  const footerDesc = brand?.footer?.description || brand?.tagline || settings.siteTagline || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.';
+  const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || 'AIR SKY'}. All rights reserved.`;
+
   return (
     <footer className="bg-slate-900 text-slate-300 pt-14 pb-10 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,9 +32,11 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">Real-Time Live Inventory</h4>
+              <h4 className="font-extrabold text-white text-sm mb-1">
+                {brand?.footer?.card1Title || 'Real-Time Live Inventory'}
+              </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.
+                {brand?.footer?.card1Desc || 'Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.'}
               </p>
             </div>
           </div>
@@ -37,9 +46,11 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">Instant PNR & Digital Tickets</h4>
+              <h4 className="font-extrabold text-white text-sm mb-1">
+                {brand?.footer?.card2Title || 'Instant PNR & Digital Tickets'}
+              </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.
+                {brand?.footer?.card2Desc || 'Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.'}
               </p>
             </div>
           </div>
@@ -49,9 +60,11 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               <Headphones className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">24x7 Aviation Support</h4>
+              <h4 className="font-extrabold text-white text-sm mb-1">
+                {brand?.footer?.card3Title || '24x7 Aviation Support'}
+              </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Hassle-free web check-in support and instant automated cancellations with swift refund processing.
+                {brand?.footer?.card3Desc || 'Hassle-free web check-in support and instant automated cancellations with swift refund processing.'}
               </p>
             </div>
           </div>
@@ -67,7 +80,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
                 <img
                   src={brand.logo}
                   alt={brand.name || 'Brand Logo'}
-                  className="h-9 w-auto max-w-[150px] object-contain rounded"
+                  className="h-10 w-auto max-w-[160px] object-contain rounded"
                 />
               ) : (
                 <div
@@ -82,7 +95,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               </span>
             </div>
             <p className="text-slate-400 leading-relaxed mb-3">
-              {brand?.tagline || settings.siteTagline || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.'}
+              {footerDesc}
             </p>
             {brand?.address && (
               <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
@@ -94,7 +107,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               {brand?.email && <div>✉️ Email: <a href={`mailto:${brand.email}`} className="text-slate-300 font-bold hover:text-white">{brand.email}</a></div>}
             </div>
             <div className="text-[11px] text-slate-500">
-              © 2026 {brand?.name || 'AIR SKY'}. All rights reserved.
+              {copyrightText}
             </div>
           </div>
 
@@ -194,7 +207,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
           <div>
             <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">Airlines Partners</h5>
             <div className="flex flex-wrap gap-1.5">
-              {['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'].map(a => (
+              {partnerAirlinesList.map(a => (
                 <span key={a} className="px-2 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700/60 font-semibold text-[10px]">
                   {a}
                 </span>
