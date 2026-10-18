@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeftRight, Calendar, Users, Search, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight } from 'lucide-react';
+import CustomDatePicker from './CustomDatePicker';
 
 const getTodayDateString = (offsetDays = 0) => {
   const d = new Date();
@@ -535,19 +536,14 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
 
                       {/* Departure Date */}
                       <div className="md:col-span-3">
-                        <div className="p-3 rounded-xl border border-slate-200 bg-white hover:border-sky-500 transition-colors shadow-xs">
-                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                            <Calendar className="w-3 h-3 text-sky-600" />
-                            <span>Departure Date</span>
-                          </div>
-                          <input
-                            type="date"
-                            value={leg.date}
-                            min={idx === 0 ? getTodayDateString() : (legs[idx - 1]?.date || getTodayDateString())}
-                            onChange={(e) => handleUpdateLeg(idx, 'date', e.target.value)}
-                            className="w-full bg-transparent font-extrabold text-slate-900 text-sm focus:outline-none cursor-pointer"
-                          />
-                        </div>
+                        <CustomDatePicker
+                          label="Departure Date"
+                          value={leg.date}
+                          minDate={idx === 0 ? getTodayDateString() : (legs[idx - 1]?.date || getTodayDateString())}
+                          onChange={(date) => handleUpdateLeg(idx, 'date', date)}
+                          from={leg.from}
+                          to={leg.to}
+                        />
                       </div>
                     </div>
                   </div>
@@ -868,63 +864,33 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
 
             {/* Departure Date */}
             <div className={tripType === 'roundTrip' ? 'col-span-1 md:col-span-2' : 'col-span-1 md:col-span-3'}>
-              <div className="p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-colors bg-slate-50/50 hover:bg-white h-full flex flex-col justify-between">
-                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 shrink-0" />
-                  <span className="truncate">Departure</span>
-                </div>
-                <input
-                  type="date"
-                  value={departureDate}
-                  min={getTodayDateString()}
-                  onChange={(e) => setDepartureDate(e.target.value)}
-                  className="w-full bg-transparent font-extrabold text-slate-900 text-xs sm:text-sm focus:outline-hidden cursor-pointer"
-                />
-                <div className="flex items-center gap-1 mt-1 sm:mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setQuickDate(0)}
-                    className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 cursor-pointer"
-                  >
-                    Today
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setQuickDate(1)}
-                    className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 cursor-pointer"
-                  >
-                    Tmrw
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setQuickDate(7)}
-                    className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 cursor-pointer"
-                  >
-                    +7 Days
-                  </button>
-                </div>
-              </div>
+              <CustomDatePicker
+                label="Departure"
+                value={departureDate}
+                onChange={(date) => {
+                  setDepartureDate(date);
+                  if (returnDate && returnDate < date) {
+                    setReturnDate(date);
+                  }
+                }}
+                minDate={getTodayDateString()}
+                from={fromCode}
+                to={toCode}
+              />
             </div>
 
             {/* Return Date */}
             {tripType === 'roundTrip' && (
               <div className="col-span-1 md:col-span-2">
-                <div className="p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-colors bg-slate-50/50 hover:bg-white h-full flex flex-col justify-between">
-                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 shrink-0" />
-                    <span className="truncate">Return</span>
-                  </div>
-                  <input
-                    type="date"
-                    value={returnDate}
-                    min={departureDate || new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    className="w-full bg-transparent font-extrabold text-slate-900 text-xs sm:text-sm focus:outline-hidden cursor-pointer"
-                  />
-                  <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium mt-1 truncate">
-                    Return Savings
-                  </div>
-                </div>
+                <CustomDatePicker
+                  label="Return"
+                  value={returnDate}
+                  onChange={(date) => setReturnDate(date)}
+                  minDate={departureDate || getTodayDateString()}
+                  subText="Return Savings"
+                  from={toCode}
+                  to={fromCode}
+                />
               </div>
             )}
 
