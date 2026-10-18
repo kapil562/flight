@@ -279,13 +279,6 @@ function MainWebsite() {
               searchParams={searchParams}
             />
 
-            {/* Exclusive Bank Deals & Offers Carousel */}
-            <OffersSection
-              onApplyPromo={(code) => {
-                // Pre-fill or highlight promo
-              }}
-            />
-
             {/* Flight Search Results & Dynamic Filters */}
             <FlightList
               flights={flights}

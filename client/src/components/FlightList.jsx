@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Filter, SlidersHorizontal, ArrowUpDown, Sun, Sunset, Moon, Sunrise, RotateCcw, X, Check, Plane, Calendar, ArrowRight, Sparkles, CheckCircle2, Tag, Copy, Zap } from 'lucide-react';
 import FlightCard from './FlightCard';
-import PriceCalendar from './PriceCalendar';
 import AirlineBadge from './AirlineBadge';
 
 export default function FlightList({ flights, loading, searchParams, multiCityLegsData, airports = [], onDateChange, onBookFlight, brand = null }) {
@@ -338,72 +337,6 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
-      
-      {/* Fare Trend Calendar */}
-      <PriceCalendar
-        from={searchParams.from}
-        to={searchParams.to}
-        selectedDate={searchParams.date}
-        onSelectDate={onDateChange}
-      />
-
-      {/* AirSkyIndia-Style Promo Offers & Coupon Strip Banner */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-sky-500/10 border border-amber-200/80 rounded-2xl p-3 sm:p-4 mb-5 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <Sparkles className="w-4 h-4" />
-            </span>
-            <div>
-              <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                <span>Flight Special Fares & Promo Offers Active</span>
-                <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">Instant Refunds*</span>
-              </h4>
-              <p className="text-[11px] text-slate-500">
-                Tap any promo code below to copy & auto-apply discount on booking
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Clickable Coupon Chips */}
-          <div className="flex flex-wrap items-center gap-2">
-            {[
-              { code: 'AIRSKY500', off: 'Flat ₹500 OFF', bg: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
-              { code: 'FLYHIGH', off: '10% OFF', bg: 'bg-sky-50 text-sky-800 border-sky-300' },
-              { code: 'IXIGO50', off: 'Flat ₹750 OFF', bg: 'bg-purple-50 text-purple-800 border-purple-300' },
-              { code: 'FIRSTFLY', off: '₹1,000 OFF', bg: 'bg-amber-50 text-amber-800 border-amber-300' }
-            ].map(cpn => (
-              <button
-                key={cpn.code}
-                type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(cpn.code);
-                  setCopiedCoupon(cpn.code);
-                  setTimeout(() => setCopiedCoupon(''), 2500);
-                }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-mono font-bold transition-all hover:scale-105 cursor-pointer shadow-2xs ${cpn.bg}`}
-                title={`Click to copy ${cpn.code}`}
-              >
-                <Tag className="w-3 h-3" />
-                <span>{cpn.code}</span>
-                <span className="opacity-75 text-[10px]">({cpn.off})</span>
-                {copiedCoupon === cpn.code ? (
-                  <Check className="w-3 h-3 text-emerald-600" />
-                ) : (
-                  <Copy className="w-2.5 h-2.5 opacity-60" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {copiedCoupon && (
-          <div className="mt-2 text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-200 px-3 py-1 rounded-lg animate-fadeIn flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Code <strong>{copiedCoupon}</strong> copied! It will be automatically applied when you click "Book Now".</span>
-          </div>
-        )}
-      </div>
 
       {/* Mobile Quick-Filter Pills Strip */}
       <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
