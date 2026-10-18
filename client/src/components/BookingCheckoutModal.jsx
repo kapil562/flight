@@ -596,37 +596,6 @@ export default function BookingCheckoutModal({
                               />
                             </div>
                           </div>
-
-                          {/* In-Flight Meal Selection for this Passenger */}
-                          <div className="pt-2 border-t border-slate-200/80">
-                            <label className="block text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
-                              <Utensils className="w-3.5 h-3.5 text-sky-600" />
-                              <span>Select In-Flight Meal (Optional)</span>
-                            </label>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                              {[
-                                { name: 'No Meal', price: 0 },
-                                { name: 'Veg Special Meal', price: 299 },
-                                { name: 'Non-Veg Gourmet Snack', price: 349 }
-                              ].map(m => (
-                                <button
-                                  key={m.name}
-                                  type="button"
-                                  onClick={() => handleMealSelect(idx, m.name, m.price)}
-                                  className={`p-2 rounded-lg border text-left font-semibold transition-all cursor-pointer ${
-                                    p.meal === m.name
-                                      ? 'bg-sky-50 border-sky-500 text-sky-900 font-bold'
-                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                                  }`}
-                                >
-                                  <div>{m.name}</div>
-                                  <div className="text-[10px] text-slate-400 font-mono">
-                                    {m.price === 0 ? 'Free/None' : `+₹${m.price}`}
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
                         </div>
                       ))}
                     </div>
@@ -880,6 +849,63 @@ export default function BookingCheckoutModal({
                     layoutData={layoutData}
                     loading={loadingSeats}
                   />
+
+                  {/* In-Flight Meal Selection (Asked during Seat Selection) */}
+                  <div className="bg-slate-50 rounded-2xl border border-slate-200 p-3.5 sm:p-5 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <div className="flex items-center gap-2">
+                        <Utensils className="w-4 h-4 text-sky-600" />
+                        <span className="font-extrabold text-xs sm:text-sm text-slate-900">Select In-Flight Meals (Optional)</span>
+                      </div>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-500">Freshly prepared on-board</span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {passengers.map((p, idx) => (
+                        <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-sky-600 text-white text-[11px] font-black flex items-center justify-center">
+                                {idx + 1}
+                              </span>
+                              <span className="text-xs font-black text-slate-800">
+                                {p.firstName || p.lastName ? `${p.title} ${p.firstName} ${p.lastName}` : `Traveller ${idx + 1}`}
+                                {p.seat && <span className="ml-1.5 text-sky-600 font-mono font-bold">(Seat {p.seat})</span>}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-extrabold text-slate-600">
+                              {p.meal} {p.mealPrice > 0 && <span className="text-sky-700 font-bold">(+₹{p.mealPrice})</span>}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                            {[
+                              { name: 'No Meal', price: 0, desc: 'No food pre-booked' },
+                              { name: 'Veg Special Meal', price: 299, desc: 'Hot Paneer Curry + Paratha' },
+                              { name: 'Non-Veg Gourmet Snack', price: 349, desc: 'Grilled Chicken Sandwich' }
+                            ].map(m => (
+                              <button
+                                key={m.name}
+                                type="button"
+                                onClick={() => handleMealSelect(idx, m.name, m.price)}
+                                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                                  p.meal === m.name
+                                    ? 'bg-sky-50 border-sky-500 text-sky-900 font-bold shadow-xs'
+                                    : 'bg-slate-50/60 border-slate-200 text-slate-600 hover:bg-slate-100'
+                                }`}
+                              >
+                                <div className="font-bold flex items-center justify-between">
+                                  <span>{m.name}</span>
+                                  <span className="font-mono text-[10px] text-slate-500">{m.price === 0 ? 'Free' : `+₹${m.price}`}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-400 mt-0.5 truncate">{m.desc}</div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Seat Navigation Buttons */}
                   <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
