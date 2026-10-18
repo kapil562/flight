@@ -138,11 +138,12 @@ export default function BookingCheckoutModal({
   // Add multiple users / travellers dynamically
   const handleAddPassenger = (type = 'Adult') => {
     const newIdx = passengers.length;
-    const defaultSeat = `${12 + newIdx}${['A', 'B', 'C', 'D', 'E', 'F'][newIdx % 6]}`;
+    const isInfant = type === 'Infant';
+    const defaultSeat = isInfant ? 'Lap Infant' : `${12 + newIdx}${['A', 'B', 'C', 'D', 'E', 'F'][newIdx % 6]}`;
     setPassengers([
       ...passengers,
       {
-        title: type === 'Child' ? 'Master' : 'Mr',
+        title: (type === 'Child' || type === 'Infant') ? 'Master' : 'Mr',
         firstName: '',
         lastName: '',
         type,
@@ -487,7 +488,7 @@ export default function BookingCheckoutModal({
                       </div>
 
                       {/* Add Multiple Users Buttons */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
                           onClick={() => handleAddPassenger('Adult')}
@@ -503,6 +504,14 @@ export default function BookingCheckoutModal({
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add Child (2-12y)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddPassenger('Infant')}
+                          className="px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 font-extrabold text-xs flex items-center gap-1 border border-purple-200 transition-all cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add Infant (below 2y)</span>
                         </button>
                       </div>
                     </div>
@@ -520,7 +529,7 @@ export default function BookingCheckoutModal({
                                 Traveller {idx + 1} ({p.type || 'Adult'})
                               </span>
                               <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                Seat: <strong className="text-sky-700">{p.seat || 'Auto'}</strong>
+                                Seat: <strong className="text-sky-700">{p.type === 'Infant' ? 'Lap Infant' : (p.seat || 'Auto')}</strong>
                               </span>
                             </div>
 
@@ -549,6 +558,7 @@ export default function BookingCheckoutModal({
                                 <option value="Ms">Ms</option>
                                 <option value="Mrs">Mrs</option>
                                 <option value="Master">Master</option>
+                                <option value="Miss">Miss</option>
                               </select>
                             </div>
 
