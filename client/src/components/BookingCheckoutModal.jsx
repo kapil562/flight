@@ -138,9 +138,8 @@ export default function BookingCheckoutModal({
 
   // Add multiple users / travellers dynamically
   const handleAddPassenger = (type = 'Adult') => {
-    const newIdx = passengers.length;
     const isInfant = type === 'Infant';
-    const defaultSeat = isInfant ? 'Lap Infant' : `${12 + newIdx}${['A', 'B', 'C', 'D', 'E', 'F'][newIdx % 6]}`;
+    const defaultSeat = isInfant ? 'Lap Infant' : '';
     setPassengers([
       ...passengers,
       {
@@ -541,11 +540,6 @@ export default function BookingCheckoutModal({
                               {p.type === 'Infant' && (
                                 <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
                                   Lap Infant
-                                </span>
-                              )}
-                              {p.seat && p.type !== 'Infant' && (
-                                <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                                  Seat: <strong className="text-sky-700">{p.seat}</strong>
                                 </span>
                               )}
                             </div>
