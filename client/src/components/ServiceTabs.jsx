@@ -14,7 +14,7 @@ export default function ServiceTabs({ activeService, onSelectService, onOpenQuic
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-20">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-40">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-xl border border-slate-200/90 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none">
         {services.map((srv) => {
           const Icon = srv.icon;

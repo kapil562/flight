@@ -270,7 +270,7 @@ function MainWebsite() {
       />
 
       {/* Moyatri-Style Multi-Service Switcher Tabs */}
-      <div className="pt-3 sm:pt-4">
+      <div className="pt-2 sm:pt-4 relative z-40">
         <ServiceTabs
           activeService={activeService}
           onSelectService={setActiveService}
