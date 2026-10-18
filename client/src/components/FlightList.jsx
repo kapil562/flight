@@ -4,7 +4,17 @@ import { Filter, SlidersHorizontal, ArrowUpDown, Sun, Sunset, Moon, Sunrise, Rot
 import FlightCard from './FlightCard';
 import AirlineBadge from './AirlineBadge';
 
-export default function FlightList({ flights, loading, searchParams, multiCityLegsData, airports = [], onDateChange, onBookFlight, brand = null }) {
+export default function FlightList({ 
+  flights = [], 
+  loading = false, 
+  searchParams = {}, 
+  multiCityLegsData = null, 
+  roundTripData = null, 
+  airports = [], 
+  onDateChange, 
+  onBookFlight, 
+  brand = null 
+}) {
   const [selectedStops, setSelectedStops] = useState('all'); // 'all', '0', '1'
   const [selectedAirlines, setSelectedAirlines] = useState([]);
   const [copiedCoupon, setCopiedCoupon] = useState('');
@@ -13,12 +23,14 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
   const [sortBy, setSortBy] = useState('cheapest'); // 'cheapest', 'fastest', 'earliest'
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
+  // ==========================================
   // Multi-City State Management
+  // ==========================================
   const isMultiCity = searchParams?.tripType === 'multiCity' && Array.isArray(multiCityLegsData) && multiCityLegsData.length > 0;
   const [activeLegIndex, setActiveLegIndex] = useState(0);
   const [selectedLegFlights, setSelectedLegFlights] = useState({});
 
-  // Auto-initialize each leg's selected flight with the cheapest option
+  // Auto-initialize each multi-city leg's selected flight with the cheapest option
   useEffect(() => {
     if (isMultiCity && multiCityLegsData) {
       setSelectedLegFlights(prev => {
@@ -33,14 +45,6 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
       });
     }
   }, [isMultiCity, multiCityLegsData]);
-
-  // Active pool of flights depending on whether we are in Multi-City leg view or standard search
-  const activeFlightsPool = useMemo(() => {
-    if (isMultiCity) {
-      return multiCityLegsData[activeLegIndex]?.flights || [];
-    }
-    return flights;
-  }, [isMultiCity, multiCityLegsData, activeLegIndex, flights]);
 
   // Calculate total price for all selected multi-city legs
   const totalMultiCityPrice = useMemo(() => {
@@ -106,6 +110,96 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
     onBookFlight(combinedFlight, totalMultiCityPrice, 'saver');
   };
 
+  // ==========================================
+  // Round Trip State Management
+  // ==========================================
+  const isRoundTrip = searchParams?.tripType === 'roundTrip' && Boolean(roundTripData) && Array.isArray(roundTripData.onward);
+  const [selectedOnwardFlight, setSelectedOnwardFlight] = useState(null);
+  const [selectedReturnFlight, setSelectedReturnFlight] = useState(null);
+  const [mobileRoundTab, setMobileRoundTab] = useState('onward'); // 'onward' | 'return'
+
+  // Auto-initialize selected onward and return flights with the cheapest available options
+  useEffect(() => {
+    if (isRoundTrip && roundTripData) {
+      if (roundTripData.onward && roundTripData.onward.length > 0) {
+        setSelectedOnwardFlight(prev => {
+          if (prev && roundTripData.onward.some(f => f.id === prev.id)) return prev;
+          const sorted = [...roundTripData.onward].sort((a, b) => a.basePrice - b.basePrice);
+          return sorted[0];
+        });
+      }
+      if (roundTripData.return && roundTripData.return.length > 0) {
+        setSelectedReturnFlight(prev => {
+          if (prev && roundTripData.return.some(f => f.id === prev.id)) return prev;
+          const sorted = [...roundTripData.return].sort((a, b) => a.basePrice - b.basePrice);
+          return sorted[0];
+        });
+      }
+    }
+  }, [isRoundTrip, roundTripData]);
+
+  // Calculate total round-trip price
+  const totalRoundTripPrice = useMemo(() => {
+    if (!isRoundTrip) return 0;
+    return (selectedOnwardFlight?.basePrice || 0) + (selectedReturnFlight?.basePrice || 0);
+  }, [isRoundTrip, selectedOnwardFlight, selectedReturnFlight]);
+
+  // Book complete round-trip combo
+  const handleBookRoundTripCombo = () => {
+    if (!isRoundTrip || !roundTripData) return;
+    if (!selectedOnwardFlight || !selectedReturnFlight) {
+      alert('Please select both departure and return flights to proceed.');
+      return;
+    }
+
+    const combinedFlight = {
+      id: `RT-${selectedOnwardFlight.id}-${selectedReturnFlight.id}`,
+      tripType: 'roundTrip',
+      isRoundTrip: true,
+      airline: selectedOnwardFlight.airline === selectedReturnFlight.airline 
+        ? selectedOnwardFlight.airline 
+        : `${selectedOnwardFlight.airline} + ${selectedReturnFlight.airline}`,
+      airlineCode: selectedOnwardFlight.airlineCode,
+      airlineColor: selectedOnwardFlight.airlineColor,
+      flightNumber: `${selectedOnwardFlight.flightNumber} / ${selectedReturnFlight.flightNumber}`,
+      from: roundTripData.from || selectedOnwardFlight.from,
+      to: roundTripData.to || selectedOnwardFlight.to,
+      fromCity: selectedOnwardFlight.fromCity || selectedOnwardFlight.from,
+      toCity: selectedOnwardFlight.toCity || selectedOnwardFlight.to,
+      departureDate: roundTripData.departureDate || selectedOnwardFlight.departureDate,
+      returnDate: roundTripData.returnDate || selectedReturnFlight.departureDate,
+      departureTime: selectedOnwardFlight.departureTime,
+      arrivalTime: selectedReturnFlight.arrivalTime,
+      duration: `Round Trip`,
+      stops: 0,
+      basePrice: totalRoundTripPrice,
+      classes: {
+        economy: totalRoundTripPrice,
+        premiumEconomy: Math.round(totalRoundTripPrice * 1.35),
+        business: Math.round(totalRoundTripPrice * 2.3)
+      },
+      onwardFlight: selectedOnwardFlight,
+      returnFlight: selectedReturnFlight,
+      roundTripDetails: {
+        onward: selectedOnwardFlight,
+        return: selectedReturnFlight
+      }
+    };
+
+    onBookFlight(combinedFlight, totalRoundTripPrice, 'saver');
+  };
+
+  // Active pool of flights depending on current mode
+  const activeFlightsPool = useMemo(() => {
+    if (isRoundTrip && roundTripData) {
+      return [...(roundTripData.onward || []), ...(roundTripData.return || [])];
+    }
+    if (isMultiCity) {
+      return multiCityLegsData[activeLegIndex]?.flights || [];
+    }
+    return flights || [];
+  }, [isRoundTrip, roundTripData, isMultiCity, multiCityLegsData, activeLegIndex, flights]);
+
   // Extract unique airlines & minimum/maximum prices from incoming flights
   const airlinesList = useMemo(() => {
     const map = new Map();
@@ -166,7 +260,7 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
 
   // Helper for departure time categorization
   const checkTimeSlot = (depTime, slot) => {
-    if (slot === 'all') return true;
+    if (slot === 'all' || !depTime) return true;
     const hour = parseInt(depTime.split(':')[0], 10);
     if (slot === 'early') return hour < 6;
     if (slot === 'morning') return hour >= 6 && hour < 12;
@@ -175,9 +269,10 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
     return true;
   };
 
-  // Filtered & Sorted Flights
-  const processedFlights = useMemo(() => {
-    let result = [...activeFlightsPool];
+  // Reusable filter & sort function
+  const filterAndSortFlights = (pool) => {
+    if (!Array.isArray(pool)) return [];
+    let result = [...pool];
 
     // Filter by stops
     if (selectedStops !== 'all') {
@@ -212,11 +307,28 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
         return getMins(a.duration) - getMins(b.duration);
       });
     } else if (sortBy === 'earliest') {
-      result.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+      result.sort((a, b) => (a.departureTime || '').localeCompare(b.departureTime || ''));
     }
 
     return result;
-  }, [activeFlightsPool, selectedStops, selectedAirlines, maxPrice, selectedTimeSlot, sortBy]);
+  };
+
+  // Filtered Flights for Round Trip (Onward & Return)
+  const processedOnwardFlights = useMemo(() => {
+    if (!isRoundTrip || !roundTripData?.onward) return [];
+    return filterAndSortFlights(roundTripData.onward);
+  }, [isRoundTrip, roundTripData?.onward, selectedStops, selectedAirlines, maxPrice, selectedTimeSlot, sortBy]);
+
+  const processedReturnFlights = useMemo(() => {
+    if (!isRoundTrip || !roundTripData?.return) return [];
+    return filterAndSortFlights(roundTripData.return);
+  }, [isRoundTrip, roundTripData?.return, selectedStops, selectedAirlines, maxPrice, selectedTimeSlot, sortBy]);
+
+  // Standard or Multi-City processed flights
+  const processedFlights = useMemo(() => {
+    if (isRoundTrip) return processedOnwardFlights;
+    return filterAndSortFlights(activeFlightsPool);
+  }, [isRoundTrip, processedOnwardFlights, activeFlightsPool, selectedStops, selectedAirlines, maxPrice, selectedTimeSlot, sortBy]);
 
   // Common Filter Controls (reused in desktop sidebar & mobile drawer)
   const FilterControls = () => (
@@ -336,7 +448,7 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <div className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 ${(isRoundTrip || isMultiCity) ? 'pb-28 sm:pb-24' : ''}`}>
 
       {/* Mobile Quick-Filter Pills Strip */}
       <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
@@ -449,7 +561,93 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
         {/* Right Flights List Column */}
         <main className="lg:col-span-9 w-full">
           
-          {/* Multi-City Journey Navigator & Itinerary Banner */}
+          {/* ========================================================= */}
+          {/* ROUND TRIP BANNER & FLIGHT SELECTION (MakeMyTrip Pattern) */}
+          {/* ========================================================= */}
+          {isRoundTrip && (
+            <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl mb-5 border border-sky-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center font-black shadow-md shrink-0">
+                    <Plane className="w-4 h-4 rotate-45" />
+                  </span>
+                  <div>
+                    <h3 className="font-extrabold text-white text-base sm:text-lg flex items-center gap-2">
+                      <span>Round Trip Combo Selection</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-400 text-slate-950 uppercase tracking-wide">
+                        2 Flights Included
+                      </span>
+                    </h3>
+                    <p className="text-xs text-sky-200">
+                      Select 1 departure flight and 1 return flight below to book both together at guaranteed combined fare
+                    </p>
+                  </div>
+                </div>
+
+                {/* Combo Fare Pill */}
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/15">
+                  <div className="text-right">
+                    <span className="text-[10px] text-sky-200 font-bold uppercase block leading-none mb-1">Total Combo Fare</span>
+                    <span className="text-lg sm:text-xl font-black text-amber-300 font-mono leading-none">
+                      ₹{totalRoundTripPrice.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleBookRoundTripCombo}
+                    disabled={!selectedOnwardFlight || !selectedReturnFlight}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Book Round Trip Combo</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Mobile Tab Switcher (Departure vs Return) */}
+              <div className="lg:hidden mt-3.5 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMobileRoundTab('onward')}
+                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                    mobileRoundTab === 'onward'
+                      ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-sky-400'
+                      : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
+                  }`}
+                >
+                  <div className={`text-[10px] uppercase font-black ${mobileRoundTab === 'onward' ? 'text-sky-600' : 'text-sky-300'}`}>
+                    1. Departure Flight
+                  </div>
+                  <div className="text-xs font-black truncate">{roundTripData.from} ➔ {roundTripData.to}</div>
+                  <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'onward' ? 'text-emerald-600' : 'text-emerald-300'}`}>
+                    {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice} (${selectedOnwardFlight.airline})` : 'Choose Flight'}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileRoundTab('return')}
+                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                    mobileRoundTab === 'return'
+                      ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-indigo-400'
+                      : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
+                  }`}
+                >
+                  <div className={`text-[10px] uppercase font-black ${mobileRoundTab === 'return' ? 'text-indigo-600' : 'text-sky-300'}`}>
+                    2. Return Flight
+                  </div>
+                  <div className="text-xs font-black truncate">{roundTripData.to} ➔ {roundTripData.from}</div>
+                  <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'return' ? 'text-emerald-600' : 'text-emerald-300'}`}>
+                    {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice} (${selectedReturnFlight.airline})` : 'Choose Flight'}
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* MULTI-CITY ROUTE NAVIGATOR & ITINERARY BANNER             */}
+          {/* ========================================================= */}
           {isMultiCity && (
             <div className="bg-gradient-to-r from-sky-900 via-blue-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl mb-4 border border-sky-800/40">
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
@@ -544,56 +742,60 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
             </div>
           )}
 
-          {/* Header & Sorting Bar */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-base sm:text-xl">
-                {isMultiCity ? (
-                  <span>
-                    Leg {activeLegIndex + 1}: Flights from {multiCityLegsData[activeLegIndex]?.from} to {multiCityLegsData[activeLegIndex]?.to}
-                  </span>
-                ) : (
-                  <span>Flights from {searchParams.from} to {searchParams.to}</span>
-                )}
-              </h3>
-              <p className="text-xs text-slate-500">
-                Showing <strong className="text-slate-800">{processedFlights.length}</strong> available flights • {isMultiCity ? multiCityLegsData[activeLegIndex]?.date : searchParams.date}
-              </p>
-            </div>
+          {/* Header & Sorting Bar (Only in standard one-way or multi-city mode) */}
+          {!isRoundTrip && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-base sm:text-xl">
+                  {isMultiCity ? (
+                    <span>
+                      Leg {activeLegIndex + 1}: Flights from {multiCityLegsData[activeLegIndex]?.from} to {multiCityLegsData[activeLegIndex]?.to}
+                    </span>
+                  ) : (
+                    <span>Flights from {searchParams.from} to {searchParams.to}</span>
+                  )}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Showing <strong className="text-slate-800">{processedFlights.length}</strong> available flights • {isMultiCity ? multiCityLegsData[activeLegIndex]?.date : searchParams.date}
+                </p>
+              </div>
 
-            {/* Sorting Tabs */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold overflow-x-auto scrollbar-none">
-              <button
-                type="button"
-                onClick={() => setSortBy('cheapest')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                  sortBy === 'cheapest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Cheapest
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortBy('fastest')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                  sortBy === 'fastest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Fastest
-              </button>
-              <button
-                type="button"
-                onClick={() => setSortBy('earliest')}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                  sortBy === 'earliest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Earliest
-              </button>
+              {/* Sorting Tabs */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold overflow-x-auto scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setSortBy('cheapest')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'cheapest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Cheapest
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortBy('fastest')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'fastest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Fastest
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSortBy('earliest')}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'earliest' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Earliest
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Flights list rendering */}
+          {/* ========================================================= */}
+          {/* FLIGHTS RENDERING                                         */}
+          {/* ========================================================= */}
           {loading ? (
             <div className="space-y-4">
               {[1, 2, 3].map(n => (
@@ -603,6 +805,163 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
                   <div className="h-4 bg-slate-200 rounded w-1/2"></div>
                 </div>
               ))}
+            </div>
+          ) : isRoundTrip ? (
+            /* ========================================================= */
+            /* ROUND TRIP SPLIT 2-COLUMN VIEW (DESKTOP) & TABS (MOBILE)   */
+            /* ========================================================= */
+            <div>
+              {/* Desktop 2-Column Split View */}
+              <div className="hidden lg:grid lg:grid-cols-2 gap-5 items-start">
+                
+                {/* Left Column: Departure Flights */}
+                <div className="space-y-3.5">
+                  <div className="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-sky-700 tracking-wider block">
+                        Departure Flight
+                      </span>
+                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+                        <span>{roundTripData.from}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
+                        <span>{roundTripData.to}</span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {roundTripData.departureDate} • {processedOnwardFlights.length} Flights available
+                      </p>
+                    </div>
+
+                    {selectedOnwardFlight && (
+                      <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-sky-100 shadow-xs">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
+                        <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
+                          ₹{selectedOnwardFlight.basePrice?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    {processedOnwardFlights.map(flight => (
+                      <FlightCard
+                        key={`onward-${flight.id}`}
+                        flight={flight}
+                        travelClass={searchParams.travelClass}
+                        brand={brand}
+                        isSelectable={true}
+                        isSelected={selectedOnwardFlight?.id === flight.id}
+                        selectLabel="Select Departure"
+                        selectedLabel="Departure Chosen ✓"
+                        onSelect={() => setSelectedOnwardFlight(flight)}
+                        onBookFlight={() => setSelectedOnwardFlight(flight)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Column: Return Flights */}
+                <div className="space-y-3.5">
+                  <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
+                        Return Flight
+                      </span>
+                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+                        <span>{roundTripData.to}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>{roundTripData.from}</span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {roundTripData.returnDate} • {processedReturnFlights.length} Flights available
+                      </p>
+                    </div>
+
+                    {selectedReturnFlight && (
+                      <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-indigo-100 shadow-xs">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
+                        <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
+                          ₹{selectedReturnFlight.basePrice?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    {processedReturnFlights.map(flight => (
+                      <FlightCard
+                        key={`return-${flight.id}`}
+                        flight={flight}
+                        travelClass={searchParams.travelClass}
+                        brand={brand}
+                        isSelectable={true}
+                        isSelected={selectedReturnFlight?.id === flight.id}
+                        selectLabel="Select Return"
+                        selectedLabel="Return Chosen ✓"
+                        onSelect={() => setSelectedReturnFlight(flight)}
+                        onBookFlight={() => setSelectedReturnFlight(flight)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Mobile Single-Column Tab View */}
+              <div className="lg:hidden space-y-4">
+                {mobileRoundTab === 'onward' ? (
+                  <div>
+                    <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
+                      <span>Showing Departure Flights ({roundTripData.from} ➔ {roundTripData.to})</span>
+                      <span className="font-mono text-sky-600">{roundTripData.departureDate}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {processedOnwardFlights.map(flight => (
+                        <FlightCard
+                          key={`m-onward-${flight.id}`}
+                          flight={flight}
+                          travelClass={searchParams.travelClass}
+                          brand={brand}
+                          isSelectable={true}
+                          isSelected={selectedOnwardFlight?.id === flight.id}
+                          selectLabel="Select Departure"
+                          selectedLabel="Departure Chosen ✓"
+                          onSelect={() => {
+                            setSelectedOnwardFlight(flight);
+                            setMobileRoundTab('return');
+                          }}
+                          onBookFlight={() => {
+                            setSelectedOnwardFlight(flight);
+                            setMobileRoundTab('return');
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
+                      <span>Showing Return Flights ({roundTripData.to} ➔ {roundTripData.from})</span>
+                      <span className="font-mono text-indigo-600">{roundTripData.returnDate}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {processedReturnFlights.map(flight => (
+                        <FlightCard
+                          key={`m-return-${flight.id}`}
+                          flight={flight}
+                          travelClass={searchParams.travelClass}
+                          brand={brand}
+                          isSelectable={true}
+                          isSelected={selectedReturnFlight?.id === flight.id}
+                          selectLabel="Select Return"
+                          selectedLabel="Return Chosen ✓"
+                          onSelect={() => setSelectedReturnFlight(flight)}
+                          onBookFlight={() => setSelectedReturnFlight(flight)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : processedFlights.length === 0 ? (
             <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-xs">
@@ -622,6 +981,9 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
               </button>
             </div>
           ) : (
+            /* ========================================================= */
+            /* ONE-WAY / MULTI-CITY SINGLE COLUMN FLIGHTS LIST            */
+            /* ========================================================= */
             <AnimatePresence mode="popLayout">
               <div className="space-y-4">
                 {processedFlights.map(flight => {
@@ -642,6 +1004,18 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
                         flight={flight}
                         travelClass={searchParams.travelClass}
                         brand={brand}
+                        isSelectable={isMultiCity}
+                        isSelected={isSelectedForThisLeg}
+                        selectLabel={`Select for Leg ${activeLegIndex + 1}`}
+                        selectedLabel={`Leg ${activeLegIndex + 1} Chosen ✓`}
+                        onSelect={() => {
+                          if (isMultiCity) {
+                            setSelectedLegFlights(prev => ({ ...prev, [activeLegIndex]: flight }));
+                            if (activeLegIndex < multiCityLegsData.length - 1) {
+                              setActiveLegIndex(activeLegIndex + 1);
+                            }
+                          }
+                        }}
                         onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
                           const couponToUse = initialCoupon || copiedCoupon || '';
                           if (isMultiCity) {
@@ -664,6 +1038,84 @@ export default function FlightList({ flights, loading, searchParams, multiCityLe
         </main>
 
       </div>
+
+      {/* ========================================================= */}
+      {/* STICKY FLOATING BOTTOM BAR FOR ROUND TRIP & MULTI-CITY     */}
+      {/* ========================================================= */}
+      {(isRoundTrip || isMultiCity) && (
+        <div className="fixed bottom-14 md:bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md text-white border-t border-slate-800 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] px-3 sm:px-6 py-2.5 sm:py-3.5">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            
+            {/* Route details left */}
+            {isRoundTrip ? (
+              <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto w-full sm:w-auto text-xs py-0.5">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-[10px]">1</span>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block leading-tight font-medium">Departure ({roundTripData.departureDate})</span>
+                    <span className="font-extrabold text-white text-[11px] sm:text-xs">
+                      {selectedOnwardFlight ? `${selectedOnwardFlight.from} ➔ ${selectedOnwardFlight.to} • ${selectedOnwardFlight.departureTime} (₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')})` : 'Choose departure'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">2</span>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block leading-tight font-medium">Return ({roundTripData.returnDate})</span>
+                    <span className="font-extrabold text-white text-[11px] sm:text-xs">
+                      {selectedReturnFlight ? `${selectedReturnFlight.from} ➔ ${selectedReturnFlight.to} • ${selectedReturnFlight.departureTime} (₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')})` : 'Choose return'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto text-xs py-0.5">
+                <span className="text-[10px] uppercase font-bold text-sky-400 shrink-0">Multi-City:</span>
+                {multiCityLegsData.map((leg, i) => {
+                  const sel = selectedLegFlights[i];
+                  return (
+                    <div key={i} className="flex items-center gap-1.5 shrink-0 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                      <span className="text-[10px] font-black text-sky-300">L{i+1}:</span>
+                      <span className="font-bold text-white text-[11px]">{leg.from}➔{leg.to}</span>
+                      {sel ? (
+                        <span className="text-emerald-400 font-mono text-[10px] font-bold">₹{sel.basePrice?.toLocaleString('en-IN')}</span>
+                      ) : (
+                        <span className="text-amber-400 text-[10px] font-bold">Pending</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Total price + Action Button right */}
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-slate-800/80 pt-2 sm:pt-0">
+              <div className="text-left sm:text-right">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold block leading-none mb-0.5">
+                  Total {isRoundTrip ? 'Round Trip' : 'Multi-City'} Fare
+                </span>
+                <span className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
+                  ₹{(isRoundTrip ? totalRoundTripPrice : totalMultiCityPrice).toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={isRoundTrip ? handleBookRoundTripCombo : handleBookMultiCityCombo}
+                disabled={isRoundTrip ? (!selectedOnwardFlight || !selectedReturnFlight) : false}
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-40 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{isRoundTrip ? 'Book Round Trip Combo' : `Book Multi-City (${multiCityLegsData.length} Flights)`}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* MOBILE FILTER MODAL / DRAWER */}
       <AnimatePresence>

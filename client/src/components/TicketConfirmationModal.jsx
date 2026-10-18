@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle2, Download, Printer, Share2, Plane, Calendar, Clock, MapPin, X, Sparkles } from 'lucide-react';
+import { CheckCircle2, Download, Printer, Share2, Plane, Calendar, Clock, MapPin, X, Sparkles, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import AirlineBadge from './AirlineBadge';
 
@@ -135,6 +135,55 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Round Trip Dual-Flight Breakdown (if applicable) */}
+            {(booking.tripType === 'roundTrip' || booking.roundTripDetails) && (
+              <div className="p-4 sm:p-5 border-b border-slate-100 space-y-3 bg-indigo-50/40">
+                <div className="text-[11px] font-black uppercase text-indigo-900 tracking-wider flex items-center gap-1.5">
+                  <Plane className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Round Trip Flight Passes (2 Flights Confirmed)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Onward Flight */}
+                  <div className="bg-white rounded-xl p-3 border border-indigo-100 shadow-xs space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-extrabold text-[10px] uppercase">
+                        1. Departure Flight
+                      </span>
+                      <span className="font-mono text-slate-400 text-[10px]">{booking.departureDate}</span>
+                    </div>
+                    <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                      <span>{booking.from}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{booking.to}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-medium">
+                      <span>{booking.roundTripDetails?.onward?.airline || booking.airline} ({booking.roundTripDetails?.onward?.flightNumber || booking.flightNumber})</span>
+                      <span className="font-mono font-bold text-sky-700">{booking.roundTripDetails?.onward?.departureTime || booking.departureTime}</span>
+                    </div>
+                  </div>
+
+                  {/* Return Flight */}
+                  <div className="bg-white rounded-xl p-3 border border-indigo-100 shadow-xs space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-extrabold text-[10px] uppercase">
+                        2. Return Flight
+                      </span>
+                      <span className="font-mono text-slate-400 text-[10px]">{booking.returnDate || booking.departureDate}</span>
+                    </div>
+                    <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                      <span>{booking.to}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{booking.from}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-medium">
+                      <span>{booking.roundTripDetails?.return?.airline || booking.airline} ({booking.roundTripDetails?.return?.flightNumber || booking.flightNumber})</span>
+                      <span className="font-mono font-bold text-indigo-700">{booking.roundTripDetails?.return?.departureTime || booking.arrivalTime}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

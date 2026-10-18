@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plane, Clock, Luggage, Utensils, ChevronDown, ChevronUp, ShieldCheck, Info, MessageCircle, Phone, Lock, Tag, Sparkles } from 'lucide-react';
+import { Plane, Clock, Luggage, Utensils, ChevronDown, ChevronUp, ShieldCheck, Info, MessageCircle, Phone, Lock, Tag, Sparkles, Check } from 'lucide-react';
 import AirlineBadge from './AirlineBadge';
 import HoldFareModal from './HoldFareModal';
 
-export default function FlightCard({ flight, travelClass = 'economy', onBookFlight, brand = null }) {
+export default function FlightCard({ 
+  flight, 
+  travelClass = 'economy', 
+  onBookFlight, 
+  brand = null,
+  isSelectable = false,
+  isSelected = false,
+  selectLabel = 'Select Flight',
+  selectedLabel = 'Selected',
+  onSelect = null
+}) {
   const [showDetails, setShowDetails] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState('info'); // 'info' | 'fare' | 'baggage' | 'cancellation'
   const [showHoldModal, setShowHoldModal] = useState(false);
@@ -44,7 +54,11 @@ export default function FlightCard({ flight, travelClass = 'economy', onBookFlig
         exit={{ opacity: 0, y: -10 }}
         whileHover={{ y: -3, boxShadow: '0 16px 30px -8px rgba(0,0,0,0.08)' }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-2xl border border-slate-200/90 shadow-xs transition-all overflow-hidden mb-4"
+        className={`bg-white rounded-2xl border transition-all overflow-hidden mb-4 ${
+          isSelected 
+            ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md bg-emerald-50/10' 
+            : 'border-slate-200/90 shadow-xs'
+        }`}
       >
         
         {/* Top Banner if fast or best value */}
@@ -157,28 +171,58 @@ export default function FlightCard({ flight, travelClass = 'economy', onBookFlig
                 <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
               </div>
 
-              {/* Primary Booking Action */}
+              {/* Primary Booking / Selection Action */}
               <div className="w-full md:w-auto">
-                <motion.button
-                  onClick={() => onBookFlight(flight, currentPrice)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full md:w-auto px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
-                  title="Instant Online Seat & Passenger Booking"
-                >
-                  Book Now
-                </motion.button>
+                {isSelectable ? (
+                  <motion.button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onSelect) onSelect(flight);
+                      else if (onBookFlight) onBookFlight(flight, currentPrice);
+                    }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`w-full md:w-auto px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 ring-2 ring-emerald-300'
+                        : 'bg-white hover:bg-sky-50 text-sky-700 border-2 border-sky-600 shadow-sky-600/10'
+                    }`}
+                    title={isSelected ? 'Flight Selected' : 'Click to select this flight'}
+                  >
+                    {isSelected ? (
+                      <>
+                        <Check className="w-4 h-4 stroke-[3]" />
+                        <span>{selectedLabel}</span>
+                      </>
+                    ) : (
+                      <span>{selectLabel}</span>
+                    )}
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    onClick={() => onBookFlight(flight, currentPrice)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full md:w-auto px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    title="Instant Online Seat & Passenger Booking"
+                  >
+                    Book Now
+                  </motion.button>
+                )}
               </div>
 
-              {/* Quick Coupon Chip */}
-              <div 
-                onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
-                title="Click to apply AIRSKY500 on this flight"
-              >
-                <Tag className="w-3 h-3 text-emerald-600" />
-                <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
-              </div>
+              {/* Quick Coupon Chip (Only for standalone one-way booking) */}
+              {!isSelectable && (
+                <div 
+                  onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
+                  title="Click to apply AIRSKY500 on this flight"
+                >
+                  <Tag className="w-3 h-3 text-emerald-600" />
+                  <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
+                </div>
+              )}
 
             </div>
 

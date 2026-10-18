@@ -336,11 +336,15 @@ export default function BookingCheckoutModal({
         departureTime: flight.departureTime,
         arrivalTime: flight.arrivalTime,
         travelClass: travelClass,
-        tripType: flight.tripType || (flight.isMultiCity ? 'multiCity' : 'oneWay'),
+        tripType: flight.tripType || (flight.isMultiCity ? 'multiCity' : flight.isRoundTrip ? 'roundTrip' : 'oneWay'),
         multiCityLegs: flight.multiCityLegs || null,
+        roundTripDetails: flight.roundTripDetails || (flight.isRoundTrip ? { onward: flight.onwardFlight, return: flight.returnFlight } : null),
+        returnDate: flight.returnDate || null,
         route: flight.isMultiCity
           ? (flight.multiCityLegs?.map(l => `${l.from} ➔ ${l.to}`).join(' • ') || `${flight.from} ➔ ${flight.to}`)
-          : `${flight.from} → ${flight.to}`,
+          : flight.isRoundTrip
+            ? `${flight.from} ⇄ ${flight.to}`
+            : `${flight.from} → ${flight.to}`,
         passengers: passengers.map(p => ({
           title: p.title,
           firstName: p.firstName,
@@ -439,7 +443,11 @@ export default function BookingCheckoutModal({
                 )}
               </h3>
               <p className="text-[11px] text-slate-500 font-medium truncate">
-                {flight.airline} • {flight.flightNumber} • {flight.from} ➔ {flight.to}
+                {flight.isRoundTrip 
+                  ? `Round Trip: ${flight.from} ⇄ ${flight.to} • Departure: ${flight.departureDate} & Return: ${flight.returnDate}`
+                  : flight.isMultiCity
+                    ? `Multi-City Journey (${flight.multiCityLegs?.length || 2} Flights)`
+                    : `${flight.airline} • ${flight.flightNumber} • ${flight.from} ➔ ${flight.to}`}
               </p>
             </div>
           </div>
@@ -524,6 +532,91 @@ export default function BookingCheckoutModal({
               {/* ======================================================== */}
               {step === 1 && (
                 <div className="space-y-5 animate-fadeIn">
+
+                  {/* Round Trip Flights Itinerary Banner */}
+                  {flight.isRoundTrip && (
+                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
+                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
+                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                          <span>Round Trip Flights (2 Confirmed Legs)</span>
+                        </span>
+                        <span className="font-mono text-amber-300 font-bold">
+                          Combined Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        {/* Onward Flight Card */}
+                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-1">
+                          <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
+                            <span>1. Departure Flight</span>
+                            <span>{flight.departureDate}</span>
+                          </div>
+                          <div className="font-black text-sm text-white flex items-center gap-1.5">
+                            <span>{flight.from}</span>
+                            <ArrowRight className="w-3.5 h-3.5 opacity-60" />
+                            <span>{flight.to}</span>
+                          </div>
+                          <div className="text-[11px] text-sky-100 flex items-center justify-between pt-1 border-t border-white/10">
+                            <span>{flight.onwardFlight?.airline || flight.airline} ({flight.onwardFlight?.flightNumber || flight.flightNumber})</span>
+                            <span className="font-mono font-bold text-sky-300">{flight.onwardFlight?.departureTime || flight.departureTime} - {flight.onwardFlight?.arrivalTime || ''}</span>
+                          </div>
+                        </div>
+
+                        {/* Return Flight Card */}
+                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-1">
+                          <div className="flex items-center justify-between text-[10px] text-indigo-200 uppercase font-black">
+                            <span>2. Return Flight</span>
+                            <span>{flight.returnDate}</span>
+                          </div>
+                          <div className="font-black text-sm text-white flex items-center gap-1.5">
+                            <span>{flight.to}</span>
+                            <ArrowRight className="w-3.5 h-3.5 opacity-60" />
+                            <span>{flight.from}</span>
+                          </div>
+                          <div className="text-[11px] text-indigo-100 flex items-center justify-between pt-1 border-t border-white/10">
+                            <span>{flight.returnFlight?.airline || flight.airline} ({flight.returnFlight?.flightNumber || ''})</span>
+                            <span className="font-mono font-bold text-indigo-300">{flight.returnFlight?.departureTime || ''} - {flight.returnFlight?.arrivalTime || flight.arrivalTime}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Multi-City Flights Itinerary Banner */}
+                  {flight.isMultiCity && flight.multiCityLegs && (
+                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
+                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
+                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                          <span>Multi-City Flights ({flight.multiCityLegs.length} Confirmed Legs)</span>
+                        </span>
+                        <span className="font-mono text-amber-300 font-bold">
+                          Combined Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
+                        {flight.multiCityLegs.map((leg, i) => (
+                          <div key={i} className="bg-white/10 rounded-xl p-2.5 border border-white/15 space-y-1">
+                            <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
+                              <span>Leg {i + 1}</span>
+                              <span>{leg.date}</span>
+                            </div>
+                            <div className="font-bold text-white flex items-center gap-1">
+                              <span>{leg.from}</span>
+                              <ArrowRight className="w-3 h-3 opacity-60" />
+                              <span>{leg.to}</span>
+                            </div>
+                            <div className="text-[10px] text-sky-200 flex items-center justify-between pt-1 border-t border-white/10">
+                              <span className="truncate">{leg.airline}</span>
+                              <span className="font-mono font-bold">{leg.departureTime}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Traveller Details Card with "+ Add Traveller" Action */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">

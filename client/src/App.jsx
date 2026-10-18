@@ -42,6 +42,7 @@ function MainWebsite() {
   const [flights, setFlights] = useState([]);
   const [loadingFlights, setLoadingFlights] = useState(false);
   const [multiCityLegsData, setMultiCityLegsData] = useState(null);
+  const [roundTripData, setRoundTripData] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
 
   // Authenticated user state
@@ -160,6 +161,7 @@ function MainWebsite() {
     setLoadingFlights(true);
     try {
       if (params.tripType === 'multiCity' && params.legs && params.legs.length > 0) {
+        setRoundTripData(null);
         const legQueries = params.legs.map(leg => 
           api.searchFlights({ from: leg.from, to: leg.to, date: leg.date })
         );
@@ -173,7 +175,36 @@ function MainWebsite() {
         }));
         setMultiCityLegsData(legsStructured);
         setFlights(legsStructured[0]?.flights || []);
+      } else if (params.tripType === 'roundTrip') {
+        setMultiCityLegsData(null);
+        const returnDateToUse = params.returnDate || params.date;
+        const [onwardRes, returnRes] = await Promise.all([
+          api.searchFlights({
+            from: params.from,
+            to: params.to,
+            date: params.date
+          }),
+          api.searchFlights({
+            from: params.to,
+            to: params.from,
+            date: returnDateToUse
+          })
+        ]);
+
+        const onwardFlights = onwardRes?.success && Array.isArray(onwardRes.data) ? onwardRes.data : [];
+        const returnFlights = returnRes?.success && Array.isArray(returnRes.data) ? returnRes.data : [];
+
+        setRoundTripData({
+          onward: onwardFlights,
+          return: returnFlights,
+          departureDate: params.date,
+          returnDate: returnDateToUse,
+          from: params.from,
+          to: params.to
+        });
+        setFlights(onwardFlights);
       } else {
+        setRoundTripData(null);
         setMultiCityLegsData(null);
         const res = await api.searchFlights({
           from: params.from,
@@ -199,6 +230,7 @@ function MainWebsite() {
     searchParams.from, 
     searchParams.to, 
     searchParams.date, 
+    searchParams.returnDate,
     searchParams.tripType, 
     JSON.stringify(searchParams.legs || []),
     activeService,
@@ -323,6 +355,7 @@ function MainWebsite() {
                   loading={loadingFlights}
                   searchParams={searchParams}
                   multiCityLegsData={multiCityLegsData}
+                  roundTripData={roundTripData}
                   airports={airports}
                   onDateChange={handleDateChange}
                   onBookFlight={handleInitiateBooking}
