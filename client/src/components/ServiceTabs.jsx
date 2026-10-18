@@ -86,14 +86,14 @@ export default function ServiceTabs({
                   onSelectService(srv.id);
                 }
               }}
-              className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer relative text-center ${
+              className={`flex-1 min-w-max flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer shrink-0 relative text-center ${
                 isActive
                   ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-600/30'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
               <Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 ${isActive ? 'text-white' : 'text-sky-600'}`} />
-              <span className="truncate">{srv.label}</span>
+              <span className="whitespace-nowrap">{srv.label}</span>
               {srv.badge && (
                 <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase shrink-0 ${
                   isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-700'
