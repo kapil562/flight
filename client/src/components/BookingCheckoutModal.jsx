@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X, ShieldCheck, CheckCircle2, CreditCard, QrCode, Building, Tag, ArrowRight, ArrowLeft,
   Lock, Sparkles, Plane, Utensils, Luggage, Shield, Smartphone, Copy, Check, ExternalLink, Zap,
-  Phone, MessageCircle, FileText, AlertCircle, RefreshCw, UserPlus, Trash2, Armchair, Plus
+  Phone, MessageCircle, FileText, AlertCircle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info
 } from 'lucide-react';
 import { api } from '../utils/api';
 import AirlineBadge from './AirlineBadge';
@@ -22,6 +22,7 @@ export default function BookingCheckoutModal({
   initialFareTier = 'saver'
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection per User, 3 = Payment Gateway
+  const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
 
   // Passenger data with ability to add multiple users dynamically
   const [passengers, setPassengers] = useState(() => {
@@ -1388,6 +1389,166 @@ export default function BookingCheckoutModal({
             </div>
 
           </div>
+        </div>
+
+        {/* Persistent Sticky Bottom Bar / Toolbar (as shown in user's reference) */}
+        <div className="bg-white border-t border-slate-200 px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 relative">
+          
+          {/* Left Side: Live Price + (i) Info icon + Travellers Count + Savings */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
+                  ₹{grandTotal.toLocaleString('en-IN')}
+                </span>
+                
+                {/* (i) Info circular button matching MakeMyTrip / Cleartrip */}
+                <button
+                  type="button"
+                  onClick={() => setShowFareBreakupPopup(!showFareBreakupPopup)}
+                  className="w-5 h-5 rounded-full border border-slate-300 text-slate-500 hover:text-sky-600 hover:border-sky-500 flex items-center justify-center transition-colors cursor-pointer bg-slate-50 hover:bg-sky-50"
+                  title="Click to view full fare breakup"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                  FOR {passengers.length} TRAVELLER{passengers.length > 1 ? 'S' : ''}
+                </span>
+                {discountAmount > 0 && (
+                  <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                    Saved ₹{discountAmount.toLocaleString('en-IN')}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Primary Orange CONTINUE button */}
+          <div className="flex items-center gap-2">
+            {step > 1 && (
+              <button
+                type="button"
+                onClick={() => setStep(step - 1)}
+                className="h-11 sm:h-12 px-3 sm:px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-xs"
+                title="Back to previous step"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                if (step === 1) handleProceedToSeats();
+                else if (step === 2) handleProceedToPayment();
+                else handleFinalBooking();
+              }}
+              disabled={isProcessing}
+              className="h-11 sm:h-12 px-6 sm:px-9 rounded-xl sm:rounded-2xl bg-[#FF5A00] hover:bg-[#E04F00] active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <span>
+                {isProcessing
+                  ? 'PROCESSING...'
+                  : step === 1
+                  ? 'CONTINUE'
+                  : step === 2
+                  ? 'CONTINUE'
+                  : `PAY ₹${grandTotal.toLocaleString('en-IN')}`}
+              </span>
+              {!isProcessing && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </div>
+
+          {/* Fare Breakup Popover when (i) is clicked */}
+          <AnimatePresence>
+            {showFareBreakupPopup && (
+              <motion.div
+                initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                className="absolute bottom-full left-3 sm:left-6 mb-2.5 w-[calc(100vw-36px)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 text-xs space-y-2.5"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <div className="flex items-center gap-1.5 font-extrabold text-sm text-slate-900">
+                    <Info className="w-4 h-4 text-sky-600" />
+                    <span>Fare Breakup ({passengers.length} Pax)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowFareBreakupPopup(false)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-slate-600 text-xs">
+                  <div className="flex justify-between">
+                    <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
+                    <span className="font-bold font-mono text-slate-900">₹{standardBaseFare.toLocaleString('en-IN')}</span>
+                  </div>
+
+                  {selectedFareTier !== 'saver' && (
+                    <div className="flex justify-between">
+                      <span>{selectedFareTier === 'super' ? 'AirSky VIP Upgrade' : 'Flexi Plus Upgrade'}</span>
+                      <span className="font-bold font-mono text-sky-700">+₹{tierUpgradeTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {totalSeatFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>Seat Selection ({passengers.filter(p => p.seatPrice > 0).length} Paid)</span>
+                      <span className="font-bold font-mono text-sky-700">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {totalMealsFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>Meals & In-Flight Dining</span>
+                      <span className="font-bold font-mono text-sky-700">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {baggageFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>Extra Baggage ({extraBaggageKg}kg)</span>
+                      <span className="font-bold font-mono text-sky-700">+₹{baggageFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  {insuranceFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>Travel Insurance ({passengers.length} Pax)</span>
+                      <span className="font-bold font-mono text-emerald-700">+₹{insuranceFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span>Taxes & Airport Charges</span>
+                    <span className="font-bold font-mono text-slate-900">+₹{taxes.toLocaleString('en-IN')}</span>
+                  </div>
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-extrabold bg-emerald-50 p-1.5 rounded-lg border border-emerald-200">
+                      <span>Promo Discount ({couponCode})</span>
+                      <span className="font-mono">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span className="font-black text-xs text-slate-900 uppercase block">Total Amount</span>
+                    <span className="text-[10px] text-slate-400">All taxes & fees included</span>
+                  </div>
+                  <span className="text-xl font-black text-slate-900 font-mono">₹{grandTotal.toLocaleString('en-IN')}</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </motion.div>
