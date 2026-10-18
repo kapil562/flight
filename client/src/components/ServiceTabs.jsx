@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Plane, Building2, Palmtree, Train, Globe2, CheckSquare, Search } from 'lucide-react';
 
@@ -20,21 +20,39 @@ export default function ServiceTabs({
     pnr: true
   };
 
-  // Get active services from settings, brand or fallback
-  const localConfig = typeof window !== 'undefined' ? (() => {
-    try {
-      const s = localStorage.getItem('asg_settings');
-      const b = localStorage.getItem('asg_brand');
-      return (s && JSON.parse(s).enabledServices) || (b && JSON.parse(b).enabledServices) || {};
-    } catch {
-      return {};
-    }
-  })() : {};
+  const [enabledConfig, setEnabledConfig] = useState(() => {
+    return settings?.enabledServices || brand?.enabledServices || (() => {
+      try {
+        const saved = localStorage.getItem('asg_services');
+        return saved ? JSON.parse(saved) : null;
+      } catch { return null; }
+    })() || defaultServices;
+  });
 
-  const enabledConfig = {
-    ...defaultServices,
-    ...(settings?.enabledServices || brand?.enabledServices || localConfig)
-  };
+  useEffect(() => {
+    if (settings?.enabledServices || brand?.enabledServices) {
+      setEnabledConfig(settings?.enabledServices || brand?.enabledServices);
+    }
+  }, [settings?.enabledServices, brand?.enabledServices]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail?.enabledServices) {
+        setEnabledConfig(e.detail.enabledServices);
+      } else {
+        try {
+          const saved = localStorage.getItem('asg_services');
+          if (saved) setEnabledConfig(JSON.parse(saved));
+        } catch {}
+      }
+    };
+    window.addEventListener('asg_brand_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('asg_brand_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
   const allServices = [
     { id: 'flights', label: 'Flights', icon: Plane, badge: null },
@@ -52,7 +70,7 @@ export default function ServiceTabs({
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-40">
-      <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-xl border border-slate-200/90 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none">
+      <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-xl border border-slate-200/90 flex items-center justify-between gap-1.5 sm:gap-2.5 overflow-x-auto scrollbar-none w-full">
         {visibleServices.map((srv) => {
           const Icon = srv.icon;
           const isActive = activeService === srv.id;
@@ -68,16 +86,16 @@ export default function ServiceTabs({
                   onSelectService(srv.id);
                 }
               }}
-              className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer shrink-0 relative ${
+              className={`flex-1 min-w-[120px] sm:min-w-0 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-extrabold text-xs sm:text-sm transition-all whitespace-nowrap cursor-pointer relative text-center ${
                 isActive
                   ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-600/30'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              <Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isActive ? 'text-white' : 'text-sky-600'}`} />
-              <span>{srv.label}</span>
+              <Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 ${isActive ? 'text-white' : 'text-sky-600'}`} />
+              <span className="truncate">{srv.label}</span>
               {srv.badge && (
-                <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase ${
+                <span className={`text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase shrink-0 ${
                   isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-700'
                 }`}>
                   {srv.badge}
