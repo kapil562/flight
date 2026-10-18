@@ -837,7 +837,7 @@ export default function BookingCheckoutModal({
               {/* STEP 2: SELECT SEATS FOR EACH TRAVELLER (CABIN MAP) */}
               {/* ======================================================== */}
               {step === 2 && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-5 shadow-xs space-y-4 animate-fadeIn">
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-1.5 sm:p-5 shadow-xs space-y-3 sm:space-y-4 animate-fadeIn">
                   
                   <RealAircraftSeatMap
                     flight={flight}

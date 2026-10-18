@@ -180,28 +180,26 @@ export default function RealAircraftSeatMap({
       </div>
 
       {/* Seat Color & Legend Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-slate-600 bg-white p-3 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex flex-wrap items-center gap-4 text-[11px]">
+      <div className="bg-white p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-semibold text-slate-600">
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-emerald-50 border-2 border-emerald-500 shadow-xs"></div>
+            <div className="w-3.5 h-3.5 rounded bg-emerald-50 border-2 border-emerald-500 shadow-xs shrink-0"></div>
             <span>Free Standard (₹0)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-sky-50 border-2 border-sky-500 shadow-xs"></div>
-            <span>Window / Aisle (₹120-₹150)</span>
+            <div className="w-3.5 h-3.5 rounded bg-sky-50 border-2 border-sky-500 shadow-xs shrink-0"></div>
+            <span>Window/Aisle (₹120-150)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-amber-50 border-2 border-amber-500 shadow-xs"></div>
-            <span>XL Extra Legroom (₹350-₹650)</span>
+            <div className="w-3.5 h-3.5 rounded bg-amber-50 border-2 border-amber-500 shadow-xs shrink-0"></div>
+            <span>XL Legroom (₹350-650)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-sky-600 text-white flex items-center justify-center font-bold text-[9px] shadow-sm">
-              ✓
-            </div>
-            <span>Selected for Traveller</span>
+            <div className="w-3.5 h-3.5 rounded bg-sky-600 text-white flex items-center justify-center font-bold text-[8px] shadow-sm shrink-0">✓</div>
+            <span>Selected Seat</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded-md bg-slate-200 border border-slate-300 opacity-60"></div>
+          <div className="flex items-center gap-1.5 col-span-2 sm:col-span-1">
+            <div className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300 opacity-60 shrink-0"></div>
             <span>Occupied</span>
           </div>
         </div>
@@ -210,7 +208,7 @@ export default function RealAircraftSeatMap({
       {/* ======================================================== */}
       {/* REAL AIRLINER FUSELAGE WITH WINGS & INTERIOR CABIN */}
       {/* ======================================================== */}
-      <div className="relative bg-slate-100/90 p-2 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 flex justify-center overflow-x-auto select-none">
+      <div className="relative bg-slate-100/90 p-1 sm:p-5 rounded-xl sm:rounded-3xl border border-slate-200 flex justify-center overflow-x-hidden select-none">
         
         {/* Left Aerodynamic Wing (Port Side - Red Light) */}
         <div className="hidden lg:block absolute left-2 top-[38%] -translate-y-1/2 w-28 h-72 border-t-2 border-l-2 border-slate-400/80 bg-gradient-to-r from-slate-300/40 to-transparent rounded-tl-[4rem] pointer-events-none">
@@ -228,47 +226,47 @@ export default function RealAircraftSeatMap({
           </div>
         </div>
 
-        {/* Realistic Fuselage Body */}
-        <div className="w-full max-w-md min-w-[305px] bg-white rounded-t-[4.5rem] sm:rounded-t-[5.5rem] rounded-b-[2.5rem] sm:rounded-b-[3.5rem] border-2 border-slate-200 shadow-xl p-2.5 sm:p-6 pt-10 sm:pt-12 relative">
+        {/* Realistic Fuselage Body - Fluid on mobile */}
+        <div className="w-full max-w-sm sm:max-w-md bg-white rounded-t-[3.5rem] sm:rounded-t-[5.5rem] rounded-b-[2rem] sm:rounded-b-[3.5rem] border-2 border-slate-200 shadow-xl p-1.5 sm:p-5 pt-8 sm:pt-12 relative mx-auto">
           
           {/* Cockpit Nose Cone & Windshield */}
-          <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-36 h-12 bg-slate-300 rounded-t-full border-t-2 border-x-2 border-slate-400 flex flex-col items-center justify-center shadow-inner">
-            <div className="flex gap-2">
-              <div className="w-8 h-3.5 bg-gradient-to-b from-sky-900 to-slate-900 rounded-t-md opacity-80"></div>
-              <div className="w-8 h-3.5 bg-gradient-to-b from-sky-900 to-slate-900 rounded-t-md opacity-80"></div>
+          <div className="absolute -top-6 sm:-top-7 left-1/2 -translate-x-1/2 w-28 sm:w-36 h-10 sm:h-12 bg-slate-300 rounded-t-full border-t-2 border-x-2 border-slate-400 flex flex-col items-center justify-center shadow-inner">
+            <div className="flex gap-1.5 sm:gap-2">
+              <div className="w-6 sm:w-8 h-2.5 sm:h-3.5 bg-gradient-to-b from-sky-900 to-slate-900 rounded-t-md opacity-80"></div>
+              <div className="w-6 sm:w-8 h-2.5 sm:h-3.5 bg-gradient-to-b from-sky-900 to-slate-900 rounded-t-md opacity-80"></div>
             </div>
-            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5">
+            <span className="text-[8px] sm:text-[9px] font-black text-slate-600 uppercase tracking-widest mt-0.5">
               Cockpit
             </span>
           </div>
 
           {/* Front Entry Doors, Galley & Lavatories */}
-          <div className="bg-slate-100 rounded-2xl p-3 border border-slate-200 mb-5 space-y-2">
-            <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
-              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+          <div className="bg-slate-100 rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-slate-200 mb-3 sm:mb-5 space-y-1.5 sm:space-y-2">
+            <div className="flex items-center justify-between text-[9px] sm:text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                 🚪 Door 1L (Exit)
               </span>
-              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                 Door 1R (Exit) 🚪
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
-              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-center text-[9px] sm:text-[10px] font-bold">
+              <div className="bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
                 <span>🚻 Front Lavatory</span>
               </div>
-              <div className="bg-white p-2 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
+              <div className="bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center gap-1">
                 <span>☕ Galley / Pantry</span>
               </div>
             </div>
           </div>
 
           {/* Column Letters Bar */}
-          <div className="grid grid-cols-7 gap-1.5 text-center font-black text-xs text-slate-500 mb-3 pb-2 border-b-2 border-slate-200 bg-slate-50 py-1.5 rounded-xl">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center font-black text-[11px] sm:text-xs text-slate-500 mb-2 sm:mb-3 pb-1.5 sm:pb-2 border-b-2 border-slate-200 bg-slate-50 py-1 sm:py-1.5 rounded-lg sm:rounded-xl">
             <div>A</div>
             <div>B</div>
             <div>C</div>
-            <div className="text-[10px] uppercase text-sky-600 font-mono flex items-center justify-center font-black">
+            <div className="text-[9px] sm:text-[10px] uppercase text-sky-600 font-mono flex items-center justify-center font-black">
               Aisle
             </div>
             <div>D</div>
@@ -277,7 +275,7 @@ export default function RealAircraftSeatMap({
           </div>
 
           {/* Cabin Rows (1 to 28) */}
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+          <div className="space-y-1.5 sm:space-y-2 max-h-[500px] overflow-y-auto pr-0.5 sm:pr-1 scrollbar-thin">
             {rows.map((row) => {
               const leftSeats = row.seats.slice(0, 3);
               const rightSeats = row.seats.slice(3, 6);
@@ -287,14 +285,14 @@ export default function RealAircraftSeatMap({
                   
                   {/* Emergency Exit Row Indicators */}
                   {row.isEmergencyExit && (
-                    <div className="my-1.5 py-1 px-3 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-300 rounded-xl text-center flex items-center justify-between text-[10px] font-black text-amber-900 uppercase">
+                    <div className="my-1.5 py-0.5 sm:py-1 px-2 sm:px-3 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-300 rounded-lg sm:rounded-xl text-center flex items-center justify-between text-[9px] sm:text-[10px] font-black text-amber-900 uppercase">
                       <span>🚪 Overwing Exit</span>
                       <span>Row {row.rowNumber} • Extra Legroom XL</span>
                       <span>Exit 🚪</span>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-7 gap-1.5 items-center">
+                  <div className="grid grid-cols-7 gap-1 sm:gap-1.5 items-center">
                     
                     {/* Left 3 Seats: A, B, C */}
                     {leftSeats.map((seat) => {
@@ -337,16 +335,16 @@ export default function RealAircraftSeatMap({
                           onMouseEnter={() => setHoveredSeat(seat)}
                           onMouseLeave={() => setHoveredSeat(null)}
                           onClick={() => onSeatClick(seat)}
-                          className={`h-10 sm:h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
+                          className={`h-9 sm:h-11 rounded-t-lg rounded-b-xs sm:rounded-t-xl sm:rounded-b-md border sm:border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
                           title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
                           <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
 
                           {/* Seat Code & Passenger Badge */}
-                          <div className="flex items-center justify-center font-mono font-black text-[9px] sm:text-[10px] leading-none">
+                          <div className="flex items-center justify-center font-mono font-black text-[8px] sm:text-[10px] leading-none">
                             {isSelectedForAny ? (
-                              <span className="font-extrabold text-[8px] sm:text-[9px]">
+                              <span className="font-extrabold text-[7.5px] sm:text-[9px]">
                                 P{assignedPaxIdx + 1}
                               </span>
                             ) : (
@@ -355,7 +353,7 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[7.5px] sm:text-[8px] font-bold opacity-75 font-mono">
+                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-75 font-mono">
                             {seat.price > 0 ? `₹${seat.price}` : 'Free'}
                           </div>
                         </motion.button>
@@ -363,7 +361,7 @@ export default function RealAircraftSeatMap({
                     })}
 
                     {/* Aisle Row Number Marker */}
-                    <div className="text-center font-black text-[10px] sm:text-[11px] text-slate-400 font-mono py-1">
+                    <div className="text-center font-black text-[9px] sm:text-[11px] text-slate-400 font-mono py-0.5 sm:py-1">
                       {row.rowNumber}
                     </div>
 
@@ -407,16 +405,16 @@ export default function RealAircraftSeatMap({
                           onMouseEnter={() => setHoveredSeat(seat)}
                           onMouseLeave={() => setHoveredSeat(null)}
                           onClick={() => onSeatClick(seat)}
-                          className={`h-10 sm:h-11 rounded-t-xl rounded-b-md border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
+                          className={`h-9 sm:h-11 rounded-t-lg rounded-b-xs sm:rounded-t-xl sm:rounded-b-md border sm:border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
                           title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
                           <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
 
                           {/* Seat Code & Passenger Badge */}
-                          <div className="flex items-center justify-center font-mono font-black text-[9px] sm:text-[10px] leading-none">
+                          <div className="flex items-center justify-center font-mono font-black text-[8px] sm:text-[10px] leading-none">
                             {isSelectedForAny ? (
-                              <span className="font-extrabold text-[8px] sm:text-[9px]">
+                              <span className="font-extrabold text-[7.5px] sm:text-[9px]">
                                 P{assignedPaxIdx + 1}
                               </span>
                             ) : (
@@ -425,7 +423,7 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[7.5px] sm:text-[8px] font-bold opacity-75 font-mono">
+                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-75 font-mono">
                             {seat.price > 0 ? `₹${seat.price}` : 'Free'}
                           </div>
                         </motion.button>
