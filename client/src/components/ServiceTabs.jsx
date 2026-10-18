@@ -2,8 +2,41 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Plane, Building2, Palmtree, Train, Globe2, CheckSquare, Search } from 'lucide-react';
 
-export default function ServiceTabs({ activeService, onSelectService, onOpenQuickPnr, onOpenWebCheckIn }) {
-  const services = [
+export default function ServiceTabs({ 
+  activeService, 
+  onSelectService, 
+  onOpenQuickPnr, 
+  onOpenWebCheckIn,
+  settings = null,
+  brand = null 
+}) {
+  const defaultServices = {
+    flights: true,
+    hotels: true,
+    holidays: true,
+    trains: false, // Default OFF as requested
+    visa: true,
+    checkin: true,
+    pnr: true
+  };
+
+  // Get active services from settings, brand or fallback
+  const localConfig = typeof window !== 'undefined' ? (() => {
+    try {
+      const s = localStorage.getItem('asg_settings');
+      const b = localStorage.getItem('asg_brand');
+      return (s && JSON.parse(s).enabledServices) || (b && JSON.parse(b).enabledServices) || {};
+    } catch {
+      return {};
+    }
+  })() : {};
+
+  const enabledConfig = {
+    ...defaultServices,
+    ...(settings?.enabledServices || brand?.enabledServices || localConfig)
+  };
+
+  const allServices = [
     { id: 'flights', label: 'Flights', icon: Plane, badge: null },
     { id: 'hotels', label: 'Hotels', icon: Building2, badge: 'HOT' },
     { id: 'holidays', label: 'Holidays', icon: Palmtree, badge: 'OFFERS' },
@@ -13,10 +46,14 @@ export default function ServiceTabs({ activeService, onSelectService, onOpenQuic
     { id: 'pnr', label: 'Check PNR', icon: Search, badge: null, action: onOpenQuickPnr }
   ];
 
+  const visibleServices = allServices.filter(s => enabledConfig[s.id] !== false);
+
+  if (visibleServices.length === 0) return null;
+
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-40">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-xl border border-slate-200/90 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none">
-        {services.map((srv) => {
+        {visibleServices.map((srv) => {
           const Icon = srv.icon;
           const isActive = activeService === srv.id;
 

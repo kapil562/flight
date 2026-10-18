@@ -592,6 +592,7 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                   { id: 'holidays_catalog', icon: Palmtree, label: 'Holiday Packages', count: holidayPackages.length },
                   { id: 'coupons', icon: Tag, label: 'Coupons', count: coupons.length },
                   { id: 'airports', icon: MapPin, label: 'Airports', count: airports.length },
+                  { id: 'services_modules', icon: Sliders, label: 'Service Tabs (ON / OFF)' },
                   { id: 'brand_crm', icon: Palette, label: 'Brand & Website CRM' },
                   { id: 'api_settings', icon: Key, label: 'API Keys' },
                   { id: 'payments_upi', icon: QrCode, label: 'Payments & UPI' }
@@ -1039,6 +1040,11 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
           {/* TAB: UNIFIED BRAND & WEBSITE CRM */}
           {(activeTab === 'brand_crm' || activeTab === 'brand' || activeTab === 'settings') && (
             <AdminBrandCmsSettings onSettingsUpdated={onSettingsUpdated} />
+          )}
+
+          {/* TAB: SERVICE TABS & MODULES (ON / OFF) */}
+          {(activeTab === 'services_modules' || activeTab === 'service_modules') && (
+            <AdminBrandCmsSettings onSettingsUpdated={onSettingsUpdated} initialSection="sec-services" />
           )}
 
           {/* TAB: API KEYS & PAYMENT SETTINGS */}

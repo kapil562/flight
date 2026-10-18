@@ -122,10 +122,15 @@ function MainWebsite() {
     const handleBrandUpdate = (e) => {
       if (e.detail) {
         setBrand(e.detail);
+        if (e.detail.enabledServices) {
+          setSettings(prev => ({ ...(prev || {}), enabledServices: e.detail.enabledServices }));
+        }
       } else {
         try {
           const saved = localStorage.getItem('asg_brand');
           if (saved) setBrand(JSON.parse(saved));
+          const savedSettings = localStorage.getItem('asg_settings');
+          if (savedSettings) setSettings(JSON.parse(savedSettings));
         } catch {}
       }
     };
@@ -307,6 +312,22 @@ function MainWebsite() {
     setCurrentUser(null);
   };
 
+  const currentEnabledServices = settings?.enabledServices || brand?.enabledServices || {
+    flights: true,
+    hotels: true,
+    holidays: true,
+    trains: false, // Default: OFF as requested
+    visa: true,
+    checkin: true,
+    pnr: true
+  };
+
+  useEffect(() => {
+    if (activeService && currentEnabledServices[activeService] === false) {
+      setActiveService('flights');
+    }
+  }, [activeService, currentEnabledServices]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-['Plus_Jakarta_Sans',sans-serif] w-full max-w-full overflow-x-hidden">
       
@@ -331,12 +352,14 @@ function MainWebsite() {
           onSelectService={setActiveService}
           onOpenQuickPnr={() => setQuickPnrOpen(true)}
           onOpenWebCheckIn={() => setWebCheckInOpen(true)}
+          settings={settings}
+          brand={brand}
         />
       </div>
 
       {/* Main Content Area with bottom safe padding on mobile */}
       <main className="flex-1 w-full max-w-full overflow-x-hidden pb-24 md:pb-12">
-        {activeService === 'flights' && (
+        {activeService === 'flights' && currentEnabledServices.flights !== false && (
           <>
             {/* Hero Search Section */}
             <HeroSearch
@@ -366,28 +389,28 @@ function MainWebsite() {
           </>
         )}
 
-        {activeService === 'hotels' && (
+        {activeService === 'hotels' && currentEnabledServices.hotels !== false && (
           <>
             <HotelSection />
             <OffersSection />
           </>
         )}
 
-        {activeService === 'holidays' && (
+        {activeService === 'holidays' && currentEnabledServices.holidays !== false && (
           <>
             <HolidaysSection />
             <OffersSection />
           </>
         )}
 
-        {activeService === 'trains' && (
+        {activeService === 'trains' && currentEnabledServices.trains === true && (
           <>
             <TrainSection />
             <OffersSection />
           </>
         )}
 
-        {activeService === 'visa' && (
+        {activeService === 'visa' && currentEnabledServices.visa !== false && (
           <>
             <VisaSection />
             <OffersSection />
@@ -419,6 +442,8 @@ function MainWebsite() {
         onOpenMyBookings={() => setMyBookingsOpen(true)}
         onOpenAuth={() => setAuthModalOpen(true)}
         currentUser={currentUser}
+        settings={settings}
+        brand={brand}
       />
 
       <AnimatePresence>

@@ -2,8 +2,15 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Plane, Building2, Palmtree, Ticket, User } from 'lucide-react';
 
-export default function BottomNav({ activeService, onSelectService, onOpenMyBookings, onOpenAuth, currentUser }) {
-  const navItems = [
+export default function BottomNav({ activeService, onSelectService, onOpenMyBookings, onOpenAuth, currentUser, settings = null, brand = null }) {
+  const enabledConfig = {
+    flights: true,
+    hotels: true,
+    holidays: true,
+    ...(settings?.enabledServices || brand?.enabledServices || {})
+  };
+
+  const allNavItems = [
     {
       id: 'flights',
       label: 'Flights',
@@ -46,6 +53,13 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
       isUser: !!currentUser
     }
   ];
+
+  const navItems = allNavItems.filter(item => {
+    if (item.id === 'flights') return enabledConfig.flights !== false;
+    if (item.id === 'hotels') return enabledConfig.hotels !== false;
+    if (item.id === 'holidays') return enabledConfig.holidays !== false;
+    return true;
+  });
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 px-1 py-1.5 flex justify-around items-center shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">

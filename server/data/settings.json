@@ -9,6 +9,15 @@
   "gstPercent": 12,
   "cancellationFee": 999,
   "insuranceFee": 199,
+  "enabledServices": {
+    "flights": true,
+    "hotels": true,
+    "holidays": true,
+    "trains": false,
+    "visa": true,
+    "checkin": true,
+    "pnr": true
+  },
   "announcement": {
     "enabled": true,
     "text": "🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500 | Zero Convenience Fee on UPI!",

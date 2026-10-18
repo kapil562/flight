@@ -17,10 +17,16 @@ import {
   Layout,
   Percent,
   CheckCircle2,
-  AlertCircle,
   Eye,
-  Sliders
+  Sliders,
+  Plane,
+  Palmtree,
+  Train,
+  Globe2,
+  CheckSquare,
+  Search
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { api } from '../utils/api';
 
 const COLOR_PRESETS = [
@@ -80,14 +86,14 @@ const COLOR_PRESETS = [
   }
 ];
 
-export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
+export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSection = '' }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   // Active section scroll / tab highlight
-  const [activeSubSection, setActiveSubSection] = useState('brand');
+  const [activeSubSection, setActiveSubSection] = useState(initialSection || 'brand');
 
   // Form State combining Brand Settings & Website CMS
   const [form, setForm] = useState({
@@ -108,6 +114,17 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
     phone: '+91 72248 28030',
     whatsapp: '+918077680310',
     address: 'Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075',
+
+    // CMS: Navigation Services (ON / OFF)
+    enabledServices: {
+      flights: true,
+      hotels: true,
+      holidays: true,
+      trains: false, // Default: OFF as requested
+      visa: true,
+      checkin: true,
+      pnr: true
+    },
 
     // CMS: Announcement Ticker
     announcement: {
@@ -149,6 +166,15 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [tempLogoUrl, setTempLogoUrl] = useState('');
 
+  // Auto-scroll to initialSection if provided
+  useEffect(() => {
+    if (initialSection) {
+      setTimeout(() => {
+        scrollToSection(initialSection);
+      }, 300);
+    }
+  }, [initialSection]);
+
   // Load both brand & site settings
   const loadData = async () => {
     setLoading(true);
@@ -177,6 +203,16 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
           phone: b.phone || s.supportPhone || prev.phone,
           whatsapp: b.whatsapp || prev.whatsapp,
           address: b.address || prev.address,
+          enabledServices: {
+            flights: true,
+            hotels: true,
+            holidays: true,
+            trains: false,
+            visa: true,
+            checkin: true,
+            pnr: true,
+            ...(s.enabledServices || b.enabledServices || {})
+          },
           footer: { ...prev.footer, ...(b.footer || s.footer || {}) },
           announcement: { ...prev.announcement, ...(s.announcement || {}) },
           hero: { ...prev.hero, ...(s.hero || {}) }
@@ -211,6 +247,16 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
           phone: brandData.phone || siteData.supportPhone || prev.phone,
           whatsapp: brandData.whatsapp || prev.whatsapp,
           address: brandData.address || prev.address,
+          enabledServices: {
+            flights: true,
+            hotels: true,
+            holidays: true,
+            trains: false,
+            visa: true,
+            checkin: true,
+            pnr: true,
+            ...(siteData.enabledServices || brandData.enabledServices || {})
+          },
 
           // Footer CMS data
           footer: {
@@ -364,7 +410,8 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
         phone: form.phone,
         whatsapp: form.whatsapp,
         address: form.address,
-        footer: form.footer
+        footer: form.footer,
+        enabledServices: form.enabledServices
       };
 
       const settingsPayload = {
@@ -380,7 +427,8 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
         announcement: form.announcement,
         hero: form.hero,
         footer: form.footer,
-        brand: brandPayload
+        brand: brandPayload,
+        enabledServices: form.enabledServices
       };
 
       const [brandRes, settingsRes] = await Promise.all([
@@ -389,13 +437,14 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
       ]);
 
       if (brandRes?.success || settingsRes?.success) {
-        setSaveSuccessMsg('Brand Identity, Logo & Website CRM Saved Live! Logo, colors, footer, ticker & policies are active across the entire website.');
+        setSaveSuccessMsg('Brand Identity, Logo & Website CRM Saved Live! Logo, colors, services, footer, ticker & policies are active across the entire website.');
 
         // Save into localStorage for instant 100% persistent hydration everywhere
         try {
           localStorage.setItem('asg_brand', JSON.stringify(brandPayload));
           localStorage.setItem('asg_settings', JSON.stringify(settingsPayload));
-          window.dispatchEvent(new CustomEvent('asg_brand_updated', { detail: brandPayload }));
+          localStorage.setItem('asg_services', JSON.stringify(form.enabledServices));
+          window.dispatchEvent(new CustomEvent('asg_brand_updated', { detail: { ...brandPayload, enabledServices: form.enabledServices } }));
         } catch (storageErr) {}
 
         // Live DOM Root Update
@@ -499,7 +548,8 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
           { id: 'sec-ticker', label: '4. Announcement Ticker', icon: Megaphone },
           { id: 'sec-hero', label: '5. Hero Headlines', icon: Layout },
           { id: 'sec-footer', label: '6. Footer & Website CMS', icon: Sparkles },
-          { id: 'sec-policies', label: '7. Tax & Pricing', icon: Percent }
+          { id: 'sec-policies', label: '7. Tax & Pricing', icon: Percent },
+          { id: 'sec-services', label: '8. Service Tabs (ON/OFF)', icon: Sliders }
         ].map((item) => (
           <button
             key={item.id}
@@ -1172,6 +1222,93 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated }) {
               className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-black font-mono focus:outline-hidden focus:border-purple-500"
             />
           </div>
+        </div>
+      </div>
+
+      {/* SECTION 8: NAVIGATION SERVICES & TOP TABS (ON / OFF SWITCHES) */}
+      <div id="sec-services" className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+              <Sliders className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-base font-extrabold text-slate-900">8. Website Service Tabs &amp; Navigation Modules (ON / OFF)</h4>
+              <p className="text-xs text-slate-500">
+                Aap website par jo service rakhna chahein ON rakhein, aur jo nahi rakhna chahein (jaise Trains) use OFF kar sakte hain. OFF karte hi website se gayab ho jayegi.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-black uppercase px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+            Live Instant Controls
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { id: 'flights', label: 'Flights', icon: Plane, desc: 'Domestic & International flight search, live radar & seat maps' },
+            { id: 'hotels', label: 'Hotels', icon: Building2, desc: 'Hotel rooms, holiday resorts, discounts & instant booking vouchers' },
+            { id: 'holidays', label: 'Holidays', icon: Palmtree, desc: 'Tour packages catalog, holiday itineraries & direct inquiries' },
+            { id: 'trains', label: 'Trains', icon: Train, desc: 'IRCTC railway bookings & PNR status (Turn OFF if you do not want trains)' },
+            { id: 'visa', label: 'Visa Services', icon: Globe2, desc: 'Express international visa guide & embassy documentation assistance' },
+            { id: 'checkin', label: 'Web Check-In', icon: CheckSquare, desc: 'Quick airline web check-in popup & boarding pass download' },
+            { id: 'pnr', label: 'Check PNR', icon: Search, desc: 'Instant PNR verification modal & flight status radar' }
+          ].map((service) => {
+            const isEnabled = form.enabledServices?.[service.id] !== false;
+            const Icon = service.icon;
+
+            return (
+              <div
+                key={service.id}
+                onClick={() => {
+                  setForm(prev => ({
+                    ...prev,
+                    enabledServices: {
+                      ...(prev.enabledServices || {}),
+                      [service.id]: !isEnabled
+                    }
+                  }));
+                }}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer select-none flex items-start justify-between gap-3 ${
+                  isEnabled
+                    ? 'bg-white border-sky-500/80 shadow-md ring-2 ring-sky-500/10'
+                    : 'bg-slate-50/80 border-slate-200/90 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    isEnabled ? 'bg-sky-500 text-white shadow-xs' : 'bg-slate-200 text-slate-500'
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h5 className="font-extrabold text-sm text-slate-900 truncate">{service.label}</h5>
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        isEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                      }`}>
+                        {isEnabled ? 'ACTIVE / ON' : 'OFF / HIDDEN'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {service.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Interactive Toggle Switch */}
+                <div className={`w-12 h-6 flex items-center rounded-full p-1 duration-300 cursor-pointer shrink-0 ${
+                  isEnabled ? 'bg-emerald-500 justify-end' : 'bg-slate-300 justify-start'
+                }`}>
+                  <motion.div
+                    layout
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className="bg-white w-4 h-4 rounded-full shadow-md"
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

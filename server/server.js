@@ -538,9 +538,9 @@ app.post('/api/admin/brand', (req, res) => {
       email: req.body.email || currentBrand.email || "care@airskyindia.com",
       phone: req.body.phone || currentBrand.phone || "+91 72248 28030",
       whatsapp: req.body.whatsapp || currentBrand.whatsapp || "+918077680310",
-      address: req.body.address || currentBrand.address || "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
       footer: req.body.footer ? { ...(currentBrand.footer || {}), ...req.body.footer } : (currentBrand.footer || {}),
       about: req.body.about ? { ...(currentBrand.about || {}), ...req.body.about } : (currentBrand.about || {}),
+      enabledServices: req.body.enabledServices ? { ...(currentBrand.enabledServices || {}), ...req.body.enabledServices } : (currentBrand.enabledServices || undefined),
       updatedAt: new Date().toISOString()
     };
 
@@ -555,6 +555,7 @@ app.post('/api/admin/brand', (req, res) => {
       currentSettings.supportPhone = updatedBrand.phone;
       currentSettings.brand = updatedBrand;
       if (req.body.footer) currentSettings.footer = updatedBrand.footer;
+      if (req.body.enabledServices) currentSettings.enabledServices = updatedBrand.enabledServices;
       writeJSON(SETTINGS_FILE, currentSettings);
     } catch (e) {}
 
