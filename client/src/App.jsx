@@ -39,6 +39,7 @@ function MainWebsite() {
   const [flights, setFlights] = useState([]);
   const [loadingFlights, setLoadingFlights] = useState(false);
   const [multiCityLegsData, setMultiCityLegsData] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Authenticated user state
   const [currentUser, setCurrentUser] = useState(() => {
@@ -165,7 +166,7 @@ function MainWebsite() {
   };
 
   useEffect(() => {
-    if (activeService === 'flights') {
+    if (activeService === 'flights' && hasSearched) {
       executeFlightSearch(searchParams);
     }
   }, [
@@ -174,13 +175,25 @@ function MainWebsite() {
     searchParams.date, 
     searchParams.tripType, 
     JSON.stringify(searchParams.legs || []),
-    activeService
+    activeService,
+    hasSearched
   ]);
 
   // Handle Search submit from Hero
   const handleHeroSearch = (newParams) => {
-    setSearchParams(prev => ({ ...prev, ...newParams }));
+    const updated = { ...searchParams, ...newParams };
+    setSearchParams(updated);
     setActiveService('flights');
+    setHasSearched(true);
+    executeFlightSearch(updated);
+
+    // Smooth scroll down to the flight results section
+    setTimeout(() => {
+      const el = document.getElementById('flight-results-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
   };
 
   // Handle Date change from Price Calendar
@@ -279,17 +292,21 @@ function MainWebsite() {
               searchParams={searchParams}
             />
 
-            {/* Flight Search Results & Dynamic Filters */}
-            <FlightList
-              flights={flights}
-              loading={loadingFlights}
-              searchParams={searchParams}
-              multiCityLegsData={multiCityLegsData}
-              airports={airports}
-              onDateChange={handleDateChange}
-              onBookFlight={handleInitiateBooking}
-              brand={brand}
-            />
+            {/* Flight Search Results & Dynamic Filters - Shown only after user clicks Search */}
+            {hasSearched && (
+              <div id="flight-results-section" className="scroll-mt-6">
+                <FlightList
+                  flights={flights}
+                  loading={loadingFlights}
+                  searchParams={searchParams}
+                  multiCityLegsData={multiCityLegsData}
+                  airports={airports}
+                  onDateChange={handleDateChange}
+                  onBookFlight={handleInitiateBooking}
+                  brand={brand}
+                />
+              </div>
+            )}
           </>
         )}
 
