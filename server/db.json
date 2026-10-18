@@ -1,0 +1,2074 @@
+{
+  "admin": {
+    "username": "admin@airskygo.com",
+    "password": "admin123",
+    "name": "Super Administrator",
+    "role": "Master Admin"
+  },
+  "airports": [
+    {
+      "code": "DEL",
+      "city": "New Delhi",
+      "name": "Indira Gandhi International Airport",
+      "country": "India"
+    },
+    {
+      "code": "BOM",
+      "city": "Mumbai",
+      "name": "Chhatrapati Shivaji Maharaj International Airport",
+      "country": "India"
+    },
+    {
+      "code": "BLR",
+      "city": "Bengaluru",
+      "name": "Kempegowda International Airport",
+      "country": "India"
+    },
+    {
+      "code": "GOI",
+      "city": "Goa",
+      "name": "Manohar (MOPA) / Dabolim Airport",
+      "country": "India"
+    },
+    {
+      "code": "HYD",
+      "city": "Hyderabad",
+      "name": "Rajiv Gandhi International Airport",
+      "country": "India"
+    },
+    {
+      "code": "CCU",
+      "city": "Kolkata",
+      "name": "Netaji Subhash Chandra Bose International Airport",
+      "country": "India"
+    },
+    {
+      "code": "MAA",
+      "city": "Chennai",
+      "name": "Chennai International Airport",
+      "country": "India"
+    },
+    {
+      "code": "AMD",
+      "city": "Ahmedabad",
+      "name": "Sardar Vallabhbhai Patel International Airport",
+      "country": "India"
+    },
+    {
+      "code": "JAI",
+      "city": "Jaipur",
+      "name": "Jaipur International Airport",
+      "country": "India"
+    },
+    {
+      "code": "COK",
+      "city": "Kochi",
+      "name": "Cochin International Airport",
+      "country": "India"
+    },
+    {
+      "code": "PNQ",
+      "city": "Pune",
+      "name": "Pune International Airport",
+      "country": "India"
+    },
+    {
+      "code": "LKO",
+      "city": "Lucknow",
+      "name": "Chaudhary Charan Singh International Airport",
+      "country": "India"
+    },
+    {
+      "code": "VNS",
+      "city": "Varanasi",
+      "name": "Lal Bahadur Shastri International Airport",
+      "country": "India"
+    },
+    {
+      "code": "PAT",
+      "city": "Patna",
+      "name": "Jay Prakash Narayan Airport",
+      "country": "India"
+    },
+    {
+      "code": "SXR",
+      "city": "Srinagar",
+      "name": "Sheikh ul-Alam International Airport",
+      "country": "India"
+    },
+    {
+      "code": "IXC",
+      "city": "Chandigarh",
+      "name": "Shaheed Bhagat Singh International Airport",
+      "country": "India"
+    },
+    {
+      "code": "ATQ",
+      "city": "Amritsar",
+      "name": "Sri Guru Ram Dass Jee International Airport",
+      "country": "India"
+    },
+    {
+      "code": "IDR",
+      "city": "Indore",
+      "name": "Devi Ahilyabai Holkar Airport",
+      "country": "India"
+    },
+    {
+      "code": "BHO",
+      "city": "Bhopal",
+      "name": "Raja Bhoj Airport",
+      "country": "India"
+    },
+    {
+      "code": "NAG",
+      "city": "Nagpur",
+      "name": "Dr. Babasaheb Ambedkar International Airport",
+      "country": "India"
+    },
+    {
+      "code": "GAU",
+      "city": "Guwahati",
+      "name": "Lokpriya Gopinath Bordoloi International Airport",
+      "country": "India"
+    },
+    {
+      "code": "BBI",
+      "city": "Bhubaneswar",
+      "name": "Biju Patnaik Airport",
+      "country": "India"
+    },
+    {
+      "code": "IXB",
+      "city": "Bagdogra",
+      "name": "Bagdogra Airport",
+      "country": "India"
+    },
+    {
+      "code": "VTZ",
+      "city": "Visakhapatnam",
+      "name": "Visakhapatnam Airport",
+      "country": "India"
+    },
+    {
+      "code": "TRV",
+      "city": "Thiruvananthapuram",
+      "name": "Trivandrum International Airport",
+      "country": "India"
+    },
+    {
+      "code": "CJB",
+      "city": "Coimbatore",
+      "name": "Coimbatore International Airport",
+      "country": "India"
+    },
+    {
+      "code": "IXE",
+      "city": "Mangaluru",
+      "name": "Mangalore International Airport",
+      "country": "India"
+    },
+    {
+      "code": "STV",
+      "city": "Surat",
+      "name": "Surat Airport",
+      "country": "India"
+    },
+    {
+      "code": "UDR",
+      "city": "Udaipur",
+      "name": "Maharana Pratap Airport",
+      "country": "India"
+    },
+    {
+      "code": "DED",
+      "city": "Dehradun",
+      "name": "Jolly Grant Airport",
+      "country": "India"
+    },
+    {
+      "code": "IXJ",
+      "city": "Jammu",
+      "name": "Jammu Airport",
+      "country": "India"
+    },
+    {
+      "code": "IXL",
+      "city": "Leh",
+      "name": "Kushok Bakula Rimpochee Airport",
+      "country": "India"
+    },
+    {
+      "code": "DXB",
+      "city": "Dubai",
+      "name": "Dubai International Airport",
+      "country": "United Arab Emirates"
+    },
+    {
+      "code": "BKK",
+      "city": "Bangkok",
+      "name": "Suvarnabhumi Airport",
+      "country": "Thailand"
+    },
+    {
+      "code": "SIN",
+      "city": "Singapore",
+      "name": "Singapore Changi Airport",
+      "country": "Singapore"
+    },
+    {
+      "code": "LHR",
+      "city": "London",
+      "name": "London Heathrow Airport",
+      "country": "United Kingdom"
+    },
+    {
+      "code": "JFK",
+      "city": "New York",
+      "name": "John F. Kennedy International Airport",
+      "country": "United States"
+    },
+    {
+      "code": "DOH",
+      "city": "Doha",
+      "name": "Hamad International Airport",
+      "country": "Qatar"
+    },
+    {
+      "code": "AUH",
+      "city": "Abu Dhabi",
+      "name": "Zayed International Airport",
+      "country": "United Arab Emirates"
+    },
+    {
+      "code": "KUL",
+      "city": "Kuala Lumpur",
+      "name": "Kuala Lumpur International Airport",
+      "country": "Malaysia"
+    },
+    {
+      "code": "KTM",
+      "city": "Kathmandu",
+      "name": "Tribhuvan International Airport",
+      "country": "Nepal"
+    }
+  ],
+  "apis": {
+    "activeProvider": "serper",
+    "serper": {
+      "apiKey": "d30af7862151eb32682499f5604c67e3045121b8",
+      "enabled": true,
+      "engine": "google_search",
+      "status": "Not Configured"
+    },
+    "amadeus": {
+      "clientId": "",
+      "clientSecret": "",
+      "environment": "test",
+      "enabled": false,
+      "status": "Not Configured"
+    },
+    "aviationStack": {
+      "accessKey": "",
+      "enabled": false,
+      "status": "Not Configured"
+    },
+    "serpapi": {
+      "apiKey": "test_key_auto",
+      "enabled": true,
+      "engine": "google_flights",
+      "status": "Configured (Google Flights)"
+    }
+  },
+  "bookings": [
+    {
+      "pnr": "ASG-537786",
+      "bookingId": "AS537786",
+      "flightId": "FL-103",
+      "flightNumber": "UK-993",
+      "airline": "Vistara",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-11-15",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Rahul",
+          "lastName": "Sharma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "rahul.test@example.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4500,
+        "seatCost": 200,
+        "mealsCost": 0,
+        "taxes": 540,
+        "discount": 500,
+        "total": 4740
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "TXN_1792327359038",
+        "utrNumber": "123456789012",
+        "status": "Paid",
+        "paidAt": "2026-10-18T12:42:39.040Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "Confirmed",
+      "createdAt": "2026-10-18T12:42:39.040Z"
+    },
+    {
+      "pnr": "ASG-799323",
+      "bookingId": "AS799323",
+      "flightId": "FL-103",
+      "flightNumber": "UK-993",
+      "airline": "Vistara",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-11-15",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Rahul",
+          "lastName": "Sharma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "rahul.test@example.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4500,
+        "seatCost": 200,
+        "mealsCost": 0,
+        "taxes": 540,
+        "discount": 500,
+        "total": 4740
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "TXN_1792327267327",
+        "utrNumber": "123456789012",
+        "status": "Paid",
+        "paidAt": "2026-10-18T12:41:07.329Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "Confirmed",
+      "createdAt": "2026-10-18T12:41:07.329Z"
+    },
+    {
+      "pnr": "ASG-907764",
+      "bookingId": "AS907764",
+      "flightId": "FL-103",
+      "flightNumber": "UK-993",
+      "airline": "Vistara",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-11-15",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Rahul",
+          "lastName": "Sharma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "rahul.test@example.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4500,
+        "seatCost": 200,
+        "mealsCost": 0,
+        "taxes": 540,
+        "discount": 500,
+        "total": 4740
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "TXN_1792327221662",
+        "utrNumber": "123456789012",
+        "status": "Paid",
+        "paidAt": "2026-10-18T12:40:21.664Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "Confirmed",
+      "createdAt": "2026-10-18T12:40:21.664Z"
+    },
+    {
+      "pnr": "ASG-250235",
+      "bookingId": "GS250235",
+      "flightId": "FL-103",
+      "flightNumber": "UK-993",
+      "airline": "Vistara",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-11-15",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Rahul",
+          "lastName": "Sharma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "rahul.test@example.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4500,
+        "seatCost": 200,
+        "mealsCost": 0,
+        "taxes": 540,
+        "discount": 500,
+        "total": 4740
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "TXN_1792326983051",
+        "utrNumber": "123456789012",
+        "status": "Paid",
+        "paidAt": "2026-10-18T12:36:23.056Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "Confirmed",
+      "createdAt": "2026-10-18T12:36:23.056Z"
+    },
+    {
+      "pnr": "ASG-828096",
+      "bookingId": "BK-954159",
+      "flightId": 1,
+      "flightNumber": "6E-2024",
+      "airline": "IndiGo",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-10-25",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Aman",
+          "lastName": "Verma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "aman@test.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4000,
+        "seatCost": 0,
+        "mealsCost": 0,
+        "taxes": 750,
+        "discount": 0,
+        "total": 4500
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "123456789012",
+        "utrNumber": "123456789012",
+        "status": "Verification Pending",
+        "paidAt": "2026-10-18T11:29:14.159Z",
+        "paidToVpa": "paytm.s2zbyoe@pty"
+      },
+      "checkInStatus": "Pending Verification",
+      "status": "VERIFICATION_PENDING",
+      "createdAt": "2026-10-18T11:29:14.159Z"
+    },
+    {
+      "pnr": "ASG-218237",
+      "bookingId": "BK-908609",
+      "flightId": 1,
+      "flightNumber": "6E-2024",
+      "airline": "IndiGo",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "DEL",
+      "toCity": "BOM",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-10-25",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "travelClass": "Economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Aman",
+          "lastName": "Verma",
+          "seat": "12A"
+        }
+      ],
+      "contact": {
+        "email": "aman@test.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 4000,
+        "seatCost": 0,
+        "mealsCost": 0,
+        "taxes": 750,
+        "discount": 0,
+        "total": 4500
+      },
+      "payment": {
+        "method": "UPI",
+        "transactionId": "123456789012",
+        "status": "Paid",
+        "paidAt": "2026-10-18T11:28:28.609Z"
+      },
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-18T11:28:28.609Z"
+    }
+  ],
+  "brand": {
+    "name": "AIR SKY Go",
+    "short_name": "Air Sky",
+    "tagline": "Premium Luxury Travel",
+    "primary_color": "#0284c7",
+    "hover_color": "#0369a1",
+    "dark_color": "#0f172a",
+    "light_color": "#f0f9ff",
+    "brand_text_color": "#0B1F3A",
+    "tagline_color": "#64748b",
+    "logo": "",
+    "email": "care@airskyindia.com",
+    "phone": "+91 72248 28030",
+    "whatsapp": "+918077680310",
+    "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
+    "updatedAt": "2026-10-18T13:13:45.679Z"
+  },
+  "coupons": [
+    {
+      "id": "CPN-1",
+      "code": "AIRSKY500",
+      "type": "flat",
+      "discount": 500,
+      "minAmount": 3000,
+      "description": "Flat ₹500 off on any domestic or international flight",
+      "status": "Active"
+    },
+    {
+      "id": "CPN-2",
+      "code": "FLYHIGH",
+      "type": "percent",
+      "discount": 10,
+      "maxDiscount": 1500,
+      "minAmount": 4000,
+      "description": "10% instant discount up to ₹1,500",
+      "status": "Active"
+    },
+    {
+      "id": "CPN-3",
+      "code": "IXIGO50",
+      "type": "flat",
+      "discount": 750,
+      "minAmount": 5000,
+      "description": "Special ₹750 Super Saver discount",
+      "status": "Active"
+    },
+    {
+      "id": "CPN-4",
+      "code": "FIRSTFLY",
+      "type": "flat",
+      "discount": 1000,
+      "minAmount": 6000,
+      "description": "Welcome bonus ₹1,000 off on first flight",
+      "status": "Active"
+    }
+  ],
+  "flights": [
+    {
+      "id": "FL-101",
+      "flightNumber": "6E-2041",
+      "airline": "IndiGo",
+      "airlineCode": "6E",
+      "airlineColor": "#002B7F",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "departureTime": "06:00",
+      "arrivalTime": "08:15",
+      "duration": "2h 15m",
+      "stops": 0,
+      "aircraft": "Airbus A320neo",
+      "basePrice": 4299,
+      "classes": {
+        "economy": 4299,
+        "premiumEconomy": 6499,
+        "business": 12999
+      },
+      "seatsTotal": 180,
+      "seatsAvailable": 142,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T1D",
+        "to": "T2"
+      },
+      "airlineLogo": "/airlines/6E.png"
+    },
+    {
+      "id": "FL-102",
+      "flightNumber": "AI-805",
+      "airline": "Air India",
+      "airlineCode": "AI",
+      "airlineColor": "#E21836",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "departureTime": "08:00",
+      "arrivalTime": "10:15",
+      "duration": "2h 15m",
+      "stops": 0,
+      "aircraft": "Boeing 777-300ER",
+      "basePrice": 4850,
+      "classes": {
+        "economy": 4850,
+        "premiumEconomy": 7200,
+        "business": 14500
+      },
+      "seatsTotal": 240,
+      "seatsAvailable": 88,
+      "baggage": "Cabin: 7 kg, Check-in: 20 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "Boarding",
+      "terminal": {
+        "from": "T3",
+        "to": "T2"
+      },
+      "airlineLogo": "/airlines/AI.png"
+    },
+    {
+      "id": "FL-103",
+      "flightNumber": "UK-993",
+      "airline": "Vistara",
+      "airlineCode": "UK",
+      "airlineColor": "#5C0632",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "departureTime": "11:30",
+      "arrivalTime": "13:45",
+      "duration": "2h 15m",
+      "stops": 0,
+      "aircraft": "Airbus A321neo",
+      "basePrice": 5199,
+      "classes": {
+        "economy": 5199,
+        "premiumEconomy": 7899,
+        "business": 15999
+      },
+      "seatsTotal": 164,
+      "seatsAvailable": 54,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T3",
+        "to": "T2"
+      },
+      "airlineLogo": "/airlines/UK.png"
+    },
+    {
+      "id": "FL-104",
+      "flightNumber": "QP-1321",
+      "airline": "Akasa Air",
+      "airlineCode": "QP",
+      "airlineColor": "#FF5900",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "departureTime": "14:45",
+      "arrivalTime": "17:05",
+      "duration": "2h 20m",
+      "stops": 0,
+      "aircraft": "Boeing 737 MAX 8",
+      "basePrice": 3999,
+      "classes": {
+        "economy": 3999,
+        "premiumEconomy": 5999,
+        "business": 11499
+      },
+      "seatsTotal": 189,
+      "seatsAvailable": 120,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": false,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T2",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/QP.png"
+    },
+    {
+      "id": "FL-105",
+      "flightNumber": "SG-8169",
+      "airline": "SpiceJet",
+      "airlineCode": "SG",
+      "airlineColor": "#EE3124",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "departureTime": "19:15",
+      "arrivalTime": "22:40",
+      "duration": "3h 25m",
+      "stops": 1,
+      "layoverCity": "Jaipur (JAI) 45m stop",
+      "aircraft": "Boeing 737-800",
+      "basePrice": 3499,
+      "classes": {
+        "economy": 3499,
+        "premiumEconomy": 5199,
+        "business": 9999
+      },
+      "seatsTotal": 180,
+      "seatsAvailable": 62,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "Delayed (20m)",
+      "terminal": {
+        "from": "T1D",
+        "to": "T2"
+      },
+      "airlineLogo": "/airlines/SG.png"
+    },
+    {
+      "id": "FL-201",
+      "flightNumber": "6E-5318",
+      "airline": "IndiGo",
+      "airlineCode": "6E",
+      "airlineColor": "#002B7F",
+      "from": "BOM",
+      "to": "DEL",
+      "fromCity": "Mumbai",
+      "toCity": "New Delhi",
+      "departureTime": "07:15",
+      "arrivalTime": "09:30",
+      "duration": "2h 15m",
+      "stops": 0,
+      "aircraft": "Airbus A320neo",
+      "basePrice": 4350,
+      "classes": {
+        "economy": 4350,
+        "premiumEconomy": 6500,
+        "business": 13200
+      },
+      "seatsTotal": 180,
+      "seatsAvailable": 95,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T2",
+        "to": "T1D"
+      },
+      "airlineLogo": "/airlines/6E.png"
+    },
+    {
+      "id": "FL-202",
+      "flightNumber": "AI-660",
+      "airline": "Air India",
+      "airlineCode": "AI",
+      "airlineColor": "#E21836",
+      "from": "BOM",
+      "to": "DEL",
+      "fromCity": "Mumbai",
+      "toCity": "New Delhi",
+      "departureTime": "16:20",
+      "arrivalTime": "18:40",
+      "duration": "2h 20m",
+      "stops": 0,
+      "aircraft": "Airbus A350-900",
+      "basePrice": 4999,
+      "classes": {
+        "economy": 4999,
+        "premiumEconomy": 7499,
+        "business": 15499
+      },
+      "seatsTotal": 316,
+      "seatsAvailable": 110,
+      "baggage": "Cabin: 7 kg, Check-in: 25 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T2",
+        "to": "T3"
+      },
+      "airlineLogo": "/airlines/AI.png"
+    },
+    {
+      "id": "FL-301",
+      "flightNumber": "6E-6125",
+      "airline": "IndiGo",
+      "airlineCode": "6E",
+      "airlineColor": "#002B7F",
+      "from": "DEL",
+      "to": "BLR",
+      "fromCity": "New Delhi",
+      "toCity": "Bengaluru",
+      "departureTime": "09:10",
+      "arrivalTime": "12:00",
+      "duration": "2h 50m",
+      "stops": 0,
+      "aircraft": "Airbus A321neo",
+      "basePrice": 5499,
+      "classes": {
+        "economy": 5499,
+        "premiumEconomy": 7999,
+        "business": 14999
+      },
+      "seatsTotal": 222,
+      "seatsAvailable": 140,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T1D",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/6E.png"
+    },
+    {
+      "id": "FL-302",
+      "flightNumber": "UK-817",
+      "airline": "Vistara",
+      "airlineCode": "UK",
+      "airlineColor": "#5C0632",
+      "from": "DEL",
+      "to": "BLR",
+      "fromCity": "New Delhi",
+      "toCity": "Bengaluru",
+      "departureTime": "15:30",
+      "arrivalTime": "18:20",
+      "duration": "2h 50m",
+      "stops": 0,
+      "aircraft": "Airbus A320neo",
+      "basePrice": 6199,
+      "classes": {
+        "economy": 6199,
+        "premiumEconomy": 8899,
+        "business": 16999
+      },
+      "seatsTotal": 164,
+      "seatsAvailable": 48,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "In-Air",
+      "terminal": {
+        "from": "T3",
+        "to": "T2"
+      },
+      "airlineLogo": "/airlines/UK.png"
+    },
+    {
+      "id": "FL-401",
+      "flightNumber": "QP-1512",
+      "airline": "Akasa Air",
+      "airlineCode": "QP",
+      "airlineColor": "#FF5900",
+      "from": "DEL",
+      "to": "GOI",
+      "fromCity": "New Delhi",
+      "toCity": "Goa",
+      "departureTime": "10:00",
+      "arrivalTime": "12:40",
+      "duration": "2h 40m",
+      "stops": 0,
+      "aircraft": "Boeing 737 MAX 8",
+      "basePrice": 4699,
+      "classes": {
+        "economy": 4699,
+        "premiumEconomy": 6799,
+        "business": 12499
+      },
+      "seatsTotal": 189,
+      "seatsAvailable": 75,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T2",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/QP.png"
+    },
+    {
+      "id": "FL-402",
+      "flightNumber": "6E-344",
+      "airline": "IndiGo",
+      "airlineCode": "6E",
+      "airlineColor": "#002B7F",
+      "from": "DEL",
+      "to": "GOI",
+      "fromCity": "New Delhi",
+      "toCity": "Goa",
+      "departureTime": "13:45",
+      "arrivalTime": "16:25",
+      "duration": "2h 40m",
+      "stops": 0,
+      "aircraft": "Airbus A320neo",
+      "basePrice": 4999,
+      "classes": {
+        "economy": 4999,
+        "premiumEconomy": 7199,
+        "business": 13999
+      },
+      "seatsTotal": 180,
+      "seatsAvailable": 64,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T1D",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/6E.png"
+    },
+    {
+      "id": "FL-501",
+      "flightNumber": "6E-518",
+      "airline": "IndiGo",
+      "airlineCode": "6E",
+      "airlineColor": "#002B7F",
+      "from": "BOM",
+      "to": "GOI",
+      "fromCity": "Mumbai",
+      "toCity": "Goa",
+      "departureTime": "11:15",
+      "arrivalTime": "12:30",
+      "duration": "1h 15m",
+      "stops": 0,
+      "aircraft": "ATR 72-600",
+      "basePrice": 2999,
+      "classes": {
+        "economy": 2999,
+        "premiumEconomy": 4499,
+        "business": 8499
+      },
+      "seatsTotal": 78,
+      "seatsAvailable": 32,
+      "baggage": "Cabin: 7 kg, Check-in: 15 kg",
+      "mealIncluded": false,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T1",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/6E.png"
+    },
+    {
+      "id": "FL-601",
+      "flightNumber": "EK-511",
+      "airline": "Emirates",
+      "airlineCode": "EK",
+      "airlineColor": "#D71921",
+      "from": "DEL",
+      "to": "DXB",
+      "fromCity": "New Delhi",
+      "toCity": "Dubai",
+      "departureTime": "04:15",
+      "arrivalTime": "06:50",
+      "duration": "4h 05m",
+      "stops": 0,
+      "aircraft": "Boeing 777-300ER",
+      "basePrice": 14999,
+      "classes": {
+        "economy": 14999,
+        "premiumEconomy": 23500,
+        "business": 48900
+      },
+      "seatsTotal": 354,
+      "seatsAvailable": 80,
+      "baggage": "Cabin: 7 kg, Check-in: 30 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T3",
+        "to": "T3"
+      },
+      "airlineLogo": "/airlines/EK.png"
+    },
+    {
+      "id": "FL-602",
+      "flightNumber": "AI-995",
+      "airline": "Air India",
+      "airlineCode": "AI",
+      "airlineColor": "#E21836",
+      "from": "DEL",
+      "to": "DXB",
+      "fromCity": "New Delhi",
+      "toCity": "Dubai",
+      "departureTime": "20:00",
+      "arrivalTime": "22:30",
+      "duration": "4h 00m",
+      "stops": 0,
+      "aircraft": "Boeing 787-8 Dreamliner",
+      "basePrice": 12850,
+      "classes": {
+        "economy": 12850,
+        "premiumEconomy": 19800,
+        "business": 42500
+      },
+      "seatsTotal": 256,
+      "seatsAvailable": 110,
+      "baggage": "Cabin: 7 kg, Check-in: 25 kg",
+      "mealIncluded": true,
+      "refundable": true,
+      "status": "On-Time",
+      "terminal": {
+        "from": "T3",
+        "to": "T1"
+      },
+      "airlineLogo": "/airlines/AI.png"
+    }
+  ],
+  "holidays": [
+    {
+      "id": "PKG-GOA-01",
+      "title": "Enchanting Goa Beach & Cruise Vacation",
+      "destination": "Goa, India",
+      "duration": "4 Days / 3 Nights",
+      "price": 8999,
+      "originalPrice": 12500,
+      "rating": 4.8,
+      "image": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "3 Star Beach Resort",
+        "Daily Breakfast & Dinner",
+        "Mandovi Sunset Cruise",
+        "South Goa Sightseeing",
+        "Airport Transfers"
+      ],
+      "badge": "Bestseller",
+      "flightsIncluded": true,
+      "active": true
+    },
+    {
+      "id": "PKG-KASH-02",
+      "title": "Heaven on Earth: Kashmir Valley & Houseboat",
+      "destination": "Srinagar, Gulmarg, Pahalgam",
+      "duration": "6 Days / 5 Nights",
+      "price": 16999,
+      "originalPrice": 22000,
+      "rating": 4.9,
+      "image": "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Dal Lake Luxury Houseboat",
+        "Gulmarg Gondola Ticket",
+        "Shikara Ride",
+        "Private Cab for transfers",
+        "All Meals"
+      ],
+      "badge": "Trending",
+      "flightsIncluded": false,
+      "active": true
+    },
+    {
+      "id": "PKG-KER-03",
+      "title": "Kerala Backwaters & Munnar Hills Escape",
+      "destination": "Munnar, Thekkady, Alleppey",
+      "duration": "5 Days / 4 Nights",
+      "price": 14499,
+      "originalPrice": 19000,
+      "rating": 4.7,
+      "image": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Alleppey Houseboat Stay",
+        "Tea Garden Tour",
+        "Spice Plantation Visit",
+        "All Transfers by A/C Sedan"
+      ],
+      "badge": "Family Special",
+      "flightsIncluded": false,
+      "active": true
+    },
+    {
+      "id": "PKG-DXB-04",
+      "title": "Dubai Extravaganza: Desert Safari & Burj Khalifa",
+      "destination": "Dubai, UAE",
+      "duration": "5 Days / 4 Nights",
+      "price": 31999,
+      "originalPrice": 39999,
+      "rating": 4.9,
+      "image": "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Burj Khalifa 124th Floor",
+        "Desert Safari with BBQ Dinner",
+        "Dhow Cruise Marina",
+        "Dubai City Tour",
+        "UAE Visa Included"
+      ],
+      "badge": "International Hit",
+      "flightsIncluded": true,
+      "active": true
+    },
+    {
+      "id": "PKG-BALI-05",
+      "title": "Tropical Bali & Nusa Penida Island Gateway",
+      "destination": "Bali, Indonesia",
+      "duration": "6 Days / 5 Nights",
+      "price": 34999,
+      "originalPrice": 44000,
+      "rating": 4.9,
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Private Pool Villa",
+        "Nusa Penida Day Tour with Speedboat",
+        "Ubud Kintamani Volcano",
+        "Balinese Spa Session"
+      ],
+      "badge": "Honeymoon Special",
+      "flightsIncluded": false,
+      "active": true
+    },
+    {
+      "id": "PKG-THAI-06",
+      "title": "Amazing Thailand: Bangkok & Pattaya Wonders",
+      "destination": "Bangkok & Pattaya, Thailand",
+      "duration": "5 Days / 4 Nights",
+      "price": 22499,
+      "originalPrice": 28999,
+      "rating": 4.6,
+      "image": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Coral Island Tour by Speedboat",
+        "Alcazar Cabaret Show",
+        "Bangkok Temple Tour",
+        "Chao Phraya Dinner Cruise"
+      ],
+      "badge": "Budget Friendly",
+      "flightsIncluded": true,
+      "active": true
+    },
+    {
+      "id": "PKG-MAN-07",
+      "title": "Magical Manali & Solang Valley Snow Tour",
+      "destination": "Manali, Himachal Pradesh",
+      "duration": "5 Days / 4 Nights",
+      "price": 10999,
+      "originalPrice": 15000,
+      "rating": 4.8,
+      "image": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Luxury Mountain View Hotel",
+        "Solang Valley Adventure Passes",
+        "Atal Tunnel & Sissu Excursion",
+        "All Transfers by Personal Cab",
+        "Daily Buffet Breakfast & Dinner"
+      ],
+      "badge": "Snow Special",
+      "flightsIncluded": false,
+      "active": true
+    },
+    {
+      "id": "PKG-RAJ-08",
+      "title": "Royal Rajasthan: Jaipur, Jodhpur & Udaipur",
+      "destination": "Rajasthan, India",
+      "duration": "7 Days / 6 Nights",
+      "price": 19499,
+      "originalPrice": 25000,
+      "rating": 4.9,
+      "image": "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80",
+      "inclusions": [
+        "Heritage Haveli Stays",
+        "Amber Fort & City Palace Guided Tours",
+        "Lake Pichola Boat Ride",
+        "Traditional Rajasthani Cultural Dinner",
+        "A/C Private Vehicle"
+      ],
+      "badge": "Royal Heritage",
+      "flightsIncluded": false,
+      "active": true
+    }
+  ],
+  "holiday_inquiries": [
+    {
+      "inquiryId": "INQ-8684",
+      "id": "INQ-8684",
+      "packageId": "PKG-GOA-01",
+      "packageName": "Enchanting Goa Beach & Cruise Vacation",
+      "customerName": "Amit Patel",
+      "customerPhone": "9823456789",
+      "customerEmail": "amit.test@example.com",
+      "travelDate": "2026-12-10",
+      "travellers": 4,
+      "notes": "",
+      "status": "Quotation Sent",
+      "createdAt": "2026-10-18T12:42:39.055Z"
+    },
+    {
+      "inquiryId": "INQ-2264",
+      "id": "INQ-2264",
+      "packageId": "PKG-GOA-01",
+      "packageName": "Enchanting Goa Beach & Cruise Vacation",
+      "customerName": "Amit Patel",
+      "customerPhone": "9823456789",
+      "customerEmail": "amit.test@example.com",
+      "travelDate": "2026-12-10",
+      "travellers": 4,
+      "notes": "",
+      "status": "Quotation Sent",
+      "createdAt": "2026-10-18T12:41:07.343Z"
+    },
+    {
+      "inquiryId": "INQ-7438",
+      "id": "INQ-7438",
+      "packageId": "PKG-GOA-01",
+      "packageName": "Enchanting Goa Beach & Cruise Vacation",
+      "customerName": "Amit Patel",
+      "customerPhone": "9823456789",
+      "customerEmail": "amit.test@example.com",
+      "travelDate": "2026-12-10",
+      "travellers": 4,
+      "notes": "",
+      "status": "Quotation Sent",
+      "createdAt": "2026-10-18T12:40:21.679Z"
+    },
+    {
+      "inquiryId": "INQ-7801",
+      "packageId": "pkg-1",
+      "packageName": "Goa Beach Paradise & Watersports",
+      "customerName": "Vikram Mehta",
+      "customerPhone": "+91 98200 12345",
+      "customerEmail": "vikram.mehta@yahoo.com",
+      "travelDate": "2026-11-10",
+      "travellers": 2,
+      "notes": "Need sea view room and airport pickup",
+      "status": "NEW",
+      "createdAt": "2026-10-17T18:20:00.000Z"
+    }
+  ],
+  "hotels": [
+    {
+      "id": "HTL-101",
+      "name": "Taj Exotica Resort & Spa",
+      "city": "Goa",
+      "location": "Benaulim Beach, South Goa",
+      "stars": 5,
+      "rating": 4.9,
+      "reviewsCount": 1420,
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+      "price": 14500,
+      "originalPrice": 18500,
+      "discount": "22% OFF",
+      "amenities": [
+        "Beachfront",
+        "Swimming Pool",
+        "Free Breakfast",
+        "Spa & Wellness",
+        "Free Wi-Fi",
+        "Free Airport Shuttle"
+      ],
+      "badge": "Top Rated Luxury",
+      "roomType": "Deluxe Sea View Villa"
+    },
+    {
+      "id": "HTL-102",
+      "name": "The Oberoi Grand",
+      "city": "Mumbai",
+      "location": "Nariman Point, Marine Drive",
+      "stars": 5,
+      "rating": 4.8,
+      "reviewsCount": 980,
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+      "price": 12800,
+      "originalPrice": 16000,
+      "discount": "20% OFF",
+      "amenities": [
+        "Arabian Sea View",
+        "Fine Dining",
+        "Fitness Center",
+        "Free Wi-Fi",
+        "Valet Parking"
+      ],
+      "badge": "Celebrity Favorite",
+      "roomType": "Premier Ocean King Room"
+    },
+    {
+      "id": "HTL-103",
+      "name": "The Leela Palace",
+      "city": "Delhi",
+      "location": "Diplomatic Enclave, Chanakyapuri",
+      "stars": 5,
+      "rating": 4.9,
+      "reviewsCount": 2100,
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+      "price": 16200,
+      "originalPrice": 21000,
+      "discount": "23% OFF",
+      "amenities": [
+        "Rooftop Infinity Pool",
+        "Award-winning Spa",
+        "Free Breakfast",
+        "Royal Architecture"
+      ],
+      "badge": "Palatial Luxury",
+      "roomType": "Royal Club Suite"
+    },
+    {
+      "id": "HTL-104",
+      "name": "Radisson Blu Resort",
+      "city": "Goa",
+      "location": "Cavelossim Beach, Goa",
+      "stars": 4,
+      "rating": 4.6,
+      "reviewsCount": 850,
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80",
+      "price": 6490,
+      "originalPrice": 8500,
+      "discount": "24% OFF",
+      "amenities": [
+        "Pool Access",
+        "Near Beach",
+        "Free Wi-Fi",
+        "Buffet Breakfast",
+        "Bar & Lounge"
+      ],
+      "badge": "Best Value",
+      "roomType": "Superior Garden Room"
+    },
+    {
+      "id": "HTL-105",
+      "name": "Atlantis The Royal",
+      "city": "Dubai",
+      "location": "Palm Jumeirah, Dubai",
+      "stars": 5,
+      "rating": 5,
+      "reviewsCount": 3200,
+      "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "price": 38900,
+      "originalPrice": 48000,
+      "discount": "19% OFF",
+      "amenities": [
+        "Aquaventure Waterpark",
+        "Michelin Star Dining",
+        "Private Beach",
+        "Sky Pool"
+      ],
+      "badge": "World's Ultra Luxury",
+      "roomType": "Sky View Terrace Suite"
+    },
+    {
+      "id": "HTL-106",
+      "name": "Alila Villas Uluwatu",
+      "city": "Bali",
+      "location": "Pecatu, South Kuta, Bali",
+      "stars": 5,
+      "rating": 4.9,
+      "reviewsCount": 1150,
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+      "price": 28500,
+      "originalPrice": 34000,
+      "discount": "16% OFF",
+      "amenities": [
+        "Cliffside Ocean View",
+        "Private Pool",
+        "Complimentary Yoga",
+        "Butler Service"
+      ],
+      "badge": "Honeymoon Paradise",
+      "roomType": "One-Bedroom Pool Villa"
+    }
+  ],
+  "hotel_bookings": [
+    {
+      "bookingId": "HTL-8366",
+      "id": "HTL-8366",
+      "hotelId": "HTL-GOA-1",
+      "hotelName": "Taj Exotica Resort & Spa Goa",
+      "city": "Goa",
+      "customerName": "Sunita Verma",
+      "customerPhone": "9812345678",
+      "customerEmail": "sunita.test@example.com",
+      "checkIn": "2026-11-20",
+      "checkOut": "2026-11-23",
+      "guests": 2,
+      "totalPrice": 4500,
+      "paymentType": "Pay at Hotel",
+      "status": "Contacted",
+      "createdAt": "2026-10-18T12:42:39.050Z"
+    },
+    {
+      "bookingId": "HTL-4893",
+      "id": "HTL-4893",
+      "hotelId": "HTL-GOA-1",
+      "hotelName": "Taj Exotica Resort & Spa Goa",
+      "city": "Goa",
+      "customerName": "Sunita Verma",
+      "customerPhone": "9812345678",
+      "customerEmail": "sunita.test@example.com",
+      "checkIn": "2026-11-20",
+      "checkOut": "2026-11-23",
+      "guests": 2,
+      "totalPrice": 4500,
+      "paymentType": "Pay at Hotel",
+      "status": "Contacted",
+      "createdAt": "2026-10-18T12:41:07.338Z"
+    },
+    {
+      "bookingId": "HTL-5107",
+      "id": "HTL-5107",
+      "hotelId": "HTL-GOA-1",
+      "hotelName": "Taj Exotica Resort & Spa Goa",
+      "city": "Goa",
+      "customerName": "Sunita Verma",
+      "customerPhone": "9812345678",
+      "customerEmail": "sunita.test@example.com",
+      "checkIn": "2026-11-20",
+      "checkOut": "2026-11-23",
+      "guests": 2,
+      "totalPrice": 4500,
+      "paymentType": "Pay at Hotel",
+      "status": "Contacted",
+      "createdAt": "2026-10-18T12:40:21.674Z"
+    },
+    {
+      "bookingId": "HTL-8605",
+      "hotelId": "HTL-GOA-1",
+      "hotelName": "Taj Exotica Resort & Spa Goa",
+      "city": "Goa",
+      "customerName": "Valued Guest",
+      "customerPhone": "",
+      "customerEmail": "",
+      "checkIn": "2026-11-20",
+      "checkOut": "2026-11-23",
+      "guests": 2,
+      "totalPrice": 4500,
+      "paymentType": "Pay at Hotel",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-18T12:36:23.080Z"
+    },
+    {
+      "bookingId": "HTL-4255",
+      "hotelId": "SERPER-HTL-1-DUBAI",
+      "hotelName": "Atlantis - The Palm",
+      "city": "Dubai",
+      "customerName": "Manish Kumar",
+      "customerPhone": "+91 9876543210",
+      "customerEmail": "manish@example.com",
+      "checkIn": "2026-10-20",
+      "checkOut": "2026-10-23",
+      "guests": "2 Adults, 1 Room",
+      "totalPrice": 32500,
+      "paymentType": "Pay at Hotel",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-17T21:31:00.392Z"
+    },
+    {
+      "bookingId": "HTL-9021",
+      "hotelId": "htl-1",
+      "hotelName": "Taj Exotica Resort & Spa",
+      "city": "Goa",
+      "customerName": "Rahul Sharma",
+      "customerPhone": "+91 98765 43210",
+      "customerEmail": "rahul.sharma@gmail.com",
+      "checkIn": "2026-10-25",
+      "checkOut": "2026-10-28",
+      "guests": "2 Guests, 1 Room",
+      "totalPrice": 37500,
+      "paymentType": "Pay at Hotel",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-17T15:30:00.000Z"
+    }
+  ],
+  "payment_settings": {
+    "gatewayActive": true,
+    "paymentMode": "manual",
+    "upi": {
+      "vpa": "care@airsky",
+      "businessName": "AIR SKY LUXURY",
+      "mcc": "5499",
+      "name": "AIR SKY LUXURY"
+    },
+    "methods": {
+      "upiQr": true,
+      "upiApps": true,
+      "card": true,
+      "netBanking": true
+    },
+    "apps": {
+      "any": false,
+      "phonepe": true,
+      "gpay": true,
+      "paytm": true,
+      "bhim": true,
+      "other": false
+    },
+    "deepLinks": {
+      "any": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+      "phonepe": "phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+      "gpay": "tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+      "paytm": "paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+      "bhim": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+      "other": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02"
+    },
+    "instructions": "1. Scan the QR code and pay the exact amount\n2. After payment, enter your 12-digit UPI Reference / UTR Number\n3. Click 'I Have Paid'\n4. Your ticket will be confirmed instantly once verified",
+    "upiApps": {
+      "any": false,
+      "phonepe": true,
+      "gpay": true,
+      "paytm": true,
+      "bhim": true,
+      "other": false
+    },
+    "updatedAt": "2026-10-18T12:42:39.076Z",
+    "razorpay": {
+      "keyId": "",
+      "keySecret": "",
+      "enabled": false
+    }
+  },
+  "settings": {
+    "theme": "sky",
+    "siteName": "AIR SKY Go",
+    "siteTagline": "Premium Luxury Travel",
+    "supportEmail": "care@airskyindia.com",
+    "supportPhone": "+91 72248 28030",
+    "currency": "₹",
+    "currencyCode": "INR",
+    "gstPercent": 12,
+    "cancellationFee": 999,
+    "insuranceFee": 199,
+    "announcement": {
+      "enabled": true,
+      "text": "🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500 | Zero Convenience Fee on UPI!",
+      "badge": "Limited Time",
+      "bgColor": "bg-gradient-to-r from-amber-600 to-rose-600"
+    },
+    "hero": {
+      "badgeText": "Super Fast Real-Time Aviation Search",
+      "title": "Fly Anywhere with",
+      "brandHighlight": "AirSkyGo",
+      "subtitle": "Ixigo & Cleartrip style live airfares, lowest fare trend, instant seat map & verified PNR tickets."
+    },
+    "popularRoutes": [
+      {
+        "from": "DEL",
+        "to": "BOM",
+        "label": "Delhi ⇄ Mumbai"
+      },
+      {
+        "from": "DEL",
+        "to": "BLR",
+        "label": "Delhi ⇄ Bengaluru"
+      },
+      {
+        "from": "BOM",
+        "to": "GOI",
+        "label": "Mumbai ⇄ Goa"
+      },
+      {
+        "from": "DEL",
+        "to": "GOI",
+        "label": "Delhi ⇄ Goa"
+      },
+      {
+        "from": "DEL",
+        "to": "DXB",
+        "label": "Delhi ⇄ Dubai"
+      }
+    ],
+    "promotionalBanners": [
+      {
+        "id": "promo-1",
+        "title": "Fly to Goa at ₹2,999*",
+        "subtitle": "Limited seats on early morning flights with IndiGo & Akasa",
+        "code": "GOAWEEKEND",
+        "discount": "Flat ₹400 Off",
+        "bgGradient": "from-teal-600 to-cyan-700"
+      },
+      {
+        "id": "promo-2",
+        "title": "International Dubai Gateway",
+        "subtitle": "Direct flights with Emirates & Air India Dreamliner",
+        "code": "FLYDUBAI",
+        "discount": "Flat ₹1,500 Off",
+        "bgGradient": "from-indigo-600 to-purple-700"
+      },
+      {
+        "id": "promo-3",
+        "title": "Student Special Extra Baggage",
+        "subtitle": "Carry extra 10kg check-in baggage free of charge",
+        "code": "STUDENT10",
+        "discount": "Free Baggage",
+        "bgGradient": "from-blue-600 to-sky-700"
+      }
+    ],
+    "brand": {
+      "name": "AIR SKY Go",
+      "short_name": "Air Sky",
+      "tagline": "Premium Luxury Travel",
+      "primary_color": "#0284c7",
+      "hover_color": "#0369a1",
+      "dark_color": "#0f172a",
+      "light_color": "#f0f9ff",
+      "brand_text_color": "#0B1F3A",
+      "tagline_color": "#64748b",
+      "logo": "",
+      "email": "care@airskyindia.com",
+      "phone": "+91 72248 28030",
+      "whatsapp": "+918077680310",
+      "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
+    },
+    "bookingPrefix": "AS",
+    "legalName": "Air Sky Travels Private Limited",
+    "companyGstin": "07ABCCS8601B1ZP"
+  },
+  "trains": [
+    {
+      "id": "TRN-12952",
+      "trainNumber": "12952",
+      "name": "New Delhi - Mumbai Central Tejas Rajdhani Express",
+      "from": "NDLS (New Delhi)",
+      "to": "MMCT (Mumbai Central)",
+      "departureTime": "16:55",
+      "arrivalTime": "08:35",
+      "duration": "15h 40m",
+      "classes": [
+        {
+          "type": "3A",
+          "name": "3rd AC",
+          "price": 2850,
+          "status": "AVAILABLE - 42"
+        },
+        {
+          "type": "2A",
+          "name": "2nd AC",
+          "price": 3980,
+          "status": "AVAILABLE - 18"
+        },
+        {
+          "type": "1A",
+          "name": "1st AC",
+          "price": 5420,
+          "status": "AVAILABLE - 04"
+        }
+      ],
+      "runsOn": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "pantry": true
+    },
+    {
+      "id": "TRN-12004",
+      "trainNumber": "12004",
+      "name": "New Delhi - Lucknow Shatabdi Express",
+      "from": "NDLS (New Delhi)",
+      "to": "LKO (Lucknow Charbagh)",
+      "departureTime": "06:10",
+      "arrivalTime": "12:55",
+      "duration": "6h 45m",
+      "classes": [
+        {
+          "type": "CC",
+          "name": "AC Chair Car",
+          "price": 1165,
+          "status": "AVAILABLE - 85"
+        },
+        {
+          "type": "EC",
+          "name": "Exec. Chair Car",
+          "price": 2125,
+          "status": "AVAILABLE - 12"
+        }
+      ],
+      "runsOn": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "pantry": true
+    },
+    {
+      "id": "TRN-22692",
+      "trainNumber": "22692",
+      "name": "Hazrat Nizamuddin - KSR Bengaluru Rajdhani Express",
+      "from": "NZM (Delhi Nizamuddin)",
+      "to": "SBC (KSR Bengaluru)",
+      "departureTime": "19:50",
+      "arrivalTime": "05:20",
+      "duration": "33h 30m",
+      "classes": [
+        {
+          "type": "3A",
+          "name": "3rd AC",
+          "price": 3890,
+          "status": "RAC - 14"
+        },
+        {
+          "type": "2A",
+          "name": "2nd AC",
+          "price": 5450,
+          "status": "AVAILABLE - 08"
+        }
+      ],
+      "runsOn": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "pantry": true
+    }
+  ],
+  "train_bookings": [
+    {
+      "bookingId": "TRN-5628",
+      "trainNumber": "12952",
+      "trainName": "Mumbai Rajdhani Express",
+      "from": "Delhi",
+      "to": "Mumbai",
+      "customerName": "Passenger",
+      "customerPhone": "",
+      "travelDate": "2026-10-18",
+      "travelClass": "3A",
+      "pnr": "4265021575",
+      "fare": 1850,
+      "status": "CONFIRMED (CNF B2-19)",
+      "createdAt": "2026-10-18T12:42:39.060Z"
+    },
+    {
+      "bookingId": "TRN-2832",
+      "trainNumber": "12952",
+      "trainName": "Mumbai Rajdhani Express",
+      "from": "Delhi",
+      "to": "Mumbai",
+      "customerName": "Passenger",
+      "customerPhone": "",
+      "travelDate": "2026-10-18",
+      "travelClass": "3A",
+      "pnr": "2921828568",
+      "fare": 1850,
+      "status": "CONFIRMED (CNF B2-19)",
+      "createdAt": "2026-10-18T12:41:07.347Z"
+    },
+    {
+      "bookingId": "TRN-5651",
+      "trainNumber": "12952",
+      "trainName": "Mumbai Rajdhani Express",
+      "from": "Delhi",
+      "to": "Mumbai",
+      "customerName": "Passenger",
+      "customerPhone": "",
+      "travelDate": "2026-10-18",
+      "travelClass": "3A",
+      "pnr": "4068168170",
+      "fare": 1850,
+      "status": "CONFIRMED (CNF B2-19)",
+      "createdAt": "2026-10-18T12:40:21.685Z"
+    },
+    {
+      "bookingId": "TRN-8896",
+      "trainNumber": "12952",
+      "trainName": "Mumbai Rajdhani Express",
+      "from": "Delhi",
+      "to": "Mumbai",
+      "customerName": "Passenger",
+      "customerPhone": "",
+      "travelDate": "2026-10-18",
+      "travelClass": "3A",
+      "pnr": "8736182352",
+      "fare": 1850,
+      "status": "CONFIRMED (CNF B2-19)",
+      "createdAt": "2026-10-18T12:36:23.097Z"
+    },
+    {
+      "bookingId": "TRN-4421",
+      "trainNumber": "12952",
+      "trainName": "Mumbai Rajdhani Express",
+      "from": "New Delhi (NDLS)",
+      "to": "Mumbai Central (MMCT)",
+      "customerName": "Suresh Gupta",
+      "customerPhone": "+91 98101 23456",
+      "travelDate": "2026-10-27",
+      "travelClass": "3A",
+      "pnr": "2458910245",
+      "fare": 2085,
+      "status": "CONFIRMED (B3-24 SU)",
+      "createdAt": "2026-10-17T20:10:00.000Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "USR-8821",
+      "name": "Aman Sharma",
+      "phone": "+91 98765 43210",
+      "email": "aman.flyer@airskygo.com",
+      "role": "traveller",
+      "tier": "SkyClub Gold Member",
+      "points": 2450,
+      "bookingsCount": 9,
+      "registeredAt": "2026-10-15T10:30:00.000Z",
+      "lastLogin": "2026-10-18T12:42:39.042Z"
+    },
+    {
+      "id": "USR-9102",
+      "name": "Pooja Verma",
+      "phone": "+91 98112 34567",
+      "email": "pooja.verma@outlook.com",
+      "role": "traveller",
+      "tier": "SkyClub Member",
+      "points": 800,
+      "bookingsCount": 1,
+      "registeredAt": "2026-10-16T14:20:00.000Z",
+      "lastLogin": "2026-10-17T18:40:00.000Z"
+    },
+    {
+      "id": "USR-5431",
+      "name": "Rohit Malhotra",
+      "phone": "+91 99201 88412",
+      "email": "rohit.m@gmail.com",
+      "role": "traveller",
+      "tier": "SkyClub Silver",
+      "points": 1200,
+      "bookingsCount": 1,
+      "registeredAt": "2026-10-17T09:10:00.000Z",
+      "lastLogin": "2026-10-18T00:50:00.000Z"
+    }
+  ],
+  "visa": [
+    {
+      "id": "VISA-DXB",
+      "country": "United Arab Emirates (Dubai)",
+      "flag": "🇦🇪",
+      "type": "Tourist Visa (30 Days)",
+      "processingDays": "24 to 48 Hours",
+      "price": 6499,
+      "entry": "Single Entry",
+      "validity": "60 Days from issue",
+      "requirements": [
+        "Passport Copy (Front & Back)",
+        "Passport Size Photo (White background)",
+        "Confirmed Return Flight Ticket"
+      ],
+      "popular": true
+    },
+    {
+      "id": "VISA-SIN",
+      "country": "Singapore",
+      "flag": "🇸🇬",
+      "type": "e-Visa (30 Days Multiple Entry)",
+      "processingDays": "3 to 4 Working Days",
+      "price": 2899,
+      "entry": "Multiple Entry",
+      "validity": "Up to 2 Years",
+      "requirements": [
+        "Original Passport (6 months validity)",
+        "2 Recent Photos (Matte finish)",
+        "Flight Tickets & Hotel Booking",
+        "Last 6 Months Bank Statement"
+      ],
+      "popular": true
+    },
+    {
+      "id": "VISA-THAI",
+      "country": "Thailand",
+      "flag": "🇹🇭",
+      "type": "Tourist Visa (Free Visa On Arrival / eVisa)",
+      "processingDays": "Instant / 2 Days",
+      "price": 1499,
+      "entry": "Single Entry",
+      "validity": "30 Days",
+      "requirements": [
+        "Passport valid for 6 months",
+        "Confirmed onward ticket",
+        "Proof of funds (10,000 THB)"
+      ],
+      "popular": true
+    },
+    {
+      "id": "VISA-SCH",
+      "country": "Schengen (Europe - France, Switzerland, Italy)",
+      "flag": "🇪🇺",
+      "type": "Short Stay Tourist Visa (Type C)",
+      "processingDays": "10 to 15 Working Days",
+      "price": 8999,
+      "entry": "Single / Multiple",
+      "validity": "Up to 90 Days",
+      "requirements": [
+        "Cover Letter & Day-wise Itinerary",
+        "Travel Insurance (€30,000 min coverage)",
+        "3 Years ITR & 6 Months Bank Statements",
+        "Flight & Hotel vouchers"
+      ],
+      "popular": false
+    },
+    {
+      "id": "VISA-UK",
+      "country": "United Kingdom",
+      "flag": "🇬🇧",
+      "type": "Standard Visitor Visa (6 Months)",
+      "processingDays": "15 Working Days",
+      "price": 12500,
+      "entry": "Multiple Entry",
+      "validity": "6 Months",
+      "requirements": [
+        "Valid Passport",
+        "Proof of Earnings / Job Letter",
+        "Bank Statements with sufficient funds",
+        "Accommodation details"
+      ],
+      "popular": false
+    }
+  ],
+  "visa_applications": [
+    {
+      "applicationId": "VISA-6027",
+      "country": "United Arab Emirates (Dubai)",
+      "visaType": "30 Days Tourist Visa",
+      "applicantName": "Karan Mehra",
+      "passportNumber": "Z1234567",
+      "phone": "9876501234",
+      "email": "karan.dubai@example.com",
+      "fee": 6499,
+      "status": "DOCUMENTS_SUBMITTED",
+      "createdAt": "2026-10-18T12:42:39.064Z"
+    },
+    {
+      "applicationId": "VISA-9066",
+      "country": "United Arab Emirates (Dubai)",
+      "visaType": "30 Days Tourist Visa",
+      "applicantName": "Karan Mehra",
+      "passportNumber": "Z1234567",
+      "phone": "9876501234",
+      "email": "karan.dubai@example.com",
+      "fee": 6499,
+      "status": "DOCUMENTS_SUBMITTED",
+      "createdAt": "2026-10-18T12:41:07.352Z"
+    },
+    {
+      "applicationId": "VISA-5353",
+      "country": "United Arab Emirates (Dubai)",
+      "visaType": "30 Days Tourist Visa",
+      "applicantName": "Karan Mehra",
+      "passportNumber": "Z1234567",
+      "phone": "9876501234",
+      "email": "karan.dubai@example.com",
+      "fee": 6499,
+      "status": "DOCUMENTS_SUBMITTED",
+      "createdAt": "2026-10-18T12:40:21.689Z"
+    },
+    {
+      "applicationId": "VISA-2899",
+      "country": "United Arab Emirates (Dubai)",
+      "visaType": "30 Days Tourist Visa",
+      "applicantName": "Karan Mehra",
+      "passportNumber": "Z1234567",
+      "phone": "9876501234",
+      "email": "karan.dubai@example.com",
+      "fee": 6499,
+      "status": "DOCUMENTS_SUBMITTED",
+      "createdAt": "2026-10-18T12:36:23.107Z"
+    },
+    {
+      "applicationId": "VISA-2964",
+      "country": "Dubai (UAE)",
+      "visaType": "30-Day Express Tourist Visa",
+      "applicantName": "Kunal Kapoor",
+      "passportNumber": "M9283716",
+      "phone": "+91 99887 76655",
+      "email": "",
+      "fee": 6999,
+      "status": "DOCUMENTS_SUBMITTED",
+      "createdAt": "2026-10-17T20:59:53.475Z"
+    },
+    {
+      "applicationId": "VISA-3101",
+      "country": "Dubai (UAE)",
+      "visaType": "30 Days Tourist Express",
+      "applicantName": "Ananya Sen",
+      "passportNumber": "P4829104",
+      "phone": "+91 98300 56789",
+      "email": "ananya.sen@gmail.com",
+      "fee": 6499,
+      "status": "DOCUMENTS_VERIFIED",
+      "createdAt": "2026-10-17T19:45:00.000Z"
+    }
+  ]
+}

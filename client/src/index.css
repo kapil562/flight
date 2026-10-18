@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: var(--color-slate-200);
+  }
+}
+
+/* Custom scrollbars and styling */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Utilities to hide scrollbar while keeping scrolling active */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes floatPlane {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
+}
+
+@keyframes cloudDrift {
+  0% { transform: translateX(-10%); opacity: 0.15; }
+  50% { opacity: 0.35; }
+  100% { transform: translateX(110%); opacity: 0.15; }
+}
+
+@keyframes pulseRadar {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: floatPlane 4s ease-in-out infinite;
+}
+
+.animate-cloud {
+  animation: cloudDrift 35s linear infinite;
+}
+
+.animate-pulse-radar {
+  animation: pulseRadar 3s ease-in-out infinite;
+}
+
+.ticket-dashed-border {
+  background-image: linear-gradient(to right, #cbd5e1 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: bottom;
+  background-size: 14px 2px;
+  background-repeat: repeat-x;
+}
+
+/* ========================================================
+   5 AIRSKYGO GLOBAL DYNAMIC COLOR THEMES (1-CLICK SWITCH)
+   ======================================================== */
+
+/* --- THEME 1: AERO SKY BLUE (DEFAULT) --- */
+:root, [data-theme="sky"] {
+  --theme-primary: #0284c7;
+  --theme-hover: #0369a1;
+  --theme-light: #f0f9ff;
+  --theme-border: #bae6fd;
+}
+
+/* --- THEME 2: ROYAL EMERALD / TEAL --- */
+[data-theme="emerald"] {
+  --theme-primary: #059669;
+  --theme-hover: #047857;
+  --theme-light: #ecfdf5;
+  --theme-border: #a7f3d0;
+}
+[data-theme="emerald"] .bg-sky-600 { background-color: #059669 !important; }
+[data-theme="emerald"] .bg-sky-500 { background-color: #10b981 !important; }
+[data-theme="emerald"] .bg-sky-700 { background-color: #047857 !important; }
+[data-theme="emerald"] .bg-sky-50 { background-color: #ecfdf5 !important; }
+[data-theme="emerald"] .bg-sky-100 { background-color: #d1fae5 !important; }
+[data-theme="emerald"] .text-sky-600 { color: #059669 !important; }
+[data-theme="emerald"] .text-sky-700 { color: #047857 !important; }
+[data-theme="emerald"] .text-sky-800, [data-theme="emerald"] .text-sky-900 { color: #064e3b !important; }
+[data-theme="emerald"] .text-sky-500 { color: #10b981 !important; }
+[data-theme="emerald"] .text-sky-400, [data-theme="emerald"] .text-sky-300, [data-theme="emerald"] .text-sky-200 { color: #34d399 !important; }
+[data-theme="emerald"] .border-sky-500, [data-theme="emerald"] .border-sky-600 { border-color: #059669 !important; }
+[data-theme="emerald"] .border-sky-200 { border-color: #a7f3d0 !important; }
+[data-theme="emerald"] .border-sky-300 { border-color: #6ee7b7 !important; }
+[data-theme="emerald"] .border-sky-400 { border-color: #34d399 !important; }
+[data-theme="emerald"] .hover\:bg-sky-500:hover, [data-theme="emerald"] .hover\:bg-sky-600:hover { background-color: #10b981 !important; }
+[data-theme="emerald"] .hover\:bg-sky-700:hover { background-color: #047857 !important; }
+[data-theme="emerald"] .hover\:bg-sky-50:hover { background-color: #ecfdf5 !important; }
+[data-theme="emerald"] .hover\:bg-sky-100:hover { background-color: #d1fae5 !important; }
+[data-theme="emerald"] .hover\:text-sky-600:hover, [data-theme="emerald"] .hover\:text-sky-700:hover { color: #047857 !important; }
+[data-theme="emerald"] .hover\:border-sky-500:hover { border-color: #059669 !important; }
+[data-theme="emerald"] .via-sky-950 { --tw-gradient-via: #042f2e !important; }
+[data-theme="emerald"] .to-sky-950 { --tw-gradient-to: #042f2e !important; }
+[data-theme="emerald"] .from-sky-500 { --tw-gradient-from: #10b981 !important; }
+[data-theme="emerald"] .to-blue-600 { --tw-gradient-to: #0f766e !important; }
+[data-theme="emerald"] .shadow-sky-600\/30, [data-theme="emerald"] .shadow-sky-500\/30 { box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3) !important; }
+
+/* --- THEME 3: SUNSET ORANGE / CORAL --- */
+[data-theme="sunset"] {
+  --theme-primary: #ea580c;
+  --theme-hover: #c2410c;
+  --theme-light: #fff7ed;
+  --theme-border: #fed7aa;
+}
+[data-theme="sunset"] .bg-sky-600 { background-color: #ea580c !important; }
+[data-theme="sunset"] .bg-sky-500 { background-color: #f97316 !important; }
+[data-theme="sunset"] .bg-sky-700 { background-color: #c2410c !important; }
+[data-theme="sunset"] .bg-sky-50 { background-color: #fff7ed !important; }
+[data-theme="sunset"] .bg-sky-100 { background-color: #ffedd5 !important; }
+[data-theme="sunset"] .text-sky-600 { color: #ea580c !important; }
+[data-theme="sunset"] .text-sky-700 { color: #c2410c !important; }
+[data-theme="sunset"] .text-sky-800, [data-theme="sunset"] .text-sky-900 { color: #7c2d12 !important; }
+[data-theme="sunset"] .text-sky-500 { color: #f97316 !important; }
+[data-theme="sunset"] .text-sky-400, [data-theme="sunset"] .text-sky-300, [data-theme="sunset"] .text-sky-200 { color: #fb923c !important; }
+[data-theme="sunset"] .border-sky-500, [data-theme="sunset"] .border-sky-600 { border-color: #ea580c !important; }
+[data-theme="sunset"] .border-sky-200 { border-color: #fed7aa !important; }
+[data-theme="sunset"] .border-sky-300 { border-color: #fdba74 !important; }
+[data-theme="sunset"] .border-sky-400 { border-color: #fb923c !important; }
+[data-theme="sunset"] .hover\:bg-sky-500:hover, [data-theme="sunset"] .hover\:bg-sky-600:hover { background-color: #f97316 !important; }
+[data-theme="sunset"] .hover\:bg-sky-700:hover { background-color: #c2410c !important; }
+[data-theme="sunset"] .hover\:bg-sky-50:hover { background-color: #fff7ed !important; }
+[data-theme="sunset"] .hover\:bg-sky-100:hover { background-color: #ffedd5 !important; }
+[data-theme="sunset"] .hover\:text-sky-600:hover, [data-theme="sunset"] .hover\:text-sky-700:hover { color: #c2410c !important; }
+[data-theme="sunset"] .hover\:border-sky-500:hover { border-color: #ea580c !important; }
+[data-theme="sunset"] .via-sky-950 { --tw-gradient-via: #431407 !important; }
+[data-theme="sunset"] .to-sky-950 { --tw-gradient-to: #431407 !important; }
+[data-theme="sunset"] .from-sky-500 { --tw-gradient-from: #f97316 !important; }
+[data-theme="sunset"] .to-blue-600 { --tw-gradient-to: #e11d48 !important; }
+[data-theme="sunset"] .shadow-sky-600\/30, [data-theme="sunset"] .shadow-sky-500\/30 { box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.3) !important; }
+
+/* --- THEME 4: ROYAL VIOLET / PURPLE --- */
+[data-theme="purple"] {
+  --theme-primary: #7c3aed;
+  --theme-hover: #6d28d9;
+  --theme-light: #f5f3ff;
+  --theme-border: #ddd6fe;
+}
+[data-theme="purple"] .bg-sky-600 { background-color: #7c3aed !important; }
+[data-theme="purple"] .bg-sky-500 { background-color: #8b5cf6 !important; }
+[data-theme="purple"] .bg-sky-700 { background-color: #6d28d9 !important; }
+[data-theme="purple"] .bg-sky-50 { background-color: #f5f3ff !important; }
+[data-theme="purple"] .bg-sky-100 { background-color: #ede9fe !important; }
+[data-theme="purple"] .text-sky-600 { color: #7c3aed !important; }
+[data-theme="purple"] .text-sky-700 { color: #6d28d9 !important; }
+[data-theme="purple"] .text-sky-800, [data-theme="purple"] .text-sky-900 { color: #4c1d95 !important; }
+[data-theme="purple"] .text-sky-500 { color: #8b5cf6 !important; }
+[data-theme="purple"] .text-sky-400, [data-theme="purple"] .text-sky-300, [data-theme="purple"] .text-sky-200 { color: #a78bfa !important; }
+[data-theme="purple"] .border-sky-500, [data-theme="purple"] .border-sky-600 { border-color: #7c3aed !important; }
+[data-theme="purple"] .border-sky-200 { border-color: #ddd6fe !important; }
+[data-theme="purple"] .border-sky-300 { border-color: #c4b5fd !important; }
+[data-theme="purple"] .border-sky-400 { border-color: #a78bfa !important; }
+[data-theme="purple"] .hover\:bg-sky-500:hover, [data-theme="purple"] .hover\:bg-sky-600:hover { background-color: #8b5cf6 !important; }
+[data-theme="purple"] .hover\:bg-sky-700:hover { background-color: #6d28d9 !important; }
+[data-theme="purple"] .hover\:bg-sky-50:hover { background-color: #f5f3ff !important; }
+[data-theme="purple"] .hover\:bg-sky-100:hover { background-color: #ede9fe !important; }
+[data-theme="purple"] .hover\:text-sky-600:hover, [data-theme="purple"] .hover\:text-sky-700:hover { color: #6d28d9 !important; }
+[data-theme="purple"] .hover\:border-sky-500:hover { border-color: #7c3aed !important; }
+[data-theme="purple"] .via-sky-950 { --tw-gradient-via: #2e1065 !important; }
+[data-theme="purple"] .to-sky-950 { --tw-gradient-to: #2e1065 !important; }
+[data-theme="purple"] .from-sky-500 { --tw-gradient-from: #8b5cf6 !important; }
+[data-theme="purple"] .to-blue-600 { --tw-gradient-to: #6366f1 !important; }
+[data-theme="purple"] .shadow-sky-600\/30, [data-theme="purple"] .shadow-sky-500\/30 { box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3) !important; }
+
+/* --- THEME 5: MIDNIGHT LUXURY GOLD --- */
+[data-theme="gold"] {
+  --theme-primary: #d97706;
+  --theme-hover: #b45309;
+  --theme-light: #fffbeb;
+  --theme-border: #fde68a;
+}
+[data-theme="gold"] .bg-sky-600 { background-color: #d97706 !important; }
+[data-theme="gold"] .bg-sky-500 { background-color: #f59e0b !important; }
+[data-theme="gold"] .bg-sky-700 { background-color: #b45309 !important; }
+[data-theme="gold"] .bg-sky-50 { background-color: #fffbeb !important; }
+[data-theme="gold"] .bg-sky-100 { background-color: #fef3c7 !important; }
+[data-theme="gold"] .text-sky-600 { color: #d97706 !important; }
+[data-theme="gold"] .text-sky-700 { color: #b45309 !important; }
+[data-theme="gold"] .text-sky-800, [data-theme="gold"] .text-sky-900 { color: #78350f !important; }
+[data-theme="gold"] .text-sky-500 { color: #f59e0b !important; }
+[data-theme="gold"] .text-sky-400, [data-theme="gold"] .text-sky-300, [data-theme="gold"] .text-sky-200 { color: #fbbf24 !important; }
+[data-theme="gold"] .border-sky-500, [data-theme="gold"] .border-sky-600 { border-color: #d97706 !important; }
+[data-theme="gold"] .border-sky-200 { border-color: #fde68a !important; }
+[data-theme="gold"] .border-sky-300 { border-color: #fcd34d !important; }
+[data-theme="gold"] .border-sky-400 { border-color: #fbbf24 !important; }
+[data-theme="gold"] .hover\:bg-sky-500:hover, [data-theme="gold"] .hover\:bg-sky-600:hover { background-color: #f59e0b !important; }
+[data-theme="gold"] .hover\:bg-sky-700:hover { background-color: #b45309 !important; }
+[data-theme="gold"] .hover\:bg-sky-50:hover { background-color: #fffbeb !important; }
+[data-theme="gold"] .hover\:bg-sky-100:hover { background-color: #fef3c7 !important; }
+[data-theme="gold"] .hover\:text-sky-600:hover, [data-theme="gold"] .hover\:text-sky-700:hover { color: #b45309 !important; }
+[data-theme="gold"] .hover\:border-sky-500:hover { border-color: #d97706 !important; }
+[data-theme="gold"] .via-sky-950 { --tw-gradient-via: #451a03 !important; }
+[data-theme="gold"] .to-sky-950 { --tw-gradient-to: #451a03 !important; }
+[data-theme="gold"] .from-sky-500 { --tw-gradient-from: #f59e0b !important; }
+[data-theme="gold"] .to-blue-600 { --tw-gradient-to: #d97706 !important; }
+[data-theme="gold"] .shadow-sky-600\/30, [data-theme="gold"] .shadow-sky-500\/30 { box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3) !important; }

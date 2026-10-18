@@ -1,0 +1,74 @@
+[
+  {
+    "applicationId": "VISA-6027",
+    "country": "United Arab Emirates (Dubai)",
+    "visaType": "30 Days Tourist Visa",
+    "applicantName": "Karan Mehra",
+    "passportNumber": "Z1234567",
+    "phone": "9876501234",
+    "email": "karan.dubai@example.com",
+    "fee": 6499,
+    "status": "DOCUMENTS_SUBMITTED",
+    "createdAt": "2026-10-18T12:42:39.064Z"
+  },
+  {
+    "applicationId": "VISA-9066",
+    "country": "United Arab Emirates (Dubai)",
+    "visaType": "30 Days Tourist Visa",
+    "applicantName": "Karan Mehra",
+    "passportNumber": "Z1234567",
+    "phone": "9876501234",
+    "email": "karan.dubai@example.com",
+    "fee": 6499,
+    "status": "DOCUMENTS_SUBMITTED",
+    "createdAt": "2026-10-18T12:41:07.352Z"
+  },
+  {
+    "applicationId": "VISA-5353",
+    "country": "United Arab Emirates (Dubai)",
+    "visaType": "30 Days Tourist Visa",
+    "applicantName": "Karan Mehra",
+    "passportNumber": "Z1234567",
+    "phone": "9876501234",
+    "email": "karan.dubai@example.com",
+    "fee": 6499,
+    "status": "DOCUMENTS_SUBMITTED",
+    "createdAt": "2026-10-18T12:40:21.689Z"
+  },
+  {
+    "applicationId": "VISA-2899",
+    "country": "United Arab Emirates (Dubai)",
+    "visaType": "30 Days Tourist Visa",
+    "applicantName": "Karan Mehra",
+    "passportNumber": "Z1234567",
+    "phone": "9876501234",
+    "email": "karan.dubai@example.com",
+    "fee": 6499,
+    "status": "DOCUMENTS_SUBMITTED",
+    "createdAt": "2026-10-18T12:36:23.107Z"
+  },
+  {
+    "applicationId": "VISA-2964",
+    "country": "Dubai (UAE)",
+    "visaType": "30-Day Express Tourist Visa",
+    "applicantName": "Kunal Kapoor",
+    "passportNumber": "M9283716",
+    "phone": "+91 99887 76655",
+    "email": "",
+    "fee": 6999,
+    "status": "DOCUMENTS_SUBMITTED",
+    "createdAt": "2026-10-17T20:59:53.475Z"
+  },
+  {
+    "applicationId": "VISA-3101",
+    "country": "Dubai (UAE)",
+    "visaType": "30 Days Tourist Express",
+    "applicantName": "Ananya Sen",
+    "passportNumber": "P4829104",
+    "phone": "+91 98300 56789",
+    "email": "ananya.sen@gmail.com",
+    "fee": 6499,
+    "status": "DOCUMENTS_VERIFIED",
+    "createdAt": "2026-10-17T19:45:00.000Z"
+  }
+]

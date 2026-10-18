@@ -1,0 +1,294 @@
+[
+  {
+    "pnr": "ASG-537786",
+    "bookingId": "AS537786",
+    "flightId": "FL-103",
+    "flightNumber": "UK-993",
+    "airline": "Vistara",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-11-15",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Rahul",
+        "lastName": "Sharma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "rahul.test@example.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4500,
+      "seatCost": 200,
+      "mealsCost": 0,
+      "taxes": 540,
+      "discount": 500,
+      "total": 4740
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "TXN_1792327359038",
+      "utrNumber": "123456789012",
+      "status": "Paid",
+      "paidAt": "2026-10-18T12:42:39.040Z",
+      "paidToVpa": null
+    },
+    "checkInStatus": "Eligible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-18T12:42:39.040Z"
+  },
+  {
+    "pnr": "ASG-799323",
+    "bookingId": "AS799323",
+    "flightId": "FL-103",
+    "flightNumber": "UK-993",
+    "airline": "Vistara",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-11-15",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Rahul",
+        "lastName": "Sharma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "rahul.test@example.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4500,
+      "seatCost": 200,
+      "mealsCost": 0,
+      "taxes": 540,
+      "discount": 500,
+      "total": 4740
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "TXN_1792327267327",
+      "utrNumber": "123456789012",
+      "status": "Paid",
+      "paidAt": "2026-10-18T12:41:07.329Z",
+      "paidToVpa": null
+    },
+    "checkInStatus": "Eligible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-18T12:41:07.329Z"
+  },
+  {
+    "pnr": "ASG-907764",
+    "bookingId": "AS907764",
+    "flightId": "FL-103",
+    "flightNumber": "UK-993",
+    "airline": "Vistara",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-11-15",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Rahul",
+        "lastName": "Sharma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "rahul.test@example.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4500,
+      "seatCost": 200,
+      "mealsCost": 0,
+      "taxes": 540,
+      "discount": 500,
+      "total": 4740
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "TXN_1792327221662",
+      "utrNumber": "123456789012",
+      "status": "Paid",
+      "paidAt": "2026-10-18T12:40:21.664Z",
+      "paidToVpa": null
+    },
+    "checkInStatus": "Eligible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-18T12:40:21.664Z"
+  },
+  {
+    "pnr": "ASG-250235",
+    "bookingId": "GS250235",
+    "flightId": "FL-103",
+    "flightNumber": "UK-993",
+    "airline": "Vistara",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-11-15",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Rahul",
+        "lastName": "Sharma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "rahul.test@example.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4500,
+      "seatCost": 200,
+      "mealsCost": 0,
+      "taxes": 540,
+      "discount": 500,
+      "total": 4740
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "TXN_1792326983051",
+      "utrNumber": "123456789012",
+      "status": "Paid",
+      "paidAt": "2026-10-18T12:36:23.056Z",
+      "paidToVpa": null
+    },
+    "checkInStatus": "Eligible",
+    "status": "Confirmed",
+    "createdAt": "2026-10-18T12:36:23.056Z"
+  },
+  {
+    "pnr": "ASG-828096",
+    "bookingId": "BK-954159",
+    "flightId": 1,
+    "flightNumber": "6E-2024",
+    "airline": "IndiGo",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-10-25",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Aman",
+        "lastName": "Verma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "aman@test.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4000,
+      "seatCost": 0,
+      "mealsCost": 0,
+      "taxes": 750,
+      "discount": 0,
+      "total": 4500
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "123456789012",
+      "utrNumber": "123456789012",
+      "status": "Verification Pending",
+      "paidAt": "2026-10-18T11:29:14.159Z",
+      "paidToVpa": "paytm.s2zbyoe@pty"
+    },
+    "checkInStatus": "Pending Verification",
+    "status": "VERIFICATION_PENDING",
+    "createdAt": "2026-10-18T11:29:14.159Z"
+  },
+  {
+    "pnr": "ASG-218237",
+    "bookingId": "BK-908609",
+    "flightId": 1,
+    "flightNumber": "6E-2024",
+    "airline": "IndiGo",
+    "from": "DEL",
+    "to": "BOM",
+    "fromCity": "DEL",
+    "toCity": "BOM",
+    "tripType": "oneWay",
+    "multiCityLegs": null,
+    "route": "DEL → BOM",
+    "departureDate": "2026-10-25",
+    "departureTime": "06:00",
+    "arrivalTime": "08:15",
+    "travelClass": "Economy",
+    "passengers": [
+      {
+        "title": "Mr",
+        "firstName": "Aman",
+        "lastName": "Verma",
+        "seat": "12A"
+      }
+    ],
+    "contact": {
+      "email": "aman@test.com",
+      "phone": "9876543210"
+    },
+    "fare": {
+      "basePrice": 4000,
+      "seatCost": 0,
+      "mealsCost": 0,
+      "taxes": 750,
+      "discount": 0,
+      "total": 4500
+    },
+    "payment": {
+      "method": "UPI",
+      "transactionId": "123456789012",
+      "status": "Paid",
+      "paidAt": "2026-10-18T11:28:28.609Z"
+    },
+    "checkInStatus": "Eligible",
+    "status": "CONFIRMED",
+    "createdAt": "2026-10-18T11:28:28.609Z"
+  }
+]

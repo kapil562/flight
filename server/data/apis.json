@@ -1,0 +1,27 @@
+{
+  "activeProvider": "serper",
+  "serper": {
+    "apiKey": "d30af7862151eb32682499f5604c67e3045121b8",
+    "enabled": true,
+    "engine": "google_search",
+    "status": "Not Configured"
+  },
+  "amadeus": {
+    "clientId": "",
+    "clientSecret": "",
+    "environment": "test",
+    "enabled": false,
+    "status": "Not Configured"
+  },
+  "aviationStack": {
+    "accessKey": "",
+    "enabled": false,
+    "status": "Not Configured"
+  },
+  "serpapi": {
+    "apiKey": "test_key_auto",
+    "enabled": true,
+    "engine": "google_flights",
+    "status": "Configured (Google Flights)"
+  }
+}

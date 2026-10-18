@@ -1,0 +1,57 @@
+[
+  {
+    "inquiryId": "INQ-8684",
+    "id": "INQ-8684",
+    "packageId": "PKG-GOA-01",
+    "packageName": "Enchanting Goa Beach & Cruise Vacation",
+    "customerName": "Amit Patel",
+    "customerPhone": "9823456789",
+    "customerEmail": "amit.test@example.com",
+    "travelDate": "2026-12-10",
+    "travellers": 4,
+    "notes": "",
+    "status": "Quotation Sent",
+    "createdAt": "2026-10-18T12:42:39.055Z"
+  },
+  {
+    "inquiryId": "INQ-2264",
+    "id": "INQ-2264",
+    "packageId": "PKG-GOA-01",
+    "packageName": "Enchanting Goa Beach & Cruise Vacation",
+    "customerName": "Amit Patel",
+    "customerPhone": "9823456789",
+    "customerEmail": "amit.test@example.com",
+    "travelDate": "2026-12-10",
+    "travellers": 4,
+    "notes": "",
+    "status": "Quotation Sent",
+    "createdAt": "2026-10-18T12:41:07.343Z"
+  },
+  {
+    "inquiryId": "INQ-7438",
+    "id": "INQ-7438",
+    "packageId": "PKG-GOA-01",
+    "packageName": "Enchanting Goa Beach & Cruise Vacation",
+    "customerName": "Amit Patel",
+    "customerPhone": "9823456789",
+    "customerEmail": "amit.test@example.com",
+    "travelDate": "2026-12-10",
+    "travellers": 4,
+    "notes": "",
+    "status": "Quotation Sent",
+    "createdAt": "2026-10-18T12:40:21.679Z"
+  },
+  {
+    "inquiryId": "INQ-7801",
+    "packageId": "pkg-1",
+    "packageName": "Goa Beach Paradise & Watersports",
+    "customerName": "Vikram Mehta",
+    "customerPhone": "+91 98200 12345",
+    "customerEmail": "vikram.mehta@yahoo.com",
+    "travelDate": "2026-11-10",
+    "travellers": 2,
+    "notes": "Need sea view room and airport pickup",
+    "status": "NEW",
+    "createdAt": "2026-10-17T18:20:00.000Z"
+  }
+]

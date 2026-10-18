@@ -1,0 +1,457 @@
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
+import Navbar from './components/Navbar';
+import ServiceTabs from './components/ServiceTabs';
+import HeroSearch from './components/HeroSearch';
+import FlightList from './components/FlightList';
+import HotelSection from './components/HotelSection';
+import HolidaysSection from './components/HolidaysSection';
+import TrainSection from './components/TrainSection';
+import VisaSection from './components/VisaSection';
+import SeatSelectionModal from './components/SeatSelectionModal';
+import BookingCheckoutModal from './components/BookingCheckoutModal';
+import TicketConfirmationModal from './components/TicketConfirmationModal';
+import MyBookingsModal from './components/MyBookingsModal';
+import QuickPnrModal from './components/QuickPnrModal';
+import WebCheckInModal from './components/WebCheckInModal';
+import WhatsAppSupportButton from './components/WhatsAppSupportButton';
+import Footer from './components/Footer';
+import OffersSection from './components/OffersSection';
+import WhyBookSection from './components/WhyBookSection';
+import BottomNav from './components/BottomNav';
+import AuthModal from './components/AuthModal';
+import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
+import { api } from './utils/api';
+
+function MainWebsite() {
+  const navigate = useNavigate();
+  const [activeService, setActiveService] = useState('flights'); // 'flights' | 'hotels' | 'holidays' | 'trains' | 'visa'
+  const [settings, setSettings] = useState({
+    siteName: 'AirSkyGo',
+    siteTagline: 'Flights • Hotels • Holidays • Trains • Visa',
+    currency: '₹',
+    currencyCode: 'INR',
+    announcement: { enabled: true, text: '🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500!' }
+  });
+  const [airports, setAirports] = useState([]);
+  const [flights, setFlights] = useState([]);
+  const [loadingFlights, setLoadingFlights] = useState(false);
+  const [multiCityLegsData, setMultiCityLegsData] = useState(null);
+
+  // Authenticated user state
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  // Quick PNR & Web Check-In Modals
+  const [quickPnrOpen, setQuickPnrOpen] = useState(false);
+  const [webCheckInOpen, setWebCheckInOpen] = useState(false);
+
+  // Search parameters for Flights
+  const [searchParams, setSearchParams] = useState({
+    tripType: 'oneWay',
+    from: 'DEL',
+    to: 'BOM',
+    date: (() => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })(),
+    travelClass: 'economy',
+    passengers: { adults: 1, children: 0, infants: 0 }
+  });
+
+  // Modals state
+  const [seatModalData, setSeatModalData] = useState(null);
+  const [checkoutModalData, setCheckoutModalData] = useState(null);
+  const [ticketModalBooking, setTicketModalBooking] = useState(null);
+  const [myBookingsOpen, setMyBookingsOpen] = useState(false);
+  const [brand, setBrand] = useState(null);
+
+  // Load site settings, airports & brand identity initially
+  const loadInitialData = async () => {
+    try {
+      const [settingsRes, airportsRes, brandRes] = await Promise.all([
+        api.getSettings(),
+        api.getAirports(),
+        api.getBrand().catch(() => ({ success: false }))
+      ]);
+
+      if (settingsRes.success && settingsRes.data) {
+        setSettings(settingsRes.data);
+        if (settingsRes.data.brand) {
+          setBrand(settingsRes.data.brand);
+        }
+      }
+      if (brandRes && brandRes.success && brandRes.data) {
+        setBrand(brandRes.data);
+      }
+      if (airportsRes.success) {
+        setAirports(airportsRes.data);
+      }
+    } catch (err) {
+      console.error('Error fetching initial configuration', err);
+    }
+  };
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  // Synchronize dynamic brand styling & CSS root variables across whole application
+  useEffect(() => {
+    if (brand) {
+      if (brand.primary_color) document.documentElement.style.setProperty('--brand', brand.primary_color);
+      if (brand.hover_color) document.documentElement.style.setProperty('--brand-hover', brand.hover_color);
+      if (brand.dark_color) document.documentElement.style.setProperty('--brand-dark', brand.dark_color);
+      if (brand.light_color) document.documentElement.style.setProperty('--brand-light', brand.light_color);
+      if (brand.brand_text_color) document.documentElement.style.setProperty('--brand-text', brand.brand_text_color);
+      if (brand.tagline_color) document.documentElement.style.setProperty('--tagline-color', brand.tagline_color);
+      
+      if (brand.name) {
+        document.title = `${brand.name} - ${brand.tagline || 'Premium Luxury Travel'}`;
+      }
+      window.__BRAND__ = brand;
+    }
+  }, [brand]);
+
+  // Synchronize dynamic theme fallback
+  useEffect(() => {
+    const activeTheme = settings?.theme || localStorage.getItem('asg_theme') || 'sky';
+    document.documentElement.setAttribute('data-theme', activeTheme);
+  }, [settings?.theme]);
+
+  // Fetch flights when searchParams change (handles One Way, Round Trip & Multi-City)
+  const executeFlightSearch = async (params) => {
+    setLoadingFlights(true);
+    try {
+      if (params.tripType === 'multiCity' && params.legs && params.legs.length > 0) {
+        const legQueries = params.legs.map(leg => 
+          api.searchFlights({ from: leg.from, to: leg.to, date: leg.date })
+        );
+        const legResults = await Promise.all(legQueries);
+        const legsStructured = legResults.map((res, idx) => ({
+          legIndex: idx,
+          from: params.legs[idx].from,
+          to: params.legs[idx].to,
+          date: params.legs[idx].date,
+          flights: res?.success && Array.isArray(res.data) ? res.data : []
+        }));
+        setMultiCityLegsData(legsStructured);
+        setFlights(legsStructured[0]?.flights || []);
+      } else {
+        setMultiCityLegsData(null);
+        const res = await api.searchFlights({
+          from: params.from,
+          to: params.to,
+          date: params.date
+        });
+        if (res.success) {
+          setFlights(res.data);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching flights', err);
+    } finally {
+      setLoadingFlights(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeService === 'flights') {
+      executeFlightSearch(searchParams);
+    }
+  }, [
+    searchParams.from, 
+    searchParams.to, 
+    searchParams.date, 
+    searchParams.tripType, 
+    JSON.stringify(searchParams.legs || []),
+    activeService
+  ]);
+
+  // Handle Search submit from Hero
+  const handleHeroSearch = (newParams) => {
+    setSearchParams(prev => ({ ...prev, ...newParams }));
+    setActiveService('flights');
+  };
+
+  // Handle Date change from Price Calendar
+  const handleDateChange = (newDate) => {
+    setSearchParams(prev => ({ ...prev, date: newDate }));
+  };
+
+  // Step 1: User clicks "Book Now" -> Opens Checkout Modal DIRECTLY (Seat option upfront blocked nahi hoga)
+  const handleInitiateBooking = (flight, currentPrice, selectedFareTier, initialCoupon = '') => {
+    const totalPax = (searchParams.passengers?.adults || 1) + (searchParams.passengers?.children || 0);
+    const autoSeats = Array.from({ length: totalPax }).map((_, i) => ({
+      seatNumber: `${12 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`,
+      price: 0
+    }));
+
+    setCheckoutModalData({
+      flight,
+      currentPrice,
+      travelClass: searchParams.travelClass,
+      selectedSeats: autoSeats,
+      passengersCount: totalPax,
+      initialCoupon: initialCoupon || ''
+    });
+  };
+
+  // Seats confirmed (if accessed optionally) -> Opens Checkout Modal
+  const handleSeatsConfirmed = (selectedSeats) => {
+    if (!seatModalData) return;
+    const { flight, currentPrice, travelClass, passengersCount, initialCoupon } = seatModalData;
+    setSeatModalData(null);
+    setCheckoutModalData({
+      flight,
+      currentPrice,
+      travelClass,
+      selectedSeats,
+      passengersCount,
+      initialCoupon: initialCoupon || ''
+    });
+  };
+
+  // Step 3: Payment success -> Show Confirmed Ticket Modal
+  const handleBookingSuccess = (booking) => {
+    setCheckoutModalData(null);
+    setTicketModalBooking(booking);
+    executeFlightSearch(searchParams);
+  };
+
+  // User auth actions
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    setAuthModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('asg_user');
+    setCurrentUser(null);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-['Plus_Jakarta_Sans',sans-serif] w-full max-w-full overflow-x-hidden">
+      
+      {/* Customer Navigation Bar (No admin buttons, toll-free support, full navigation) */}
+      <Navbar
+        settings={settings}
+        brand={brand}
+        activeService={activeService}
+        onSelectService={setActiveService}
+        onOpenQuickPnr={() => setQuickPnrOpen(true)}
+        onOpenWebCheckIn={() => setWebCheckInOpen(true)}
+        onOpenMyBookings={() => setMyBookingsOpen(true)}
+        onOpenAuth={() => setAuthModalOpen(true)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
+
+      {/* Moyatri-Style Multi-Service Switcher Tabs */}
+      <div className="pt-3 sm:pt-4">
+        <ServiceTabs
+          activeService={activeService}
+          onSelectService={setActiveService}
+          onOpenQuickPnr={() => setQuickPnrOpen(true)}
+          onOpenWebCheckIn={() => setWebCheckInOpen(true)}
+        />
+      </div>
+
+      {/* Main Content Area with bottom safe padding on mobile */}
+      <main className="flex-1 w-full max-w-full overflow-x-hidden pb-24 md:pb-12">
+        {activeService === 'flights' && (
+          <>
+            {/* Hero Search Section */}
+            <HeroSearch
+              settings={settings}
+              brand={brand}
+              airports={airports}
+              onSearch={handleHeroSearch}
+              searchParams={searchParams}
+            />
+
+            {/* Exclusive Bank Deals & Offers Carousel */}
+            <OffersSection
+              onApplyPromo={(code) => {
+                // Pre-fill or highlight promo
+              }}
+            />
+
+            {/* Flight Search Results & Dynamic Filters */}
+            <FlightList
+              flights={flights}
+              loading={loadingFlights}
+              searchParams={searchParams}
+              multiCityLegsData={multiCityLegsData}
+              airports={airports}
+              onDateChange={handleDateChange}
+              onBookFlight={handleInitiateBooking}
+              brand={brand}
+            />
+          </>
+        )}
+
+        {activeService === 'hotels' && (
+          <>
+            <HotelSection />
+            <OffersSection />
+          </>
+        )}
+
+        {activeService === 'holidays' && (
+          <>
+            <HolidaysSection />
+            <OffersSection />
+          </>
+        )}
+
+        {activeService === 'trains' && (
+          <>
+            <TrainSection />
+            <OffersSection />
+          </>
+        )}
+
+        {activeService === 'visa' && (
+          <>
+            <VisaSection />
+            <OffersSection />
+          </>
+        )}
+
+        {/* Why Book With Us & Trust Indicators */}
+        <WhyBookSection />
+      </main>
+
+      {/* Footer */}
+      <Footer
+        brand={brand}
+        settings={settings}
+        onSelectRoute={(from, to) => {
+          setSearchParams(p => ({ ...p, from, to }));
+          setActiveService('flights');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+
+      {/* 24x7 Floating WhatsApp & Helpline Support Widget */}
+      <WhatsAppSupportButton onOpenQuickPnr={() => setQuickPnrOpen(true)} brand={brand} />
+
+      {/* Mobile Sticky Bottom Navigation Bar (MakeMyTrip / Ixigo pattern) */}
+      <BottomNav
+        activeService={activeService}
+        onSelectService={setActiveService}
+        onOpenMyBookings={() => setMyBookingsOpen(true)}
+        onOpenAuth={() => setAuthModalOpen(true)}
+        currentUser={currentUser}
+      />
+
+      <AnimatePresence>
+        {/* Quick PNR Checker Modal */}
+        {quickPnrOpen && (
+          <QuickPnrModal
+            key="quick-pnr-modal"
+            isOpen={quickPnrOpen}
+            onClose={() => setQuickPnrOpen(false)}
+            onOpenTicket={(b) => {
+              setQuickPnrOpen(false);
+              setTicketModalBooking(b);
+            }}
+          />
+        )}
+
+        {/* 1-Click Airline Web Check-In Modal */}
+        {webCheckInOpen && (
+          <WebCheckInModal
+            key="web-checkin-modal"
+            isOpen={webCheckInOpen}
+            onClose={() => setWebCheckInOpen(false)}
+          />
+        )}
+
+        {/* MODAL 1: Interactive Aircraft Seat Selector */}
+        {seatModalData && (
+          <SeatSelectionModal
+            key="seat-modal"
+            flight={seatModalData.flight}
+            passengersCount={seatModalData.passengersCount}
+            onClose={() => setSeatModalData(null)}
+            onConfirmSeats={handleSeatsConfirmed}
+          />
+        )}
+
+        {/* MODAL 2: Passenger Details & Advance Payment Gateway */}
+        {checkoutModalData && (
+          <BookingCheckoutModal
+            key="checkout-modal"
+            flight={checkoutModalData.flight}
+            currentPrice={checkoutModalData.currentPrice}
+            travelClass={checkoutModalData.travelClass}
+            selectedSeats={checkoutModalData.selectedSeats}
+            passengersCount={checkoutModalData.passengersCount}
+            initialCoupon={checkoutModalData.initialCoupon || ''}
+            onClose={() => setCheckoutModalData(null)}
+            onBookingSuccess={handleBookingSuccess}
+            brand={brand}
+          />
+        )}
+
+        {/* MODAL 3: Ticket Confirmation with Print & PDF Download */}
+        {ticketModalBooking && (
+          <TicketConfirmationModal
+            key="ticket-modal"
+            booking={ticketModalBooking}
+            brand={brand}
+            onClose={() => setTicketModalBooking(null)}
+            onOpenMyBookings={() => {
+              setTicketModalBooking(null);
+              setMyBookingsOpen(true);
+            }}
+          />
+        )}
+
+        {/* MODAL 4: User Dashboard / Manage Bookings */}
+        {myBookingsOpen && (
+          <MyBookingsModal
+            key="bookings-modal"
+            onClose={() => setMyBookingsOpen(false)}
+            onSelectTicket={(b) => {
+              setMyBookingsOpen(false);
+              setTicketModalBooking(b);
+            }}
+          />
+        )}
+
+        {/* MODAL 5: Animated Aviation Login / Sign Up */}
+        {authModalOpen && (
+          <AuthModal
+            key="auth-modal"
+            isOpen={authModalOpen}
+            onClose={() => setAuthModalOpen(false)}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="*" element={<MainWebsite />} />
+    </Routes>
+  );
+}

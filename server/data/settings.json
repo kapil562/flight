@@ -1,0 +1,96 @@
+{
+  "theme": "sky",
+  "siteName": "AIR SKY Go",
+  "siteTagline": "Premium Luxury Travel",
+  "supportEmail": "care@airskyindia.com",
+  "supportPhone": "+91 72248 28030",
+  "currency": "₹",
+  "currencyCode": "INR",
+  "gstPercent": 12,
+  "cancellationFee": 999,
+  "insuranceFee": 199,
+  "announcement": {
+    "enabled": true,
+    "text": "🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500 | Zero Convenience Fee on UPI!",
+    "badge": "Limited Time",
+    "bgColor": "bg-gradient-to-r from-amber-600 to-rose-600"
+  },
+  "hero": {
+    "badgeText": "Super Fast Real-Time Aviation Search",
+    "title": "Fly Anywhere with",
+    "brandHighlight": "AirSkyGo",
+    "subtitle": "Ixigo & Cleartrip style live airfares, lowest fare trend, instant seat map & verified PNR tickets."
+  },
+  "popularRoutes": [
+    {
+      "from": "DEL",
+      "to": "BOM",
+      "label": "Delhi ⇄ Mumbai"
+    },
+    {
+      "from": "DEL",
+      "to": "BLR",
+      "label": "Delhi ⇄ Bengaluru"
+    },
+    {
+      "from": "BOM",
+      "to": "GOI",
+      "label": "Mumbai ⇄ Goa"
+    },
+    {
+      "from": "DEL",
+      "to": "GOI",
+      "label": "Delhi ⇄ Goa"
+    },
+    {
+      "from": "DEL",
+      "to": "DXB",
+      "label": "Delhi ⇄ Dubai"
+    }
+  ],
+  "promotionalBanners": [
+    {
+      "id": "promo-1",
+      "title": "Fly to Goa at ₹2,999*",
+      "subtitle": "Limited seats on early morning flights with IndiGo & Akasa",
+      "code": "GOAWEEKEND",
+      "discount": "Flat ₹400 Off",
+      "bgGradient": "from-teal-600 to-cyan-700"
+    },
+    {
+      "id": "promo-2",
+      "title": "International Dubai Gateway",
+      "subtitle": "Direct flights with Emirates & Air India Dreamliner",
+      "code": "FLYDUBAI",
+      "discount": "Flat ₹1,500 Off",
+      "bgGradient": "from-indigo-600 to-purple-700"
+    },
+    {
+      "id": "promo-3",
+      "title": "Student Special Extra Baggage",
+      "subtitle": "Carry extra 10kg check-in baggage free of charge",
+      "code": "STUDENT10",
+      "discount": "Free Baggage",
+      "bgGradient": "from-blue-600 to-sky-700"
+    }
+  ],
+  "brand": {
+    "name": "AIR SKY Go",
+    "short_name": "Air Sky",
+    "tagline": "Premium Luxury Travel",
+    "primary_color": "#0284c7",
+    "hover_color": "#0369a1",
+    "dark_color": "#0f172a",
+    "light_color": "#f0f9ff",
+    "brand_text_color": "#0B1F3A",
+    "tagline_color": "#64748b",
+    "logo": "",
+    "email": "care@airskyindia.com",
+    "phone": "+91 72248 28030",
+    "whatsapp": "+918077680310",
+    "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
+  },
+  "bookingPrefix": "AS",
+  "legalName": "Air Sky Travels Private Limited",
+  "companyGstin": "07ABCCS8601B1ZP"
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "TRN-12952",
+    "trainNumber": "12952",
+    "name": "New Delhi - Mumbai Central Tejas Rajdhani Express",
+    "from": "NDLS (New Delhi)",
+    "to": "MMCT (Mumbai Central)",
+    "departureTime": "16:55",
+    "arrivalTime": "08:35",
+    "duration": "15h 40m",
+    "classes": [
+      { "type": "3A", "name": "3rd AC", "price": 2850, "status": "AVAILABLE - 42" },
+      { "type": "2A", "name": "2nd AC", "price": 3980, "status": "AVAILABLE - 18" },
+      { "type": "1A", "name": "1st AC", "price": 5420, "status": "AVAILABLE - 04" }
+    ],
+    "runsOn": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "pantry": true
+  },
+  {
+    "id": "TRN-12004",
+    "trainNumber": "12004",
+    "name": "New Delhi - Lucknow Shatabdi Express",
+    "from": "NDLS (New Delhi)",
+    "to": "LKO (Lucknow Charbagh)",
+    "departureTime": "06:10",
+    "arrivalTime": "12:55",
+    "duration": "6h 45m",
+    "classes": [
+      { "type": "CC", "name": "AC Chair Car", "price": 1165, "status": "AVAILABLE - 85" },
+      { "type": "EC", "name": "Exec. Chair Car", "price": 2125, "status": "AVAILABLE - 12" }
+    ],
+    "runsOn": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "pantry": true
+  },
+  {
+    "id": "TRN-22692",
+    "trainNumber": "22692",
+    "name": "Hazrat Nizamuddin - KSR Bengaluru Rajdhani Express",
+    "from": "NZM (Delhi Nizamuddin)",
+    "to": "SBC (KSR Bengaluru)",
+    "departureTime": "19:50",
+    "arrivalTime": "05:20",
+    "duration": "33h 30m",
+    "classes": [
+      { "type": "3A", "name": "3rd AC", "price": 3890, "status": "RAC - 14" },
+      { "type": "2A", "name": "2nd AC", "price": 5450, "status": "AVAILABLE - 08" }
+    ],
+    "runsOn": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "pantry": true
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "USR-8821",
+    "name": "Aman Sharma",
+    "phone": "+91 98765 43210",
+    "email": "aman.flyer@airskygo.com",
+    "role": "traveller",
+    "tier": "SkyClub Gold Member",
+    "points": 2450,
+    "bookingsCount": 9,
+    "registeredAt": "2026-10-15T10:30:00.000Z",
+    "lastLogin": "2026-10-18T12:42:39.042Z"
+  },
+  {
+    "id": "USR-9102",
+    "name": "Pooja Verma",
+    "phone": "+91 98112 34567",
+    "email": "pooja.verma@outlook.com",
+    "role": "traveller",
+    "tier": "SkyClub Member",
+    "points": 800,
+    "bookingsCount": 1,
+    "registeredAt": "2026-10-16T14:20:00.000Z",
+    "lastLogin": "2026-10-17T18:40:00.000Z"
+  },
+  {
+    "id": "USR-5431",
+    "name": "Rohit Malhotra",
+    "phone": "+91 99201 88412",
+    "email": "rohit.m@gmail.com",
+    "role": "traveller",
+    "tier": "SkyClub Silver",
+    "points": 1200,
+    "bookingsCount": 1,
+    "registeredAt": "2026-10-17T09:10:00.000Z",
+    "lastLogin": "2026-10-18T00:50:00.000Z"
+  }
+]

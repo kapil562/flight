@@ -1,0 +1,39 @@
+[
+  {
+    "id": "CPN-1",
+    "code": "AIRSKY500",
+    "type": "flat",
+    "discount": 500,
+    "minAmount": 3000,
+    "description": "Flat ₹500 off on any domestic or international flight",
+    "status": "Active"
+  },
+  {
+    "id": "CPN-2",
+    "code": "FLYHIGH",
+    "type": "percent",
+    "discount": 10,
+    "maxDiscount": 1500,
+    "minAmount": 4000,
+    "description": "10% instant discount up to ₹1,500",
+    "status": "Active"
+  },
+  {
+    "id": "CPN-3",
+    "code": "IXIGO50",
+    "type": "flat",
+    "discount": 750,
+    "minAmount": 5000,
+    "description": "Special ₹750 Super Saver discount",
+    "status": "Active"
+  },
+  {
+    "id": "CPN-4",
+    "code": "FIRSTFLY",
+    "type": "flat",
+    "discount": 1000,
+    "minAmount": 6000,
+    "description": "Welcome bonus ₹1,000 off on first flight",
+    "status": "Active"
+  }
+]

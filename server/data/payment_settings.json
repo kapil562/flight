@@ -1,0 +1,47 @@
+{
+  "gatewayActive": true,
+  "paymentMode": "manual",
+  "upi": {
+    "vpa": "care@airsky",
+    "businessName": "AIR SKY LUXURY",
+    "mcc": "5499",
+    "name": "AIR SKY LUXURY"
+  },
+  "methods": {
+    "upiQr": true,
+    "upiApps": true,
+    "card": true,
+    "netBanking": true
+  },
+  "apps": {
+    "any": false,
+    "phonepe": true,
+    "gpay": true,
+    "paytm": true,
+    "bhim": true,
+    "other": false
+  },
+  "deepLinks": {
+    "any": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+    "phonepe": "phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+    "gpay": "tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+    "paytm": "paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+    "bhim": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02",
+    "other": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02"
+  },
+  "instructions": "1. Scan the QR code and pay the exact amount\n2. After payment, enter your 12-digit UPI Reference / UTR Number\n3. Click 'I Have Paid'\n4. Your ticket will be confirmed instantly once verified",
+  "upiApps": {
+    "any": false,
+    "phonepe": true,
+    "gpay": true,
+    "paytm": true,
+    "bhim": true,
+    "other": false
+  },
+  "updatedAt": "2026-10-18T12:42:39.076Z",
+  "razorpay": {
+    "keyId": "",
+    "keySecret": "",
+    "enabled": false
+  }
+}

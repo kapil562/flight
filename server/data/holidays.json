@@ -1,0 +1,159 @@
+[
+  {
+    "id": "PKG-GOA-01",
+    "title": "Enchanting Goa Beach & Cruise Vacation",
+    "destination": "Goa, India",
+    "duration": "4 Days / 3 Nights",
+    "price": 8999,
+    "originalPrice": 12500,
+    "rating": 4.8,
+    "image": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "3 Star Beach Resort",
+      "Daily Breakfast & Dinner",
+      "Mandovi Sunset Cruise",
+      "South Goa Sightseeing",
+      "Airport Transfers"
+    ],
+    "badge": "Bestseller",
+    "flightsIncluded": true,
+    "active": true
+  },
+  {
+    "id": "PKG-KASH-02",
+    "title": "Heaven on Earth: Kashmir Valley & Houseboat",
+    "destination": "Srinagar, Gulmarg, Pahalgam",
+    "duration": "6 Days / 5 Nights",
+    "price": 16999,
+    "originalPrice": 22000,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Dal Lake Luxury Houseboat",
+      "Gulmarg Gondola Ticket",
+      "Shikara Ride",
+      "Private Cab for transfers",
+      "All Meals"
+    ],
+    "badge": "Trending",
+    "flightsIncluded": false,
+    "active": true
+  },
+  {
+    "id": "PKG-KER-03",
+    "title": "Kerala Backwaters & Munnar Hills Escape",
+    "destination": "Munnar, Thekkady, Alleppey",
+    "duration": "5 Days / 4 Nights",
+    "price": 14499,
+    "originalPrice": 19000,
+    "rating": 4.7,
+    "image": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Alleppey Houseboat Stay",
+      "Tea Garden Tour",
+      "Spice Plantation Visit",
+      "All Transfers by A/C Sedan"
+    ],
+    "badge": "Family Special",
+    "flightsIncluded": false,
+    "active": true
+  },
+  {
+    "id": "PKG-DXB-04",
+    "title": "Dubai Extravaganza: Desert Safari & Burj Khalifa",
+    "destination": "Dubai, UAE",
+    "duration": "5 Days / 4 Nights",
+    "price": 31999,
+    "originalPrice": 39999,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Burj Khalifa 124th Floor",
+      "Desert Safari with BBQ Dinner",
+      "Dhow Cruise Marina",
+      "Dubai City Tour",
+      "UAE Visa Included"
+    ],
+    "badge": "International Hit",
+    "flightsIncluded": true,
+    "active": true
+  },
+  {
+    "id": "PKG-BALI-05",
+    "title": "Tropical Bali & Nusa Penida Island Gateway",
+    "destination": "Bali, Indonesia",
+    "duration": "6 Days / 5 Nights",
+    "price": 34999,
+    "originalPrice": 44000,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Private Pool Villa",
+      "Nusa Penida Day Tour with Speedboat",
+      "Ubud Kintamani Volcano",
+      "Balinese Spa Session"
+    ],
+    "badge": "Honeymoon Special",
+    "flightsIncluded": false,
+    "active": true
+  },
+  {
+    "id": "PKG-THAI-06",
+    "title": "Amazing Thailand: Bangkok & Pattaya Wonders",
+    "destination": "Bangkok & Pattaya, Thailand",
+    "duration": "5 Days / 4 Nights",
+    "price": 22499,
+    "originalPrice": 28999,
+    "rating": 4.6,
+    "image": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Coral Island Tour by Speedboat",
+      "Alcazar Cabaret Show",
+      "Bangkok Temple Tour",
+      "Chao Phraya Dinner Cruise"
+    ],
+    "badge": "Budget Friendly",
+    "flightsIncluded": true,
+    "active": true
+  },
+  {
+    "id": "PKG-MAN-07",
+    "title": "Magical Manali & Solang Valley Snow Tour",
+    "destination": "Manali, Himachal Pradesh",
+    "duration": "5 Days / 4 Nights",
+    "price": 10999,
+    "originalPrice": 15000,
+    "rating": 4.8,
+    "image": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Luxury Mountain View Hotel",
+      "Solang Valley Adventure Passes",
+      "Atal Tunnel & Sissu Excursion",
+      "All Transfers by Personal Cab",
+      "Daily Buffet Breakfast & Dinner"
+    ],
+    "badge": "Snow Special",
+    "flightsIncluded": false,
+    "active": true
+  },
+  {
+    "id": "PKG-RAJ-08",
+    "title": "Royal Rajasthan: Jaipur, Jodhpur & Udaipur",
+    "destination": "Rajasthan, India",
+    "duration": "7 Days / 6 Nights",
+    "price": 19499,
+    "originalPrice": 25000,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80",
+    "inclusions": [
+      "Heritage Haveli Stays",
+      "Amber Fort & City Palace Guided Tours",
+      "Lake Pichola Boat Ride",
+      "Traditional Rajasthani Cultural Dinner",
+      "A/C Private Vehicle"
+    ],
+    "badge": "Royal Heritage",
+    "flightsIncluded": false,
+    "active": true
+  }
+]

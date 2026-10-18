@@ -1,0 +1,62 @@
+[
+  {
+    "id": "VISA-DXB",
+    "country": "United Arab Emirates (Dubai)",
+    "flag": "🇦🇪",
+    "type": "Tourist Visa (30 Days)",
+    "processingDays": "24 to 48 Hours",
+    "price": 6499,
+    "entry": "Single Entry",
+    "validity": "60 Days from issue",
+    "requirements": ["Passport Copy (Front & Back)", "Passport Size Photo (White background)", "Confirmed Return Flight Ticket"],
+    "popular": true
+  },
+  {
+    "id": "VISA-SIN",
+    "country": "Singapore",
+    "flag": "🇸🇬",
+    "type": "e-Visa (30 Days Multiple Entry)",
+    "processingDays": "3 to 4 Working Days",
+    "price": 2899,
+    "entry": "Multiple Entry",
+    "validity": "Up to 2 Years",
+    "requirements": ["Original Passport (6 months validity)", "2 Recent Photos (Matte finish)", "Flight Tickets & Hotel Booking", "Last 6 Months Bank Statement"],
+    "popular": true
+  },
+  {
+    "id": "VISA-THAI",
+    "country": "Thailand",
+    "flag": "🇹🇭",
+    "type": "Tourist Visa (Free Visa On Arrival / eVisa)",
+    "processingDays": "Instant / 2 Days",
+    "price": 1499,
+    "entry": "Single Entry",
+    "validity": "30 Days",
+    "requirements": ["Passport valid for 6 months", "Confirmed onward ticket", "Proof of funds (10,000 THB)"],
+    "popular": true
+  },
+  {
+    "id": "VISA-SCH",
+    "country": "Schengen (Europe - France, Switzerland, Italy)",
+    "flag": "🇪🇺",
+    "type": "Short Stay Tourist Visa (Type C)",
+    "processingDays": "10 to 15 Working Days",
+    "price": 8999,
+    "entry": "Single / Multiple",
+    "validity": "Up to 90 Days",
+    "requirements": ["Cover Letter & Day-wise Itinerary", "Travel Insurance (€30,000 min coverage)", "3 Years ITR & 6 Months Bank Statements", "Flight & Hotel vouchers"],
+    "popular": false
+  },
+  {
+    "id": "VISA-UK",
+    "country": "United Kingdom",
+    "flag": "🇬🇧",
+    "type": "Standard Visitor Visa (6 Months)",
+    "processingDays": "15 Working Days",
+    "price": 12500,
+    "entry": "Multiple Entry",
+    "validity": "6 Months",
+    "requirements": ["Valid Passport", "Proof of Earnings / Job Letter", "Bank Statements with sufficient funds", "Accommodation details"],
+    "popular": false
+  }
+]

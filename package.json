@@ -1,0 +1,28 @@
+{
+  "name": "airskygo-flight-booking",
+  "version": "1.0.0",
+  "description": "AirSkyGo - Real-Time Flight Booking Portal (Ixigo & Cleartrip style) with Admin Panel",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node server/server.js",
+    "client": "npm --prefix client run dev",
+    "build": "cd client && npm install && npm run build",
+    "vercel-build": "cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "keywords": [
+    "flight-booking",
+    "ixigo",
+    "cleartrip",
+    "airline-reservations",
+    "seat-map",
+    "react",
+    "node"
+  ],
+  "author": "AirSkyGo",
+  "license": "ISC"
+}
