@@ -765,6 +765,21 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Desktop Floating Swap Button between Origin & Destination */}
+              <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20">
+                <motion.button
+                  type="button"
+                  onClick={handleSwapAirports}
+                  whileHover={{ scale: 1.15, rotate: 180 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 hover:border-sky-400 transition-colors cursor-pointer"
+                  title="Swap Origin and Destination"
+                >
+                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                </motion.button>
+              </div>
             </div>
 
             {/* Mobile Swap Button */}
@@ -778,21 +793,6 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 title="Swap Origin and Destination"
               >
                 <ArrowLeftRight className="w-3 h-3 rotate-90" />
-              </motion.button>
-            </div>
-
-            {/* Swap Button (Desktop) */}
-            <div className="hidden md:flex justify-center -mx-4 z-10 md:col-span-1">
-              <motion.button
-                type="button"
-                onClick={handleSwapAirports}
-                whileHover={{ scale: 1.15, rotate: 180 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 transition-colors cursor-pointer"
-                title="Swap Origin and Destination"
-              >
-                <ArrowLeftRight className="w-4 h-4" />
               </motion.button>
             </div>
 
