@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plane, Building2, Palmtree, Train, Globe2, Ticket, User, LogOut, ChevronDown, Menu, X, Sparkles, Award, Search, CheckSquare, Phone } from 'lucide-react';
 
@@ -55,12 +56,20 @@ export default function Navbar({
           </span>
         </div>
 
-        {/* 24x7 Customer Helpline */}
+        {/* 24x7 Customer Helpline & Company Links */}
         <div className="hidden sm:flex items-center gap-3 shrink-0 text-slate-200">
-          <a href={`tel:${helplinePhone.replace(/\s+/g, '')}`} className="hover:text-amber-300 transition-colors flex items-center gap-1">
+          <Link to="/about" className="hover:text-amber-300 transition-colors">
+            About Us
+          </Link>
+          <span className="text-slate-500">|</span>
+          <Link to="/contact" className="hover:text-amber-300 transition-colors flex items-center gap-1">
             <Phone className="w-3 h-3 text-amber-400" />
-            <span>24x7 Helpline: <strong>{helplinePhone}</strong></span>
-          </a>
+            <span>24x7 Support</span>
+          </Link>
+          <span className="text-slate-500">|</span>
+          <Link to="/terms" className="hover:text-amber-300 transition-colors">
+            Terms
+          </Link>
           <span className="text-slate-500">|</span>
           <button
             type="button"
@@ -350,6 +359,35 @@ export default function Navbar({
                 <Ticket className="w-4 h-4 text-emerald-600" />
                 <span>My Bookings & Check-in</span>
               </button>
+
+              <div className="pt-2 border-t border-slate-100 space-y-1">
+                <Link
+                  to="/about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 text-sky-500" />
+                  <span>About Us</span>
+                </Link>
+
+                <Link
+                  to="/contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                  <span>Contact Us & 24x7 Support</span>
+                </Link>
+
+                <Link
+                  to="/terms"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Award className="w-4 h-4 text-amber-500" />
+                  <span>Terms & Conditions</span>
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}

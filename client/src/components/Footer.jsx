@@ -1,5 +1,6 @@
 import React from 'react';
-import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart, ArrowUpRight, HelpCircle, FileText } from 'lucide-react';
 
 export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
   const routes = [
@@ -56,11 +57,11 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
           </div>
         </div>
 
-        {/* Links Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 py-10 border-b border-slate-800 text-xs">
+        {/* Links Grid (5 Columns) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 py-10 border-b border-slate-800 text-xs">
           
           {/* Brand Info */}
-          <div>
+          <div className="sm:col-span-2 md:col-span-1 lg:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               {brand?.logo ? (
                 <img
@@ -89,12 +90,70 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
               </p>
             )}
             <div className="space-y-1 text-[11px] text-slate-400 mb-3">
-              {brand?.phone && <div>📞 Phone: <span className="text-slate-300 font-bold">{brand.phone}</span></div>}
-              {brand?.email && <div>✉️ Email: <span className="text-slate-300 font-bold">{brand.email}</span></div>}
+              {brand?.phone && <div>📞 Phone: <a href={`tel:${brand.phone.replace(/\s+/g, '')}`} className="text-slate-300 font-bold hover:text-white">{brand.phone}</a></div>}
+              {brand?.email && <div>✉️ Email: <a href={`mailto:${brand.email}`} className="text-slate-300 font-bold hover:text-white">{brand.email}</a></div>}
             </div>
             <div className="text-[11px] text-slate-500">
               © 2026 {brand?.name || 'AIR SKY'}. All rights reserved.
             </div>
+          </div>
+
+          {/* Company & Support Links (Terms & Conditions, About Us, Contact) */}
+          <div>
+            <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs flex items-center gap-1.5">
+              <span>Company & Support</span>
+            </h5>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/about"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>About Us</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>Contact Us & Help</span>
+                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">24x7</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>Terms & Conditions</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms#cancellation"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>Cancellation & Refund Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms#passport"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>Passport & Visa Rules</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms#liability"
+                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
+                >
+                  <span>Privacy Policy & Grievance</span>
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Popular Routes */}
@@ -136,7 +195,7 @@ export default function Footer({ onSelectRoute, brand = null, settings = {} }) {
             <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">Airlines Partners</h5>
             <div className="flex flex-wrap gap-1.5">
               {['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'].map(a => (
-                <span key={a} className="px-2.5 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700/60 font-semibold text-[11px]">
+                <span key={a} className="px-2 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700/60 font-semibold text-[10px]">
                   {a}
                 </span>
               ))}

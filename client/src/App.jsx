@@ -23,6 +23,9 @@ import BottomNav from './components/BottomNav';
 import AuthModal from './components/AuthModal';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import TermsPage from './pages/TermsPage';
 import { api } from './utils/api';
 
 function MainWebsite() {
@@ -459,6 +462,10 @@ export default function App() {
     <Routes>
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/terms-and-conditions" element={<TermsPage />} />
       <Route path="*" element={<MainWebsite />} />
     </Routes>
   );
