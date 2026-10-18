@@ -176,7 +176,7 @@ export default function CustomDatePicker({
         role="button"
         tabIndex={0}
         aria-label={`Select ${label} date`}
-        className="p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/50 hover:bg-white h-full flex flex-col justify-between cursor-pointer select-none group focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+        className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/50 hover:bg-white h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between cursor-pointer select-none group focus:outline-hidden focus:ring-2 focus:ring-sky-500"
       >
         <div className="flex items-center justify-between text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
           <div className="flex items-center gap-1.5 truncate">
@@ -205,48 +205,91 @@ export default function CustomDatePicker({
             </div>
           </div>
         ) : (
-          <div className="py-1">
+          <div className="py-0.5">
             <div className="text-xs sm:text-sm font-extrabold text-slate-400">
               Select Date
             </div>
             <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium truncate">
-              {subText || 'Add return for discounts'}
+              {subText || 'Add date for discounts'}
             </div>
           </div>
         )}
 
-        {/* Quick Quick-Select Pill inside box */}
-        <div className="flex items-center gap-1 mt-1 sm:mt-2">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onChange(getTodayString(0));
-            }}
-            className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onChange(getTodayString(1));
-            }}
-            className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-          >
-            Tmrw
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onChange(getTodayString(7));
-            }}
-            className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-          >
-            +7D
-          </button>
+        {/* Quick Select Buttons */}
+        <div className="flex items-center gap-1 mt-1 sm:mt-1.5">
+          {label === 'Return' || (minDate && minDate > getTodayString()) ? (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(minDate || getTodayString(3));
+                }}
+                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                +0D
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const base = parseYMD(minDate || value) || new Date();
+                  const d = new Date(base);
+                  d.setDate(d.getDate() + 3);
+                  onChange(formatYMD(d));
+                }}
+                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                +3D
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const base = parseYMD(minDate || value) || new Date();
+                  const d = new Date(base);
+                  d.setDate(d.getDate() + 7);
+                  onChange(formatYMD(d));
+                }}
+                className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                +7D
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(getTodayString(0));
+                }}
+                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(getTodayString(1));
+                }}
+                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                Tmrw
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(getTodayString(7));
+                }}
+                className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
+              >
+                +7D
+              </button>
+            </>
+          )}
         </div>
       </div>
 
