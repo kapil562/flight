@@ -589,7 +589,7 @@
     "phone": "+91 72248 28030",
     "whatsapp": "+918077680310",
     "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
-    "updatedAt": "2026-10-18T21:25:24.988Z"
+    "updatedAt": "2026-10-18T21:50:42.215Z"
   },
   "coupons": [
     {
@@ -1692,6 +1692,15 @@
         "card3Title": "24x7 Aviation Support",
         "card3Desc": "Hassle-free web check-in support and instant automated cancellations with swift refund processing.",
         "partnerAirlines": "IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines"
+      },
+      "enabledServices": {
+        "flights": true,
+        "hotels": true,
+        "holidays": true,
+        "trains": false,
+        "visa": false,
+        "checkin": false,
+        "pnr": true
       }
     },
     "bookingPrefix": "AS",
@@ -1707,6 +1716,15 @@
       "card3Title": "24x7 Aviation Support",
       "card3Desc": "Hassle-free web check-in support and instant automated cancellations with swift refund processing.",
       "partnerAirlines": "IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines"
+    },
+    "enabledServices": {
+      "flights": true,
+      "hotels": true,
+      "holidays": true,
+      "trains": false,
+      "visa": false,
+      "checkin": false,
+      "pnr": true
     }
   },
   "trains": [

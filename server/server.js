@@ -516,6 +516,16 @@ app.get('/api/brand', (req, res) => {
     whatsapp: "+918077680310",
     address: "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
   });
+  const settings = readJSON(SETTINGS_FILE, {});
+  brand.enabledServices = brand.enabledServices || settings.enabledServices || {
+    flights: true,
+    hotels: true,
+    holidays: true,
+    trains: false,
+    visa: true,
+    checkin: true,
+    pnr: true
+  };
   res.json({ success: true, data: brand });
 });
 

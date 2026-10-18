@@ -34,13 +34,58 @@ export default function Navbar({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const navItems = [
+  // Services enabled/disabled config (Synced with Admin Panel)
+  const [enabledServices, setEnabledServices] = useState(() => {
+    return settings?.enabledServices || brand?.enabledServices || (() => {
+      try {
+        const saved = localStorage.getItem('asg_services');
+        return saved ? JSON.parse(saved) : null;
+      } catch { return null; }
+    })() || {
+      flights: true,
+      hotels: true,
+      holidays: true,
+      trains: false, // Default trains OFF as requested
+      visa: true,
+      checkin: true,
+      pnr: true
+    };
+  });
+
+  useEffect(() => {
+    if (settings?.enabledServices || brand?.enabledServices) {
+      setEnabledServices(settings?.enabledServices || brand?.enabledServices);
+    }
+  }, [settings?.enabledServices, brand?.enabledServices]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail?.enabledServices) {
+        setEnabledServices(e.detail.enabledServices);
+      } else {
+        try {
+          const saved = localStorage.getItem('asg_services');
+          if (saved) setEnabledServices(JSON.parse(saved));
+        } catch {}
+      }
+    };
+    window.addEventListener('asg_brand_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('asg_brand_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const allNavItems = [
     { id: 'flights', label: 'Flights', icon: Plane },
     { id: 'hotels', label: 'Hotels', icon: Building2 },
     { id: 'holidays', label: 'Holidays', icon: Palmtree },
     { id: 'trains', label: 'Trains', icon: Train },
     { id: 'visa', label: 'Visa', icon: Globe2 }
   ];
+
+  const navItems = allNavItems.filter(item => enabledServices[item.id] !== false);
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -70,15 +115,19 @@ export default function Navbar({
           <Link to="/terms" className="hover:text-amber-300 transition-colors">
             Terms
           </Link>
-          <span className="text-slate-500">|</span>
-          <button
-            type="button"
-            onClick={onOpenWebCheckIn}
-            className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
-          >
-            <CheckSquare className="w-3 h-3 text-emerald-400" />
-            <span>Web Check-In</span>
-          </button>
+          {enabledServices.checkin !== false && (
+            <>
+              <span className="text-slate-500">|</span>
+              <button
+                type="button"
+                onClick={onOpenWebCheckIn}
+                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <CheckSquare className="w-3 h-3 text-emerald-400" />
+                <span>Web Check-In</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -147,16 +196,21 @@ export default function Navbar({
               );
             })}
 
-            <div className="w-px h-5 bg-slate-300 mx-1" />
+            {enabledServices.pnr !== false && (
+              <>
+                <div className="w-px h-5 bg-slate-300 mx-1" />
+                {/* Check PNR Button */}
+                <button
+                  onClick={onOpenQuickPnr}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 hover:text-sky-700 hover:bg-white/60 transition-all cursor-pointer"
+                >
+                  <Search className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Check PNR</span>
+                </button>
+              </>
+            )}
 
-            {/* Check PNR Button */}
-            <button
-              onClick={onOpenQuickPnr}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 hover:text-sky-700 hover:bg-white/60 transition-all cursor-pointer"
-            >
-              <Search className="w-3.5 h-3.5 text-amber-500" />
-              <span>Check PNR</span>
-            </button>
+            <div className="w-px h-5 bg-slate-300 mx-1" />
 
             {/* My Bookings */}
             <button
@@ -230,23 +284,27 @@ export default function Navbar({
                           <span>My Bookings & Tickets</span>
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() => { onOpenQuickPnr(); setUserDropdownOpen(false); }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
-                        >
-                          <Search className="w-4 h-4 text-amber-500" />
-                          <span>Instant PNR Status</span>
-                        </button>
+                        {enabledServices.pnr !== false && (
+                          <button
+                            type="button"
+                            onClick={() => { onOpenQuickPnr(); setUserDropdownOpen(false); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                          >
+                            <Search className="w-4 h-4 text-amber-500" />
+                            <span>Instant PNR Status</span>
+                          </button>
+                        )}
 
-                        <button
-                          type="button"
-                          onClick={() => { onOpenWebCheckIn(); setUserDropdownOpen(false); }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
-                        >
-                          <CheckSquare className="w-4 h-4 text-sky-600" />
-                          <span>Web Check-In Hub</span>
-                        </button>
+                        {enabledServices.checkin !== false && (
+                          <button
+                            type="button"
+                            onClick={() => { onOpenWebCheckIn(); setUserDropdownOpen(false); }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                          >
+                            <CheckSquare className="w-4 h-4 text-sky-600" />
+                            <span>Web Check-In Hub</span>
+                          </button>
+                        )}
                       </div>
 
                       <div className="p-1 border-t border-slate-100">
@@ -336,21 +394,25 @@ export default function Navbar({
             })}
 
             <div className="pt-2 border-t border-slate-100 space-y-1">
-              <button
-                onClick={() => { onOpenQuickPnr(); setMobileMenuOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-50 cursor-pointer"
-              >
-                <Search className="w-4 h-4 text-amber-500" />
-                <span>Check PNR Status</span>
-              </button>
+              {enabledServices.pnr !== false && (
+                <button
+                  onClick={() => { onOpenQuickPnr(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-50 cursor-pointer"
+                >
+                  <Search className="w-4 h-4 text-amber-500" />
+                  <span>Check PNR Status</span>
+                </button>
+              )}
 
-              <button
-                onClick={() => { onOpenWebCheckIn(); setMobileMenuOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-50 cursor-pointer"
-              >
-                <CheckSquare className="w-4 h-4 text-emerald-600" />
-                <span>Web Check-In Hub</span>
-              </button>
+              {enabledServices.checkin !== false && (
+                <button
+                  onClick={() => { onOpenWebCheckIn(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 hover:bg-slate-50 cursor-pointer"
+                >
+                  <CheckSquare className="w-4 h-4 text-emerald-600" />
+                  <span>Web Check-In Hub</span>
+                </button>
+              )}
 
               <button
                 onClick={() => { onOpenMyBookings(); setMobileMenuOpen(false); }}

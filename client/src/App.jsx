@@ -33,7 +33,7 @@ function MainWebsite() {
   const [activeService, setActiveService] = useState('flights'); // 'flights' | 'hotels' | 'holidays' | 'trains' | 'visa'
   const [settings, setSettings] = useState({
     siteName: 'AirSkyGo',
-    siteTagline: 'Flights • Hotels • Holidays • Trains • Visa',
+    siteTagline: 'Premium Luxury Travel',
     currency: '₹',
     currencyCode: 'INR',
     announcement: { enabled: true, text: '🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500!' }

@@ -13,5 +13,14 @@
   "phone": "+91 72248 28030",
   "whatsapp": "+918077680310",
   "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
-  "updatedAt": "2026-10-18T21:25:24.988Z"
+  "enabledServices": {
+    "flights": true,
+    "hotels": true,
+    "holidays": true,
+    "trains": false,
+    "visa": false,
+    "checkin": false,
+    "pnr": true
+  },
+  "updatedAt": "2026-10-18T21:50:42.215Z"
 }
