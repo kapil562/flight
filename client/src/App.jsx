@@ -202,7 +202,7 @@ function MainWebsite() {
   };
 
   // Step 1: User clicks "Book Now" -> Opens Checkout Modal DIRECTLY (Seat option upfront blocked nahi hoga)
-  const handleInitiateBooking = (flight, currentPrice, selectedFareTier, initialCoupon = '') => {
+  const handleInitiateBooking = (flight, currentPrice, initialFareTier = 'saver', initialCoupon = '') => {
     const totalPax = (searchParams.passengers?.adults || 1) + (searchParams.passengers?.children || 0);
     const autoSeats = Array.from({ length: totalPax }).map((_, i) => ({
       seatNumber: `${12 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`,
@@ -215,7 +215,8 @@ function MainWebsite() {
       travelClass: searchParams.travelClass,
       selectedSeats: autoSeats,
       passengersCount: totalPax,
-      initialCoupon: initialCoupon || ''
+      initialCoupon: initialCoupon || '',
+      initialFareTier: initialFareTier || 'saver'
     });
   };
 
@@ -409,6 +410,7 @@ function MainWebsite() {
             selectedSeats={checkoutModalData.selectedSeats}
             passengersCount={checkoutModalData.passengersCount}
             initialCoupon={checkoutModalData.initialCoupon || ''}
+            initialFareTier={checkoutModalData.initialFareTier || 'saver'}
             onClose={() => setCheckoutModalData(null)}
             onBookingSuccess={handleBookingSuccess}
             brand={brand}

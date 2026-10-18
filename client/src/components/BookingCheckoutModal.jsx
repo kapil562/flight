@@ -18,7 +18,8 @@ export default function BookingCheckoutModal({
   onClose,
   onBookingSuccess,
   brand = null,
-  initialCoupon = ''
+  initialCoupon = '',
+  initialFareTier = 'saver'
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection per User, 3 = Payment Gateway
 
@@ -50,10 +51,10 @@ export default function BookingCheckoutModal({
     companyName: ''
   });
 
-  // Add-ons
+  // Add-ons & Fare Flexibility
+  const [selectedFareTier, setSelectedFareTier] = useState(initialFareTier || 'saver'); // 'saver' | 'flexi' | 'super'
   const [travelInsurance, setTravelInsurance] = useState(true);
   const [extraBaggageKg, setExtraBaggageKg] = useState(0);
-  const [flexiFare, setFlexiFare] = useState(false);
 
   // Seat Selection State
   const [layoutData, setLayoutData] = useState(null);
@@ -106,17 +107,25 @@ export default function BookingCheckoutModal({
     }
   }, [flight?.id, flight?.flightNumber]);
 
-  // Fare calculations based dynamically on passengers.length
+  // Dynamic Fare Tiers (Saver, Flexi Plus, AirSky VIP)
+  const unitBasePrice = flight?.basePrice || currentPrice;
+  const tierPrices = {
+    saver: unitBasePrice,
+    flexi: Math.round(unitBasePrice * 1.15),
+    super: Math.round(unitBasePrice * 1.35)
+  };
   const currentPaxCount = passengers.length;
-  const baseFare = currentPrice * currentPaxCount;
+  const tierUpgradePerPax = (tierPrices[selectedFareTier] || unitBasePrice) - unitBasePrice;
+  const tierUpgradeTotal = tierUpgradePerPax * currentPaxCount;
+  const standardBaseFare = unitBasePrice * currentPaxCount;
+  const baseFare = standardBaseFare + tierUpgradeTotal;
   const totalSeatFee = passengers.reduce((sum, p) => sum + (p.seatPrice || 0), 0);
   const totalMealsFee = passengers.reduce((sum, p) => sum + (p.mealPrice || 0), 0);
   const baggageFee = extraBaggageKg === 5 ? 900 : extraBaggageKg === 10 ? 1700 : extraBaggageKg === 15 ? 2400 : 0;
   const insuranceFee = travelInsurance ? 199 * currentPaxCount : 0;
-  const flexiFee = flexiFare ? Math.round(baseFare * 0.12) : 0;
   const taxes = Math.round(baseFare * 0.12);
 
-  const subTotalBeforeDiscount = baseFare + totalSeatFee + totalMealsFee + baggageFee + insuranceFee + flexiFee + taxes;
+  const subTotalBeforeDiscount = baseFare + totalSeatFee + totalMealsFee + baggageFee + insuranceFee + taxes;
   const grandTotal = Math.max(0, subTotalBeforeDiscount - discountAmount);
 
   // Auto-apply initial coupon if passed
@@ -304,13 +313,16 @@ export default function BookingCheckoutModal({
         })),
         contact,
         gst: showGst ? gstDetails : null,
+        fareTier: selectedFareTier,
         fare: {
-          basePrice: baseFare,
+          basePrice: standardBaseFare,
+          tierUpgrade: tierUpgradeTotal,
+          fareTier: selectedFareTier,
           seatCost: totalSeatFee,
           mealsCost: totalMealsFee,
           baggageCost: baggageFee,
           insurance: insuranceFee,
-          flexiCost: flexiFee,
+          flexiCost: tierUpgradeTotal,
           taxes: taxes,
           discount: discountAmount,
           promoCode: discountAmount > 0 ? couponCode : null,
@@ -629,29 +641,90 @@ export default function BookingCheckoutModal({
                     </div>
                   </div>
 
-                  {/* Add Flexi Fare & Baggage */}
+                  {/* Add Fare Type & Baggage */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
                     <h4 className="font-extrabold text-slate-900 text-base">Travel Add-ons & Flexibility</h4>
 
-                    <div className="flex items-start justify-between p-3.5 rounded-xl border border-sky-200 bg-sky-50/40">
-                      <div className="flex items-start gap-3">
-                        <Zap className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />
-                        <div>
-                          <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                            <span>Add Flexi Fare (Free Date Change & Instant Refunds)</span>
-                            <span className="bg-sky-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">Popular</span>
+                    {/* Fare Family Options (Saver, Flexi Plus, AirSky VIP) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Zap className="w-4 h-4 text-sky-600" />
+                          <span>Choose Fare Category / Flexibility Tier</span>
+                        </label>
+                        <span className="text-[10px] text-slate-400 font-semibold">Customise your trip benefits</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* Saver */}
+                        <div
+                          onClick={() => setSelectedFareTier('saver')}
+                          className={`p-3.5 rounded-xl border cursor-pointer transition-all relative ${
+                            selectedFareTier === 'saver'
+                              ? 'border-sky-600 bg-sky-50/40 ring-2 ring-sky-500/20 shadow-xs'
+                              : 'border-slate-200 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-sm">Saver</span>
+                            <span className="font-extrabold text-sky-700 text-sm">₹{tierPrices.saver.toLocaleString('en-IN')}</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
-                            Zero date change fee up to 24h before departure + instant airline refund guarantee.
-                          </p>
+                          <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">Standard Base Fare</span>
+                          <ul className="mt-2.5 space-y-1 text-[11px] text-slate-500">
+                            <li>✓ 7kg Cabin + 15kg Check-in</li>
+                            <li>✓ Standard Seat Selection</li>
+                            <li className="text-slate-400">✗ Date change fee applies</li>
+                          </ul>
+                        </div>
+
+                        {/* Flexi Plus */}
+                        <div
+                          onClick={() => setSelectedFareTier('flexi')}
+                          className={`p-3.5 rounded-xl border cursor-pointer transition-all relative ${
+                            selectedFareTier === 'flexi'
+                              ? 'border-sky-600 bg-sky-50/40 ring-2 ring-sky-500/20 shadow-xs'
+                              : 'border-slate-200 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <span className="absolute -top-2 right-2 bg-sky-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full shadow-xs">
+                            Popular
+                          </span>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-sm">Flexi Plus</span>
+                            <span className="font-extrabold text-sky-700 text-sm">₹{tierPrices.flexi.toLocaleString('en-IN')}</span>
+                          </div>
+                          <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 text-[10px] font-bold">+₹{(tierPrices.flexi - tierPrices.saver).toLocaleString('en-IN')} / traveller</span>
+                          <ul className="mt-2.5 space-y-1 text-[11px] text-slate-600">
+                            <li>✓ Free Standard Seat</li>
+                            <li>✓ Complimentary Sandwich / Snack</li>
+                            <li className="text-emerald-600 font-semibold">✓ Free Date Change up to 24h</li>
+                          </ul>
+                        </div>
+
+                        {/* AirSky VIP */}
+                        <div
+                          onClick={() => setSelectedFareTier('super')}
+                          className={`p-3.5 rounded-xl border cursor-pointer transition-all relative ${
+                            selectedFareTier === 'super'
+                              ? 'border-sky-600 bg-sky-50/40 ring-2 ring-sky-500/20 shadow-xs'
+                              : 'border-slate-200 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <span className="absolute -top-2 right-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full shadow-xs">
+                            VIP Luxury
+                          </span>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-sm">{brand?.name || 'AirSky'} VIP</span>
+                            <span className="font-extrabold text-sky-700 text-sm">₹{tierPrices.super.toLocaleString('en-IN')}</span>
+                          </div>
+                          <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">+₹{(tierPrices.super - tierPrices.saver).toLocaleString('en-IN')} / traveller</span>
+                          <ul className="mt-2.5 space-y-1 text-[11px] text-slate-600">
+                            <li className="font-medium text-slate-800">✓ Extra Legroom Seat included</li>
+                            <li>✓ Full Hot Gourmet Meal & Beverage</li>
+                            <li className="text-emerald-600 font-semibold">✓ Priority Check-in & Baggage</li>
+                          </ul>
                         </div>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={flexiFare}
-                        onChange={(e) => setFlexiFare(e.target.checked)}
-                        className="w-5 h-5 text-sky-600 rounded cursor-pointer mt-1"
-                      />
                     </div>
 
                     <div className="flex items-start justify-between p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40">
@@ -1226,8 +1299,15 @@ export default function BookingCheckoutModal({
                 <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex justify-between">
                     <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
-                    <span className="font-bold font-mono">₹{baseFare.toLocaleString('en-IN')}</span>
+                    <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
                   </div>
+
+                  {selectedFareTier !== 'saver' && (
+                    <div className="flex justify-between">
+                      <span>{selectedFareTier === 'super' ? `${brand?.name || 'AirSky'} VIP Upgrade` : 'Flexi Plus Upgrade'}</span>
+                      <span className="font-bold font-mono text-sky-700">+₹{tierUpgradeTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
 
                   {totalSeatFee > 0 && (
                     <div className="flex justify-between">
@@ -1254,13 +1334,6 @@ export default function BookingCheckoutModal({
                     <div className="flex justify-between">
                       <span>Travel Insurance ({passengers.length} Pax)</span>
                       <span className="font-bold font-mono text-emerald-700">+₹{insuranceFee.toLocaleString('en-IN')}</span>
-                    </div>
-                  )}
-
-                  {flexiFee > 0 && (
-                    <div className="flex justify-between">
-                      <span>Flexi Fare Add-on</span>
-                      <span className="font-bold font-mono text-sky-700">+₹{flexiFee.toLocaleString('en-IN')}</span>
                     </div>
                   )}
 
