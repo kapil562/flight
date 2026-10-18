@@ -433,7 +433,11 @@ function MainWebsite() {
       />
 
       {/* 24x7 Floating WhatsApp & Helpline Support Widget */}
-      <WhatsAppSupportButton onOpenQuickPnr={() => setQuickPnrOpen(true)} brand={brand} />
+      <WhatsAppSupportButton
+        onOpenQuickPnr={() => setQuickPnrOpen(true)}
+        onOpenWebCheckIn={() => setWebCheckInOpen(true)}
+        brand={brand}
+      />
 
       {/* Mobile Sticky Bottom Navigation Bar (MakeMyTrip / Ixigo pattern) */}
       <BottomNav
