@@ -1245,9 +1245,14 @@ export default function BookingCheckoutModal({
                           <div className="w-full h-0.5 bg-sky-300"></div>
                           <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
                         </div>
-                        <span className="text-[10px] font-bold text-emerald-600 block mt-0.5">
-                          {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop`}
+                        <span className={`text-[10px] font-bold block mt-0.5 ${flight.stops === 0 ? 'text-emerald-600' : 'text-amber-700'}`}>
+                          {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop (${flight.layoverAirport || flight.layoverCity || 'Connecting'})`}
                         </span>
+                        {flight.stops > 0 && flight.layoverDuration && (
+                          <span className="text-[9px] text-slate-400 block font-medium">
+                            {flight.layoverDuration} Layover
+                          </span>
+                        )}
                       </div>
 
                       {/* Arrival */}

@@ -192,58 +192,348 @@ const addMinutesToTime = (timeStr, minutesToAdd) => {
 };
 
 // Schedule Templates for full daily flight coverage (16 flights per route)
+// Helper to get sensible layover hub based on route
+const getSensibleLayoverHub = (fromCode, toCode) => {
+  const c1 = (fromCode || '').toUpperCase();
+  const c2 = (toCode || '').toUpperCase();
+
+  // If origin/dest is in North, hub in BOM or BLR or HYD
+  if (['DEL', 'ATQ', 'IXC', 'SXR', 'DED', 'JAI', 'LKO', 'VNS', 'AYJ'].includes(c1) || 
+      ['DEL', 'ATQ', 'IXC', 'SXR', 'DED', 'JAI', 'LKO', 'VNS', 'AYJ'].includes(c2)) {
+    if (c1 !== 'BOM' && c2 !== 'BOM') return { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj Intl Airport' };
+    if (c1 !== 'BLR' && c2 !== 'BLR') return { code: 'BLR', city: 'Bengaluru', name: 'Kempegowda Intl Airport' };
+    return { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi Intl Airport' };
+  }
+
+  // If origin/dest is in South, hub in BOM or DEL
+  if (['BLR', 'MAA', 'COK', 'HYD', 'TRV', 'CCJ', 'CNN', 'CJB', 'IXE', 'GOI', 'GOX'].includes(c1) ||
+      ['BLR', 'MAA', 'COK', 'HYD', 'TRV', 'CCJ', 'CNN', 'CJB', 'IXE', 'GOI', 'GOX'].includes(c2)) {
+    if (c1 !== 'DEL' && c2 !== 'DEL') return { code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi Intl Airport' };
+    if (c1 !== 'BOM' && c2 !== 'BOM') return { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj Intl Airport' };
+    return { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi Intl Airport' };
+  }
+
+  // Default central hub
+  return { code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi Intl Airport' };
+};
+
+// Schedule Templates for full daily flight coverage (Balanced Non-Stop & 1-Stop / 2-Stop flights)
 const getDomesticFlightSlots = (fromAirport, toAirport, date) => {
   const { dur, minutes } = getRealisticFlightDuration(fromAirport.code, toAirport.code);
+  const hub = getSensibleLayoverHub(fromAirport.code, toAirport.code);
+  const altHub = hub.code === 'BOM' 
+    ? { code: 'DEL', city: 'New Delhi' } 
+    : (hub.code === 'DEL' ? { code: 'BLR', city: 'Bengaluru' } : { code: 'BOM', city: 'Mumbai' });
 
+  // 18 Daily Flight Slots: High frequency of both Non-stop and 1-stop/2-stop flights
   const schedules = [
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', dep: '05:45', stops: 0, defaultBase: 5409, flightNo: '6E-2041', meal: false },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', dep: '06:30', stops: 0, defaultBase: 6367, flightNo: 'AI-805', meal: true },
-    { airline: 'Akasa Air', code: 'QP', color: '#FF5900', aircraft: 'Boeing 737 MAX 8', dep: '07:15', stops: 0, defaultBase: 5190, flightNo: 'QP-1102', meal: false },
-    { airline: 'Vistara', code: 'UK', color: '#5C0632', aircraft: 'Airbus A321neo', dep: '08:00', stops: 0, defaultBase: 6617, flightNo: 'UK-995', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', dep: '09:10', stops: 0, defaultBase: 5806, flightNo: '6E-5012', meal: false },
-    { airline: 'SpiceJet', code: 'SG', color: '#EE3124', aircraft: 'Boeing 737-800', dep: '10:25', stops: 0, defaultBase: 4890, flightNo: 'SG-8169', meal: false },
-    { airline: 'Air India Express', code: 'IX', color: '#E04006', aircraft: 'Boeing 737 MAX 8', dep: '11:40', stops: 0, defaultBase: 5290, flightNo: 'IX-1142', meal: false },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 777-300ER', dep: '13:00', stops: 0, defaultBase: 6845, flightNo: 'AI-865', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', dep: '14:20', stops: 0, defaultBase: 5943, flightNo: '6E-2134', meal: false },
-    { airline: 'Akasa Air', code: 'QP', color: '#FF5900', aircraft: 'Boeing 737 MAX 8', dep: '15:35', stops: 0, defaultBase: 5350, flightNo: 'QP-1384', meal: false },
-    { airline: 'Vistara', code: 'UK', color: '#5C0632', aircraft: 'Airbus A321neo', dep: '16:15', stops: 1, layover: 'Direct / 1-Stop', defaultBase: 7209, flightNo: 'UK-927', meal: true },
-    { airline: 'SpiceJet', code: 'SG', color: '#EE3124', aircraft: 'Boeing 737-800', dep: '17:45', stops: 0, defaultBase: 4950, flightNo: 'SG-8703', meal: false },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', dep: '19:10', stops: 0, defaultBase: 6108, flightNo: '6E-6125', meal: false },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', dep: '20:30', stops: 0, defaultBase: 7086, flightNo: 'AI-887', meal: true },
-    { airline: 'Vistara', code: 'UK', color: '#5C0632', aircraft: 'Airbus A320neo', dep: '21:45', stops: 0, defaultBase: 6980, flightNo: 'UK-981', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', dep: '23:00', stops: 0, defaultBase: 5409, flightNo: '6E-205', meal: false }
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', 
+      dep: '05:45', stops: 0, defaultBase: 5409, flightNo: '6E-2041', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', 
+      dep: '06:15', stops: 1, 
+      layover: `${hub.city} (${hub.code}) 1h 25m Layover`,
+      layoverAirport: hub.code, layoverCity: hub.city, layoverDuration: '1h 25m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 85,
+      defaultBase: 5890, flightNo: 'AI-615 / AI-802', meal: true 
+    },
+    { 
+      airline: 'Akasa Air', code: 'QP', color: '#FF5900', aircraft: 'Boeing 737 MAX 8', 
+      dep: '07:00', stops: 0, defaultBase: 5190, flightNo: 'QP-1102', meal: false 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', 
+      dep: '07:50', stops: 1, 
+      layover: `${altHub.city} (${altHub.code}) 2h 05m Layover`,
+      layoverAirport: altHub.code, layoverCity: altHub.city, layoverDuration: '2h 05m',
+      stopsDurationMins: Math.round(minutes * 1.6) + 125,
+      defaultBase: 5120, flightNo: '6E-442 / 6E-891', meal: false 
+    },
+    { 
+      airline: 'Vistara', code: 'UK', color: '#5C0632', aircraft: 'Airbus A321neo', 
+      dep: '08:30', stops: 0, defaultBase: 6617, flightNo: 'UK-995', meal: true 
+    },
+    { 
+      airline: 'SpiceJet', code: 'SG', color: '#EE3124', aircraft: 'Boeing 737-800', 
+      dep: '09:20', stops: 1, 
+      layover: `${hub.city} (${hub.code}) 1h 45m Layover`,
+      layoverAirport: hub.code, layoverCity: hub.city, layoverDuration: '1h 45m',
+      stopsDurationMins: Math.round(minutes * 1.55) + 105,
+      defaultBase: 4790, flightNo: 'SG-291 / SG-504', meal: false 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', 
+      dep: '10:40', stops: 0, defaultBase: 5806, flightNo: '6E-5012', meal: false 
+    },
+    { 
+      airline: 'Air India Express', code: 'IX', color: '#E04006', aircraft: 'Boeing 737 MAX 8', 
+      dep: '11:45', stops: 1, 
+      layover: `${hub.city} (${hub.code}) 2h 15m Layover`,
+      layoverAirport: hub.code, layoverCity: hub.city, layoverDuration: '2h 15m',
+      stopsDurationMins: Math.round(minutes * 1.6) + 135,
+      defaultBase: 5050, flightNo: 'IX-722 / IX-1142', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 777-300ER', 
+      dep: '13:00', stops: 0, defaultBase: 6845, flightNo: 'AI-865', meal: true 
+    },
+    { 
+      airline: 'Vistara', code: 'UK', code2: 'UK', color: '#5C0632', aircraft: 'Airbus A320neo', 
+      dep: '14:15', stops: 1, 
+      layover: `${hub.city} (${hub.code}) 1h 10m Layover`,
+      layoverAirport: hub.code, layoverCity: hub.city, layoverDuration: '1h 10m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 70,
+      defaultBase: 6950, flightNo: 'UK-821 / UK-943', meal: true 
+    },
+    { 
+      airline: 'Akasa Air', code: 'QP', color: '#FF5900', aircraft: 'Boeing 737 MAX 8', 
+      dep: '15:35', stops: 0, defaultBase: 5350, flightNo: 'QP-1384', meal: false 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', 
+      dep: '16:30', stops: 1, 
+      layover: `${altHub.city} (${altHub.code}) 1h 50m Layover`,
+      layoverAirport: altHub.code, layoverCity: altHub.city, layoverDuration: '1h 50m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 110,
+      defaultBase: 5380, flightNo: '6E-671 / 6E-2134', meal: false 
+    },
+    { 
+      airline: 'SpiceJet', code: 'SG', color: '#EE3124', aircraft: 'Boeing 737-800', 
+      dep: '17:45', stops: 0, defaultBase: 4950, flightNo: 'SG-8703', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A321neo', 
+      dep: '18:50', stops: 1, 
+      layover: `${hub.city} (${hub.code}) 2h 40m Layover`,
+      layoverAirport: hub.code, layoverCity: hub.city, layoverDuration: '2h 40m',
+      stopsDurationMins: Math.round(minutes * 1.6) + 160,
+      defaultBase: 6310, flightNo: 'AI-447 / AI-887', meal: true 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', 
+      dep: '19:40', stops: 0, defaultBase: 6108, flightNo: '6E-6125', meal: false 
+    },
+    { 
+      airline: 'Vistara', code: 'UK', color: '#5C0632', aircraft: 'Airbus A320neo', 
+      dep: '20:50', stops: 1, 
+      layover: `${altHub.city} (${altHub.code}) 1h 35m Layover`,
+      layoverAirport: altHub.code, layoverCity: altHub.city, layoverDuration: '1h 35m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 95,
+      defaultBase: 6840, flightNo: 'UK-705 / UK-981', meal: true 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A320neo', 
+      dep: '22:15', stops: 0, defaultBase: 5409, flightNo: '6E-205', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', 
+      dep: '23:30', stops: 0, defaultBase: 6450, flightNo: 'AI-963', meal: true 
+    }
   ];
 
-  return schedules.map(s => ({
-    ...s,
-    dur: s.stops === 1 ? '4h 15m' : dur,
-    arr: addMinutesToTime(s.dep, s.stops === 1 ? 255 : minutes)
-  }));
+  return schedules.map(s => {
+    const flightDurMins = s.stops >= 1 ? (s.stopsDurationMins || Math.round(minutes * 1.6) + 90) : minutes;
+    const durH = Math.floor(flightDurMins / 60);
+    const durM = flightDurMins % 60;
+    const formattedDur = `${durH}h ${String(durM).padStart(2, '0')}m`;
+    const arrivalTime = addMinutesToTime(s.dep, flightDurMins);
+
+    // Build realistic 2-flight segments for 1-stop flights
+    let segments = null;
+    if (s.stops === 1 && s.layoverAirport) {
+      const leg1Dur = Math.round(minutes * 0.7);
+      const leg1Arr = addMinutesToTime(s.dep, leg1Dur);
+      const [layH, layM] = (s.layoverDuration || '1h 30m').match(/\d+/g).map(Number);
+      const layoverMins = (layH * 60) + (layM || 0);
+      const leg2Dep = addMinutesToTime(leg1Arr, layoverMins);
+      const leg2Dur = flightDurMins - leg1Dur - layoverMins;
+      const leg2Arr = addMinutesToTime(leg2Dep, leg2Dur);
+
+      segments = [
+        {
+          leg: 1,
+          airline: s.airline,
+          flightNumber: s.flightNo.split('/')[0]?.trim() || `${s.code}-1201`,
+          aircraft: s.aircraft,
+          from: fromAirport.code,
+          fromCity: fromAirport.city,
+          departureTime: s.dep,
+          to: s.layoverAirport,
+          toCity: s.layoverCity,
+          arrivalTime: leg1Arr,
+          duration: `${Math.floor(leg1Dur / 60)}h ${leg1Dur % 60}m`
+        },
+        {
+          leg: 2,
+          airline: s.airline,
+          flightNumber: s.flightNo.split('/')[1]?.trim() || `${s.code}-2402`,
+          aircraft: s.aircraft,
+          from: s.layoverAirport,
+          fromCity: s.layoverCity,
+          departureTime: leg2Dep,
+          to: toAirport.code,
+          toCity: toAirport.city,
+          arrivalTime: leg2Arr,
+          duration: `${Math.floor(leg2Dur / 60)}h ${leg2Dur % 60}m`
+        }
+      ];
+    }
+
+    return {
+      ...s,
+      dur: formattedDur,
+      arr: arrivalTime,
+      segments
+    };
+  });
 };
 
 const getIntlFlightSlots = (fromAirport, toAirport, date) => {
   const { dur, minutes } = getRealisticFlightDuration(fromAirport.code, toAirport.code);
 
   const schedules = [
-    { airline: 'Emirates', code: 'EK', color: '#D71921', aircraft: 'Boeing 777-300ER', dep: '04:15', stops: 0, defaultBase: 18880, flightNo: 'EK-511', meal: true },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 787-8 Dreamliner', dep: '06:30', stops: 0, defaultBase: 16254, flightNo: 'AI-995', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', dep: '07:45', stops: 0, defaultBase: 14377, flightNo: '6E-1451', meal: false },
-    { airline: 'Qatar Airways', code: 'QR', color: '#5C0632', aircraft: 'Airbus A350-900', dep: '09:15', stops: 0, defaultBase: 21500, flightNo: 'QR-571', meal: true },
-    { airline: 'Singapore Airlines', code: 'SQ', color: '#00266B', aircraft: 'Boeing 787-10', dep: '11:00', stops: 0, defaultBase: 24900, flightNo: 'SQ-401', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', dep: '13:10', stops: 0, defaultBase: 15377, flightNo: '6E-1485', meal: false },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', dep: '15:20', stops: 0, defaultBase: 17428, flightNo: 'AI-917', meal: true },
-    { airline: 'Emirates', code: 'EK', color: '#D71921', aircraft: 'Airbus A380-800', dep: '17:30', stops: 0, defaultBase: 22400, flightNo: 'EK-517', meal: true },
-    { airline: 'Qatar Airways', code: 'QR', color: '#5C0632', aircraft: 'Boeing 777-300ER', dep: '19:15', stops: 1, layover: 'DOH 1h Layover', defaultBase: 21800, flightNo: 'QR-579', meal: true },
-    { airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', dep: '20:45', stops: 0, defaultBase: 15377, flightNo: '6E-1499', meal: false },
-    { airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 787-8 Dreamliner', dep: '22:15', stops: 0, defaultBase: 18500, flightNo: 'AI-921', meal: true },
-    { airline: 'Etihad Airways', code: 'EY', color: '#D4AF37', aircraft: 'Boeing 787-9', dep: '23:40', stops: 0, defaultBase: 21900, flightNo: 'EY-215', meal: true }
+    { 
+      airline: 'Emirates', code: 'EK', color: '#D71921', aircraft: 'Boeing 777-300ER', 
+      dep: '04:15', stops: 0, defaultBase: 18880, flightNo: 'EK-511', meal: true 
+    },
+    { 
+      airline: 'Qatar Airways', code: 'QR', color: '#5C0632', aircraft: 'Boeing 787-9', 
+      dep: '05:30', stops: 1, 
+      layover: 'Doha (DOH) 1h 45m Layover',
+      layoverAirport: 'DOH', layoverCity: 'Doha', layoverDuration: '1h 45m',
+      stopsDurationMins: Math.round(minutes * 1.45) + 105,
+      defaultBase: 17950, flightNo: 'QR-571 / QR-015', meal: true 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 787-8 Dreamliner', 
+      dep: '06:30', stops: 0, defaultBase: 16254, flightNo: 'AI-995', meal: true 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', 
+      dep: '07:45', stops: 0, defaultBase: 14377, flightNo: '6E-1451', meal: false 
+    },
+    { 
+      airline: 'Etihad Airways', code: 'EY', color: '#D4AF37', aircraft: 'Boeing 787-9', 
+      dep: '08:40', stops: 1, 
+      layover: 'Abu Dhabi (AUH) 2h 10m Layover',
+      layoverAirport: 'AUH', layoverCity: 'Abu Dhabi', layoverDuration: '2h 10m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 130,
+      defaultBase: 18450, flightNo: 'EY-215 / EY-071', meal: true 
+    },
+    { 
+      airline: 'Qatar Airways', code: 'QR', color: '#5C0632', aircraft: 'Airbus A350-900', 
+      dep: '09:45', stops: 0, defaultBase: 21500, flightNo: 'QR-571', meal: true 
+    },
+    { 
+      airline: 'Singapore Airlines', code: 'SQ', color: '#00266B', aircraft: 'Boeing 787-10', 
+      dep: '11:00', stops: 0, defaultBase: 24900, flightNo: 'SQ-401', meal: true 
+    },
+    { 
+      airline: 'Gulf Air', code: 'GF', color: '#BA9B53', aircraft: 'Airbus A321LR', 
+      dep: '12:20', stops: 1, 
+      layover: 'Bahrain (BAH) 1h 55m Layover',
+      layoverAirport: 'BAH', layoverCity: 'Bahrain', layoverDuration: '1h 55m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 115,
+      defaultBase: 16900, flightNo: 'GF-057 / GF-112', meal: true 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', 
+      dep: '13:10', stops: 0, defaultBase: 15377, flightNo: '6E-1485', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Airbus A320neo', 
+      dep: '15:20', stops: 0, defaultBase: 17428, flightNo: 'AI-917', meal: true 
+    },
+    { 
+      airline: 'Oman Air', code: 'WY', color: '#9B111E', aircraft: 'Boeing 737 MAX 8', 
+      dep: '16:30', stops: 1, 
+      layover: 'Muscat (MCT) 2h 20m Layover',
+      layoverAirport: 'MCT', layoverCity: 'Muscat', layoverDuration: '2h 20m',
+      stopsDurationMins: Math.round(minutes * 1.5) + 140,
+      defaultBase: 17200, flightNo: 'WY-242 / WY-103', meal: true 
+    },
+    { 
+      airline: 'Emirates', code: 'EK', color: '#D71921', aircraft: 'Airbus A380-800', 
+      dep: '17:30', stops: 0, defaultBase: 22400, flightNo: 'EK-517', meal: true 
+    },
+    { 
+      airline: 'Qatar Airways', code: 'QR', color: '#5C0632', aircraft: 'Boeing 777-300ER', 
+      dep: '19:15', stops: 1, 
+      layover: 'Doha (DOH) 1h 30m Layover',
+      layoverAirport: 'DOH', layoverCity: 'Doha', layoverDuration: '1h 30m',
+      stopsDurationMins: Math.round(minutes * 1.45) + 90,
+      defaultBase: 21800, flightNo: 'QR-579 / QR-021', meal: true 
+    },
+    { 
+      airline: 'IndiGo', code: '6E', color: '#002B7F', aircraft: 'Airbus A321neo', 
+      dep: '20:45', stops: 0, defaultBase: 15377, flightNo: '6E-1499', meal: false 
+    },
+    { 
+      airline: 'Air India', code: 'AI', color: '#E21836', aircraft: 'Boeing 787-8 Dreamliner', 
+      dep: '22:15', stops: 0, defaultBase: 18500, flightNo: 'AI-921', meal: true 
+    },
+    { 
+      airline: 'Etihad Airways', code: 'EY', color: '#D4AF37', aircraft: 'Boeing 787-9', 
+      dep: '23:40', stops: 0, defaultBase: 21900, flightNo: 'EY-215', meal: true 
+    }
   ];
 
-  return schedules.map(s => ({
-    ...s,
-    dur: s.stops === 1 ? '5h 30m' : dur,
-    arr: addMinutesToTime(s.dep, s.stops === 1 ? 330 : minutes)
-  }));
+  return schedules.map(s => {
+    const flightDurMins = s.stops >= 1 ? (s.stopsDurationMins || Math.round(minutes * 1.55) + 105) : minutes;
+    const durH = Math.floor(flightDurMins / 60);
+    const durM = flightDurMins % 60;
+    const formattedDur = `${durH}h ${String(durM).padStart(2, '0')}m`;
+    const arrivalTime = addMinutesToTime(s.dep, flightDurMins);
+
+    let segments = null;
+    if (s.stops === 1 && s.layoverAirport) {
+      const leg1Dur = Math.round(minutes * 0.65);
+      const leg1Arr = addMinutesToTime(s.dep, leg1Dur);
+      const [layH, layM] = (s.layoverDuration || '1h 30m').match(/\d+/g).map(Number);
+      const layoverMins = (layH * 60) + (layM || 0);
+      const leg2Dep = addMinutesToTime(leg1Arr, layoverMins);
+      const leg2Dur = flightDurMins - leg1Dur - layoverMins;
+      const leg2Arr = addMinutesToTime(leg2Dep, leg2Dur);
+
+      segments = [
+        {
+          leg: 1,
+          airline: s.airline,
+          flightNumber: s.flightNo.split('/')[0]?.trim() || `${s.code}-501`,
+          aircraft: s.aircraft,
+          from: fromAirport.code,
+          fromCity: fromAirport.city,
+          departureTime: s.dep,
+          to: s.layoverAirport,
+          toCity: s.layoverCity,
+          arrivalTime: leg1Arr,
+          duration: `${Math.floor(leg1Dur / 60)}h ${leg1Dur % 60}m`
+        },
+        {
+          leg: 2,
+          airline: s.airline,
+          flightNumber: s.flightNo.split('/')[1]?.trim() || `${s.code}-702`,
+          aircraft: s.aircraft,
+          from: s.layoverAirport,
+          fromCity: s.layoverCity,
+          departureTime: leg2Dep,
+          to: toAirport.code,
+          toCity: toAirport.city,
+          arrivalTime: leg2Arr,
+          duration: `${Math.floor(leg2Dur / 60)}h ${leg2Dur % 60}m`
+        }
+      ];
+    }
+
+    return {
+      ...s,
+      dur: formattedDur,
+      arr: arrivalTime,
+      segments
+    };
+  });
 };
 
 // Generate realistic flights if custom route searched (Supports Domestic & Worldwide International)
@@ -286,7 +576,11 @@ const generateDynamicFlights = (from, to, date) => {
       arrivalTime: slot.arr,
       duration: slot.dur,
       stops: slot.stops,
-      layoverCity: slot.layover || null,
+      layover: slot.layover || null,
+      layoverCity: slot.layoverCity || slot.layover || null,
+      layoverAirport: slot.layoverAirport || null,
+      layoverDuration: slot.layoverDuration || null,
+      segments: slot.segments || null,
       aircraft: slot.aircraft,
       basePrice: basePrice,
       classes: {
@@ -410,7 +704,11 @@ const fetchFlightsFromSerper = async (from, to, date, apiKey) => {
         arrivalTime: slot.arr,
         duration: slot.dur,
         stops: slot.stops,
-        layoverCity: slot.layover || null,
+        layover: slot.layover || null,
+        layoverCity: slot.layoverCity || slot.layover || null,
+        layoverAirport: slot.layoverAirport || null,
+        layoverDuration: slot.layoverDuration || null,
+        segments: slot.segments || null,
         aircraft: slot.aircraft,
         basePrice: computedPrice,
         classes: {

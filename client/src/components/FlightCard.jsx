@@ -119,6 +119,12 @@ export default function FlightCard({
                 <div className="relative flex items-center justify-center">
                   <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
                   <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
+                  {flight.stops > 0 && (
+                    <div 
+                      className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
+                      title={`Layover: ${flight.layover || flight.layoverCity || '1 Stop'}`}
+                    ></div>
+                  )}
                   <motion.div 
                     className="absolute bg-white px-0.5"
                     animate={{ x: [-12, 12, -12] }}
@@ -133,7 +139,12 @@ export default function FlightCard({
                   {flight.stops === 0 ? (
                     <span className="text-emerald-600 font-bold">Non-Stop</span>
                   ) : (
-                    <span className="text-amber-600 font-bold">{flight.stops} Stop</span>
+                    <span className="text-amber-700 font-bold inline-flex items-center gap-1">
+                      <span>{flight.stops} Stop</span>
+                      {(flight.layoverAirport || flight.layoverCity) && (
+                        <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
+                      )}
+                    </span>
                   )}
                 </div>
               </div>
@@ -323,24 +334,81 @@ export default function FlightCard({
                       </div>
                     </div>
 
-                    {/* Compact Route Strip */}
-                    <div className="flex items-center justify-between bg-slate-50/80 rounded-lg px-3 py-2 border border-slate-100 text-xs">
-                      <div>
-                        <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.departureTime}</span>
-                        <span className="ml-1.5 font-bold text-slate-700">{flight.from}</span>
-                        <span className="text-[11px] text-slate-400 ml-1">({flight.terminal?.from ? `T${flight.terminal.from}` : flight.fromCity})</span>
+                    {/* Route Strip & Segments Breakdown */}
+                    {flight.stops > 0 && flight.segments && flight.segments.length > 0 ? (
+                      <div className="space-y-2">
+                        <div className="text-[11px] font-extrabold text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span>Connecting Flight via <strong>{flight.layoverCity || flight.layoverAirport} ({flight.layoverAirport})</strong></span>
+                          </span>
+                          <span className="font-mono">{flight.layoverDuration || '1h 30m Layover'}</span>
+                        </div>
+
+                        {/* Segment 1 */}
+                        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80 space-y-1 text-xs">
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-100 font-semibold">
+                            <span>Flight 1: {flight.segments[0].flightNumber} ({flight.segments[0].airline})</span>
+                            <span>{flight.segments[0].duration}</span>
+                          </div>
+                          <div className="flex items-center justify-between pt-1">
+                            <div>
+                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].departureTime}</span>
+                              <span className="ml-1.5 font-bold text-slate-700">{flight.segments[0].fromCity} ({flight.segments[0].from})</span>
+                            </div>
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                            <div className="text-right">
+                              <span className="mr-1.5 font-bold text-slate-700">{flight.segments[0].toCity} ({flight.segments[0].to})</span>
+                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].arrivalTime}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Layover Divider */}
+                        <div className="py-1 px-3 bg-amber-100/70 border border-dashed border-amber-300 rounded-lg text-center text-[10px] font-bold text-amber-900 flex items-center justify-center gap-2">
+                          <Clock className="w-3 h-3 text-amber-700" />
+                          <span>Layover in {flight.layoverCity || flight.layoverAirport} • Change Planes ({flight.layoverDuration || '1h 30m'})</span>
+                        </div>
+
+                        {/* Segment 2 */}
+                        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80 space-y-1 text-xs">
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-100 font-semibold">
+                            <span>Flight 2: {flight.segments[1]?.flightNumber || flight.flightNumber} ({flight.segments[1]?.airline || flight.airline})</span>
+                            <span>{flight.segments[1]?.duration || flight.duration}</span>
+                          </div>
+                          <div className="flex items-center justify-between pt-1">
+                            <div>
+                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.departureTime}</span>
+                              <span className="ml-1.5 font-bold text-slate-700">{flight.segments[1]?.fromCity || flight.layoverCity} ({flight.segments[1]?.from || flight.layoverAirport})</span>
+                            </div>
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                            <div className="text-right">
+                              <span className="mr-1.5 font-bold text-slate-700">{flight.segments[1]?.toCity || flight.toCity} ({flight.segments[1]?.to || flight.to})</span>
+                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.arrivalTime || flight.arrivalTime}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-semibold px-2">
-                        <span>{flight.duration}</span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-emerald-700 font-bold">{flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop`}</span>
+                    ) : (
+                      /* Compact Route Strip for Non-stop */
+                      <div className="flex items-center justify-between bg-slate-50/80 rounded-lg px-3 py-2 border border-slate-100 text-xs">
+                        <div>
+                          <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.departureTime}</span>
+                          <span className="ml-1.5 font-bold text-slate-700">{flight.from}</span>
+                          <span className="text-[11px] text-slate-400 ml-1">({flight.terminal?.from ? `T${flight.terminal.from}` : flight.fromCity})</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-slate-500 font-semibold px-2">
+                          <span>{flight.duration}</span>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-emerald-700 font-bold">Non-Stop</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[11px] text-slate-400 mr-1">({flight.terminal?.to ? `T${flight.terminal.to}` : flight.toCity})</span>
+                          <span className="mr-1.5 font-bold text-slate-700">{flight.to}</span>
+                          <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.arrivalTime}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[11px] text-slate-400 mr-1">({flight.terminal?.to ? `T${flight.terminal.to}` : flight.toCity})</span>
-                        <span className="mr-1.5 font-bold text-slate-700">{flight.to}</span>
-                        <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.arrivalTime}</span>
-                      </div>
-                    </div>
+                    )}
 
                     {/* 4 Mini Specification Badges */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
