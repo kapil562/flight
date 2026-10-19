@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Filter, SlidersHorizontal, ArrowUpDown, Sun, Sunset, Moon, Sunrise, RotateCcw, X, Check, Plane, Calendar, ArrowRight, Sparkles, CheckCircle2, Tag, Copy, Zap } from 'lucide-react';
 import FlightCard from './FlightCard';
 import AirlineBadge from './AirlineBadge';
+import FlightSearchLoader from './FlightSearchLoader';
 
 export default function FlightList({ 
   flights = [], 
@@ -596,7 +597,7 @@ export default function FlightList({
           {/* ========================================================= */}
           {/* ROUND TRIP BANNER & FLIGHT SELECTION (MakeMyTrip Pattern) */}
           {/* ========================================================= */}
-          {isRoundTrip && (
+          {isRoundTrip && !loading && (
             <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl mb-5 border border-sky-800/40">
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
                 <div className="flex items-center gap-3">
@@ -732,7 +733,7 @@ export default function FlightList({
           {/* ========================================================= */}
           {/* MULTI-CITY ROUTE NAVIGATOR & ITINERARY BANNER             */}
           {/* ========================================================= */}
-          {isMultiCity && (
+          {isMultiCity && !loading && (
             <div className="bg-gradient-to-r from-sky-900 via-blue-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl mb-4 border border-sky-800/40">
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2.5">
@@ -852,8 +853,8 @@ export default function FlightList({
             </div>
           )}
 
-          {/* Header & Sorting Bar (Only in standard one-way or multi-city mode) */}
-          {!isRoundTrip && (
+          {/* Header & Sorting Bar (Only in standard one-way or multi-city mode when NOT loading) */}
+          {!isRoundTrip && !loading && (
             <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
               <div>
                 <h3 className="font-extrabold text-slate-900 text-base sm:text-xl">
@@ -907,15 +908,15 @@ export default function FlightList({
           {/* FLIGHTS RENDERING                                         */}
           {/* ========================================================= */}
           {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map(n => (
-                <div key={n} className="bg-white rounded-2xl p-6 border border-slate-200 animate-pulse space-y-4">
-                  <div className="h-6 bg-slate-200 rounded w-1/4"></div>
-                  <div className="h-12 bg-slate-100 rounded"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
+            <FlightSearchLoader
+              searchParams={searchParams}
+              airports={airports}
+              isRoundTrip={isRoundTrip}
+              roundTripData={roundTripData}
+              isMultiCity={isMultiCity}
+              multiCityLegsData={multiCityLegsData}
+              brand={brand}
+            />
           ) : isRoundTrip ? (
             /* ========================================================= */
             /* ROUND TRIP SPLIT 2-COLUMN VIEW (DESKTOP) & TABS (MOBILE)   */
