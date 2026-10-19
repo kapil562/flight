@@ -58,6 +58,7 @@ export default function AdminPage() {
   const [holidaySearch, setHolidaySearch] = useState('');
   const [trainSearch, setTrainSearch] = useState('');
   const [visaSearch, setVisaSearch] = useState('');
+  const [viewingBooking, setViewingBooking] = useState(null);
 
   // Password change state
   const [credForm, setCredForm] = useState({
@@ -437,6 +438,23 @@ export default function AdminPage() {
       }
     } catch (err) {
       alert('Error updating status');
+    }
+  };
+
+  // 10b. Delete Booking
+  const handleDeleteBooking = async (pnr) => {
+    if (!window.confirm(`Are you sure you want to permanently delete booking PNR ${pnr}?`)) return;
+    try {
+      const res = await api.deleteBooking(pnr);
+      if (res.success) {
+        triggerAlert(`Booking PNR ${pnr} deleted successfully`);
+        setBookings(prev => prev.filter(b => b.pnr !== pnr));
+        loadDashboardData();
+      } else {
+        alert(res.message || 'Error deleting booking');
+      }
+    } catch (err) {
+      alert('Error deleting booking');
     }
   };
 
@@ -1837,7 +1855,7 @@ export default function AdminPage() {
                       <th className="p-3.5">Passenger(s)</th>
                       <th className="p-3.5">Total & Payment</th>
                       <th className="p-3.5">Status</th>
-                      <th className="p-3.5 text-right">Change Status</th>
+                      <th className="p-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
@@ -1865,37 +1883,64 @@ export default function AdminPage() {
                           )}
                         </td>
                         <td className="p-3.5">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide inline-block ${
                             b.status === 'CONFIRMED'
                               ? 'bg-emerald-100 text-emerald-800'
                               : b.status === 'VERIFICATION_PENDING'
                               ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                              : (b.status === 'PENDING' || !b.status)
+                              ? 'bg-amber-100 text-amber-800'
                               : 'bg-rose-100 text-rose-800'
                           }`}>
-                            {b.status === 'VERIFICATION_PENDING' ? '⏳ Verification Pending' : b.status}
+                            {b.status === 'VERIFICATION_PENDING' ? '⏳ Verification' : (b.status || 'PENDING')}
                           </span>
-                          {b.status === 'VERIFICATION_PENDING' && (
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <div className="inline-flex items-center gap-1.5 justify-end">
+                            {/* 1. View / Eye button */}
                             <button
                               type="button"
-                              onClick={() => handleUpdateBookingStatus(b.pnr, 'CONFIRMED')}
-                              className="mt-1.5 block text-[10px] font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-0.5 rounded shadow-2xs cursor-pointer"
-                              title="Click to quickly verify UTR and confirm booking"
+                              title="View Booking Details"
+                              onClick={() => setViewingBooking(b)}
+                              className="w-7 h-7 rounded border border-blue-400 text-blue-600 hover:bg-blue-50 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
                             >
-                              ✓ Approve & Confirm
+                              <Eye className="w-3.5 h-3.5" />
                             </button>
-                          )}
-                        </td>
-                        <td className="p-3.5 text-right space-x-1">
-                          <select
-                            value={b.status}
-                            onChange={(e) => handleUpdateBookingStatus(b.pnr, e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 cursor-pointer"
-                          >
-                            <option value="CONFIRMED">CONFIRMED</option>
-                            <option value="VERIFICATION_PENDING">VERIFICATION_PENDING</option>
-                            <option value="CANCELLED">CANCELLED</option>
-                            <option value="REFUNDED">REFUNDED</option>
-                          </select>
+
+                            {/* 2. Check / Confirm button */}
+                            <button
+                              type="button"
+                              title="Approve / Confirm Booking"
+                              onClick={() => handleUpdateBookingStatus(b.pnr, 'CONFIRMED')}
+                              className="w-7 h-7 rounded border border-emerald-500 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* 3. Cross / Cancel button */}
+                            <button
+                              type="button"
+                              title="Cancel Booking"
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to cancel booking ${b.pnr}?`)) {
+                                  handleUpdateBookingStatus(b.pnr, 'CANCELLED');
+                                }
+                              }}
+                              className="w-7 h-7 rounded border border-rose-400 text-rose-600 hover:bg-rose-50 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* 4. Trash / Delete button */}
+                            <button
+                              type="button"
+                              title="Delete Booking"
+                              onClick={() => handleDeleteBooking(b.pnr)}
+                              className="w-7 h-7 rounded border border-rose-400 text-rose-600 hover:bg-rose-50 flex items-center justify-center cursor-pointer transition-colors shadow-2xs"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -3057,6 +3102,219 @@ export default function AdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: VIEW BOOKING DETAILS */}
+      {viewingBooking && (
+        <div className="fixed inset-0 z-60 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-100 animate-fadeIn">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+                  <Ticket className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-lg">
+                    Booking Details #{viewingBooking.bookingId || viewingBooking.pnr}
+                  </h3>
+                  <div className="text-xs text-slate-500 font-mono">
+                    PNR: <span className="font-bold text-sky-700">{viewingBooking.pnr}</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingBooking(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-6">
+              {/* Flight & Route Banner */}
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">Flight</div>
+                  <div className="text-base font-extrabold text-slate-900">
+                    {viewingBooking.airline} ({viewingBooking.flightNumber})
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium capitalize">
+                    Class: {viewingBooking.travelClass || 'Economy'} • Trip: {viewingBooking.tripType || 'One Way'}
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-xs font-bold text-slate-400 uppercase">Route</div>
+                  <div className="text-base font-extrabold text-sky-800">
+                    {viewingBooking.from} → {viewingBooking.to}
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium">
+                    {viewingBooking.departureDate} at {viewingBooking.departureTime || '08:00'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Badges */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  <div className="text-xs font-bold text-slate-400 mb-1">Booking Status</div>
+                  <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${
+                    viewingBooking.status === 'CONFIRMED'
+                      ? 'bg-emerald-500 text-white'
+                      : viewingBooking.status === 'CANCELLED'
+                      ? 'bg-rose-500 text-white'
+                      : viewingBooking.status === 'VERIFICATION_PENDING'
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-amber-400 text-slate-950 font-bold'
+                  }`}>
+                    {viewingBooking.status || 'PENDING'}
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  <div className="text-xs font-bold text-slate-400 mb-1">Payment Status</div>
+                  <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${
+                    (viewingBooking.payment?.status?.toLowerCase().includes('pending') || viewingBooking.status === 'PENDING')
+                      ? 'bg-amber-400 text-slate-950 font-bold'
+                      : (viewingBooking.payment?.status?.toLowerCase().includes('paid') || viewingBooking.status === 'CONFIRMED')
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {viewingBooking.payment?.method || 'UPI'} • {viewingBooking.payment?.status || 'PENDING'}
+                  </span>
+                  {viewingBooking.payment?.utrNumber && (
+                    <div className="mt-1 text-[11px] font-mono font-bold text-blue-700">
+                      UTR: {viewingBooking.payment.utrNumber}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Passengers */}
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-sky-600" />
+                  Passengers Manifest ({viewingBooking.passengers?.length || 0})
+                </h4>
+                <div className="space-y-2">
+                  {viewingBooking.passengers?.map((p, idx) => (
+                    <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between text-xs">
+                      <div>
+                        <div className="font-bold text-slate-900 text-sm">
+                          {p.title} {p.firstName} {p.lastName}
+                        </div>
+                        <div className="text-slate-500">
+                          Gender: {p.gender || 'N/A'} • Nationality: {p.nationality || 'Indian'}
+                          {p.passportNumber && ` • Passport: ${p.passportNumber}`}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block px-2 py-0.5 rounded font-mono font-bold bg-sky-100 text-sky-800">
+                          Seat: {p.seat || 'Unassigned'}
+                        </span>
+                        <div className="text-[11px] text-slate-400 mt-0.5">
+                          Meal: {p.meal || 'No Meal'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customer Contact */}
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                  <Phone className="w-4 h-4 text-sky-600" />
+                  Contact & Customer Details
+                </h4>
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div className="text-slate-400 font-bold">Email Address</div>
+                    <div className="font-bold text-slate-800">{viewingBooking.contact?.email || 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400 font-bold">Phone Number</div>
+                    <div className="font-bold text-slate-800">{viewingBooking.contact?.phone || 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fare Summary */}
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                  <Ticket className="w-4 h-4 text-sky-600" />
+                  Fare & Payment Details
+                </h4>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Base Fare</span>
+                    <span className="font-mono">₹{viewingBooking.fare?.basePrice?.toLocaleString('en-IN') || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Taxes & Fees</span>
+                    <span className="font-mono">₹{viewingBooking.fare?.taxes?.toLocaleString('en-IN') || 0}</span>
+                  </div>
+                  {viewingBooking.fare?.discount > 0 && (
+                    <div className="flex justify-between text-emerald-600 font-bold">
+                      <span>Discount</span>
+                      <span className="font-mono">-₹{viewingBooking.fare?.discount?.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
+                    <span>Total Amount</span>
+                    <span className="font-mono text-base text-sky-800">
+                      ₹{(viewingBooking.fare?.total || 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons in Modal */}
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleUpdateBookingStatus(viewingBooking.pnr, 'CONFIRMED');
+                    setViewingBooking({ ...viewingBooking, status: 'CONFIRMED' });
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  Confirm Booking
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Cancel booking ${viewingBooking.pnr}?`)) {
+                      handleUpdateBookingStatus(viewingBooking.pnr, 'CANCELLED');
+                      setViewingBooking({ ...viewingBooking, status: 'CANCELLED' });
+                    }
+                  }}
+                  className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel Booking
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteBooking(viewingBooking.pnr);
+                    setViewingBooking(null);
+                  }}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Permanently
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
