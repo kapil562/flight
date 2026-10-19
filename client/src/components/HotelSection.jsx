@@ -169,7 +169,13 @@ export default function HotelSection() {
     <div className="py-6 sm:py-8 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       
       {/* Search Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8">
+      <div className="bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8">
+        {/* Background ambient lighting */}
+        <div className="absolute inset-0 opacity-25 pointer-events-none overflow-hidden rounded-3xl">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+        </div>
+
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-sky-200 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
