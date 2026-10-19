@@ -378,7 +378,18 @@ export default function BookingCheckoutModal({
     setSelectedUpiApp(appName);
     setSelectedAppKey(appKey);
     const url = getAppDeepLink(appKey);
-    window.location.href = url;
+    try {
+      // Use hidden link click to avoid browser blocking and page unload issues on PC
+      const link = document.createElement('a');
+      link.href = url;
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.warn('App launch warning:', err);
+      window.location.href = url;
+    }
   };
 
   // Auto-apply initial coupon if passed
@@ -813,9 +824,14 @@ export default function BookingCheckoutModal({
       const appKeyToUse = selectedAppKey || 'phonepe';
       const deepLinkUrl = getAppDeepLink(appKeyToUse);
       try {
-        window.location.href = deepLinkUrl;
+        const link = document.createElement('a');
+        link.href = deepLinkUrl;
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       } catch (err) {
-        console.warn('Redirect error:', err);
+        console.warn('Redirect warning:', err);
       }
     }
 
