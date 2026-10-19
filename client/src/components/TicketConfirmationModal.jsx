@@ -142,81 +142,90 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             {/* Round Trip Dual-Flight Breakdown (if applicable) */}
             {(booking.tripType === 'roundTrip' || booking.roundTripDetails) && (
               <div className="p-4 sm:p-5 border-b border-slate-100 space-y-3 bg-indigo-50/40">
-                <div className="text-[11px] font-black uppercase text-indigo-900 tracking-wider flex items-center gap-1.5">
-                  <Plane className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Round Trip Flight Passes (2 Flights Confirmed)</span>
+                <div className="text-[11px] font-black uppercase text-indigo-900 tracking-wider flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Plane className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Round Trip Confirmed Flight Passes (2 Flights)</span>
+                  </div>
+                  <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-black uppercase">
+                    Both Confirmed
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Onward Flight */}
-                  <div className="bg-white rounded-xl p-3 border border-indigo-100 shadow-xs space-y-1.5">
+                  <div className="bg-white rounded-xl p-3.5 border border-sky-200 shadow-xs space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-extrabold text-[10px] uppercase">
-                        1. Departure Flight
+                        1. Departure Flight (Jana)
                       </span>
-                      <span className="font-mono text-slate-400 text-[10px]">{booking.departureDate}</span>
+                      <span className="font-mono text-slate-500 font-bold text-[11px]">{booking.departureDate}</span>
                     </div>
-                    <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                      <span>{booking.from}</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{booking.to}</span>
+                    <div className="font-extrabold text-slate-900 text-sm flex items-center justify-between">
+                      <span>{booking.from} <span className="text-xs font-normal text-slate-500">({booking.fromCity})</span></span>
+                      <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
+                      <span>{booking.to} <span className="text-xs font-normal text-slate-500">({booking.toCity})</span></span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-medium">
+                    <div className="flex items-center justify-between text-[11px] text-slate-600 pt-1.5 border-t border-slate-100 font-semibold">
                       <span>{booking.roundTripDetails?.onward?.airline || booking.airline} ({booking.roundTripDetails?.onward?.flightNumber || booking.flightNumber})</span>
-                      <span className="font-mono font-bold text-sky-700">{booking.roundTripDetails?.onward?.departureTime || booking.departureTime}</span>
+                      <span className="font-mono font-black text-sky-700">
+                        {booking.roundTripDetails?.onward?.departureTime || booking.departureTime} ➔ {booking.roundTripDetails?.onward?.arrivalTime || ''}
+                      </span>
                     </div>
                   </div>
 
                   {/* Return Flight */}
-                  <div className="bg-white rounded-xl p-3 border border-indigo-100 shadow-xs space-y-1.5">
+                  <div className="bg-white rounded-xl p-3.5 border border-indigo-200 shadow-xs space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-extrabold text-[10px] uppercase">
-                        2. Return Flight
+                        2. Return Flight (Aana)
                       </span>
-                      <span className="font-mono text-slate-400 text-[10px]">{booking.returnDate || booking.departureDate}</span>
+                      <span className="font-mono text-slate-500 font-bold text-[11px]">{booking.returnDate || booking.departureDate}</span>
                     </div>
-                    <div className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                      <span>{booking.to}</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{booking.from}</span>
+                    <div className="font-extrabold text-slate-900 text-sm flex items-center justify-between">
+                      <span>{booking.to} <span className="text-xs font-normal text-slate-500">({booking.toCity})</span></span>
+                      <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>{booking.from} <span className="text-xs font-normal text-slate-500">({booking.fromCity})</span></span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100 font-medium">
+                    <div className="flex items-center justify-between text-[11px] text-slate-600 pt-1.5 border-t border-slate-100 font-semibold">
                       <span>{booking.roundTripDetails?.return?.airline || booking.airline} ({booking.roundTripDetails?.return?.flightNumber || booking.flightNumber})</span>
-                      <span className="font-mono font-bold text-indigo-700">{booking.roundTripDetails?.return?.departureTime || booking.arrivalTime}</span>
+                      <span className="font-mono font-black text-indigo-700">
+                        {booking.roundTripDetails?.return?.departureTime || booking.departureTime} ➔ {booking.roundTripDetails?.return?.arrivalTime || booking.arrivalTime}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Flight Route & Timings */}
-            <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-              
-              <div className="sm:col-span-5 text-left">
-                <span className="text-3xl font-black text-slate-900 font-mono">{booking.from}</span>
-                <div className="text-xs font-bold text-slate-700">{booking.fromCity}</div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center gap-1 font-mono">
-                  <Clock className="w-3 h-3 text-sky-600" />
-                  <span>Dep: {booking.departureTime}</span>
+            {/* Flight Route & Timings (One-Way only) */}
+            {booking.tripType !== 'roundTrip' && !booking.roundTripDetails && (
+              <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <div className="sm:col-span-5 text-left">
+                  <span className="text-3xl font-black text-slate-900 font-mono">{booking.from}</span>
+                  <div className="text-xs font-bold text-slate-700">{booking.fromCity}</div>
+                  <div className="text-xs text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                    <Clock className="w-3 h-3 text-sky-600" />
+                    <span>Dep: {booking.departureTime}</span>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2 text-center py-2 sm:py-0">
+                  <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center mx-auto shadow-xs">
+                    <Plane className="w-4 h-4 rotate-90" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">Non-Stop</span>
+                </div>
+
+                <div className="sm:col-span-5 text-right">
+                  <span className="text-3xl font-black text-slate-900 font-mono">{booking.to}</span>
+                  <div className="text-xs font-bold text-slate-700">{booking.toCity}</div>
+                  <div className="text-xs text-slate-400 mt-1 flex items-center justify-end gap-1 font-mono">
+                    <Clock className="w-3 h-3 text-sky-600" />
+                    <span>Arr: {booking.arrivalTime}</span>
+                  </div>
                 </div>
               </div>
-
-              <div className="sm:col-span-2 text-center py-2 sm:py-0">
-                <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center mx-auto shadow-xs">
-                  <Plane className="w-4 h-4 rotate-90" />
-                </div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">Non-Stop</span>
-              </div>
-
-              <div className="sm:col-span-5 text-right">
-                <span className="text-3xl font-black text-slate-900 font-mono">{booking.to}</span>
-                <div className="text-xs font-bold text-slate-700">{booking.toCity}</div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center justify-end gap-1 font-mono">
-                  <Clock className="w-3 h-3 text-sky-600" />
-                  <span>Arr: {booking.arrivalTime}</span>
-                </div>
-              </div>
-
-            </div>
+            )}
 
             {/* Perforated Notches line */}
             <div className="relative py-2 border-t-2 border-dashed border-slate-200">

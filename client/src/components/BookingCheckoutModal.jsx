@@ -26,6 +26,14 @@ const INDIAN_AIRPORTS = new Set([
   'IXP'
 ]);
 
+const formatTerminal = (term) => {
+  if (!term) return 'T1';
+  const str = String(term).trim();
+  if (/^T\d/i.test(str)) return str;
+  if (/^\d/.test(str)) return `T${str}`;
+  return str;
+};
+
 export default function BookingCheckoutModal({
   flight,
   currentPrice,
@@ -60,11 +68,18 @@ export default function BookingCheckoutModal({
       nationality: 'Indian',
       type: 'Adult',
       seat: selectedSeats[idx]?.seatNumber || '',
+      onwardSeat: '',
+      returnSeat: '',
+      onwardSeatPrice: 0,
+      returnSeatPrice: 0,
       seatPrice: selectedSeats[idx]?.price || 0,
       meal: 'No Meal',
       mealPrice: 0
     }));
   });
+
+  // For Round Trip seat selection: active flight leg ('onward' | 'return')
+  const [seatFlightLeg, setSeatFlightLeg] = useState('onward');
 
   // Contact Info
   const [contact, setContact] = useState({
@@ -210,35 +225,72 @@ export default function BookingCheckoutModal({
     setPassengers(updated);
   };
 
-  // Handle seat selection for active passenger
+  // Handle seat selection for active passenger (supports round trip onward & return legs)
   const handleSeatClick = (seat) => {
     if (seat.isOccupied) return;
 
     const updated = [...passengers];
-    // If another passenger has this seat, swap or clear it
-    const existingIdx = updated.findIndex((p, i) => i !== activePassengerIndex && p.seat === seat.seatNumber);
+    const isRet = flight?.isRoundTrip && seatFlightLeg === 'return';
+
+    // If another passenger already selected this seat in the current leg, clear it
+    const existingIdx = updated.findIndex((p, i) => 
+      i !== activePassengerIndex && (isRet ? p.returnSeat === seat.seatNumber : p.onwardSeat === seat.seatNumber)
+    );
     if (existingIdx > -1) {
-      updated[existingIdx].seat = '';
-      updated[existingIdx].seatPrice = 0;
+      if (isRet) {
+        updated[existingIdx].returnSeat = '';
+        updated[existingIdx].returnSeatPrice = 0;
+      } else {
+        updated[existingIdx].onwardSeat = '';
+        updated[existingIdx].onwardSeatPrice = 0;
+      }
     }
 
-    updated[activePassengerIndex].seat = seat.seatNumber;
-    updated[activePassengerIndex].seatPrice = seat.price || 0;
+    if (flight?.isRoundTrip) {
+      if (isRet) {
+        updated[activePassengerIndex].returnSeat = seat.seatNumber;
+        updated[activePassengerIndex].returnSeatPrice = seat.price || 0;
+      } else {
+        updated[activePassengerIndex].onwardSeat = seat.seatNumber;
+        updated[activePassengerIndex].onwardSeatPrice = seat.price || 0;
+      }
+      const onS = updated[activePassengerIndex].onwardSeat || '';
+      const retS = updated[activePassengerIndex].returnSeat || '';
+      updated[activePassengerIndex].seat = onS && retS ? `${onS} (Dep) / ${retS} (Ret)` : onS ? `${onS} (Dep)` : retS ? `${retS} (Ret)` : '';
+      updated[activePassengerIndex].seatPrice = (updated[activePassengerIndex].onwardSeatPrice || 0) + (updated[activePassengerIndex].returnSeatPrice || 0);
+    } else {
+      updated[activePassengerIndex].seat = seat.seatNumber;
+      updated[activePassengerIndex].seatPrice = seat.price || 0;
+    }
+
     setPassengers(updated);
 
-    // Auto-advance to next passenger without a seat
-    const nextUnseated = updated.findIndex((p, idx) => idx > activePassengerIndex && !p.seat);
+    // Auto-advance to next passenger without a seat for current leg
+    const nextUnseated = updated.findIndex((p, idx) => 
+      idx > activePassengerIndex && (flight?.isRoundTrip ? (isRet ? !p.returnSeat : !p.onwardSeat) : !p.seat)
+    );
     if (nextUnseated > -1) {
       setActivePassengerIndex(nextUnseated);
     }
   };
 
-  // Auto-assign free seats for all
+  // Auto-assign free seats for all travellers (both flights for round trip)
   const handleAutoAssignFreeSeats = () => {
     const updated = [...passengers];
     updated.forEach((p, i) => {
-      p.seat = `${14 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`;
-      p.seatPrice = 0;
+      const seatOn = `${14 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`;
+      const seatRet = `${16 + i}${['F', 'E', 'D', 'C', 'B', 'A'][i % 6]}`;
+      if (flight?.isRoundTrip) {
+        p.onwardSeat = seatOn;
+        p.returnSeat = seatRet;
+        p.seat = `${seatOn} (Dep) / ${seatRet} (Ret)`;
+        p.onwardSeatPrice = 0;
+        p.returnSeatPrice = 0;
+        p.seatPrice = 0;
+      } else {
+        p.seat = seatOn;
+        p.seatPrice = 0;
+      }
     });
     setPassengers(updated);
   };
@@ -1079,9 +1131,75 @@ export default function BookingCheckoutModal({
               {step === 2 && (
                 <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-1.5 sm:p-5 shadow-xs space-y-3 sm:space-y-4 animate-fadeIn">
                   
+                  {/* Round Trip Flight Selector for Seat Maps */}
+                  {flight?.isRoundTrip && (
+                    <div className="bg-slate-100/80 p-1.5 rounded-2xl flex flex-col sm:flex-row gap-1.5 border border-slate-200/80">
+                      <button
+                        type="button"
+                        onClick={() => setSeatFlightLeg('onward')}
+                        className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                          seatFlightLeg === 'onward'
+                            ? 'bg-white shadow-sm text-sky-800 font-extrabold ring-2 ring-sky-500/20'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 text-left">
+                          <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
+                            seatFlightLeg === 'onward' ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-600'
+                          }`}>
+                            <Plane className="w-3.5 h-3.5 rotate-45" />
+                          </span>
+                          <div>
+                            <span className="text-[10px] uppercase font-black tracking-wider block text-sky-600">
+                              Flight 1: Departure
+                            </span>
+                            <span className="font-extrabold text-xs text-slate-900">
+                              {flight.onwardFlight?.from || flight.from} ➔ {flight.onwardFlight?.to || flight.to}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200/60">
+                          {passengers.filter(p => p.onwardSeat).length}/{passengers.length} Selected
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSeatFlightLeg('return')}
+                        className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                          seatFlightLeg === 'return'
+                            ? 'bg-white shadow-sm text-indigo-800 font-extrabold ring-2 ring-indigo-500/20'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 text-left">
+                          <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
+                            seatFlightLeg === 'return' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
+                          }`}>
+                            <Plane className="w-3.5 h-3.5 -rotate-135" />
+                          </span>
+                          <div>
+                            <span className="text-[10px] uppercase font-black tracking-wider block text-indigo-600">
+                              Flight 2: Return
+                            </span>
+                            <span className="font-extrabold text-xs text-slate-900">
+                              {flight.returnFlight?.from || flight.to} ➔ {flight.returnFlight?.to || flight.from}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md border border-indigo-200/60">
+                          {passengers.filter(p => p.returnSeat).length}/{passengers.length} Selected
+                        </span>
+                      </button>
+                    </div>
+                  )}
+
                   <RealAircraftSeatMap
-                    flight={flight}
-                    passengers={passengers}
+                    flight={flight?.isRoundTrip && seatFlightLeg === 'return' ? (flight.returnFlight || flight) : (flight?.onwardFlight || flight)}
+                    passengers={passengers.map(p => ({
+                      ...p,
+                      seat: flight?.isRoundTrip ? (seatFlightLeg === 'return' ? p.returnSeat : p.onwardSeat) : p.seat
+                    }))}
                     activePassengerIndex={activePassengerIndex}
                     onSelectPassengerIndex={setActivePassengerIndex}
                     onSeatClick={handleSeatClick}
@@ -1089,6 +1207,20 @@ export default function BookingCheckoutModal({
                     layoutData={layoutData}
                     loading={loadingSeats}
                   />
+
+                  {flight?.isRoundTrip && seatFlightLeg === 'onward' && (
+                    <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between text-xs text-sky-900">
+                      <span>Departure flight seats selected. Switch to select seats for return flight.</span>
+                      <button
+                        type="button"
+                        onClick={() => setSeatFlightLeg('return')}
+                        className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0"
+                      >
+                        <span>Select Return Seats</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
 
                   {/* In-Flight Meal Selection (Asked during Seat Selection) */}
                   <div className="bg-slate-50 rounded-2xl border border-slate-200 p-3.5 sm:p-5 space-y-3">
@@ -1201,74 +1333,210 @@ export default function BookingCheckoutModal({
                     </div>
                   </div>
 
-                  {/* 1. Flight Itinerary Card */}
-                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
-                        <div>
-                          <h4 className="font-black text-slate-900 text-sm sm:text-base">
-                            {flight.airline} <span className="font-mono text-sky-700">({flight.flightNumber})</span>
-                          </h4>
-                          <span className="text-[11px] text-slate-500 font-semibold">
-                            Aircraft: {flight.aircraft || 'Airbus A320neo'} • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                  {/* 1. Flight Itinerary Card(s) */}
+                  {flight?.isRoundTrip ? (
+                    <div className="space-y-3.5">
+                      {/* Flight 1: Departure (Jana) */}
+                      <div className="bg-white rounded-2xl border border-sky-200/90 p-4 sm:p-5 shadow-xs space-y-3.5">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <AirlineBadge code={flight.onwardFlight?.airlineCode || flight.airlineCode} name={flight.onwardFlight?.airline || flight.airline} size="sm" showDetails={false} />
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-black text-[10px] uppercase">
+                                  1. Departure Flight (Jana)
+                                </span>
+                                <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                                  {flight.onwardFlight?.airline || flight.airline} <span className="font-mono text-sky-700">({flight.onwardFlight?.flightNumber || flight.flightNumber})</span>
+                                </h4>
+                              </div>
+                              <span className="text-[11px] text-slate-500 font-semibold">
+                                Date: <strong className="text-slate-800">{flight.onwardFlight?.departureDate || flight.departureDate}</strong> • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                              </span>
+                            </div>
+                          </div>
+                          <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Confirmed Outbound
                           </span>
                         </div>
-                      </div>
-                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Confirmed Schedule
-                      </span>
-                    </div>
 
-                    {/* Flight Route & Timings */}
-                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-                      {/* Departure */}
-                      <div className="text-left">
-                        <div className="text-lg sm:text-xl font-black text-slate-900">
-                          {flight.departureTime}
-                        </div>
-                        <div className="text-xs font-bold text-slate-800">
-                          {flight.fromCity} ({flight.from})
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1'}
+                        {/* Departure Route & Timings */}
+                        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                          <div className="text-left min-w-0">
+                            <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                              {flight.onwardFlight?.departureTime || flight.departureTime}
+                            </div>
+                            <div className="text-xs font-bold text-slate-800">
+                              {flight.onwardFlight?.from || flight.from} <span className="text-slate-500 font-normal">({flight.onwardFlight?.fromCity || flight.fromCity})</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              Terminal {formatTerminal(flight.onwardFlight?.terminal?.from || flight.terminal?.from || 'T1')}
+                            </div>
+                          </div>
+
+                          <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                            <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
+                              {flight.onwardFlight?.duration || flight.duration || '2h 15m'}
+                            </span>
+                            <div className="relative flex items-center justify-center">
+                              <div className="w-full h-0.5 bg-sky-300"></div>
+                              <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
+                              {flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops ? 'Non-Stop' : `${flight.onwardFlight.stops} Stop (${flight.onwardFlight.layoverAirport || flight.onwardFlight.layoverCity})`}
+                            </span>
+                          </div>
+
+                          <div className="text-left sm:text-right min-w-0">
+                            <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                              {flight.onwardFlight?.arrivalTime || flight.arrivalTime}
+                            </div>
+                            <div className="text-xs font-bold text-slate-800">
+                              {flight.onwardFlight?.to || flight.to} <span className="text-slate-500 font-normal">({flight.onwardFlight?.toCity || flight.toCity})</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              Terminal {formatTerminal(flight.onwardFlight?.terminal?.to || flight.terminal?.to || 'T2')} • Baggage: {flight.onwardFlight?.baggage || 'Cabin 7kg, Check-in 15kg'}
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Duration Divider */}
-                      <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
-                        <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5">
-                          {flight.duration || '2h 15m'}
-                        </span>
-                        <div className="relative flex items-center justify-center">
-                          <div className="w-full h-0.5 bg-sky-300"></div>
-                          <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
-                        </div>
-                        <span className={`text-[10px] font-bold block mt-0.5 ${flight.stops === 0 ? 'text-emerald-600' : 'text-amber-700'}`}>
-                          {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop (${flight.layoverAirport || flight.layoverCity || 'Connecting'})`}
-                        </span>
-                        {flight.stops > 0 && flight.layoverDuration && (
-                          <span className="text-[9px] text-slate-400 block font-medium">
-                            {flight.layoverDuration} Layover
+                      {/* Flight 2: Return (Aana) */}
+                      <div className="bg-white rounded-2xl border border-indigo-200/90 p-4 sm:p-5 shadow-xs space-y-3.5">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <AirlineBadge code={flight.returnFlight?.airlineCode || flight.airlineCode} name={flight.returnFlight?.airline || flight.airline} size="sm" showDetails={false} />
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-black text-[10px] uppercase">
+                                  2. Return Flight (Aana)
+                                </span>
+                                <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                                  {flight.returnFlight?.airline || flight.airline} <span className="font-mono text-indigo-700">({flight.returnFlight?.flightNumber || flight.flightNumber})</span>
+                                </h4>
+                              </div>
+                              <span className="text-[11px] text-slate-500 font-semibold">
+                                Date: <strong className="text-slate-800">{flight.returnFlight?.departureDate || flight.returnDate}</strong> • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                              </span>
+                            </div>
+                          </div>
+                          <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                            Confirmed Inbound
                           </span>
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Arrival */}
-                      <div className="text-left sm:text-right">
-                        <div className="text-lg sm:text-xl font-black text-slate-900">
-                          {flight.arrivalTime}
-                        </div>
-                        <div className="text-xs font-bold text-slate-800">
-                          {flight.toCity} ({flight.to})
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          Terminal {flight.terminal?.to || 'T2'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
+                        {/* Return Route & Timings */}
+                        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                          <div className="text-left min-w-0">
+                            <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                              {flight.returnFlight?.departureTime || flight.departureTime}
+                            </div>
+                            <div className="text-xs font-bold text-slate-800">
+                              {flight.returnFlight?.from || flight.to} <span className="text-slate-500 font-normal">({flight.returnFlight?.fromCity || flight.toCity})</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              Terminal {formatTerminal(flight.returnFlight?.terminal?.from || 'T1')}
+                            </div>
+                          </div>
+
+                          <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                            <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
+                              {flight.returnFlight?.duration || '2h 15m'}
+                            </span>
+                            <div className="relative flex items-center justify-center">
+                              <div className="w-full h-0.5 bg-indigo-300"></div>
+                              <Plane className="w-3.5 h-3.5 text-indigo-600 rotate-90 absolute bg-white px-0.5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
+                              {flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops ? 'Non-Stop' : `${flight.returnFlight.stops} Stop (${flight.returnFlight.layoverAirport || flight.returnFlight.layoverCity})`}
+                            </span>
+                          </div>
+
+                          <div className="text-left sm:text-right min-w-0">
+                            <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                              {flight.returnFlight?.arrivalTime || flight.arrivalTime}
+                            </div>
+                            <div className="text-xs font-bold text-slate-800">
+                              {flight.returnFlight?.to || flight.from} <span className="text-slate-500 font-normal">({flight.returnFlight?.toCity || flight.fromCity})</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              Terminal {formatTerminal(flight.returnFlight?.terminal?.to || 'T2')} • Baggage: {flight.returnFlight?.baggage || 'Cabin 7kg, Check-in 15kg'}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
+                          <div>
+                            <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                              {flight.airline} <span className="font-mono text-sky-700">({flight.flightNumber})</span>
+                            </h4>
+                            <span className="text-[11px] text-slate-500 font-semibold">
+                              Aircraft: {flight.aircraft || 'Airbus A320neo'} • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                            </span>
+                          </div>
+                        </div>
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          Confirmed Schedule
+                        </span>
+                      </div>
+
+                      {/* Flight Route & Timings */}
+                      <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                        {/* Departure */}
+                        <div className="text-left">
+                          <div className="text-lg sm:text-xl font-black text-slate-900">
+                            {flight.departureTime}
+                          </div>
+                          <div className="text-xs font-bold text-slate-800">
+                            {flight.fromCity} ({flight.from})
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1'}
+                          </div>
+                        </div>
+
+                        {/* Duration Divider */}
+                        <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                          <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5">
+                            {flight.duration || '2h 15m'}
+                          </span>
+                          <div className="relative flex items-center justify-center">
+                            <div className="w-full h-0.5 bg-sky-300"></div>
+                            <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                          </div>
+                          <span className={`text-[10px] font-bold block mt-0.5 ${flight.stops === 0 ? 'text-emerald-600' : 'text-amber-700'}`}>
+                            {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop (${flight.layoverAirport || flight.layoverCity || 'Connecting'})`}
+                          </span>
+                          {flight.stops > 0 && flight.layoverDuration && (
+                            <span className="text-[9px] text-slate-400 block font-medium">
+                              {flight.layoverDuration} Layover
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Arrival */}
+                        <div className="text-left sm:text-right">
+                          <div className="text-lg sm:text-xl font-black text-slate-900">
+                            {flight.arrivalTime}
+                          </div>
+                          <div className="text-xs font-bold text-slate-800">
+                            {flight.toCity} ({flight.to})
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            Terminal {flight.terminal?.to || 'T2'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 2. Travellers, Assigned Seats & Meals Card */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
@@ -2007,10 +2275,23 @@ export default function BookingCheckoutModal({
                 </h4>
 
                 <div className="space-y-2 text-xs text-slate-600">
-                  <div className="flex justify-between">
-                    <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
-                    <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
-                  </div>
+                  {flight?.isRoundTrip ? (
+                    <>
+                      <div className="flex justify-between text-slate-700">
+                        <span>Flight 1 (Jana): {flight.onwardFlight?.from || flight.from} ➔ {flight.onwardFlight?.to || flight.to}</span>
+                        <span className="font-bold font-mono">₹{((flight.onwardFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-700">
+                        <span>Flight 2 (Aana): {flight.returnFlight?.from || flight.to} ➔ {flight.returnFlight?.to || flight.from}</span>
+                        <span className="font-bold font-mono">₹{((flight.returnFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between">
+                      <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
+                      <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
 
                   {selectedFareTier !== 'saver' && (
                     <div className="flex justify-between">
