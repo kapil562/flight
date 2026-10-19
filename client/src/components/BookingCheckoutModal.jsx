@@ -670,7 +670,7 @@ export default function BookingCheckoutModal({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Left Column: Form / Steps */}
-            <div className="lg:col-span-8 space-y-4 sm:space-y-5">
+            <div className={`${step === 4 ? 'lg:col-span-7' : 'lg:col-span-8'} space-y-3.5 sm:space-y-4`}>
               
               {/* 4-Step Flow Indicators - Fluid & Responsive */}
               <div className="bg-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs overflow-x-auto scrollbar-none">
@@ -2338,91 +2338,65 @@ export default function BookingCheckoutModal({
               {step === 4 && (
                 <motion.div
                   key="checkout-step-4"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-5 animate-fadeIn"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <Lock className="w-4 h-4 text-emerald-600" />
-                      <span className="font-extrabold text-slate-900 text-base">Select Payment Method</span>
+                      <span className="font-extrabold text-slate-900 text-sm sm:text-base">Select Payment Method</span>
                     </div>
-                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                    <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
                       256-Bit SSL Encrypted
                     </span>
                   </div>
 
-                  {/* Passengers & Assigned Seats Summary Pill */}
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-xs">
-                    <div className="font-bold text-slate-700 flex items-center justify-between">
-                      <span>Confirmed Travellers & Assigned Seats:</span>
-                      <span className="text-[10px] text-sky-600 cursor-pointer hover:underline" onClick={() => setStep(2)}>
-                        Change Seats
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {passengers.map((p, i) => (
-                        <span key={i} className="bg-white px-2.5 py-1 rounded-lg border border-slate-200 font-medium text-slate-800">
-                          <strong>{p.title} {p.firstName} {p.lastName}</strong>: Seat <span className="text-sky-700 font-mono font-bold">{p.seat}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Applied promo badge in payment screen */}
-                  {discountAmount > 0 && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-semibold">
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-emerald-600" />
-                        <span>Promo Code <strong>{couponCode}</strong> Active! Instant ₹{discountAmount.toLocaleString('en-IN')} Discount Deducted.</span>
-                      </div>
-                      <span className="text-xs font-mono font-black text-emerald-700">-₹{discountAmount}</span>
-                    </div>
-                  )}
-
-                  {/* Payment Method Tabs */}
+                  {/* Payment Method Selector Tabs */}
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('upi')}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer relative ${
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer relative ${
                         paymentMethod === 'upi'
                           ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <span className="absolute -top-2 right-2 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
-                        Fastest • 0% Fee
+                      <span className="absolute -top-2 right-1.5 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
+                        Instant
                       </span>
-                      <QrCode className="w-4 h-4 mx-auto mb-1 text-sky-600" />
-                      <div className="text-xs">UPI / QR Code</div>
+                      <QrCode className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
+                      <div className="text-[11px] sm:text-xs font-extrabold">UPI / QR Code</div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('card')}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                         paymentMethod === 'card'
                           ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <CreditCard className="w-4 h-4 mx-auto mb-1 text-sky-600" />
-                      <div className="text-xs">Credit / Debit Card</div>
+                      <CreditCard className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
+                      <div className="text-[11px] sm:text-xs font-extrabold">Credit / Debit</div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setPaymentMethod('netbanking')}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                         paymentMethod === 'netbanking'
                           ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <Building className="w-4 h-4 mx-auto mb-1 text-sky-600" />
-                      <div className="text-xs">Net Banking</div>
+                      <Building className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
+                      <div className="text-[11px] sm:text-xs font-extrabold">Net Banking</div>
                     </button>
                   </div>
 
@@ -2434,60 +2408,61 @@ export default function BookingCheckoutModal({
                     const txnRef = `ASG${flight.id || 'FL'}${Date.now().toString().slice(-6)}`;
                     const note = `Flight ${flight.flightNumber || 'Ticket'}`;
                     const upiPayload = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(activeName)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent(note)}&mc=${encodeURIComponent(activeMcc)}&tr=${encodeURIComponent(txnRef)}`;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiPayload)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiPayload)}`;
 
                     return (
-                      <div className="space-y-4">
-                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
-                          <p className="text-xs font-bold text-slate-600 mb-3">
-                            Scan with Any UPI App (GPay, PhonePe, Paytm, CRED)
-                          </p>
-
-                          <div className="inline-block p-3 bg-white rounded-2xl shadow-md border border-slate-200">
+                      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div className="flex flex-col sm:flex-row items-center gap-3.5">
+                          {/* QR Box */}
+                          <div className="p-2 bg-white rounded-xl shadow-xs border border-slate-200 text-center shrink-0">
                             <img
                               src={qrUrl}
                               alt="UPI QR Code"
-                              className="w-44 h-44 mx-auto object-contain"
+                              className="w-32 h-32 mx-auto object-contain"
                             />
-                            <div className="mt-2 text-xs font-black text-slate-900">
-                              Amount: ₹{grandTotal.toLocaleString('en-IN')}
+                            <div className="mt-1 text-[11px] font-black text-slate-900 font-mono">
+                              ₹{grandTotal.toLocaleString('en-IN')}
                             </div>
                           </div>
 
-                          <div className="mt-3 flex items-center justify-center gap-2 text-xs font-mono">
-                            <span className="text-slate-500">UPI ID:</span>
-                            <span className="font-bold text-slate-800">{activeVpa}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigator.clipboard?.writeText(activeVpa);
-                                setCopiedVpa(true);
-                                setTimeout(() => setCopiedVpa(false), 2000);
-                              }}
-                              className="text-sky-600 hover:text-sky-700 p-1 cursor-pointer"
-                              title="Copy UPI ID"
-                            >
-                              {copiedVpa ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                            </button>
-                          </div>
-                        </div>
+                          {/* UPI Instructions & UTR */}
+                          <div className="flex-1 min-w-0 space-y-2 text-xs w-full">
+                            <div>
+                              <p className="font-extrabold text-slate-800 text-xs">Scan & Pay with Any UPI App</p>
+                              <p className="text-[10px] text-slate-500">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
+                            </div>
 
-                        {/* UTR Input */}
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 mb-1">
-                            Enter 12-digit UTR / UPI Transaction Reference Number *
-                          </label>
-                          <input
-                            type="text"
-                            maxLength={16}
-                            placeholder="e.g. 423456789012"
-                            value={utrNumber}
-                            onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500"
-                          />
-                          <p className="text-[10px] text-slate-400 mt-1">
-                            Found in your GPay / PhonePe / Paytm transaction receipt after paying.
-                          </p>
+                            <div className="flex items-center gap-1.5 p-2 bg-white rounded-xl border border-slate-200 text-xs">
+                              <span className="text-[10px] text-slate-400 font-mono">UPI ID:</span>
+                              <span className="font-bold text-slate-800 font-mono truncate text-[11px] flex-1">{activeVpa}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard?.writeText(activeVpa);
+                                  setCopiedVpa(true);
+                                  setTimeout(() => setCopiedVpa(false), 2000);
+                                }}
+                                className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                              >
+                                {copiedVpa ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
+                              </button>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                                12-Digit UTR / UPI Ref Number *
+                              </label>
+                              <input
+                                type="text"
+                                maxLength={16}
+                                placeholder="e.g. 423456789012"
+                                value={utrNumber}
+                                onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
+                                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );
@@ -2495,57 +2470,50 @@ export default function BookingCheckoutModal({
 
                   {/* Card Payment Content */}
                   {paymentMethod === 'card' && (
-                    <div className="space-y-3 text-xs">
-                      <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-sky-800 text-[11px] font-semibold flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                        <span>Pay securely with Credit / Debit card. Instant bank discounts applied automatically.</span>
-                      </div>
-
+                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
                       <div>
-                        <label className="block font-bold text-slate-600 mb-1">Card Number *</label>
+                        <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Card Number *</label>
                         <input
                           type="text"
                           maxLength={19}
                           placeholder="4111 2222 3333 4444"
                           value={cardDetails.number}
                           onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
                         />
                       </div>
-
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block font-bold text-slate-600 mb-1">Expiry Date *</label>
+                          <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Expiry *</label>
                           <input
                             type="text"
                             maxLength={5}
                             placeholder="MM/YY"
                             value={cardDetails.expiry}
                             onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
                           />
                         </div>
                         <div>
-                          <label className="block font-bold text-slate-600 mb-1">CVV / CVC *</label>
+                          <label className="block font-bold text-slate-600 text-[11px] mb-0.5">CVV *</label>
                           <input
                             type="password"
                             maxLength={4}
                             placeholder="•••"
                             value={cardDetails.cvv}
                             onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
                           />
                         </div>
                       </div>
-
                       <div>
-                        <label className="block font-bold text-slate-600 mb-1">Cardholder Name *</label>
+                        <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Cardholder Name *</label>
                         <input
                           type="text"
-                          placeholder="Name as printed on card"
+                          placeholder="Name on card"
                           value={cardDetails.name}
                           onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-bold text-xs"
                         />
                       </div>
                     </div>
@@ -2553,18 +2521,18 @@ export default function BookingCheckoutModal({
 
                   {/* Net Banking */}
                   {paymentMethod === 'netbanking' && (
-                    <div className="space-y-3 text-xs">
-                      <label className="block font-bold text-slate-700">Choose Bank:</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                      <label className="block font-bold text-slate-700 text-[11px]">Select Popular Bank:</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                         {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra', 'Punjab National Bank'].map(b => (
                           <button
                             key={b}
                             type="button"
                             onClick={() => setSelectedBank(b)}
-                            className={`p-2.5 rounded-xl border text-left font-bold transition-all cursor-pointer ${
+                            className={`p-2 rounded-xl border text-left font-bold text-[11px] transition-all cursor-pointer ${
                               selectedBank === b
                                 ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs'
-                                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white'
+                                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                             }`}
                           >
                             {b}
@@ -2574,65 +2542,151 @@ export default function BookingCheckoutModal({
                     </div>
                   )}
 
-                  {/* WhatsApp Support Alternative */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span>Having trouble paying?</span>
+                  {/* Confirmed Travellers Pill - Compact */}
+                  <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px]">
+                    <div className="text-slate-600 truncate">
+                      <span className="font-bold text-slate-800">Traveller:</span> {passengers.map(p => `${p.firstName} (Seat ${p.seat || 'Assigned'})`).join(', ')}
+                    </div>
                     <button
                       type="button"
-                      onClick={handleWhatsAppHelp}
-                      className="text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 cursor-pointer"
+                      onClick={() => setStep(2)}
+                      className="text-sky-600 hover:text-sky-700 font-bold ml-2 shrink-0 cursor-pointer"
                     >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Pay via WhatsApp Agent</span>
+                      Change Seats
                     </button>
                   </div>
-
-                  {/* Payment Navigation Buttons */}
-                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
-                    <button
-                      type="button"
-                      onClick={() => setStep(3)}
-                      className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Back to Review (Step 3)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={isProcessing}
-                      onClick={handleFinalBooking}
-                      className="h-11 px-5 sm:px-7 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 shrink-0"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Generating Instant PNR...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-4 h-4" />
-                          <span>Pay ₹{grandTotal.toLocaleString('en-IN')} & Confirm Ticket</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
                 </motion.div>
               )}
 
             </div>
 
             {/* Right Column: Fare Breakup & PromoSuggestions */}
-            <div className="lg:col-span-4 space-y-4">
+            <div className={`${step === 4 ? 'lg:col-span-5' : 'lg:col-span-4'} space-y-4`}>
               
 
 
-              {/* Detailed Fare Summary */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
-                <h4 className="font-extrabold text-slate-900 text-base pb-2 border-b border-slate-100">
-                  Fare Breakup
-                </h4>
+              {step === 4 ? (
+                /* Step 4 Dedicated Payment Summary & Direct Action Card */
+                <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
+                      <div className="min-w-0">
+                        <div className="text-xs font-black text-slate-900 truncate">
+                          {flight.airline} ({flight.flightNumber || 'Direct'})
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-bold truncate">
+                          {flight.from} ➔ {flight.to} • {flight.departureTime}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+                      {passengers.length} Pax
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-slate-600">
+                    <div className="flex justify-between">
+                      <span>Base Fare ({passengers.length} Pax)</span>
+                      <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    {totalSeatFee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Seat Selection</span>
+                        <span className="font-bold font-mono text-sky-700">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+
+                    {baggageFee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Extra Baggage</span>
+                        <span className="font-bold font-mono text-sky-700">+₹{baggageFee.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+
+                    {insuranceFee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Travel Insurance</span>
+                        <span className="font-bold font-mono text-emerald-700">+₹{insuranceFee.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between">
+                      <span>Taxes & Fees (incl. GST)</span>
+                      <span className="font-bold font-mono">+₹{taxes.toLocaleString('en-IN')}</span>
+                    </div>
+
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                        <span>Promo Discount ({couponCode})</span>
+                        <span className="font-mono">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2.5 border-t border-slate-100 flex items-baseline justify-between">
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Payable</div>
+                      <div className="text-[10px] text-emerald-600 font-bold">All Taxes Included</div>
+                    </div>
+                    <div className="text-2xl font-black text-slate-900 font-mono tracking-tight">
+                      ₹{grandTotal.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+
+                  {/* Primary Pay Button */}
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleFinalBooking}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-sm uppercase tracking-wide shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Confirming Instant PNR...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>PAY ₹{grandTotal.toLocaleString('en-IN')} & CONFIRM</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Secondary Back Button */}
+                  <button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    className="w-full py-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Review (Step 3)</span>
+                  </button>
+
+                  {/* Trust & WhatsApp Support */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="flex items-center gap-1">
+                      <Lock className="w-3 h-3 text-emerald-600" />
+                      <span>Instant Airline Ticket</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppHelp}
+                      className="text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp Help</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Detailed Fare Summary */
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
+                  <h4 className="font-extrabold text-slate-900 text-base pb-2 border-b border-slate-100">
+                    Fare Breakup
+                  </h4>
 
                 <div className="space-y-2 text-xs text-slate-600">
                   {flight?.isRoundTrip ? (
@@ -2739,14 +2793,16 @@ export default function BookingCheckoutModal({
                   🔒 Guaranteed best value with instant airline PNR generation
                 </div>
               </div>
+              )}
 
             </div>
 
           </div>
         </div>
 
-        {/* Persistent Sticky Bottom Bar / Toolbar (as shown in user's reference) */}
-        <div className="bg-white border-t border-slate-200 px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 relative">
+        {/* Persistent Sticky Bottom Bar / Toolbar (as shown in user's reference) - Hidden on Step 4 */}
+        {step < 4 && (
+          <div className="bg-white border-t border-slate-200 px-4 py-3 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 relative">
           
           {/* Left Side: Live Price + (i) Info icon + Travellers Count + Savings */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -2907,6 +2963,7 @@ export default function BookingCheckoutModal({
             )}
           </AnimatePresence>
         </div>
+        )}
       </motion.div>
     </motion.div>
   );
