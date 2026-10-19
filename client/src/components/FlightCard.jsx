@@ -4,10 +4,61 @@ import { Plane, Clock, Luggage, Utensils, ChevronDown, ChevronUp, ShieldCheck, I
 import AirlineBadge from './AirlineBadge';
 import HoldFareModal from './HoldFareModal';
 
+const codeToCityName = {
+  DEL: 'Delhi',
+  BOM: 'Mumbai',
+  BLR: 'Bengaluru',
+  MAA: 'Chennai',
+  CCU: 'Kolkata',
+  HYD: 'Hyderabad',
+  AMD: 'Ahmedabad',
+  GOI: 'Goa',
+  GOX: 'Goa (Mopa)',
+  PNQ: 'Pune',
+  JAI: 'Jaipur',
+  LKO: 'Lucknow',
+  COK: 'Kochi',
+  TRV: 'Thiruvananthapuram',
+  IXC: 'Chandigarh',
+  PAT: 'Patna',
+  BBI: 'Bhubaneswar',
+  GAU: 'Guwahati',
+  SXR: 'Srinagar',
+  IXB: 'Bagdogra',
+  VNS: 'Varanasi',
+  ATQ: 'Amritsar',
+  IDR: 'Indore',
+  BDQ: 'Vadodara',
+  NAG: 'Nagpur',
+  UDR: 'Udaipur',
+  VTZ: 'Visakhapatnam',
+  IXR: 'Ranchi',
+  DXB: 'Dubai',
+  SIN: 'Singapore',
+  BKK: 'Bangkok',
+  LHR: 'London',
+  JFK: 'New York'
+};
+
+const getDisplayCity = (code, rawCity) => {
+  if (code && codeToCityName[String(code).toUpperCase()]) {
+    return codeToCityName[String(code).toUpperCase()];
+  }
+  if (!rawCity) return code || '';
+  if (/mumbai/i.test(rawCity)) return 'Mumbai';
+  if (/delhi/i.test(rawCity)) return 'Delhi';
+  if (/bengaluru|bangalore/i.test(rawCity)) return 'Bengaluru';
+  if (/chennai/i.test(rawCity)) return 'Chennai';
+  if (/kolkata/i.test(rawCity)) return 'Kolkata';
+  if (/hyderabad/i.test(rawCity)) return 'Hyderabad';
+  if (/lucknow/i.test(rawCity)) return 'Lucknow';
+  return String(rawCity).replace(/International Airport|Airport|Intl Airport/gi, '').trim() || rawCity;
+};
+
 const formatTerminal = (term) => {
   if (!term) return '';
   const str = String(term).trim();
-  if (/^T\d/i.test(str)) return str;
+  if (/^T\d/i.test(str)) return str.toUpperCase();
   if (/^\d/.test(str)) return `T${str}`;
   return str;
 };
@@ -133,10 +184,14 @@ export default function FlightCard({
                   <div className="text-xs font-black text-slate-800 mt-1 flex items-center gap-1">
                     <span>{flight.from}</span>
                     {flight.terminal?.from && (
-                      <span className="text-[10px] text-slate-400 font-semibold">({formatTerminal(flight.terminal.from)})</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                        {formatTerminal(flight.terminal.from)}
+                      </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">{flight.fromCity}</div>
+                  <div className="text-[11px] text-slate-500 truncate" title={flight.fromCity}>
+                    {getDisplayCity(flight.from, flight.fromCity)}
+                  </div>
                 </div>
 
                 {/* Duration Line */}
@@ -150,11 +205,15 @@ export default function FlightCard({
                     {/* Bati 1: Origin dot */}
                     <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5 shadow-xs"></div>
                     {/* Bati 2: Middle stop dot ONLY if bich me stop hai */}
-                    {flight.stops > 0 && (
+                    {flight.stops > 0 ? (
                       <div 
                         className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
                         title={`Layover: ${flight.layover || flight.layoverCity || `${flight.stops} Stop`}`}
                       ></div>
+                    ) : (
+                      <div className="absolute bg-white px-0.5 z-10">
+                        <Plane className="w-3 h-3 text-sky-600 rotate-90" />
+                      </div>
                     )}
                     {/* Bati 2 (direct) / Bati 3 (stop): Destination dot */}
                     <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5 shadow-xs"></div>
@@ -179,12 +238,16 @@ export default function FlightCard({
                     {flight.arrivalTime}
                   </div>
                   <div className="text-xs font-black text-slate-800 mt-1 flex items-center justify-end gap-1">
-                    <span>{flight.to}</span>
                     {flight.terminal?.to && (
-                      <span className="text-[10px] text-slate-400 font-semibold">({formatTerminal(flight.terminal.to)})</span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                        {formatTerminal(flight.terminal.to)}
+                      </span>
                     )}
+                    <span>{flight.to}</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">{flight.toCity}</div>
+                  <div className="text-[11px] text-slate-500 truncate" title={flight.toCity}>
+                    {getDisplayCity(flight.to, flight.toCity)}
+                  </div>
                 </div>
               </div>
 
@@ -236,133 +299,297 @@ export default function FlightCard({
             </div>
           ) : (
             /* ======================================================== */
-            /* STANDARD WIDE LAYOUT (One-Way Desktop Flights)            */
+            /* STANDARD WIDE LAYOUT (One-Way Desktop & Mobile Flights)   */
             /* ======================================================== */
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              
-              {/* Airline Col */}
-              <div className="md:col-span-3">
-                <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} />
-                <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                  <span className="font-mono font-semibold">{flight.flightNumber}</span>
-                  <span>•</span>
-                  <span className="truncate">{flight.aircraft}</span>
+            <div>
+              {/* DESKTOP VIEW (md:grid) */}
+              <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
+                
+                {/* Airline Col */}
+                <div className="md:col-span-3">
+                  <div className="flex items-center gap-3">
+                    <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} size="md" showDetails={false} />
+                    <div className="min-w-0">
+                      <h4 className="font-extrabold text-slate-900 text-sm leading-tight truncate">
+                        {flight.airline}
+                      </h4>
+                      <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+                        <span className="font-mono font-bold text-slate-700">{flight.flightNumber}</span>
+                        {flight.aircraft && (
+                          <>
+                            <span className="text-slate-300">•</span>
+                            <span className="truncate text-slate-500">{flight.aircraft}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Timings & Route Col */}
+                <div className="md:col-span-5 lg:col-span-6 flex items-center justify-between gap-3 px-2">
+                  
+                  {/* Departure */}
+                  <div className="text-left min-w-0">
+                    <div className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                      {flight.departureTime}
+                    </div>
+                    <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-1.5">
+                      <span>{flight.from}</span>
+                      {flight.terminal?.from && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          {formatTerminal(flight.terminal.from)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-500 truncate mt-0.5" title={flight.fromCity}>
+                      {getDisplayCity(flight.from, flight.fromCity)}
+                    </div>
+                  </div>
+
+                  {/* Path & Duration line */}
+                  <div className="flex-1 max-w-[170px] text-center px-2">
+                    <div className="text-xs font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{flight.duration}</span>
+                    </div>
+                    
+                    <div className="relative flex items-center justify-center my-1.5">
+                      <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
+                      <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5 shadow-xs"></div>
+                      {flight.stops > 0 ? (
+                        <div 
+                          className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white shadow-xs z-10" 
+                          title={`Layover: ${flight.layover || flight.layoverCity || `${flight.stops} Stop`}`}
+                        ></div>
+                      ) : (
+                        <div className="absolute bg-white px-0.5 z-10">
+                          <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
+                        </div>
+                      )}
+                      <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5 shadow-xs"></div>
+                    </div>
+
+                    <div className="text-[11px] font-semibold text-slate-500 mt-1">
+                      {flight.stops === 0 ? (
+                        <span className="text-emerald-600 font-bold">Non-Stop</span>
+                      ) : (
+                        <span className="text-amber-700 font-bold inline-flex items-center gap-1">
+                          <span>{flight.stops} Stop</span>
+                          {(flight.layoverAirport || flight.layoverCity) && (
+                            <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Arrival */}
+                  <div className="text-right min-w-0">
+                    <div className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                      {flight.arrivalTime}
+                    </div>
+                    <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center justify-end gap-1.5">
+                      {flight.terminal?.to && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          {formatTerminal(flight.terminal.to)}
+                        </span>
+                      )}
+                      <span>{flight.to}</span>
+                    </div>
+                    <div className="text-xs text-slate-500 truncate mt-0.5" title={flight.toCity}>
+                      {getDisplayCity(flight.to, flight.toCity)}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Pricing & Booking Col */}
+                <div className="md:col-span-4 lg:col-span-3 flex flex-col items-end justify-center gap-2 pl-4 border-l border-slate-100">
+                  <div className="text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <span className="text-xs line-through text-slate-400 font-semibold">
+                        ₹{originalPrice.toLocaleString('en-IN')}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                        Save ₹{totalSavings.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+                      ₹{currentPrice.toLocaleString('en-IN')}
+                    </div>
+                    <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
+                  </div>
+
+                  <motion.button
+                    onClick={() => onBookFlight(flight, currentPrice)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    title="Instant Online Seat & Passenger Booking"
+                  >
+                    Book Now
+                  </motion.button>
+
+                  <div 
+                    onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
+                    title="Click to apply AIRSKY500 on this flight"
+                  >
+                    <Tag className="w-3 h-3 text-emerald-600" />
+                    <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Timings & Duration Col */}
-              <div className="md:col-span-5 flex items-center justify-between sm:justify-around gap-2">
-                
-                {/* Departure */}
-                <div className="text-left">
-                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                    {flight.departureTime}
-                  </div>
-                  <div className="text-xs font-bold text-slate-700">{flight.from}</div>
-                  <div className="text-[11px] text-slate-500">{flight.fromCity}</div>
-                  {flight.terminal?.from && (
-                    <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.from}</div>
-                  )}
-                </div>
-
-                {/* Path and Duration line */}
-                <div className="flex-1 max-w-[140px] text-center px-2">
-                  <div className="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{flight.duration}</span>
-                  </div>
-                  
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
-                    <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
-                    {flight.stops > 0 && (
-                      <div 
-                        className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
-                        title={`Layover: ${flight.layover || flight.layoverCity || '1 Stop'}`}
-                      ></div>
-                    )}
-                    <motion.div 
-                      className="absolute bg-white px-0.5"
-                      animate={{ x: [-12, 12, -12] }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                      <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
-                    </motion.div>
-                    <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5"></div>
-                  </div>
-
-                  <div className="text-[10px] font-semibold text-slate-400 mt-1">
-                    {flight.stops === 0 ? (
-                      <span className="text-emerald-600 font-bold">Non-Stop</span>
-                    ) : (
-                      <span className="text-amber-700 font-bold inline-flex items-center gap-1">
-                        <span>{flight.stops} Stop</span>
-                        {(flight.layoverAirport || flight.layoverCity) && (
-                          <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
+              {/* MOBILE VIEW (block md:hidden) */}
+              <div className="block md:hidden">
+                {/* Row 1: Airline Badge, Flight No, Aircraft & Stops Badge */}
+                <div className="flex items-center justify-between gap-2.5 pb-2.5 mb-2.5 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} size="sm" showDetails={false} />
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm leading-tight truncate">
+                        {flight.airline}
+                      </h4>
+                      <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 leading-tight mt-0.5 truncate">
+                        <span className="font-mono font-bold text-slate-700 whitespace-nowrap">{flight.flightNumber}</span>
+                        {flight.aircraft && (
+                          <>
+                            <span className="text-slate-300">•</span>
+                            <span className="truncate">{flight.aircraft}</span>
+                          </>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    {flight.stops === 0 ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-2xs">
+                        Non-Stop
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap shadow-2xs">
+                        {flight.stops} Stop {flight.layoverAirport || flight.layoverCity ? `• ${flight.layoverAirport || flight.layoverCity}` : ''}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Arrival */}
-                <div className="text-right">
-                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                    {flight.arrivalTime}
+                {/* Row 2: Timings & Route (Clear 3-Column Grid) */}
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-1.5">
+                  {/* Departure */}
+                  <div className="text-left min-w-0">
+                    <div className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                      {flight.departureTime}
+                    </div>
+                    <div className="text-xs font-black text-slate-800 mt-1 flex items-center gap-1">
+                      <span>{flight.from}</span>
+                      {flight.terminal?.from && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                          {formatTerminal(flight.terminal.from)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate" title={flight.fromCity}>
+                      {getDisplayCity(flight.from, flight.fromCity)}
+                    </div>
                   </div>
-                  <div className="text-xs font-bold text-slate-700">{flight.to}</div>
-                  <div className="text-[11px] text-slate-500">{flight.toCity}</div>
-                  {flight.terminal?.to && (
-                    <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.to}</div>
-                  )}
+
+                  {/* Duration Line */}
+                  <div className="w-28 sm:w-32 text-center px-1">
+                    <div className="text-[10px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      <span>{flight.duration}</span>
+                    </div>
+                    <div className="relative flex items-center justify-center">
+                      <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
+                      <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5 shadow-xs"></div>
+                      {flight.stops > 0 ? (
+                        <div 
+                          className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white shadow-xs z-10" 
+                          title={`Layover: ${flight.layover || flight.layoverCity || `${flight.stops} Stop`}`}
+                        ></div>
+                      ) : (
+                        <div className="absolute bg-white px-0.5 z-10">
+                          <Plane className="w-3 h-3 text-sky-600 rotate-90" />
+                        </div>
+                      )}
+                      <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5 shadow-xs"></div>
+                    </div>
+                    <div className="text-[10px] font-semibold text-slate-400 mt-1">
+                      {flight.stops === 0 ? (
+                        <span className="text-emerald-600 font-bold">Direct</span>
+                      ) : (
+                        <span className="text-amber-700 font-bold">
+                          {flight.layoverAirport || flight.layoverCity ? `via ${flight.layoverAirport || flight.layoverCity}` : `${flight.stops} Stop`}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Arrival */}
+                  <div className="text-right min-w-0">
+                    <div className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                      {flight.arrivalTime}
+                    </div>
+                    <div className="text-xs font-black text-slate-800 mt-1 flex items-center justify-end gap-1">
+                      {flight.terminal?.to && (
+                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                          {formatTerminal(flight.terminal.to)}
+                        </span>
+                      )}
+                      <span>{flight.to}</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 truncate" title={flight.toCity}>
+                      {getDisplayCity(flight.to, flight.toCity)}
+                    </div>
+                  </div>
                 </div>
 
-              </div>
+                {/* Row 3: Price & Book Now Row */}
+                <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100">
+                  <div>
+                    <div className="flex items-center gap-1.5 leading-none">
+                      <span className="text-[11px] line-through text-slate-400 font-semibold">
+                        ₹{originalPrice.toLocaleString('en-IN')}
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
+                        Save ₹{totalSavings.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+                      ₹{currentPrice.toLocaleString('en-IN')}
+                    </div>
+                    <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
+                  </div>
 
-              {/* Pricing & Multiple Booking Actions Col */}
-              <div className="md:col-span-4 flex flex-col items-start md:items-end justify-between gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
-                
-                {/* Price display with Strikethrough & Savings */}
-                <div className="text-left md:text-right">
-                  <div className="flex items-center md:justify-end gap-2">
-                    <span className="text-xs line-through text-slate-400 font-semibold">
-                      ₹{originalPrice.toLocaleString('en-IN')}
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      Save ₹{totalSavings.toLocaleString('en-IN')}
-                    </span>
+                  <div>
+                    <motion.button
+                      onClick={() => onBookFlight(flight, currentPrice)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      title="Instant Online Seat & Passenger Booking"
+                    >
+                      Book Now
+                    </motion.button>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    ₹{currentPrice.toLocaleString('en-IN')}
-                  </div>
-                  <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
                 </div>
 
-                {/* Primary Booking / Selection Action */}
-                <div className="w-full md:w-auto">
-                  <motion.button
-                    onClick={() => onBookFlight(flight, currentPrice)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full md:w-auto px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
-                    title="Instant Online Seat & Passenger Booking"
+                {/* Row 4: Coupon Chip */}
+                <div className="mt-2.5">
+                  <div 
+                    onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                    title="Click to apply AIRSKY500 on this flight"
                   >
-                    Book Now
-                  </motion.button>
+                    <Tag className="w-3 h-3 text-emerald-600" />
+                    <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
+                  </div>
                 </div>
-
-                {/* Quick Coupon Chip (Only for standalone one-way booking) */}
-                <div 
-                  onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
-                  title="Click to apply AIRSKY500 on this flight"
-                >
-                  <Tag className="w-3 h-3 text-emerald-600" />
-                  <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
-                </div>
-
               </div>
-
             </div>
           )}
 
