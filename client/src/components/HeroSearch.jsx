@@ -313,12 +313,13 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         <div className="relative z-10 mt-3 sm:mt-6 bg-white text-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl border border-slate-100">
           
           {/* Top Options Row: Trip Type & Class */}
-          <div className="flex items-center justify-between gap-1 pb-2 sm:pb-4 mb-2.5 sm:mb-4 border-b border-slate-100 overflow-x-auto scrollbar-none">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-4 mb-2.5 sm:mb-4 border-b border-slate-100">
+            {/* Trip Type Selector */}
             <div className="inline-flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl gap-0.5 sm:gap-1 shrink-0">
               <button
                 type="button"
                 onClick={() => handleTripTypeChange('oneWay')}
-                className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                   tripType === 'oneWay' ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -327,7 +328,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               <button
                 type="button"
                 onClick={() => handleTripTypeChange('roundTrip')}
-                className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                   tripType === 'roundTrip' ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -345,34 +346,27 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               </button>
             </div>
 
-            {/* Travel Class Selector - Dropdown on mobile / Pills on desktop */}
-            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm shrink-0 ml-1">
-              <div className="sm:hidden relative">
-                <select
-                  value={travelClass}
-                  onChange={(e) => setTravelClass(e.target.value)}
-                  className="bg-sky-50 text-sky-800 border border-sky-200 rounded-lg px-2 py-1 text-[11px] font-bold focus:outline-hidden"
-                >
-                  <option value="economy">Economy</option>
-                  <option value="premiumEconomy">Prem. Eco</option>
-                  <option value="business">Business</option>
-                </select>
-              </div>
-
-              <div className="hidden sm:flex items-center gap-1.5">
-                <span className="text-slate-400 font-medium shrink-0">Class:</span>
-                {['economy', 'premiumEconomy', 'business'].map((cls) => (
+            {/* Travel Class Selector - Always fully visible on both mobile and desktop */}
+            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm shrink-0">
+              <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider shrink-0">Class:</span>
+              <div className="inline-flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl gap-0.5 sm:gap-1">
+                {[
+                  { id: 'economy', label: 'Economy' },
+                  { id: 'premiumEconomy', label: 'Prem. Eco', desktopLabel: 'Premium Economy' },
+                  { id: 'business', label: 'Business' }
+                ].map((cls) => (
                   <button
-                    key={cls}
+                    key={cls.id}
                     type="button"
-                    onClick={() => setTravelClass(cls)}
-                    className={`px-3 py-1 rounded-lg capitalize font-semibold transition-all cursor-pointer shrink-0 whitespace-nowrap text-xs ${
-                      travelClass === cls
-                        ? 'bg-sky-50 text-sky-700 border border-sky-300 font-bold'
-                        : 'text-slate-500 hover:bg-slate-100'
+                    onClick={() => setTravelClass(cls.id)}
+                    className={`px-2 sm:px-3 py-1 rounded-lg font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap text-[10px] sm:text-xs ${
+                      travelClass === cls.id
+                        ? 'bg-sky-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                     }`}
                   >
-                    {cls === 'premiumEconomy' ? 'Prem. Economy' : cls}
+                    <span className="sm:hidden">{cls.label}</span>
+                    <span className="hidden sm:inline">{cls.desktopLabel || cls.label}</span>
                   </button>
                 ))}
               </div>
@@ -1083,12 +1077,37 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                       </div>
                     </div>
 
+                    {/* Cabin Class Selection inside Travellers dropdown */}
+                    <div className="pt-2.5 pb-1 border-t border-slate-100">
+                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cabin Class</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[
+                          { id: 'economy', label: 'Economy' },
+                          { id: 'premiumEconomy', label: 'Prem. Eco' },
+                          { id: 'business', label: 'Business' }
+                        ].map((cls) => (
+                          <button
+                            key={cls.id}
+                            type="button"
+                            onClick={() => setTravelClass(cls.id)}
+                            className={`py-1.5 px-1 rounded-lg text-center text-[10px] font-bold border transition-all cursor-pointer ${
+                              travelClass === cls.id
+                                ? 'bg-sky-600 border-sky-600 text-white shadow-xs'
+                                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            }`}
+                          >
+                            {cls.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <button
                       type="button"
                       onClick={() => setShowPaxModal(false)}
                       className="w-full mt-3 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
                     >
-                      Done
+                      Apply
                     </button>
                   </motion.div>
                 )}
