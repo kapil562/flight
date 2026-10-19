@@ -259,7 +259,7 @@
       "apiKey": "d30af7862151eb32682499f5604c67e3045121b8",
       "enabled": true,
       "engine": "google_search",
-      "status": "Not Configured"
+      "status": "Active (Google Real-Time Search & Live Fares)"
     },
     "amadeus": {
       "clientId": "",
@@ -274,10 +274,10 @@
       "status": "Not Configured"
     },
     "serpapi": {
-      "apiKey": "test_key_auto",
-      "enabled": true,
+      "apiKey": "",
+      "enabled": false,
       "engine": "google_flights",
-      "status": "Configured (Google Flights)"
+      "status": "Not Configured"
     }
   },
   "bookings": [
