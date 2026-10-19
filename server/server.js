@@ -879,13 +879,21 @@ const mapSerpApiFlight = (item, from, to, date, idx) => {
   let layoverAirport = null;
   let layoverDuration = null;
 
-  if (stops > 0 && item.layovers && item.layovers[0]) {
-    const l = item.layovers[0];
-    layoverAirport = l.id || '';
-    layoverCity = l.name ? l.name.replace(/ Airport| International/gi, '') : layoverAirport;
-    const lMins = l.duration || 90;
-    layoverDuration = `${Math.floor(lMins / 60)}h ${lMins % 60}m`;
-    layover = `${layoverCity} (${layoverAirport}) ${layoverDuration} Layover`;
+  if (stops > 0) {
+    if (item.layovers && item.layovers[0]) {
+      const l = item.layovers[0];
+      layoverAirport = l.id || '';
+      layoverCity = l.name ? l.name.replace(/ Airport| International/gi, '') : layoverAirport;
+      const lMins = l.duration || 90;
+      layoverDuration = `${Math.floor(lMins / 60)}h ${lMins % 60}m`;
+      layover = `${layoverCity} (${layoverAirport}) ${layoverDuration} Layover`;
+    } else if (flightLegs.length > 1) {
+      const midLeg = flightLegs[0];
+      layoverAirport = midLeg.arrival_airport?.id || '';
+      layoverCity = midLeg.arrival_airport?.name ? midLeg.arrival_airport.name.replace(/ Airport| International/gi, '') : layoverAirport;
+      layoverDuration = '2h 15m';
+      layover = `${layoverCity} (${layoverAirport}) ${layoverDuration} Layover`;
+    }
   }
 
   const segments = flightLegs.map((leg, lIdx) => {

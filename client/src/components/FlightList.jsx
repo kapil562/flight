@@ -160,7 +160,9 @@ export default function FlightList({
       departureTime: selectedOnwardFlight.departureTime,
       arrivalTime: selectedReturnFlight.arrivalTime,
       duration: `Round Trip`,
-      stops: 0,
+      stops: Math.max(selectedOnwardFlight.stops || 0, selectedReturnFlight.stops || 0),
+      layoverAirport: selectedOnwardFlight.layoverAirport || selectedReturnFlight.layoverAirport || null,
+      layoverCity: selectedOnwardFlight.layoverCity || selectedReturnFlight.layoverCity || null,
       basePrice: totalRoundTripPrice,
       classes: {
         economy: totalRoundTripPrice,
@@ -265,7 +267,8 @@ export default function FlightList({
 
     // Filter by stops
     if (selectedStops !== 'all') {
-      result = result.filter(f => f.stops === parseInt(selectedStops));
+      const targetStops = parseInt(selectedStops);
+      result = result.filter(f => selectedStops === '2' ? f.stops >= 2 : f.stops === targetStops);
     }
 
     // Filter by airlines
@@ -474,6 +477,18 @@ export default function FlightList({
           }`}
         >
           ⚡ Non-Stop
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSelectedStops(selectedStops === '1' ? 'all' : '1')}
+          className={`px-3 py-2 rounded-xl text-xs font-bold shrink-0 border transition-all cursor-pointer ${
+            selectedStops === '1'
+              ? 'bg-amber-50 border-amber-500 text-amber-700 font-extrabold'
+              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          🟡 1-Stop
         </button>
 
         <button

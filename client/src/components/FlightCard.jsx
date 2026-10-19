@@ -140,19 +140,40 @@ export default function FlightCard({
                 </div>
 
                 {/* Duration Line */}
-                <div className="w-24 sm:w-28 text-center px-1">
+                <div className="w-28 sm:w-32 text-center px-1">
                   <div className="text-[10px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
                     <Clock className="w-3 h-3 text-slate-400" />
                     <span>{flight.duration}</span>
                   </div>
                   <div className="relative flex items-center justify-center">
-                    <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-600 to-indigo-600"></div>
-                    <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
-                    <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 bg-white" />
-                    <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                    <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
+                    <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
+                    {flight.stops > 0 && (
+                      <div 
+                        className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
+                        title={`Layover: ${flight.layover || flight.layoverCity || `${flight.stops} Stop`}`}
+                      ></div>
+                    )}
+                    <motion.div 
+                      className="absolute bg-white px-0.5"
+                      animate={{ x: [-10, 10, -10] }}
+                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
+                    </motion.div>
+                    <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5"></div>
                   </div>
                   <div className="text-[10px] font-semibold text-slate-400 mt-1">
-                    {flight.stops === 0 ? 'Direct' : `${flight.stops} Stop`}
+                    {flight.stops === 0 ? (
+                      <span className="text-emerald-600 font-bold">Non-Stop</span>
+                    ) : (
+                      <span className="text-amber-700 font-bold inline-flex items-center justify-center gap-1">
+                        <span>{flight.stops} Stop</span>
+                        {(flight.layoverAirport || flight.layoverCity) && (
+                          <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
+                        )}
+                      </span>
+                    )}
                   </div>
                 </div>
 
