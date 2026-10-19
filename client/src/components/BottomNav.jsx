@@ -49,7 +49,7 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
       id: 'profile',
       label: currentUser ? (currentUser.name ? currentUser.name.split(' ')[0] : 'Profile') : 'Login',
       icon: User,
-      action: onOpenAuth,
+      action: currentUser ? onOpenMyBookings : onOpenAuth,
       isUser: !!currentUser
     }
   ];
@@ -79,10 +79,10 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
               </span>
             )}
 
-            {item.isUser && currentUser?.avatar ? (
+            {item.isUser && (currentUser?.avatar || currentUser?.photoURL) ? (
               <div className="relative">
                 <img
-                  src={currentUser.avatar}
+                  src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff`}
                   alt={currentUser.name}
                   className="w-5 h-5 rounded-full object-cover border border-sky-500"
                 />

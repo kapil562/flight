@@ -58,11 +58,25 @@ export default function BookingCheckoutModal({
 
   // Passenger data with ability to add multiple users dynamically
   const [passengers, setPassengers] = useState(() => {
+    let prefillFirst = '';
+    let prefillLast = '';
+    try {
+      const s = localStorage.getItem('asg_user');
+      if (s) {
+        const u = JSON.parse(s);
+        if (u.name && !u.name.toLowerCase().includes('traveller')) {
+          const parts = u.name.trim().split(' ');
+          prefillFirst = parts[0] || '';
+          prefillLast = parts.slice(1).join(' ') || '';
+        }
+      }
+    } catch {}
+
     const count = Math.max(1, passengersCount);
     return Array.from({ length: count }).map((_, idx) => ({
       title: 'Mr',
-      firstName: '',
-      lastName: '',
+      firstName: idx === 0 ? prefillFirst : '',
+      lastName: idx === 0 ? prefillLast : '',
       passportNumber: '',
       passportExpiry: '',
       nationality: 'Indian',
@@ -81,10 +95,19 @@ export default function BookingCheckoutModal({
   // For Round Trip seat selection: active flight leg ('onward' | 'return')
   const [seatFlightLeg, setSeatFlightLeg] = useState('onward');
 
-  // Contact Info
-  const [contact, setContact] = useState({
-    email: '',
-    phone: ''
+  // Contact Info (prefilled from active user session)
+  const [contact, setContact] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('asg_user');
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        return {
+          email: u.email || '',
+          phone: u.phone ? u.phone.replace(/\D/g, '').slice(-10) : ''
+        };
+      }
+    } catch {}
+    return { email: '', phone: '' };
   });
 
   // Business GST Info

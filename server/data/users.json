@@ -1,5 +1,53 @@
 [
   {
+    "id": "USR-4896",
+    "name": "Kapil Test",
+    "phone": "+91 99999 88888",
+    "email": "kapil.test@example.com",
+    "role": "traveller",
+    "tier": "SkyClub Member",
+    "points": 500,
+    "bookingsCount": 0,
+    "registeredAt": "2026-10-19T14:01:55.577Z",
+    "lastLogin": "2026-10-19T14:01:55.577Z"
+  },
+  {
+    "id": "USR-7875",
+    "name": "askhi asgh",
+    "phone": "1111111111",
+    "email": "ffyuh@gmail.com",
+    "role": "traveller",
+    "tier": "SkyClub Member",
+    "points": 500,
+    "bookingsCount": 2,
+    "registeredAt": "2026-10-19T09:43:34.604Z",
+    "lastLogin": "2026-10-19T09:43:39.707Z"
+  },
+  {
+    "id": "USR-7069",
+    "name": "Apple Traveller",
+    "phone": "",
+    "email": "customer.apple@example.com",
+    "role": "traveller",
+    "tier": "SkyClub Member",
+    "points": 500,
+    "bookingsCount": 0,
+    "registeredAt": "2026-10-19T09:26:26.181Z",
+    "lastLogin": "2026-10-19T09:26:26.181Z"
+  },
+  {
+    "id": "USR-3111",
+    "name": "Google Traveller",
+    "phone": "",
+    "email": "customer.google@example.com",
+    "role": "traveller",
+    "tier": "SkyClub Member",
+    "points": 500,
+    "bookingsCount": 0,
+    "registeredAt": "2026-10-19T09:26:12.630Z",
+    "lastLogin": "2026-10-19T09:26:12.630Z"
+  },
+  {
     "id": "USR-8821",
     "name": "Aman Sharma",
     "phone": "+91 98765 43210",

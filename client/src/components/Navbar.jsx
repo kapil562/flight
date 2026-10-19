@@ -241,7 +241,7 @@ export default function Navbar({
                   className="flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl border border-slate-200 bg-white hover:border-sky-400 shadow-xs transition-all cursor-pointer"
                 >
                   <img
-                    src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
+                    src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff&bold=true`}
                     alt={currentUser.name}
                     className="w-8 h-8 rounded-xl object-cover border border-sky-500"
                   />
@@ -340,19 +340,22 @@ export default function Navbar({
           <div className="flex lg:hidden items-center gap-2">
             {!currentUser ? (
               <button
+                type="button"
                 onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 text-white font-extrabold text-xs shadow-xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600 text-white font-extrabold text-xs shadow-xs cursor-pointer active:scale-95"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Login</span>
               </button>
             ) : (
               <button
-                onClick={onOpenAuth}
-                className="flex items-center gap-1.5 p-1 rounded-full border border-sky-500"
+                type="button"
+                onClick={onOpenMyBookings}
+                className="flex items-center gap-1.5 p-0.5 rounded-full border-2 border-sky-500 cursor-pointer active:scale-95 shadow-xs"
+                title="My Profile & Trips"
               >
                 <img
-                  src={currentUser.avatar}
+                  src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff&bold=true`}
                   alt={currentUser.name}
                   className="w-7 h-7 rounded-full object-cover"
                 />

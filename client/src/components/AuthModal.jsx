@@ -15,7 +15,9 @@ import {
   sendPasswordResetEmail,
   updateProfile,
   formatFirebaseUser,
-  getFirebaseErrorMessage
+  getFirebaseErrorMessage,
+  syncUserToBackend,
+  getDemoUser
 } from '../utils/firebaseAuth';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
@@ -38,11 +40,26 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     });
   };
 
-  const handleSuccess = (firebaseUser, customName = '') => {
+  const handleSuccess = async (firebaseUser, customName = '') => {
     const user = formatFirebaseUser(firebaseUser, customName);
     localStorage.setItem('asg_user', JSON.stringify(user));
+    window.dispatchEvent(new CustomEvent('asg_user_updated', { detail: user }));
+    await syncUserToBackend(user);
     triggerConfetti();
     if (onLoginSuccess) onLoginSuccess(user);
+    onClose();
+  };
+
+  const handleDemoSignIn = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    const demo = getDemoUser();
+    localStorage.setItem('asg_user', JSON.stringify(demo));
+    window.dispatchEvent(new CustomEvent('asg_user_updated', { detail: demo }));
+    await syncUserToBackend(demo);
+    triggerConfetti();
+    if (onLoginSuccess) onLoginSuccess(demo);
+    setLoading(false);
     onClose();
   };
 
@@ -311,7 +328,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-extrabold text-xs sm:text-sm transition-all cursor-pointer shadow-xs flex items-center justify-center gap-3 active:scale-98 disabled:opacity-50 mb-3.5"
+                  className="w-full py-2.5 px-4 rounded-2xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-extrabold text-xs sm:text-sm transition-all cursor-pointer shadow-xs flex items-center justify-center gap-3 active:scale-98 disabled:opacity-50 mb-2"
                 >
                   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -320,6 +337,17 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                   </svg>
                   <span>Continue with Google</span>
+                </button>
+
+                {/* 1-Click Instant Demo Login */}
+                <button
+                  type="button"
+                  onClick={handleDemoSignIn}
+                  disabled={loading}
+                  className="w-full py-2 px-3 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-300 text-amber-900 font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 mb-2.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>⚡ 1-Click Demo Traveler Login</span>
                 </button>
 
                 {/* Divider */}

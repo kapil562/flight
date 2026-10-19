@@ -303,15 +303,32 @@ function MainWebsite() {
     executeFlightSearch(searchParams);
   };
 
-  // Listen to Firebase auth state changes
+  // Listen to Firebase auth state changes & custom user sync events
   useEffect(() => {
+    const handleUserUpdate = (e) => {
+      if (e.detail !== undefined) {
+        setCurrentUser(e.detail);
+      } else {
+        try {
+          const saved = localStorage.getItem('asg_user');
+          setCurrentUser(saved ? JSON.parse(saved) : null);
+        } catch {}
+      }
+    };
+
+    window.addEventListener('asg_user_updated', handleUserUpdate);
+    window.addEventListener('storage', handleUserUpdate);
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
+        const name = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Traveller';
         const userObj = {
           id: firebaseUser.uid,
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Traveller',
-          email: firebaseUser.email,
+          name,
+          email: firebaseUser.email || '',
+          phone: firebaseUser.phoneNumber || '',
           photoURL: firebaseUser.photoURL || null,
+          avatar: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff&bold=true`,
           role: 'traveller',
           tier: 'SkyClub Member',
           points: 500
@@ -320,7 +337,12 @@ function MainWebsite() {
         localStorage.setItem('asg_user', JSON.stringify(userObj));
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      window.removeEventListener('asg_user_updated', handleUserUpdate);
+      window.removeEventListener('storage', handleUserUpdate);
+      unsubscribe();
+    };
   }, []);
 
   // User auth actions
@@ -335,6 +357,7 @@ function MainWebsite() {
     } catch (e) {}
     localStorage.removeItem('asg_user');
     setCurrentUser(null);
+    window.dispatchEvent(new CustomEvent('asg_user_updated', { detail: null }));
   };
 
   const currentEnabledServices = settings?.enabledServices || brand?.enabledServices || {
