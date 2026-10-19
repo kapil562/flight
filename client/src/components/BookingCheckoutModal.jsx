@@ -57,6 +57,7 @@ export default function BookingCheckoutModal({
   initialFareTier = 'saver'
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection, 3 = Review & Offers, 4 = Payment Gateway
+  const [createdPnr, setCreatedPnr] = useState(null);
   const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
   const [isStepLoading, setIsStepLoading] = useState(false);
   const [transitionMeta, setTransitionMeta] = useState({ targetStep: 1, fromStep: 1 });
@@ -662,8 +663,104 @@ export default function BookingCheckoutModal({
     transitionToStep(3);
   };
 
+  // Helper to build booking payload
+  const buildBookingPayload = (customPnr, paymentOverride, statusOverride) => {
+    const isManualUpi = (paymentOverride?.method || paymentMethod) === 'upi' || 
+                        (paymentOverride?.method || paymentMethod) === 'upiQr' || 
+                        (paymentOverride?.method || paymentMethod) === 'upiApps';
+    const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
+
+    return {
+      pnr: customPnr || createdPnr || undefined,
+      flightId: flight.id,
+      flightNumber: flight.flightNumber,
+      airline: flight.airline,
+      airlineCode: flight.airlineCode,
+      from: flight.from,
+      to: flight.to,
+      fromCity: flight.fromCity,
+      toCity: flight.toCity,
+      departureDate: flight.departureDate || new Date().toISOString().split('T')[0],
+      departureTime: flight.departureTime,
+      arrivalTime: flight.arrivalTime,
+      travelClass: travelClass,
+      tripType: flight.tripType || (flight.isMultiCity ? 'multiCity' : flight.isRoundTrip ? 'roundTrip' : 'oneWay'),
+      multiCityLegs: flight.multiCityLegs || null,
+      roundTripDetails: flight.roundTripDetails || (flight.isRoundTrip ? { onward: flight.onwardFlight, return: flight.returnFlight } : null),
+      returnDate: flight.returnDate || null,
+      route: flight.isMultiCity
+        ? (flight.multiCityLegs?.map(l => `${l.from} ➔ ${l.to}`).join(' • ') || `${flight.from} ➔ ${flight.to}`)
+        : flight.isRoundTrip
+          ? `${flight.from} ⇄ ${flight.to}`
+          : `${flight.from} → ${flight.to}`,
+      passengers: passengers.map(p => ({
+        title: p.title,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        passportNumber: p.passportNumber || null,
+        passportExpiry: p.passportExpiry || null,
+        nationality: p.nationality || null,
+        gender: p.gender || (p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female'),
+        seat: p.seat || '12A',
+        seatPrice: p.seatPrice || 0,
+        meal: p.meal,
+        type: p.type || 'Adult'
+      })),
+      contact,
+      gst: showGst ? gstDetails : null,
+      fareTier: selectedFareTier,
+      fare: {
+        basePrice: standardBaseFare,
+        tierUpgrade: tierUpgradeTotal,
+        fareTier: selectedFareTier,
+        seatCost: totalSeatFee,
+        mealsCost: totalMealsFee,
+        baggageCost: baggageFee,
+        insurance: insuranceFee,
+        flexiCost: tierUpgradeTotal,
+        taxes: taxes,
+        discount: discountAmount,
+        promoCode: discountAmount > 0 ? couponCode : null,
+        total: grandTotal
+      },
+      status: statusOverride || 'CONFIRMED',
+      payment: {
+        method: paymentOverride?.method || paymentMethod,
+        utrNumber: isManualUpi ? (paymentOverride?.utrNumber ?? utrNumber) : null,
+        vpa: isManualUpi ? activeVpa : null,
+        selectedApp: (paymentOverride?.method || paymentMethod) === 'upiApps' ? (paymentOverride?.selectedApp || selectedUpiApp) : null,
+        bank: (paymentOverride?.method || paymentMethod) === 'netbanking' ? selectedBank : null,
+        cardLast4: (paymentOverride?.method || paymentMethod) === 'card' ? (cardDetails.number.slice(-4) || '4242') : null,
+        status: paymentOverride?.status || (isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED')
+      }
+    };
+  };
+
   // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
   const handleProceedToPayment = () => {
+    // Generate upfront PNR so entry immediately logs in Admin Console
+    const pnrToUse = createdPnr || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    if (!createdPnr) {
+      setCreatedPnr(pnrToUse);
+    }
+
+    // Immediately create booking lead entry in Admin
+    try {
+      const initialPayload = buildBookingPayload(pnrToUse, {
+        method: paymentMethod || 'upiApps',
+        status: 'VERIFICATION_PENDING'
+      }, 'CONFIRMED');
+      api.createBooking(initialPayload).then(res => {
+        if (res?.data?.pnr || res?.pnr) {
+          setCreatedPnr(res?.data?.pnr || res?.pnr);
+        }
+      }).catch(err => {
+        console.warn('Initial admin booking entry warning:', err);
+      });
+    } catch (err) {
+      console.warn('Initial admin booking entry error:', err);
+    }
+
     transitionToStep(4);
   };
 
@@ -672,75 +769,11 @@ export default function BookingCheckoutModal({
     setIsProcessing(true);
 
     try {
-      const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
-      const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
-
-      const bookingPayload = {
-        flightId: flight.id,
-        flightNumber: flight.flightNumber,
-        airline: flight.airline,
-        airlineCode: flight.airlineCode,
-        from: flight.from,
-        to: flight.to,
-        fromCity: flight.fromCity,
-        toCity: flight.toCity,
-        departureDate: flight.departureDate || new Date().toISOString().split('T')[0],
-        departureTime: flight.departureTime,
-        arrivalTime: flight.arrivalTime,
-        travelClass: travelClass,
-        tripType: flight.tripType || (flight.isMultiCity ? 'multiCity' : flight.isRoundTrip ? 'roundTrip' : 'oneWay'),
-        multiCityLegs: flight.multiCityLegs || null,
-        roundTripDetails: flight.roundTripDetails || (flight.isRoundTrip ? { onward: flight.onwardFlight, return: flight.returnFlight } : null),
-        returnDate: flight.returnDate || null,
-        route: flight.isMultiCity
-          ? (flight.multiCityLegs?.map(l => `${l.from} ➔ ${l.to}`).join(' • ') || `${flight.from} ➔ ${flight.to}`)
-          : flight.isRoundTrip
-            ? `${flight.from} ⇄ ${flight.to}`
-            : `${flight.from} → ${flight.to}`,
-        passengers: passengers.map(p => ({
-          title: p.title,
-          firstName: p.firstName,
-          lastName: p.lastName,
-          passportNumber: p.passportNumber || null,
-          passportExpiry: p.passportExpiry || null,
-          nationality: p.nationality || null,
-          gender: p.gender || (p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female'),
-          seat: p.seat || '12A',
-          seatPrice: p.seatPrice || 0,
-          meal: p.meal,
-          type: p.type || 'Adult'
-        })),
-        contact,
-        gst: showGst ? gstDetails : null,
-        fareTier: selectedFareTier,
-        fare: {
-          basePrice: standardBaseFare,
-          tierUpgrade: tierUpgradeTotal,
-          fareTier: selectedFareTier,
-          seatCost: totalSeatFee,
-          mealsCost: totalMealsFee,
-          baggageCost: baggageFee,
-          insurance: insuranceFee,
-          flexiCost: tierUpgradeTotal,
-          taxes: taxes,
-          discount: discountAmount,
-          promoCode: discountAmount > 0 ? couponCode : null,
-          total: grandTotal
-        },
-        payment: {
-          method: paymentMethod,
-          utrNumber: isManualUpi ? utrNumber : null,
-          vpa: isManualUpi ? activeVpa : null,
-          selectedApp: paymentMethod === 'upiApps' ? selectedUpiApp : null,
-          bank: paymentMethod === 'netbanking' ? selectedBank : null,
-          cardLast4: paymentMethod === 'card' ? (cardDetails.number.slice(-4) || '4242') : null,
-          status: isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED'
-        }
-      };
+      const bookingPayload = buildBookingPayload(createdPnr);
 
       const res = await api.createBooking(bookingPayload);
-      if (res.success && res.data) {
-        onBookingSuccess(res.data);
+      if (res.success && (res.data || res.booking)) {
+        onBookingSuccess(res.data || res.booking);
       } else {
         alert(res.message || 'Booking submission failed. Please try again.');
       }

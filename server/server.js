@@ -1588,8 +1588,40 @@ app.post('/api/bookings', (req, res) => {
     const siteSettings = readJSON(SETTINGS_FILE, {});
     const prefix = (siteSettings.bookingPrefix || 'GS').trim().toUpperCase();
     const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    const pnr = `ASG-${randomSuffix}`;
-    const bookingId = `${prefix}${randomSuffix}`;
+    const pnr = req.body.pnr || `ASG-${randomSuffix}`;
+    const bookingId = req.body.bookingId || `${prefix}${randomSuffix}`;
+
+    // Check if booking was already initialized on Step 3 (Continue to Payment)
+    const existingIndex = req.body.pnr 
+      ? bookings.findIndex(b => b.pnr?.toUpperCase() === req.body.pnr?.toUpperCase()) 
+      : -1;
+
+    if (existingIndex !== -1) {
+      bookings[existingIndex] = {
+        ...bookings[existingIndex],
+        ...req.body,
+        fare: {
+          ...bookings[existingIndex].fare,
+          ...(fare || {})
+        },
+        payment: {
+          ...bookings[existingIndex].payment,
+          ...(payment || {}),
+          paidAt: new Date().toISOString()
+        },
+        status: req.body.status || bookings[existingIndex].status || 'CONFIRMED',
+        updatedAt: new Date().toISOString()
+      };
+      writeJSON(BOOKINGS_FILE, bookings);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Flight booking updated successfully!',
+        pnr: bookings[existingIndex].pnr,
+        booking: bookings[existingIndex],
+        data: bookings[existingIndex]
+      });
+    }
 
     const newBooking = {
       pnr,
@@ -1675,7 +1707,8 @@ app.post('/api/bookings', (req, res) => {
       success: true,
       message: 'Flight booked successfully!',
       pnr: pnr,
-      booking: newBooking
+      booking: newBooking,
+      data: newBooking
     });
   } catch (err) {
     console.error('Booking error:', err);
