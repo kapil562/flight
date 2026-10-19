@@ -594,7 +594,10 @@ const generateDynamicFlights = (from, to, date) => {
       mealIncluded: !!slot.meal,
       refundable: true,
       status: 'On-Time',
-      terminal: { from: 'T1D / T3', to: 'T2 / T3' },
+      terminal: {
+        from: (slot.airline === 'Air India' || isIntl) ? 'T3' : (slot.airline === 'IndiGo' ? 'T1' : 'T2'),
+        to: isIntl ? 'T1' : 'T2'
+      },
       source: 'AirSkyGo Real-Time Aviation Engine'
     };
     recentFlightsCache.set(flightObj.id, flightObj);
@@ -722,7 +725,10 @@ const fetchFlightsFromSerper = async (from, to, date, apiKey) => {
         mealIncluded: !!slot.meal,
         refundable: true,
         status: 'On-Time',
-        terminal: { from: 'T1D / T3', to: 'T2 / T3' },
+        terminal: {
+          from: (slot.airline === 'Air India' || isIntl) ? 'T3' : (slot.airline === 'IndiGo' ? 'T1' : 'T2'),
+          to: isIntl ? 'T1' : 'T2'
+        },
         source: 'Google Flights (Live Real-Time)',
         isLivePrice: true
       };

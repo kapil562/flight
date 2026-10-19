@@ -4,6 +4,14 @@ import { Plane, Clock, Luggage, Utensils, ChevronDown, ChevronUp, ShieldCheck, I
 import AirlineBadge from './AirlineBadge';
 import HoldFareModal from './HoldFareModal';
 
+const formatTerminal = (term) => {
+  if (!term) return '';
+  const str = String(term).trim();
+  if (/^T\d/i.test(str)) return str;
+  if (/^\d/.test(str)) return `T${str}`;
+  return str;
+};
+
 export default function FlightCard({ 
   flight, 
   travelClass = 'economy', 
@@ -316,15 +324,15 @@ export default function FlightCard({
                 {activeDetailTab === 'info' && (
                   <div className="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs space-y-2.5 animate-fadeIn">
                     {/* Compact Route Flow & Airline info in 1 sleek strip */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 flex-wrap">
+                      <div className="flex items-center gap-2 min-w-0">
                         <AirlineBadge code={flight.airlineCode} name={flight.airline} showDetails={false} size="sm" />
                         <span className="font-extrabold text-xs text-slate-900">{flight.airline}</span>
-                        <span className="font-mono text-[11px] text-slate-500 font-semibold">{flight.flightNumber}</span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-[11px] text-slate-500 truncate max-w-[140px]">{flight.aircraft || 'Airbus/Boeing'}</span>
+                        <span className="font-mono text-[11px] text-slate-500 font-semibold shrink-0">{flight.flightNumber}</span>
+                        <span className="text-slate-300 shrink-0">•</span>
+                        <span className="text-[11px] text-slate-500 truncate max-w-[120px] sm:max-w-none">{flight.aircraft || 'Airbus/Boeing'}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0 ml-auto">
                         <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 font-extrabold text-[10px] capitalize">
                           {travelClass}
                         </span>
@@ -340,26 +348,34 @@ export default function FlightCard({
                         <div className="text-[11px] font-extrabold text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                            <span>Connecting Flight via <strong>{flight.layoverCity || flight.layoverAirport} ({flight.layoverAirport})</strong></span>
+                            <span>Connecting via <strong>{flight.layoverCity || flight.layoverAirport} ({flight.layoverAirport})</strong></span>
                           </span>
                           <span className="font-mono">{flight.layoverDuration || '1h 30m Layover'}</span>
                         </div>
 
                         {/* Segment 1 */}
-                        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80 space-y-1 text-xs">
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-100 font-semibold">
-                            <span>Flight 1: {flight.segments[0].flightNumber} ({flight.segments[0].airline})</span>
-                            <span>{flight.segments[0].duration}</span>
+                        <div className="bg-slate-50/90 rounded-xl p-2.5 border border-slate-200/80 space-y-1.5 text-xs">
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-200/60 font-semibold">
+                            <span className="font-bold text-slate-800">Flight 1: {flight.segments[0].flightNumber} ({flight.segments[0].airline})</span>
+                            <span className="font-mono text-slate-600 font-bold">{flight.segments[0].duration}</span>
                           </div>
-                          <div className="flex items-center justify-between pt-1">
-                            <div>
-                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].departureTime}</span>
-                              <span className="ml-1.5 font-bold text-slate-700">{flight.segments[0].fromCity} ({flight.segments[0].from})</span>
+                          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 pt-0.5">
+                            <div className="min-w-0">
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].departureTime}</span>
+                                <span className="font-bold text-slate-800 text-xs">{flight.segments[0].from}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 truncate">{flight.segments[0].fromCity}</div>
                             </div>
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                            <div className="text-right">
-                              <span className="mr-1.5 font-bold text-slate-700">{flight.segments[0].toCity} ({flight.segments[0].to})</span>
-                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].arrivalTime}</span>
+                            <div className="flex items-center justify-center px-1">
+                              <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                            </div>
+                            <div className="text-right min-w-0">
+                              <div className="flex items-baseline justify-end gap-1">
+                                <span className="font-bold text-slate-800 text-xs">{flight.segments[0].to}</span>
+                                <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[0].arrivalTime}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 truncate">{flight.segments[0].toCity}</div>
                             </div>
                           </div>
                         </div>
@@ -371,60 +387,108 @@ export default function FlightCard({
                         </div>
 
                         {/* Segment 2 */}
-                        <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/80 space-y-1 text-xs">
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-100 font-semibold">
-                            <span>Flight 2: {flight.segments[1]?.flightNumber || flight.flightNumber} ({flight.segments[1]?.airline || flight.airline})</span>
-                            <span>{flight.segments[1]?.duration || flight.duration}</span>
+                        <div className="bg-slate-50/90 rounded-xl p-2.5 border border-slate-200/80 space-y-1.5 text-xs">
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1 border-b border-slate-200/60 font-semibold">
+                            <span className="font-bold text-slate-800">Flight 2: {flight.segments[1]?.flightNumber || flight.flightNumber} ({flight.segments[1]?.airline || flight.airline})</span>
+                            <span className="font-mono text-slate-600 font-bold">{flight.segments[1]?.duration || flight.duration}</span>
                           </div>
-                          <div className="flex items-center justify-between pt-1">
-                            <div>
-                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.departureTime}</span>
-                              <span className="ml-1.5 font-bold text-slate-700">{flight.segments[1]?.fromCity || flight.layoverCity} ({flight.segments[1]?.from || flight.layoverAirport})</span>
+                          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 pt-0.5">
+                            <div className="min-w-0">
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.departureTime}</span>
+                                <span className="font-bold text-slate-800 text-xs">{flight.segments[1]?.from || flight.layoverAirport}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 truncate">{flight.segments[1]?.fromCity || flight.layoverCity}</div>
                             </div>
-                            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                            <div className="text-right">
-                              <span className="mr-1.5 font-bold text-slate-700">{flight.segments[1]?.toCity || flight.toCity} ({flight.segments[1]?.to || flight.to})</span>
-                              <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.arrivalTime || flight.arrivalTime}</span>
+                            <div className="flex items-center justify-center px-1">
+                              <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                            </div>
+                            <div className="text-right min-w-0">
+                              <div className="flex items-baseline justify-end gap-1">
+                                <span className="font-bold text-slate-800 text-xs">{flight.segments[1]?.to || flight.to}</span>
+                                <span className="font-black text-slate-900 font-mono text-sm">{flight.segments[1]?.arrivalTime || flight.arrivalTime}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-500 truncate">{flight.segments[1]?.toCity || flight.toCity}</div>
                             </div>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      /* Compact Route Strip for Non-stop */
-                      <div className="flex items-center justify-between bg-slate-50/80 rounded-lg px-3 py-2 border border-slate-100 text-xs">
-                        <div>
-                          <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.departureTime}</span>
-                          <span className="ml-1.5 font-bold text-slate-700">{flight.from}</span>
-                          <span className="text-[11px] text-slate-400 ml-1">({flight.terminal?.from ? `T${flight.terminal.from}` : flight.fromCity})</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[11px] text-slate-500 font-semibold px-2">
-                          <span>{flight.duration}</span>
-                          <span className="text-slate-300">•</span>
-                          <span className="text-emerald-700 font-bold">Non-Stop</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[11px] text-slate-400 mr-1">({flight.terminal?.to ? `T${flight.terminal.to}` : flight.toCity})</span>
-                          <span className="mr-1.5 font-bold text-slate-700">{flight.to}</span>
-                          <span className="font-black font-mono text-sm sm:text-base text-slate-900">{flight.arrivalTime}</span>
+                      /* Clean & Responsive Route Strip for Non-stop */
+                      <div className="bg-slate-50/90 rounded-xl p-2.5 sm:p-3 border border-slate-200/70">
+                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                          {/* Departure */}
+                          <div className="min-w-0 text-left">
+                            <div className="flex items-baseline gap-1.5 flex-wrap">
+                              <span className="font-black font-mono text-base sm:text-lg text-slate-900 leading-tight">
+                                {flight.departureTime}
+                              </span>
+                              <span className="font-extrabold text-xs sm:text-sm text-slate-800">
+                                {flight.from}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                              <span>{flight.fromCity}</span>
+                              {flight.terminal?.from && (
+                                <span className="ml-1 text-slate-400 font-semibold">
+                                  • {formatTerminal(flight.terminal.from)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Duration & Non-stop Badge */}
+                          <div className="flex flex-col items-center justify-center px-2 shrink-0">
+                            <span className="text-[10px] font-extrabold text-slate-500 font-mono">
+                              {flight.duration}
+                            </span>
+                            <div className="w-14 sm:w-20 flex items-center justify-center my-0.5 relative">
+                              <div className="w-full h-[1.5px] bg-slate-300"></div>
+                              <Plane className="w-2.5 h-2.5 text-sky-600 absolute left-1/2 -top-1 -translate-x-1/2 rotate-90 bg-slate-50 px-0.5" />
+                            </div>
+                            <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded">
+                              Non-Stop
+                            </span>
+                          </div>
+
+                          {/* Arrival */}
+                          <div className="min-w-0 text-right">
+                            <div className="flex items-baseline justify-end gap-1.5 flex-wrap">
+                              <span className="font-extrabold text-xs sm:text-sm text-slate-800">
+                                {flight.to}
+                              </span>
+                              <span className="font-black font-mono text-base sm:text-lg text-slate-900 leading-tight">
+                                {flight.arrivalTime}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                              <span>{flight.toCity}</span>
+                              {flight.terminal?.to && (
+                                <span className="ml-1 text-slate-400 font-semibold">
+                                  • {formatTerminal(flight.terminal.to)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
 
                     {/* 4 Mini Specification Badges */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700 min-w-0">
                         <Plane className="w-3 h-3 text-sky-600 shrink-0" />
                         <span className="truncate">{flight.aircraft || 'Airbus/Boeing'}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700 min-w-0">
                         <Luggage className="w-3 h-3 text-sky-600 shrink-0" />
-                        <span>Cabin: <strong>7 Kg</strong></span>
+                        <span className="truncate">Cabin: <strong>7 Kg</strong></span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700 min-w-0">
                         <Luggage className="w-3 h-3 text-emerald-600 shrink-0" />
-                        <span>Check-in: <strong>15 Kg</strong></span>
+                        <span className="truncate">Check-in: <strong>15 Kg</strong></span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-slate-700 min-w-0">
                         <Utensils className="w-3 h-3 text-amber-600 shrink-0" />
                         <span className="truncate">{flight.mealIncluded ? 'Free Meal' : 'Meal on purchase'}</span>
                       </div>

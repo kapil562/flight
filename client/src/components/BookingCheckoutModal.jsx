@@ -1232,7 +1232,7 @@ export default function BookingCheckoutModal({
                           {flight.fromCity} ({flight.from})
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1D/T3'}
+                          {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1'}
                         </div>
                       </div>
 
@@ -1264,7 +1264,7 @@ export default function BookingCheckoutModal({
                           {flight.toCity} ({flight.to})
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          Terminal {flight.terminal?.to || 'T2/T3'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
+                          Terminal {flight.terminal?.to || 'T2'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
                         </div>
                       </div>
                     </div>
