@@ -772,36 +772,104 @@ export default function BookingCheckoutModal({
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         {/* Onward Flight Card */}
-                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-1">
+                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-2">
                           <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
                             <span>1. Departure Flight</span>
-                            <span>{flight.departureDate}</span>
+                            <span className="font-mono">{flight.departureDate}</span>
                           </div>
-                          <div className="font-black text-sm text-white flex items-center gap-1.5">
-                            <span>{flight.from}</span>
-                            <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-                            <span>{flight.to}</span>
+
+                          {/* Route & Middle Stop Graphic */}
+                          <div className="flex items-center justify-between gap-1 py-0.5">
+                            <div className="text-left">
+                              <div className="font-black text-sm text-white">{flight.from}</div>
+                              <div className="text-[11px] font-mono text-sky-300 font-bold">{flight.onwardFlight?.departureTime || flight.departureTime}</div>
+                            </div>
+
+                            {/* Middle Stop Line */}
+                            <div className="text-center px-1.5 flex-1 max-w-[130px]">
+                              <div className="text-[9px] text-sky-200/80 font-bold">
+                                {flight.onwardFlight?.duration || '2h 15m'}
+                              </div>
+                              <div className="relative flex items-center justify-center my-0.5">
+                                <div className="w-full h-0.5 bg-sky-400/50"></div>
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-400 -left-0.5"></div>
+                                {flight.onwardFlight?.stops > 0 && (
+                                  <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
+                                )}
+                                <Plane className="w-3 h-3 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400 -right-0.5"></div>
+                              </div>
+                              <div className="text-[9px] font-bold truncate">
+                                {flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops ? (
+                                  <span className="text-emerald-300">Non-Stop</span>
+                                ) : (
+                                  <span className="text-amber-300">
+                                    {flight.onwardFlight?.stops} Stop {flight.onwardFlight?.layoverAirport ? `via ${flight.onwardFlight.layoverAirport}` : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="font-black text-sm text-white">{flight.to}</div>
+                              <div className="text-[11px] font-mono text-sky-300 font-bold">{flight.onwardFlight?.arrivalTime || ''}</div>
+                            </div>
                           </div>
-                          <div className="text-[11px] text-sky-100 flex items-center justify-between pt-1 border-t border-white/10">
-                            <span>{flight.onwardFlight?.airline || flight.airline} ({flight.onwardFlight?.flightNumber || flight.flightNumber})</span>
-                            <span className="font-mono font-bold text-sky-300">{flight.onwardFlight?.departureTime || flight.departureTime} - {flight.onwardFlight?.arrivalTime || ''}</span>
+
+                          <div className="text-[10px] text-sky-100 flex items-center justify-between pt-1 border-t border-white/10">
+                            <span className="truncate">{flight.onwardFlight?.airline || flight.airline} ({flight.onwardFlight?.flightNumber || flight.flightNumber})</span>
+                            <span className="text-sky-300 font-medium">{flight.onwardFlight?.aircraft || 'Aircraft'}</span>
                           </div>
                         </div>
 
                         {/* Return Flight Card */}
-                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-1">
+                        <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-2">
                           <div className="flex items-center justify-between text-[10px] text-indigo-200 uppercase font-black">
                             <span>2. Return Flight</span>
-                            <span>{flight.returnDate}</span>
+                            <span className="font-mono">{flight.returnDate}</span>
                           </div>
-                          <div className="font-black text-sm text-white flex items-center gap-1.5">
-                            <span>{flight.to}</span>
-                            <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-                            <span>{flight.from}</span>
+
+                          {/* Route & Middle Stop Graphic */}
+                          <div className="flex items-center justify-between gap-1 py-0.5">
+                            <div className="text-left">
+                              <div className="font-black text-sm text-white">{flight.to}</div>
+                              <div className="text-[11px] font-mono text-indigo-300 font-bold">{flight.returnFlight?.departureTime || ''}</div>
+                            </div>
+
+                            {/* Middle Stop Line */}
+                            <div className="text-center px-1.5 flex-1 max-w-[130px]">
+                              <div className="text-[9px] text-indigo-200/80 font-bold">
+                                {flight.returnFlight?.duration || '2h 15m'}
+                              </div>
+                              <div className="relative flex items-center justify-center my-0.5">
+                                <div className="w-full h-0.5 bg-indigo-400/50"></div>
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400 -left-0.5"></div>
+                                {flight.returnFlight?.stops > 0 && (
+                                  <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
+                                )}
+                                <Plane className="w-3 h-3 text-indigo-300 rotate-90 bg-slate-900 px-0.5" />
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-400 -right-0.5"></div>
+                              </div>
+                              <div className="text-[9px] font-bold truncate">
+                                {flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops ? (
+                                  <span className="text-emerald-300">Non-Stop</span>
+                                ) : (
+                                  <span className="text-amber-300">
+                                    {flight.returnFlight?.stops} Stop {flight.returnFlight?.layoverAirport ? `via ${flight.returnFlight.layoverAirport}` : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="font-black text-sm text-white">{flight.from}</div>
+                              <div className="text-[11px] font-mono text-indigo-300 font-bold">{flight.returnFlight?.arrivalTime || flight.arrivalTime}</div>
+                            </div>
                           </div>
-                          <div className="text-[11px] text-indigo-100 flex items-center justify-between pt-1 border-t border-white/10">
-                            <span>{flight.returnFlight?.airline || flight.airline} ({flight.returnFlight?.flightNumber || ''})</span>
-                            <span className="font-mono font-bold text-indigo-300">{flight.returnFlight?.departureTime || ''} - {flight.returnFlight?.arrivalTime || flight.arrivalTime}</span>
+
+                          <div className="text-[10px] text-indigo-100 flex items-center justify-between pt-1 border-t border-white/10">
+                            <span className="truncate">{flight.returnFlight?.airline || flight.airline} ({flight.returnFlight?.flightNumber || ''})</span>
+                            <span className="text-indigo-300 font-medium">{flight.returnFlight?.aircraft || 'Aircraft'}</span>
                           </div>
                         </div>
                       </div>
@@ -822,19 +890,48 @@ export default function BookingCheckoutModal({
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
                         {flight.multiCityLegs.map((leg, i) => (
-                          <div key={i} className="bg-white/10 rounded-xl p-2.5 border border-white/15 space-y-1">
+                          <div key={i} className="bg-white/10 rounded-xl p-2.5 border border-white/15 space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
                               <span>Leg {i + 1}</span>
-                              <span>{leg.date}</span>
+                              <span className="font-mono">{leg.date}</span>
                             </div>
-                            <div className="font-bold text-white flex items-center gap-1">
-                              <span>{leg.from}</span>
-                              <ArrowRight className="w-3 h-3 opacity-60" />
-                              <span>{leg.to}</span>
+
+                            <div className="flex items-center justify-between gap-1 py-0.5">
+                              <div className="text-left">
+                                <div className="font-black text-xs text-white">{leg.from}</div>
+                                <div className="text-[10px] font-mono text-sky-300 font-bold">{leg.departureTime}</div>
+                              </div>
+
+                              <div className="text-center px-1 flex-1 max-w-[100px]">
+                                <div className="relative flex items-center justify-center my-0.5">
+                                  <div className="w-full h-0.5 bg-sky-400/50"></div>
+                                  <div className="absolute w-1 h-1 rounded-full bg-sky-400 -left-0.5"></div>
+                                  {leg.stops > 0 && (
+                                    <div className="absolute w-1.5 h-1.5 rounded-full bg-amber-400 border border-slate-950 z-10" />
+                                  )}
+                                  <Plane className="w-2.5 h-2.5 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
+                                  <div className="absolute w-1 h-1 rounded-full bg-indigo-400 -right-0.5"></div>
+                                </div>
+                                <div className="text-[8px] font-bold truncate">
+                                  {leg.stops === 0 || !leg.stops ? (
+                                    <span className="text-emerald-300">Non-Stop</span>
+                                  ) : (
+                                    <span className="text-amber-300">
+                                      {leg.stops} Stop {leg.layoverAirport ? `via ${leg.layoverAirport}` : ''}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="font-black text-xs text-white">{leg.to}</div>
+                                <div className="text-[10px] font-mono text-sky-300 font-bold">{leg.arrivalTime}</div>
+                              </div>
                             </div>
-                            <div className="text-[10px] text-sky-200 flex items-center justify-between pt-1 border-t border-white/10">
+
+                            <div className="text-[9px] text-sky-200 flex items-center justify-between pt-1 border-t border-white/10">
                               <span className="truncate">{leg.airline}</span>
-                              <span className="font-mono font-bold">{leg.departureTime}</span>
+                              <span className="font-mono font-bold">{leg.flightNumber}</span>
                             </div>
                           </div>
                         ))}
