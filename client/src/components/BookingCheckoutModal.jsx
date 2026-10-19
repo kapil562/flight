@@ -159,13 +159,13 @@ export default function BookingCheckoutModal({
       const saved = localStorage.getItem('asg_payment_settings');
       if (saved) {
         const ps = JSON.parse(saved);
-        if (ps.methods?.upiQr !== false) return 'upiQr';
         if (ps.methods?.upiApps !== false) return 'upiApps';
+        if (ps.methods?.upiQr !== false) return 'upiQr';
         if (ps.methods?.card === true) return 'card';
         if (ps.methods?.netBanking === true) return 'netbanking';
       }
     } catch {}
-    return 'upiQr';
+    return 'upiApps';
   });
   const [selectedUpiApp, setSelectedUpiApp] = useState('');
   const [utrNumber, setUtrNumber] = useState('');
@@ -182,16 +182,16 @@ export default function BookingCheckoutModal({
         try { localStorage.setItem('asg_payment_settings', JSON.stringify(res.data)); } catch (e) {}
 
         const m = res.data.methods || {};
-        // Auto select first enabled method if current is not active
+        // Auto select first enabled method (priority: upiApps -> upiQr -> card -> netbanking)
         const isCurrentEnabled = 
-          (paymentMethod === 'upiQr' && m.upiQr !== false) ||
           (paymentMethod === 'upiApps' && m.upiApps !== false) ||
+          (paymentMethod === 'upiQr' && m.upiQr !== false) ||
           (paymentMethod === 'card' && m.card === true) ||
           (paymentMethod === 'netbanking' && m.netBanking === true);
 
         if (!isCurrentEnabled) {
-          if (m.upiQr !== false) setPaymentMethod('upiQr');
-          else if (m.upiApps !== false) setPaymentMethod('upiApps');
+          if (m.upiApps !== false) setPaymentMethod('upiApps');
+          else if (m.upiQr !== false) setPaymentMethod('upiQr');
           else if (m.card === true) setPaymentMethod('card');
           else if (m.netBanking === true) setPaymentMethod('netbanking');
         }
@@ -248,8 +248,8 @@ export default function BookingCheckoutModal({
   const isNetBankingEnabled = !!activeMethods.netBanking;
 
   const paymentTabs = [
-    ...(isUpiQrEnabled ? [{ id: 'upiQr', label: 'UPI QR Code', icon: QrCode, badge: 'Instant' }] : []),
     ...(isUpiAppsEnabled ? [{ id: 'upiApps', label: 'UPI Apps', icon: Smartphone, badge: 'Popular' }] : []),
+    ...(isUpiQrEnabled ? [{ id: 'upiQr', label: 'UPI QR Code', icon: QrCode, badge: 'Instant' }] : []),
     ...(isCardEnabled ? [{ id: 'card', label: 'Credit / Debit', icon: CreditCard }] : []),
     ...(isNetBankingEnabled ? [{ id: 'netbanking', label: 'Net Banking', icon: Building }] : [])
   ];
@@ -729,6 +729,22 @@ export default function BookingCheckoutModal({
     window.open(`https://wa.me/${supportWa}?text=${text}`, '_blank');
   };
 
+  const handleBackFromPayment = () => {
+    if (window.confirm('Are you sure you want to cancel this payment?')) {
+      setStep(3);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (step === 4) {
+      if (window.confirm('Are you sure you want to cancel this payment?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -746,36 +762,43 @@ export default function BookingCheckoutModal({
       >
         {/* Header */}
         <div className="bg-white px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
-            <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5 truncate">
-                <span>
-                  {step === 1 && 'Review Travellers'}
-                  {step === 2 && 'Select Seats & Meals'}
-                  {step === 3 && 'Review Booking & Offers'}
-                  {step === 4 && 'Payment Gateway (Final Step)'}
-                </span>
-                <span className="text-[11px] font-bold text-slate-400">({passengers.length})</span>
-                {discountAmount > 0 && (
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full flex items-center gap-0.5 shrink-0">
-                    <Tag className="w-2.5 h-2.5" />
-                    <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
-                  </span>
-                )}
+          {step === 4 ? (
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                Payment
               </h3>
-              <p className="text-[11px] text-slate-500 font-medium truncate">
-                {flight.isRoundTrip 
-                  ? `Round Trip: ${flight.from} ⇄ ${flight.to} • Departure: ${flight.departureDate} & Return: ${flight.returnDate}`
-                  : flight.isMultiCity
-                    ? `Multi-City Journey (${flight.multiCityLegs?.length || 2} Flights)`
-                    : `${flight.airline} • ${flight.flightNumber} • ${flight.from} ➔ ${flight.to}`}
-              </p>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
+              <div className="min-w-0">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5 truncate">
+                  <span>
+                    {step === 1 && 'Review Travellers'}
+                    {step === 2 && 'Select Seats & Meals'}
+                    {step === 3 && 'Review Booking & Offers'}
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-400">({passengers.length})</span>
+                  {discountAmount > 0 && (
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full flex items-center gap-0.5 shrink-0">
+                      <Tag className="w-2.5 h-2.5" />
+                      <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+                    </span>
+                  )}
+                </h3>
+                <p className="text-[11px] text-slate-500 font-medium truncate">
+                  {flight.isRoundTrip 
+                    ? `Round Trip: ${flight.from} ⇄ ${flight.to} • Departure: ${flight.departureDate} & Return: ${flight.returnDate}`
+                    : flight.isMultiCity
+                      ? `Multi-City Journey (${flight.multiCityLegs?.length || 2} Flights)`
+                      : `${flight.airline} • ${flight.flightNumber} • ${flight.from} ➔ ${flight.to}`}
+                </p>
+              </div>
+            </div>
+          )}
 
           <button
-            onClick={onClose}
+            onClick={handleCloseModal}
             className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
@@ -2541,59 +2564,30 @@ export default function BookingCheckoutModal({
                     const txnRef = `ASG${flight.id || 'FL'}${Date.now().toString().slice(-6)}`;
                     const note = `Flight ${flight.flightNumber || 'Ticket'}`;
                     const upiPayload = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(activeName)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent(note)}&mc=${encodeURIComponent(activeMcc)}&tr=${encodeURIComponent(txnRef)}`;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPayload)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
 
                     return (
-                      <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div className="flex flex-row items-center gap-3">
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div className="flex flex-row items-center justify-center gap-3.5 text-left">
                           {/* QR Box */}
                           <div className="p-1.5 bg-white rounded-lg shadow-xs border border-slate-200 text-center shrink-0">
                             <img
                               src={qrUrl}
                               alt="UPI QR Code"
-                              className="w-20 h-20 sm:w-24 sm:h-24 mx-auto object-contain"
+                              className="w-24 h-24 sm:w-28 sm:h-28 mx-auto object-contain"
                             />
-                            <div className="mt-0.5 text-[10px] sm:text-[11px] font-black text-slate-900 font-mono">
+                            <div className="mt-0.5 text-[11px] font-black text-slate-900 font-mono">
                               ₹{grandTotal.toLocaleString('en-IN')}
                             </div>
                           </div>
 
-                          {/* UPI Instructions & UTR */}
-                          <div className="flex-1 min-w-0 space-y-1.5 text-xs">
-                            <div className="flex items-center justify-between">
-                              <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Scan & Pay</p>
-                              <p className="text-[10px] text-slate-400 font-bold truncate">Any UPI App</p>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 p-1.5 bg-white rounded-lg border border-slate-200 text-xs">
-                              <span className="text-[9px] text-slate-400 font-mono">UPI:</span>
-                              <span className="font-bold text-slate-800 font-mono truncate text-[10px] sm:text-[11px] flex-1">{activeVpa}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  navigator.clipboard?.writeText(activeVpa);
-                                  setCopiedVpa(true);
-                                  setTimeout(() => setCopiedVpa(false), 2000);
-                                }}
-                                className="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[9px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                              >
-                                {copiedVpa ? <Check className="w-2.5 h-2.5 text-emerald-600" /> : <Copy className="w-2.5 h-2.5" />}
-                                <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
-                              </button>
-                            </div>
-
-                            <div>
-                              <label className="block text-[10px] sm:text-[11px] font-bold text-slate-700 mb-0.5">
-                                12-Digit UTR / UPI Ref Number *
-                              </label>
-                              <input
-                                type="text"
-                                maxLength={16}
-                                placeholder="e.g. 423456789012"
-                                value={utrNumber}
-                                onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                              />
+                          {/* UPI Instructions */}
+                          <div className="space-y-1 text-xs">
+                            <p className="font-extrabold text-slate-900 text-xs sm:text-sm">Scan & Pay with Any UPI App</p>
+                            <p className="text-[11px] text-slate-500">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
+                            <div className="pt-1 text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span>Instant Ticket Confirmation</span>
                             </div>
                           </div>
                         </div>
@@ -2649,48 +2643,12 @@ export default function BookingCheckoutModal({
                         </div>
                       )}
 
-                      {/* App Launched Notification / UPI ID copy */}
-                      <div className="space-y-1.5 pt-0.5">
-                        {selectedUpiApp && (
-                          <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-[10px] font-bold flex items-center gap-1.5">
-                            <Check className="w-3 h-3 text-emerald-600 shrink-0" />
-                            <span>Opened {selectedUpiApp}. Enter 12-digit UTR after payment.</span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-1.5 p-1.5 bg-white rounded-lg border border-slate-200 text-xs">
-                          <span className="text-[9px] text-slate-400 font-mono">UPI ID:</span>
-                          <span className="font-bold text-slate-800 font-mono truncate text-[10px] sm:text-[11px] flex-1">
-                            {paymentSettings?.upi?.vpa || 'care@airsky'}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              navigator.clipboard?.writeText(paymentSettings?.upi?.vpa || 'care@airsky');
-                              setCopiedVpa(true);
-                              setTimeout(() => setCopiedVpa(false), 2000);
-                            }}
-                            className="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[9px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                          >
-                            {copiedVpa ? <Check className="w-2.5 h-2.5 text-emerald-600" /> : <Copy className="w-2.5 h-2.5" />}
-                            <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
-                          </button>
+                      {selectedUpiApp && (
+                        <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-[10px] font-bold flex items-center gap-1.5 animate-fadeIn">
+                          <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>Opened {selectedUpiApp}. Approve payment in app and confirm below.</span>
                         </div>
-
-                        <div>
-                          <label className="block text-[10px] sm:text-[11px] font-bold text-slate-700 mb-0.5">
-                            12-Digit UTR / UPI Ref Number *
-                          </label>
-                          <input
-                            type="text"
-                            maxLength={16}
-                            placeholder="e.g. 423456789012"
-                            value={utrNumber}
-                            onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
-                          />
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
 
@@ -2775,7 +2733,11 @@ export default function BookingCheckoutModal({
                     </div>
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to cancel this payment?')) {
+                          setStep(2);
+                        }
+                      }}
                       className="text-sky-600 hover:text-sky-700 font-bold ml-1 shrink-0 cursor-pointer"
                     >
                       Seats
@@ -2806,7 +2768,7 @@ export default function BookingCheckoutModal({
                     <div className="flex items-center justify-between text-[10px] px-1 text-slate-500">
                       <button
                         type="button"
-                        onClick={() => setStep(3)}
+                        onClick={handleBackFromPayment}
                         className="hover:text-slate-800 font-bold flex items-center gap-1 cursor-pointer"
                       >
                         <ArrowLeft className="w-3 h-3" />
@@ -2925,7 +2887,7 @@ export default function BookingCheckoutModal({
                   {/* Secondary Back Button */}
                   <button
                     type="button"
-                    onClick={() => setStep(3)}
+                    onClick={handleBackFromPayment}
                     className="w-full py-1 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <ArrowLeft className="w-3 h-3" />
