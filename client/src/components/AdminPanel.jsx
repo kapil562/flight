@@ -1297,11 +1297,13 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               b.status === 'CONFIRMED'
                                 ? 'bg-emerald-100 text-emerald-800'
-                                : b.status === 'VERIFICATION_PENDING'
+                                : b.status === 'PENDING'
                                 ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                : b.status === 'VERIFICATION_PENDING'
+                                ? 'bg-orange-100 text-orange-900 border border-orange-300'
                                 : 'bg-rose-100 text-rose-800'
                             }`}>
-                              {b.status === 'VERIFICATION_PENDING' ? '⏳ Verification Pending' : b.status}
+                              {b.status === 'VERIFICATION_PENDING' ? '⏳ Verification Pending' : b.status === 'PENDING' ? '⏳ PENDING' : b.status}
                             </span>
                             {b.status === 'VERIFICATION_PENDING' && (
                               <button
@@ -1320,6 +1322,7 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                               onChange={(e) => handleUpdateBookingStatus(b.pnr, e.target.value)}
                               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 cursor-pointer"
                             >
+                              <option value="PENDING">PENDING</option>
                               <option value="CONFIRMED">CONFIRMED</option>
                               <option value="VERIFICATION_PENDING">VERIFICATION_PENDING</option>
                               <option value="CANCELLED">CANCELLED</option>

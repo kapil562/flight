@@ -1656,12 +1656,12 @@ app.post('/api/bookings', (req, res) => {
         method: payment.method || 'UPI',
         transactionId: payment.transactionId || `TXN_${Date.now()}`,
         utrNumber: payment.utrNumber || null,
-        status: payment.status || (req.body.status === 'VERIFICATION_PENDING' ? 'Verification Pending' : 'Paid'),
-        paidAt: new Date().toISOString(),
+        status: payment.status || (req.body.status === 'PENDING' ? 'PENDING' : req.body.status === 'VERIFICATION_PENDING' ? 'VERIFICATION_PENDING' : 'Paid'),
+        paidAt: req.body.status === 'PENDING' ? null : new Date().toISOString(),
         paidToVpa: payment.paidToVpa || null
       },
-      checkInStatus: req.body.status === 'VERIFICATION_PENDING' ? 'Pending Verification' : 'Eligible',
-      status: req.body.status || 'CONFIRMED',
+      checkInStatus: req.body.status === 'PENDING' ? 'Payment Pending' : req.body.status === 'VERIFICATION_PENDING' ? 'Pending Verification' : 'Eligible',
+      status: req.body.status || 'PENDING',
       createdAt: new Date().toISOString()
     };
 

@@ -738,18 +738,18 @@ export default function BookingCheckoutModal({
 
   // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
   const handleProceedToPayment = () => {
-    // Generate upfront PNR so entry immediately logs in Admin Console
+    // Generate upfront PNR so entry immediately logs in Admin Console as PENDING
     const pnrToUse = createdPnr || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
     if (!createdPnr) {
       setCreatedPnr(pnrToUse);
     }
 
-    // Immediately create booking lead entry in Admin
+    // Immediately create booking lead entry in Admin with PENDING status
     try {
       const initialPayload = buildBookingPayload(pnrToUse, {
         method: paymentMethod || 'upiApps',
-        status: 'VERIFICATION_PENDING'
-      }, 'CONFIRMED');
+        status: 'PENDING'
+      }, 'PENDING');
       api.createBooking(initialPayload).then(res => {
         if (res?.data?.pnr || res?.pnr) {
           setCreatedPnr(res?.data?.pnr || res?.pnr);
@@ -769,7 +769,12 @@ export default function BookingCheckoutModal({
     setIsProcessing(true);
 
     try {
-      const bookingPayload = buildBookingPayload(createdPnr);
+      const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
+      const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
+      const bookingPayload = buildBookingPayload(createdPnr, {
+        method: paymentMethod,
+        status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID'
+      }, finalStatus);
 
       const res = await api.createBooking(bookingPayload);
       if (res.success && (res.data || res.booking)) {
