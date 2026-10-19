@@ -21,6 +21,7 @@ import OffersSection from './components/OffersSection';
 import WhyBookSection from './components/WhyBookSection';
 import BottomNav from './components/BottomNav';
 import AuthModal from './components/AuthModal';
+import UserProfileModal from './components/UserProfileModal';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
@@ -80,6 +81,7 @@ function MainWebsite() {
   const [checkoutModalData, setCheckoutModalData] = useState(null);
   const [ticketModalBooking, setTicketModalBooking] = useState(null);
   const [myBookingsOpen, setMyBookingsOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [brand, setBrand] = useState(() => {
     try {
       const saved = localStorage.getItem('asg_brand');
@@ -400,6 +402,7 @@ function MainWebsite() {
         onOpenQuickPnr={() => setQuickPnrOpen(true)}
         onOpenWebCheckIn={() => setWebCheckInOpen(true)}
         onOpenMyBookings={() => setMyBookingsOpen(true)}
+        onOpenManageProfile={() => setProfileModalOpen(true)}
         onOpenAuth={() => setAuthModalOpen(true)}
         currentUser={currentUser}
         onLogout={handleLogout}
@@ -505,6 +508,7 @@ function MainWebsite() {
         activeService={activeService}
         onSelectService={setActiveService}
         onOpenMyBookings={() => setMyBookingsOpen(true)}
+        onOpenManageProfile={() => setProfileModalOpen(true)}
         onOpenAuth={() => setAuthModalOpen(true)}
         currentUser={currentUser}
         settings={settings}
@@ -589,7 +593,22 @@ function MainWebsite() {
           />
         )}
 
-        {/* MODAL 5: Animated Aviation Login / Sign Up */}
+        {/* MODAL 5: Manage Profile */}
+        {profileModalOpen && (
+          <UserProfileModal
+            key="profile-modal"
+            currentUser={currentUser}
+            onClose={() => setProfileModalOpen(false)}
+            onUpdateUser={(updated) => setCurrentUser(updated)}
+            onOpenMyBookings={() => {
+              setProfileModalOpen(false);
+              setMyBookingsOpen(true);
+            }}
+            onLogout={handleLogout}
+          />
+        )}
+
+        {/* MODAL 6: Animated Aviation Login / Sign Up */}
         {authModalOpen && (
           <AuthModal
             key="auth-modal"

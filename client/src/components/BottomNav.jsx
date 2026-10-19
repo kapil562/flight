@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Plane, Building2, Palmtree, Ticket, User } from 'lucide-react';
 
-export default function BottomNav({ activeService, onSelectService, onOpenMyBookings, onOpenAuth, currentUser, settings = null, brand = null }) {
+export default function BottomNav({ activeService, onSelectService, onOpenMyBookings, onOpenManageProfile, onOpenAuth, currentUser, settings = null, brand = null }) {
   const enabledConfig = {
     flights: true,
     hotels: true,
@@ -49,7 +49,7 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
       id: 'profile',
       label: currentUser ? (currentUser.name ? currentUser.name.split(' ')[0] : 'Profile') : 'Login',
       icon: User,
-      action: currentUser ? onOpenMyBookings : onOpenAuth,
+      action: currentUser ? (onOpenManageProfile || onOpenMyBookings) : onOpenAuth,
       isUser: !!currentUser
     }
   ];

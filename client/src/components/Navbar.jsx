@@ -9,6 +9,7 @@ export default function Navbar({
   onOpenQuickPnr,
   onOpenWebCheckIn,
   onOpenMyBookings,
+  onOpenManageProfile,
   onOpenAuth,
   currentUser,
   onLogout,
@@ -281,47 +282,32 @@ export default function Navbar({
                         </div>
                       </div>
 
-                      <div className="p-1 space-y-0.5">
+                      <div className="p-1.5 space-y-1">
+                        <button
+                          type="button"
+                          onClick={() => { if (onOpenManageProfile) onOpenManageProfile(); setUserDropdownOpen(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 text-sky-600" />
+                          <span>Manage Profile</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => { onOpenMyBookings(); setUserDropdownOpen(false); }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
                         >
                           <Ticket className="w-4 h-4 text-emerald-600" />
-                          <span>My Bookings & Tickets</span>
+                          <span>Manage Booking</span>
                         </button>
 
-                        {enabledServices.pnr !== false && (
-                          <button
-                            type="button"
-                            onClick={() => { onOpenQuickPnr(); setUserDropdownOpen(false); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
-                          >
-                            <Search className="w-4 h-4 text-amber-500" />
-                            <span>Instant PNR Status</span>
-                          </button>
-                        )}
-
-                        {enabledServices.checkin !== false && (
-                          <button
-                            type="button"
-                            onClick={() => { onOpenWebCheckIn(); setUserDropdownOpen(false); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
-                          >
-                            <CheckSquare className="w-4 h-4 text-sky-600" />
-                            <span>Web Check-In Hub</span>
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="p-1 border-t border-slate-100">
                         <button
                           type="button"
                           onClick={() => { if (onLogout) onLogout(); setUserDropdownOpen(false); }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                         >
-                          <LogOut className="w-4 h-4" />
-                          <span>Sign Out</span>
+                          <LogOut className="w-4 h-4 text-rose-600" />
+                          <span>Logout</span>
                         </button>
                       </div>
                     </motion.div>
@@ -385,11 +371,20 @@ export default function Navbar({
                       <div className="p-1 space-y-0.5">
                         <button
                           type="button"
+                          onClick={() => { if (onOpenManageProfile) onOpenManageProfile(); setMobileUserDropdownOpen(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <User className="w-3.5 h-3.5 text-sky-600" />
+                          <span>Manage Profile</span>
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={() => { onOpenMyBookings(); setMobileUserDropdownOpen(false); }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
                         >
                           <Ticket className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>My Bookings & Tickets</span>
+                          <span>Manage Booking</span>
                         </button>
 
                         <button
