@@ -440,6 +440,17 @@ function MainWebsite() {
         brand={brand}
       />
 
+      {/* Mobile Sticky Bottom Navigation Bar (Flights, Hotels, Holidays, My Trips, Login) */}
+      <BottomNav
+        activeService={activeService}
+        onSelectService={setActiveService}
+        onOpenMyBookings={() => setMyBookingsOpen(true)}
+        onOpenAuth={() => setAuthModalOpen(true)}
+        currentUser={currentUser}
+        settings={settings}
+        brand={brand}
+      />
+
 
       <AnimatePresence>
         {/* Quick PNR Checker Modal */}
