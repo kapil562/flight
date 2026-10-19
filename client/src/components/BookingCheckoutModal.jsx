@@ -1840,15 +1840,9 @@ export default function BookingCheckoutModal({
                     </div>
 
                     {/* Contact Summary Info */}
-                    <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
-                      <div className="flex items-center gap-3">
-                        <span>📱 <strong>Mobile:</strong> +91 {contact.phone}</span>
-                        <span>✉️ <strong>Email:</strong> {contact.email}</span>
-                      </div>
-                      <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        E-Ticket & PNR will be sent via SMS / WhatsApp & Email
-                      </span>
+                    <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-600 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
+                      <span>📱 <strong>Mobile:</strong> +91 {contact.phone}</span>
+                      <span>✉️ <strong>Email:</strong> {contact.email}</span>
                     </div>
                   </div>
 
@@ -2386,121 +2380,7 @@ export default function BookingCheckoutModal({
             {/* Right Column: Fare Breakup & PromoSuggestions */}
             <div className="lg:col-span-4 space-y-4">
               
-              {/* PromoSuggestions Box (Hidden on Step 1 Travellers and Step 2 Seats, only shown on Step 3 Overview & Offers & Step 4 Payment) */}
-              {step >= 3 && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900">
-                      <Tag className="w-4 h-4 text-emerald-600" />
-                      <span>Promo & Coupon Offers</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
-                      Tap to apply
-                    </span>
-                  </div>
 
-                  {/* Promo Code Input & Apply / Remove Buttons */}
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Enter promo code"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold uppercase focus:ring-2 focus:ring-sky-500 outline-none"
-                    />
-                    {discountAmount > 0 ? (
-                      <button
-                        type="button"
-                        onClick={handleRemovePromo}
-                        className="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition-colors cursor-pointer border border-rose-200"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={applyingCoupon || !couponCode}
-                        onClick={() => handleApplyPromo()}
-                        className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                      >
-                        {applyingCoupon ? 'Checking...' : 'Apply'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Success or Error Feedback */}
-                  {couponMsg && (
-                    <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span>{couponMsg}</span>
-                    </div>
-                  )}
-                  {couponError && (
-                    <div className="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                      <span>{couponError}</span>
-                    </div>
-                  )}
-
-                  {/* Clickable PromoSuggestions Cards */}
-                  <div className="space-y-2 pt-2 border-t border-slate-100">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Available Offers — Tap to Apply
-                    </div>
-
-                    <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
-                      {(availableCoupons.length > 0 ? availableCoupons : [
-                        { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 3000, description: 'Flat ₹500 off on any flight' },
-                        { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500' },
-                        { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount' },
-                        { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight' }
-                      ]).map(c => {
-                        const isApplied = couponCode.toUpperCase() === c.code.toUpperCase() && discountAmount > 0;
-                        return (
-                          <div
-                            key={c.code}
-                            onClick={() => !isApplied && handleApplyPromo(c.code)}
-                            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
-                              isApplied
-                                ? 'bg-emerald-50 border-emerald-400 ring-1 ring-emerald-400'
-                                : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100/80 hover:border-slate-300'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-mono font-black text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
-                                  {c.code}
-                                </span>
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.2 rounded">
-                                  {c.type === 'percent' ? `${c.discount}% OFF` : `₹${c.discount} OFF`}
-                                </span>
-                              </div>
-
-                              <button
-                                type="button"
-                                className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                                  isApplied
-                                    ? 'bg-emerald-600 text-white'
-                                    : 'text-sky-600 hover:text-sky-700'
-                                }`}
-                              >
-                                {isApplied ? 'Applied ✓' : 'Apply'}
-                              </button>
-                            </div>
-
-                            <p className="text-[10px] text-slate-500 mt-1 line-clamp-1">{c.description}</p>
-                            {c.minAmount && (
-                              <div className="text-[9px] text-slate-400 mt-0.5 font-mono">
-                                Min booking amount: ₹{c.minAmount.toLocaleString('en-IN')}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Detailed Fare Summary */}
               <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3">
