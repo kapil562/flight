@@ -101,13 +101,6 @@ export default function CustomDatePicker({
       const isSelected = value === dateStr;
       const isToday = dateStr === todayStr;
 
-      // Realistic mock lowest fare generation (deterministic by date & route)
-      const dayNum = dateObj.getDay();
-      let baseFare = 3850 + ((day * 137 + viewMonth * 97) % 1650);
-      if (dayNum === 2 || dayNum === 3) baseFare -= 450; // Cheaper on Tue / Wed
-      if (dayNum === 0 || dayNum === 5) baseFare += 550; // Weekend peak
-      const isLowest = baseFare <= 4100 && !isPast;
-
       days.push({
         empty: false,
         key: dateStr,
@@ -116,9 +109,7 @@ export default function CustomDatePicker({
         dateObj,
         isPast,
         isSelected,
-        isToday,
-        isLowest,
-        fare: isPast ? null : baseFare
+        isToday
       });
     }
 
@@ -357,17 +348,6 @@ export default function CustomDatePicker({
                 </div>
               </div>
 
-              {/* Lowest Fare Banner */}
-              <div className="px-3.5 py-1.5 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between text-[11px] font-bold text-emerald-800">
-                <div className="flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Green fares indicate cheapest dates</span>
-                </div>
-                <span className="text-[10px] uppercase font-mono bg-emerald-200/60 px-1.5 py-0.5 rounded text-emerald-900">
-                  Save ₹₹
-                </span>
-              </div>
-
               {/* Calendar Grid Container */}
               <div className="p-3 sm:p-4">
                 {/* Weekday Row */}
@@ -388,12 +368,11 @@ export default function CustomDatePicker({
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((day) => {
                     if (day.empty) {
-                      return <div key={day.key} className="h-11 sm:h-12 md:h-13" />;
+                      return <div key={day.key} className="h-9 sm:h-10 md:h-11" />;
                     }
 
                     const isPast = day.isPast;
                     const isSelected = day.isSelected;
-                    const isLowest = day.isLowest;
 
                     return (
                       <button
@@ -401,35 +380,21 @@ export default function CustomDatePicker({
                         type="button"
                         disabled={isPast}
                         onClick={() => handleSelectDay(day)}
-                        className={`h-11 sm:h-12 md:h-13 rounded-xl flex flex-col items-center justify-center transition-all relative text-center select-none cursor-pointer ${
+                        className={`h-9 sm:h-10 md:h-11 rounded-xl flex items-center justify-center transition-all relative text-center select-none cursor-pointer ${
                           isSelected
                             ? 'bg-sky-600 text-white shadow-md font-black scale-105 z-10 ring-2 ring-sky-300'
                             : isPast
                             ? 'text-slate-300 bg-slate-50/50 cursor-not-allowed opacity-50'
-                            : isLowest
-                            ? 'bg-emerald-50/80 hover:bg-emerald-100 text-slate-800 border border-emerald-200 hover:border-emerald-400'
-                            : 'hover:bg-sky-50 text-slate-700 hover:text-sky-700'
+                            : day.isToday
+                            ? 'bg-sky-50 text-sky-700 font-extrabold border border-sky-300 hover:bg-sky-100'
+                            : 'hover:bg-slate-100 text-slate-700 hover:text-slate-900 font-bold'
                         }`}
                       >
-                        <span className={`text-xs sm:text-sm md:text-base font-bold leading-none ${
-                          isSelected ? 'text-white' : isPast ? 'text-slate-300' : 'text-slate-800'
+                        <span className={`text-xs sm:text-sm md:text-base font-bold ${
+                          isSelected ? 'text-white' : isPast ? 'text-slate-300' : day.isToday ? 'text-sky-700' : 'text-slate-800'
                         }`}>
                           {day.dayNumber}
                         </span>
-
-                        {!isPast && day.fare && (
-                          <span className={`text-[9px] sm:text-[10px] font-extrabold leading-none mt-1 tracking-tight ${
-                            isSelected
-                              ? 'text-sky-100'
-                              : isLowest
-                              ? 'text-emerald-700 font-black'
-                              : 'text-slate-400'
-                          }`}>
-                            ₹{Math.round(day.fare / 100) * 100 > 999 
-                              ? `${(day.fare / 1000).toFixed(1)}k` 
-                              : day.fare}
-                          </span>
-                        )}
 
                         {day.isToday && !isSelected && (
                           <span className="w-1.5 h-1.5 rounded-full bg-sky-500 absolute top-1 right-1" />
