@@ -32,14 +32,10 @@ export default function AdminApiSettings({ onNavigateTab }) {
   // Password visibility toggles
   const [showSerpApiKey, setShowSerpApiKey] = useState(false);
   const [showRzpSecret, setShowRzpSecret] = useState(false);
-  const [showSerperKey, setShowSerperKey] = useState(false);
-  const [showAmadeusSecret, setShowAmadeusSecret] = useState(false);
 
   // Test states
   const [testingSerpApi, setTestingSerpApi] = useState(false);
   const [serpApiTestResult, setSerpApiTestResult] = useState(null);
-  const [testingSerper, setTestingSerper] = useState(false);
-  const [serperTestResult, setSerperTestResult] = useState(null);
 
   // Main Form State
   const [form, setForm] = useState({
@@ -68,25 +64,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
       legalName: 'Air Sky Travels Private Limited',
       companyGstin: '07ABCCS8601B1ZP'
     },
-    // 5. Our Extra APIs ("apna wala extra")
-    activeProvider: 'serper',
-    serper: {
-      apiKey: '',
-      enabled: true,
-      status: 'Active (Live Google Search)'
-    },
-    amadeus: {
-      clientId: '',
-      clientSecret: '',
-      environment: 'test',
-      enabled: false,
-      status: 'Not Configured'
-    },
-    aviationStack: {
-      accessKey: '',
-      enabled: false,
-      status: 'Not Configured'
-    }
+    activeProvider: 'serpapi'
   });
 
   // Fetch initial API settings
@@ -119,24 +97,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
             legalName: res.data.general?.legalName || 'Air Sky Travels Private Limited',
             companyGstin: res.data.general?.companyGstin || '07ABCCS8601B1ZP'
           },
-          activeProvider: res.data.activeProvider || 'serper',
-          serper: {
-            apiKey: res.data.serper?.apiKey || '',
-            enabled: res.data.serper?.enabled !== false,
-            status: res.data.serper?.status || 'Active (Live Google Search)'
-          },
-          amadeus: {
-            clientId: res.data.amadeus?.clientId || '',
-            clientSecret: res.data.amadeus?.clientSecret || '',
-            environment: res.data.amadeus?.environment || 'test',
-            enabled: !!res.data.amadeus?.enabled,
-            status: res.data.amadeus?.status || 'Not Configured'
-          },
-          aviationStack: {
-            accessKey: res.data.aviationStack?.accessKey || '',
-            enabled: !!res.data.aviationStack?.enabled,
-            status: res.data.aviationStack?.status || 'Not Configured'
-          }
+          activeProvider: res.data.activeProvider || 'serpapi'
         }));
       }
     } catch (err) {
@@ -164,10 +125,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
         razorpay: form.razorpay,
         upi: form.upi,
         general: form.general,
-        activeProvider: form.activeProvider,
-        serper: form.serper,
-        amadeus: form.amadeus,
-        aviationStack: form.aviationStack
+        activeProvider: form.activeProvider
       };
 
       const res = await api.updateApiSettings(payload);
@@ -222,37 +180,6 @@ export default function AdminApiSettings({ onNavigateTab }) {
       });
     } finally {
       setTestingSerpApi(false);
-    }
-  };
-
-  // Test Serper Key
-  const handleTestSerper = async () => {
-    if (!form.serper.apiKey.trim()) {
-      alert('Please enter a Serper API key first to test.');
-      return;
-    }
-    setTestingSerper(true);
-    setSerperTestResult(null);
-    try {
-      const res = await api.testSerperApiKey(form.serper.apiKey.trim());
-      if (res.success) {
-        setSerperTestResult({
-          success: true,
-          message: `${res.message} (Credits remaining: ${res.credits})`
-        });
-      } else {
-        setSerperTestResult({
-          success: false,
-          message: res.message || 'Serper API test failed'
-        });
-      }
-    } catch (err) {
-      setSerperTestResult({
-        success: false,
-        message: 'Could not connect to Serper testing service'
-      });
-    } finally {
-      setTestingSerper(false);
     }
   };
 
@@ -345,18 +272,46 @@ export default function AdminApiSettings({ onNavigateTab }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* 1. Local Engine */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* 1. SerpApi Google Flights (Primary) */}
+          <div
+            onClick={() => setForm({ ...form, activeProvider: 'serpapi' })}
+            className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+              form.activeProvider === 'serpapi'
+                ? 'bg-orange-600/30 border-orange-400 ring-2 ring-orange-400/50'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-[10px] text-orange-400 uppercase tracking-wider">Live Google Flights</span>
+              <input
+                type="radio"
+                name="primary_provider"
+                checked={form.activeProvider === 'serpapi'}
+                onChange={() => setForm({ ...form, activeProvider: 'serpapi' })}
+                className="accent-orange-500"
+              />
+            </div>
+            <div className="font-extrabold text-sm text-white flex items-center gap-1.5">
+              SerpApi Google Flights
+              <span className="text-[9px] bg-orange-500/30 text-orange-300 px-1.5 py-0.2 rounded font-black">ACTIVE</span>
+            </div>
+            <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
+              Official Google Flights live queries via SerpApi. Returns real-time airline fares, exact schedules &amp; flight numbers.
+            </p>
+          </div>
+
+          {/* 2. Local Aviation Engine (Fallback) */}
           <div
             onClick={() => setForm({ ...form, activeProvider: 'local' })}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+            className={`p-5 rounded-2xl border cursor-pointer transition-all ${
               form.activeProvider === 'local'
                 ? 'bg-indigo-600/30 border-indigo-400 ring-2 ring-indigo-400/50'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-[10px] text-indigo-300 uppercase tracking-wider">Fastest &amp; Offline</span>
+              <span className="font-bold text-[10px] text-indigo-300 uppercase tracking-wider">Offline &amp; Fast</span>
               <input
                 type="radio"
                 name="primary_provider"
@@ -367,88 +322,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
             </div>
             <div className="font-extrabold text-sm text-white">Local Aviation Engine</div>
             <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
-              Instant high-speed flight results from your custom database. Zero external API limits.
-            </p>
-          </div>
-
-          {/* 2. SerpApi Google Flights */}
-          <div
-            onClick={() => setForm({ ...form, activeProvider: 'serpapi' })}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-              form.activeProvider === 'serpapi'
-                ? 'bg-orange-600/30 border-orange-400 ring-2 ring-orange-400/50'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-[10px] text-orange-400 uppercase tracking-wider">Google Flights</span>
-              <input
-                type="radio"
-                name="primary_provider"
-                checked={form.activeProvider === 'serpapi'}
-                onChange={() => setForm({ ...form, activeProvider: 'serpapi' })}
-                className="accent-orange-500"
-              />
-            </div>
-            <div className="font-extrabold text-sm text-white flex items-center gap-1.5">
-              SerpApi Flights
-              <span className="text-[9px] bg-orange-500/30 text-orange-300 px-1.5 py-0.2 rounded font-black">AIR SKY</span>
-            </div>
-            <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
-              Official Google Flights scraper via SerpApi. Queries live airline fares and schedules.
-            </p>
-          </div>
-
-          {/* 3. Serper Google Search */}
-          <div
-            onClick={() => setForm({ ...form, activeProvider: 'serper' })}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-              form.activeProvider === 'serper'
-                ? 'bg-emerald-600/30 border-emerald-400 ring-2 ring-emerald-400/50'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-[10px] text-emerald-400 uppercase tracking-wider">Live Search + Hotels</span>
-              <input
-                type="radio"
-                name="primary_provider"
-                checked={form.activeProvider === 'serper'}
-                onChange={() => setForm({ ...form, activeProvider: 'serper' })}
-                className="accent-emerald-500"
-              />
-            </div>
-            <div className="font-extrabold text-sm text-white flex items-center gap-1.5">
-              Google Serper
-              <span className="text-[9px] bg-emerald-500/30 text-emerald-300 px-1.5 py-0.2 rounded font-black">ACTIVE</span>
-            </div>
-            <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
-              Live Google Search results for flights + Google Places real hotel live aggregator.
-            </p>
-          </div>
-
-          {/* 4. Amadeus GDS */}
-          <div
-            onClick={() => setForm({ ...form, activeProvider: 'amadeus' })}
-            className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-              form.activeProvider === 'amadeus'
-                ? 'bg-amber-600/30 border-amber-400 ring-2 ring-amber-400/50'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-[10px] text-amber-300 uppercase tracking-wider">Airline GDS</span>
-              <input
-                type="radio"
-                name="primary_provider"
-                checked={form.activeProvider === 'amadeus'}
-                onChange={() => setForm({ ...form, activeProvider: 'amadeus' })}
-                className="accent-amber-500"
-              />
-            </div>
-            <div className="font-extrabold text-sm text-white">Amadeus Flight API</div>
-            <p className="text-slate-300 text-[11px] mt-1 leading-relaxed">
-              Global commercial airline reservation GDS network for verified real flight inventories.
+              Custom database flight routes and realistic scheduled inventory when offline or if API search limits are exhausted.
             </p>
           </div>
         </div>
@@ -827,250 +701,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
 
       </div>
 
-      {/* EXTRA APIS SECTION ("apna wala extra jo bhi ha") */}
-      <div className="bg-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-lg border border-slate-800">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-800">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold mb-2">
-              <Cpu className="w-3.5 h-3.5" />
-              Advanced Flight Aggregation &amp; Hotel Places APIs
-            </div>
-            <h3 className="font-extrabold text-white text-lg">
-              Additional Connected APIs (Serper Live Search, Hotels &amp; Commercial GDS)
-            </h3>
-            <p className="text-slate-400 text-xs mt-1">
-              Connect external search feeds to power live flight web crawling and Google Places real hotel inventories.
-            </p>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* 1. Google Serper API */}
-          <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 font-black flex items-center justify-center text-sm border border-emerald-500/30">
-                    G
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-white text-sm">Google Serper API</h5>
-                    <span className="text-[10px] text-slate-400">Flights &amp; Google Hotels</span>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.serper.enabled}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        serper: { ...form.serper, enabled: e.target.checked }
-                      })
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-                </label>
-              </div>
-
-              <div className="mb-3">
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">API Key</label>
-                <div className="relative flex items-center">
-                  <input
-                    type={showSerperKey ? 'text' : 'password'}
-                    placeholder="Enter Serper API Key"
-                    value={form.serper.apiKey}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        serper: { ...form.serper, apiKey: e.target.value }
-                      })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono text-white focus:outline-hidden focus:border-emerald-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowSerperKey(!showSerperKey)}
-                    className="absolute right-2.5 text-slate-400 hover:text-white"
-                  >
-                    {showSerperKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleTestSerper}
-                disabled={testingSerper}
-                className="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                {testingSerper ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    Testing Connection...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Test Live Connection
-                  </>
-                )}
-              </button>
-
-              {serperTestResult && (
-                <p
-                  className={`text-[10px] font-bold mt-2 ${
-                    serperTestResult.success ? 'text-emerald-400' : 'text-rose-400'
-                  }`}
-                >
-                  {serperTestResult.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* 2. Amadeus Flight API */}
-          <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center text-sm border border-amber-500/30">
-                    A
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-white text-sm">Amadeus Flight API</h5>
-                    <span className="text-[10px] text-slate-400">Commercial GDS Network</span>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.amadeus.enabled}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        amadeus: { ...form.amadeus, enabled: e.target.checked }
-                      })
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                </label>
-              </div>
-
-              <div className="space-y-2 mb-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Client ID</label>
-                  <input
-                    type="text"
-                    placeholder="Amadeus Client ID"
-                    value={form.amadeus.clientId}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        amadeus: { ...form.amadeus, clientId: e.target.value }
-                      })
-                    }
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono text-white focus:outline-hidden focus:border-amber-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Client Secret</label>
-                  <div className="relative flex items-center">
-                    <input
-                      type={showAmadeusSecret ? 'text' : 'password'}
-                      placeholder="Amadeus Client Secret"
-                      value={form.amadeus.clientSecret}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          amadeus: { ...form.amadeus, clientSecret: e.target.value }
-                        })
-                      }
-                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono text-white focus:outline-hidden focus:border-amber-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowAmadeusSecret(!showAmadeusSecret)}
-                      className="absolute right-2.5 text-slate-400 hover:text-white"
-                    >
-                      {showAmadeusSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Environment</label>
-                  <select
-                    value={form.amadeus.environment}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        amadeus: { ...form.amadeus, environment: e.target.value }
-                      })
-                    }
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-hidden focus:border-amber-500"
-                  >
-                    <option value="test">Sandbox / Test</option>
-                    <option value="production">Live Production</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 3. AviationStack Flight Radar */}
-          <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 font-black flex items-center justify-center text-sm border border-sky-500/30">
-                    <Plane className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-white text-sm">AviationStack Radar</h5>
-                    <span className="text-[10px] text-slate-400">Live Aircraft GPS Radar</span>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.aviationStack.enabled}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        aviationStack: { ...form.aviationStack, enabled: e.target.checked }
-                      })
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
-                </label>
-              </div>
-
-              <div className="mb-3">
-                <label className="block text-[11px] font-bold text-slate-300 mb-1">Access Key</label>
-                <input
-                  type="password"
-                  placeholder="Enter AviationStack Access Key"
-                  value={form.aviationStack.accessKey}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      aviationStack: { ...form.aviationStack, accessKey: e.target.value }
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono text-white focus:outline-hidden focus:border-sky-500"
-                />
-              </div>
-
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-700 text-slate-400 text-[11px] leading-relaxed">
-                Connects to international flight tracking transponders for live arrival, departure, and altitude status.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* BOTTOM STICKY/FINAL SAVE BUTTON (Matching Reference) */}
       <div className="pt-2">

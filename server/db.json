@@ -2521,33 +2521,131 @@
     }
   ],
   "apis": {
-    "activeProvider": "serper",
-    "serper": {
-      "apiKey": "d30af7862151eb32682499f5604c67e3045121b8",
-      "enabled": true,
-      "engine": "google_search",
-      "status": "Active (Google Real-Time Search & Live Fares)"
-    },
-    "amadeus": {
-      "clientId": "",
-      "clientSecret": "",
-      "environment": "test",
-      "enabled": false,
-      "status": "Not Configured"
-    },
-    "aviationStack": {
-      "accessKey": "",
-      "enabled": false,
-      "status": "Not Configured"
-    },
+    "activeProvider": "serpapi",
     "serpapi": {
-      "apiKey": "",
-      "enabled": false,
+      "apiKey": "2c79932f789e8f8082790fb6926279ac0e51ed9656f40888f404c4d5ea0d9f6d",
+      "enabled": true,
       "engine": "google_flights",
-      "status": "Not Configured"
+      "status": "Active (Google Flights Live)"
     }
   },
   "bookings": [
+    {
+      "pnr": "ASG-889875",
+      "bookingId": "AS889875",
+      "flightId": "SERPER-DEL-BOM-13",
+      "flightNumber": "SG-8703",
+      "airline": "SpiceJet",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "roundTripDetails": null,
+      "returnDate": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-10-19",
+      "departureTime": "17:45",
+      "arrivalTime": "20:00",
+      "travelClass": "economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "askhi",
+          "lastName": "asgh",
+          "passportNumber": null,
+          "passportExpiry": null,
+          "nationality": "Indian",
+          "gender": "Male",
+          "seat": "9B",
+          "seatPrice": 0,
+          "meal": "No Meal",
+          "type": "Adult"
+        }
+      ],
+      "contact": {
+        "email": "ffyuh@gmail.com",
+        "phone": "1111111111"
+      },
+      "fare": {
+        "basePrice": 5409,
+        "seatCost": 0,
+        "mealsCost": 0,
+        "taxes": 649,
+        "discount": 0,
+        "total": 6257
+      },
+      "payment": {
+        "method": "upi",
+        "transactionId": "TXN_1792403019701",
+        "utrNumber": null,
+        "status": "VERIFICATION_PENDING",
+        "paidAt": "2026-10-19T09:43:39.701Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-19T09:43:39.701Z"
+    },
+    {
+      "pnr": "ASG-488333",
+      "bookingId": "AS488333",
+      "flightId": "SERPER-DEL-BOM-13",
+      "flightNumber": "SG-8703",
+      "airline": "SpiceJet",
+      "from": "DEL",
+      "to": "BOM",
+      "fromCity": "New Delhi",
+      "toCity": "Mumbai",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "roundTripDetails": null,
+      "returnDate": null,
+      "route": "DEL → BOM",
+      "departureDate": "2026-10-19",
+      "departureTime": "17:45",
+      "arrivalTime": "20:00",
+      "travelClass": "economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "askhi",
+          "lastName": "asgh",
+          "passportNumber": null,
+          "passportExpiry": null,
+          "nationality": "Indian",
+          "gender": "Male",
+          "seat": "9B",
+          "seatPrice": 0,
+          "meal": "No Meal",
+          "type": "Adult"
+        }
+      ],
+      "contact": {
+        "email": "ffyuh@gmail.com",
+        "phone": "1111111111"
+      },
+      "fare": {
+        "basePrice": 5409,
+        "seatCost": 0,
+        "mealsCost": 0,
+        "taxes": 649,
+        "discount": 0,
+        "total": 6257
+      },
+      "payment": {
+        "method": "upi",
+        "transactionId": "TXN_1792403014596",
+        "utrNumber": null,
+        "status": "VERIFICATION_PENDING",
+        "paidAt": "2026-10-19T09:43:34.596Z",
+        "paidToVpa": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-19T09:43:34.596Z"
+    },
     {
       "pnr": "ASG-537786",
       "bookingId": "AS537786",
@@ -2842,7 +2940,7 @@
     }
   ],
   "brand": {
-    "name": "AIR SKY Go",
+    "name": "AIR SKY GO",
     "short_name": "Air Sky",
     "tagline": "Premium Luxury Travel",
     "primary_color": "#0284c7",
@@ -2856,7 +2954,30 @@
     "phone": "+91 72248 28030",
     "whatsapp": "+918077680310",
     "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
-    "updatedAt": "2026-10-18T22:06:08.692Z"
+    "updatedAt": "2026-10-19T10:03:39.401Z",
+    "enabledServices": {
+      "flights": true,
+      "hotels": true,
+      "holidays": true,
+      "trains": false,
+      "visa": false,
+      "checkin": false,
+      "pnr": true
+    },
+    "footer": {
+      "description": "Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.",
+      "copyright": "© 2026 AIR SKY. All rights reserved.",
+      "card1Title": "Real-Time Live Inventory",
+      "card1Desc": "Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.",
+      "card2Title": "Instant PNR & Digital Tickets",
+      "card2Desc": "Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.",
+      "card3Title": "24x7 Aviation Support",
+      "card3Desc": "Hassle-free web check-in support and instant automated cancellations with swift refund processing.",
+      "partnerAirlines": "IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines",
+      "domesticRoutes": "DEL-BOM: Delhi to Mumbai Flights, DEL-BLR: Delhi to Bengaluru Flights, BOM-GOI: Mumbai to Goa Flights, DEL-GOI: Delhi to Goa Flights",
+      "intlRoutes": "DEL-DXB: Delhi to Dubai Flights, BLR-DEL: Bengaluru to Delhi Flights, BOM-DEL: Mumbai to Delhi Flights, DEL-HYD: Delhi to Hyderabad Flights"
+    },
+    "about": {}
   },
   "coupons": [
     {
@@ -3725,7 +3846,7 @@
       "guests": 2,
       "totalPrice": 4500,
       "paymentType": "Pay at Hotel",
-      "status": "Contacted",
+      "status": "CANCELLED",
       "createdAt": "2026-10-18T12:42:39.050Z"
     },
     {
@@ -3851,7 +3972,7 @@
       "bhim": true,
       "other": false
     },
-    "updatedAt": "2026-10-18T12:42:39.076Z",
+    "updatedAt": "2026-10-19T14:04:11.634Z",
     "razorpay": {
       "keyId": "",
       "keySecret": "",
@@ -3860,7 +3981,7 @@
   },
   "settings": {
     "theme": "sky",
-    "siteName": "AIR SKY Go",
+    "siteName": "AIR SKY GO",
     "siteTagline": "Premium Luxury Travel",
     "supportEmail": "care@airskyindia.com",
     "supportPhone": "+91 72248 28030",
@@ -3935,7 +4056,7 @@
       }
     ],
     "brand": {
-      "name": "AIR SKY Go",
+      "name": "AIR SKY GO",
       "short_name": "Air Sky",
       "tagline": "Premium Luxury Travel",
       "primary_color": "#0284c7",
@@ -4186,6 +4307,54 @@
     }
   ],
   "users": [
+    {
+      "id": "USR-4896",
+      "name": "Kapil Test",
+      "phone": "+91 99999 88888",
+      "email": "kapil.test@example.com",
+      "role": "traveller",
+      "tier": "SkyClub Member",
+      "points": 500,
+      "bookingsCount": 0,
+      "registeredAt": "2026-10-19T14:01:55.577Z",
+      "lastLogin": "2026-10-19T14:01:55.577Z"
+    },
+    {
+      "id": "USR-7875",
+      "name": "askhi asgh",
+      "phone": "1111111111",
+      "email": "ffyuh@gmail.com",
+      "role": "traveller",
+      "tier": "SkyClub Member",
+      "points": 500,
+      "bookingsCount": 2,
+      "registeredAt": "2026-10-19T09:43:34.604Z",
+      "lastLogin": "2026-10-19T09:43:39.707Z"
+    },
+    {
+      "id": "USR-7069",
+      "name": "Apple Traveller",
+      "phone": "",
+      "email": "customer.apple@example.com",
+      "role": "traveller",
+      "tier": "SkyClub Member",
+      "points": 500,
+      "bookingsCount": 0,
+      "registeredAt": "2026-10-19T09:26:26.181Z",
+      "lastLogin": "2026-10-19T09:26:26.181Z"
+    },
+    {
+      "id": "USR-3111",
+      "name": "Google Traveller",
+      "phone": "",
+      "email": "customer.google@example.com",
+      "role": "traveller",
+      "tier": "SkyClub Member",
+      "points": 500,
+      "bookingsCount": 0,
+      "registeredAt": "2026-10-19T09:26:12.630Z",
+      "lastLogin": "2026-10-19T09:26:12.630Z"
+    },
     {
       "id": "USR-8821",
       "name": "Aman Sharma",

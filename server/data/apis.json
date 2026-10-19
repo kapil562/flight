@@ -1,27 +1,9 @@
 {
-  "activeProvider": "serper",
-  "serper": {
-    "apiKey": "d30af7862151eb32682499f5604c67e3045121b8",
-    "enabled": true,
-    "engine": "google_search",
-    "status": "Active (Google Real-Time Search & Live Fares)"
-  },
-  "amadeus": {
-    "clientId": "",
-    "clientSecret": "",
-    "environment": "test",
-    "enabled": false,
-    "status": "Not Configured"
-  },
-  "aviationStack": {
-    "accessKey": "",
-    "enabled": false,
-    "status": "Not Configured"
-  },
+  "activeProvider": "serpapi",
   "serpapi": {
-    "apiKey": "",
-    "enabled": false,
+    "apiKey": "2c79932f789e8f8082790fb6926279ac0e51ed9656f40888f404c4d5ea0d9f6d",
+    "enabled": true,
     "engine": "google_flights",
-    "status": "Not Configured"
+    "status": "Active (Google Flights Live)"
   }
 }

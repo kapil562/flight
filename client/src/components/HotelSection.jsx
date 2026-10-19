@@ -173,7 +173,7 @@ export default function HotelSection() {
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-sky-200 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Moyatri Verified Hotels & Luxury Stays • Live Serper Google Places
+            Verified Luxury Hotels &amp; Stays • Best Guaranteed Rates
           </div>
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
             Book Worldwide Hotels at Guaranteed Lowest Fares
@@ -363,9 +363,9 @@ export default function HotelSection() {
                       {hotel.badge}
                     </span>
                   )}
-                  {hotel.source?.includes('Serper') && (
+                  {hotel.verified && (
                     <span className="absolute top-3 right-3 bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-md">
-                      Live Google Places
+                      Verified Stay
                     </span>
                   )}
                   <span className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-slate-900 text-xs font-black px-2.5 py-1 rounded-xl shadow-md flex items-center gap-1">

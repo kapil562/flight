@@ -125,9 +125,9 @@ const writeJSON = (filePath, data) => {
   }
 };
 
-// In-memory cache for recent flights and Serper live searches
+// In-memory cache for recent flights and SerpApi live searches
 const recentFlightsCache = new Map();
-const serperFlightCache = new Map();
+const serpapiFlightCache = new Map();
 
 // Helper to determine realistic flight duration between airports
 const getRealisticFlightDuration = (fromCode, toCode) => {
@@ -554,7 +554,7 @@ const getAirlinesForRoute = (fromAirport, toAirport, detectedAirlines = []) => {
     return GLOBAL_AIRLINES.filter(a => a.countries.includes('India') && a.region === 'India');
   }
 
-  // If we already have 2 or more detected airlines from Serper search
+  // If we already have 2 or more detected airlines
   if (detectedAirlines && detectedAirlines.length >= 2) {
     return detectedAirlines;
   }
@@ -676,7 +676,7 @@ const buildDynamicFlightSchedules = (fromAirport, toAirport, date, operatingAirl
       ];
     }
 
-    const flightId = `${source.includes('Google') ? 'SERPER' : 'LIVE'}-${fromAirport.code.toUpperCase()}-${toAirport.code.toUpperCase()}-${i + 1}`;
+    const flightId = `${source.includes('Google') ? 'SERPAPI' : 'LIVE'}-${fromAirport.code.toUpperCase()}-${toAirport.code.toUpperCase()}-${i + 1}`;
 
     let fromTerminal = 'T1';
     let toTerminal = 'T1';
@@ -821,282 +821,189 @@ const generateDynamicFlights = (from, to, date) => {
   });
 };
 
-// Fetch real flights via Serper Google Search
-const fetchFlightsFromSerper = async (from, to, date, apiKey) => {
+// Map SerpApi Google Flights response to our unified Flight card schema
+const mapSerpApiFlight = (item, from, to, date, idx) => {
+  const flightLegs = item.flights || [];
+  const firstLeg = flightLegs[0] || {};
+  const lastLeg = flightLegs[flightLegs.length - 1] || firstLeg;
+
+  const airlineName = firstLeg.airline || 'Air India';
+  const codeMatch = (firstLeg.flight_number || '').match(/^([A-Z0-9]{2})/i);
+  let airlineCode = codeMatch ? codeMatch[1].toUpperCase() : 'AI';
+  if (airlineName.toLowerCase().includes('indigo')) airlineCode = '6E';
+  else if (airlineName.toLowerCase().includes('akasa')) airlineCode = 'QP';
+  else if (airlineName.toLowerCase().includes('air india express')) airlineCode = 'IX';
+  else if (airlineName.toLowerCase().includes('air india')) airlineCode = 'AI';
+  else if (airlineName.toLowerCase().includes('spicejet')) airlineCode = 'SG';
+  else if (airlineName.toLowerCase().includes('vistara')) airlineCode = 'UK';
+  else if (airlineName.toLowerCase().includes('emirates')) airlineCode = 'EK';
+  else if (airlineName.toLowerCase().includes('etihad')) airlineCode = 'EY';
+  else if (airlineName.toLowerCase().includes('qatar')) airlineCode = 'QR';
+  else if (airlineName.toLowerCase().includes('british')) airlineCode = 'BA';
+
+  const colorMap = {
+    '6E': '#002B7F',
+    'AI': '#E21836',
+    'QP': '#FF5900',
+    'UK': '#5C0632',
+    'SG': '#EE3124',
+    'IX': '#E04006',
+    'EK': '#D71921',
+    'EY': '#BD9B60',
+    'QR': '#5C0632',
+    'BA': '#075AAA',
+    'FZ': '#0070BA',
+    'G9': '#E30613'
+  };
+  const airlineColor = colorMap[airlineCode] || '#002B7F';
+
+  const rawFlightNo = firstLeg.flight_number || `${airlineCode}-${100 + idx}`;
+  const flightNumber = rawFlightNo.includes('-') ? rawFlightNo : rawFlightNo.replace(/\s+/, '-');
+
+  const depTimeFull = firstLeg.departure_airport?.time || '08:00';
+  const arrTimeFull = lastLeg.arrival_airport?.time || '10:30';
+  const departureTime = depTimeFull.includes(' ') ? depTimeFull.split(' ').pop().slice(0, 5) : depTimeFull.slice(0, 5);
+  const arrivalTime = arrTimeFull.includes(' ') ? arrTimeFull.split(' ').pop().slice(0, 5) : arrTimeFull.slice(0, 5);
+
+  const totalMins = item.total_duration || firstLeg.duration || 120;
+  const durH = Math.floor(totalMins / 60);
+  const durM = totalMins % 60;
+  const duration = `${durH}h ${String(durM).padStart(2, '0')}m`;
+
+  const stops = flightLegs.length > 1 ? flightLegs.length - 1 : 0;
+  let layover = null;
+  let layoverCity = null;
+  let layoverAirport = null;
+  let layoverDuration = null;
+
+  if (stops > 0 && item.layovers && item.layovers[0]) {
+    const l = item.layovers[0];
+    layoverAirport = l.id || '';
+    layoverCity = l.name ? l.name.replace(/ Airport| International/gi, '') : layoverAirport;
+    const lMins = l.duration || 90;
+    layoverDuration = `${Math.floor(lMins / 60)}h ${lMins % 60}m`;
+    layover = `${layoverCity} (${layoverAirport}) ${layoverDuration} Layover`;
+  }
+
+  const segments = flightLegs.map((leg, lIdx) => {
+    const legDur = leg.duration || Math.round(totalMins / flightLegs.length);
+    const legDepTime = (leg.departure_airport?.time || '').split(' ').pop().slice(0, 5) || departureTime;
+    const legArrTime = (leg.arrival_airport?.time || '').split(' ').pop().slice(0, 5) || arrivalTime;
+    return {
+      leg: lIdx + 1,
+      airline: leg.airline || airlineName,
+      flightNumber: (leg.flight_number || `${airlineCode}-${100 + lIdx}`).replace(/\s+/, '-'),
+      aircraft: leg.airplane || 'Airbus A320neo',
+      from: leg.departure_airport?.id || from.toUpperCase(),
+      fromCity: leg.departure_airport?.name ? leg.departure_airport.name.replace(/ Airport| International/gi, '') : from.toUpperCase(),
+      departureTime: legDepTime,
+      to: leg.arrival_airport?.id || to.toUpperCase(),
+      toCity: leg.arrival_airport?.name ? leg.arrival_airport.name.replace(/ Airport| International/gi, '') : to.toUpperCase(),
+      arrivalTime: legArrTime,
+      duration: `${Math.floor(legDur / 60)}h ${legDur % 60}m`
+    };
+  });
+
+  const basePrice = item.price ? Number(item.price) : 5490;
+  const economyPrice = basePrice;
+  const premiumEconomyPrice = Math.round(basePrice * 1.45);
+  const businessPrice = Math.round(basePrice * 2.6);
+
+  const isIntl = ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(from.toUpperCase()) ||
+                 ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(to.toUpperCase());
+
+  const flightId = `SERPAPI-${from.toUpperCase()}-${to.toUpperCase()}-${idx + 1}`;
+
+  return {
+    id: flightId,
+    flightNumber,
+    airline: airlineName,
+    airlineCode,
+    airlineColor,
+    airlineLogo: item.airline_logo || firstLeg.airline_logo || null,
+    from: from.toUpperCase(),
+    to: to.toUpperCase(),
+    fromCity: firstLeg.departure_airport?.name ? firstLeg.departure_airport.name.replace(/ Airport| International/gi, '') : from.toUpperCase(),
+    toCity: lastLeg.arrival_airport?.name ? lastLeg.arrival_airport.name.replace(/ Airport| International/gi, '') : to.toUpperCase(),
+    departureDate: date || new Date().toISOString().split('T')[0],
+    departureTime,
+    arrivalTime,
+    duration,
+    stops,
+    layover,
+    layoverCity,
+    layoverAirport,
+    layoverDuration,
+    segments: segments.length > 0 ? segments : null,
+    aircraft: firstLeg.airplane || 'Airbus A320neo',
+    basePrice,
+    classes: {
+      economy: economyPrice,
+      premiumEconomy: premiumEconomyPrice,
+      business: businessPrice
+    },
+    seatsTotal: 180,
+    seatsAvailable: Math.floor(25 + ((idx * 7) % 55)),
+    baggage: isIntl ? 'Cabin: 7 kg, Check-in: 30 kg' : 'Cabin: 7 kg, Check-in: 15 kg',
+    mealIncluded: ['Air India', 'Vistara', 'Emirates', 'Qatar Airways', 'British Airways'].includes(airlineName),
+    refundable: true,
+    status: 'On-Time',
+    terminal: {
+      from: (airlineName === 'Air India') ? 'T3' : (airlineCode === '6E' ? 'T1' : 'T2'),
+      to: 'T2'
+    },
+    carbonEmissions: item.carbon_emissions || null,
+    bookingToken: item.booking_token || null,
+    source: 'Google Flights (Live SerpApi)',
+    isLivePrice: true
+  };
+};
+
+// Fetch real flights via SerpApi Google Flights (Dedicated Engine)
+const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
   if (!apiKey || !from || !to) return null;
 
-  const cacheKey = `${from.toUpperCase()}-${to.toUpperCase()}-${date || 'any'}`;
-  const cached = serperFlightCache.get(cacheKey);
-  if (cached && (Date.now() - cached.timestamp < 15 * 60 * 1000)) {
-    console.log(`⚡ [Serper Cache Hit] Returning live flight data for: ${cacheKey}`);
+  const formattedDate = date || new Date().toISOString().split('T')[0];
+  const cacheKey = `${from.toUpperCase()}-${to.toUpperCase()}-${formattedDate}`;
+  const cached = serpapiFlightCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < 20 * 60 * 1000)) {
+    console.log(`⚡ [SerpApi Cache Hit] Returning live Google Flights data for: ${cacheKey}`);
     return cached.data;
   }
 
   try {
-    const airports = readJSON(AIRPORTS_FILE, []);
-    const fromAirport = airports.find(a => a.code.toUpperCase() === from.toUpperCase()) || { 
-      code: from.toUpperCase(), 
-      city: from.toUpperCase() 
-    };
-    const toAirport = airports.find(a => a.code.toUpperCase() === to.toUpperCase()) || { 
-      code: to.toUpperCase(), 
-      city: to.toUpperCase() 
-    };
+    // type=2 specifies One-way trip on Google Flights in SerpApi
+    const url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(from.toUpperCase())}&arrival_id=${encodeURIComponent(to.toUpperCase())}&outbound_date=${encodeURIComponent(formattedDate)}&type=2&currency=INR&hl=en&api_key=${apiKey.trim()}`;
+    console.log(`✈️ [SerpApi Google Flights] Querying live flights: ${from} -> ${to} on ${formattedDate}`);
 
-    const isIntl = (fromAirport?.country && fromAirport.country !== 'India') || 
-                   (toAirport?.country && toAirport.country !== 'India') ||
-                   ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(from.toUpperCase()) || 
-                   ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(to.toUpperCase());
-
-    // Search query that returns authentic Google flight schedules, durations, operating airlines and fares
-    const fromName = fromAirport.city || fromAirport.name || from.toUpperCase();
-    const toName = toAirport.city || toAirport.name || to.toUpperCase();
-    const query = `flights from ${fromName} ${from.toUpperCase()} to ${toName} ${to.toUpperCase()} airlines schedule duration price`;
-    console.log(`🔍 [Serper Live Query] Fetching Google real flight data for: ${query}`);
-
-    const response = await fetch('https://google.serper.dev/search', {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': apiKey.trim(),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ q: query, gl: 'in', hl: 'en' })
-    });
-
-    if (!response.ok) {
-      console.warn('Serper API returned status', response.status);
-      return null;
-    }
-
-    const json = await response.json();
-    const textCorpus = JSON.stringify(json);
-
-    // 1. Parse real flight duration from Google search snippets (Prioritize direct / non-stop flight times)
-    let durationInfo = getRealisticFlightDuration(fromAirport.code, toAirport.code);
-    const directDurMatch = textCorpus.match(/(?:non-stop|direct|fastest)[^.\n;]*?(\d+)\s*(?:hours?|hrs?|h|hr)\s*(?:and\s*)?(\d+)?\s*(?:minutes?|mins?|m|min)?/i) ||
-                           textCorpus.match(/(?:takes about|typically takes|flight time is|duration is)[^0-9]*?(\d+)\s*(?:hours?|hrs?|h|hr)\s*(?:and\s*)?(\d+)?\s*(?:minutes?|mins?|m|min)?/i);
-
-    const fallbackDurMatch = textCorpus.match(/(?:flight\s*time|duration|takes)[^0-9]*?(\d+)\s*(?:hours?|hrs?|h)\s*(?:and\s*)?(\d+)?\s*(?:minutes?|mins?|m)?/i);
-
-    const durMatch = directDurMatch || fallbackDurMatch;
-    if (durMatch) {
-      const h = parseInt(durMatch[1]) || 0;
-      const m = parseInt(durMatch[2]) || 0;
-      if (h > 0 || m > 0) {
-        const totalMins = (h * 60) + m;
-        // Verify sanity: do not accept layover duration that is > 2.2x base direct duration
-        const maxAcceptable = durationInfo.minutes * 2.2;
-        if (totalMins >= 35 && totalMins <= maxAcceptable) {
-          durationInfo = {
-            dur: `${h}h ${String(m).padStart(2, '0')}m`,
-            minutes: totalMins
-          };
-          console.log(`⏱️ [Live Duration Extracted] ${from}->${to}: ${durationInfo.dur}`);
-        }
-      }
-    }
-
-    // 2. Parse all real airfares found in Google search snippets (INR and USD converted)
-    const inrMatches = [...textCorpus.matchAll(/(?:₹|Rs\.?|INR)\s*(\d[\d,]+)/gi)];
-    const extractedInr = inrMatches
-      .map(m => parseInt(m[1].replace(/,/g, '')))
-      .filter(p => isIntl ? (p >= 7500 && p <= 350000) : (p >= 1800 && p <= 55000));
-
-    const usdMatches = [...textCorpus.matchAll(/(?:US\$|[$])\s*(\d[\d,]+)/gi)];
-    const extractedUsd = usdMatches
-      .map(m => parseInt(m[1].replace(/,/g, '')) * 86)
-      .filter(p => isIntl ? (p >= 7500 && p <= 350000) : (p >= 1800 && p <= 55000));
-
-    const uniquePrices = Array.from(new Set([...extractedInr, ...extractedUsd])).sort((a, b) => a - b);
-    console.log(`✈️ [Live Fares Extracted] ${from}->${to} (${uniquePrices.length} live prices):`, uniquePrices.slice(0, 8));
-
-    // 3. Detect Real Operating Airlines mentioned in Google search results
-    const matchedAirlines = GLOBAL_AIRLINES.filter(airline => {
-      const cleanName = airline.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const nameRegex = new RegExp(`\\b${cleanName}\\b`, 'i');
-      if (nameRegex.test(textCorpus)) return true;
-      return airline.aliases.some(alias => {
-        const cleanAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const aliasRegex = new RegExp(`\\b${cleanAlias}\\b`, 'i');
-        return aliasRegex.test(textCorpus);
-      });
-    });
-
-    console.log(`🏢 [Operating Airlines Detected] ${from}->${to}:`, matchedAirlines.map(a => a.name));
-
-    // Resolve final operating airlines for this route
-    const operatingAirlines = getAirlinesForRoute(fromAirport, toAirport, matchedAirlines);
-
-    // 4. Build authentic flight schedules using ONLY real operating airlines and extracted data
-    const parsedFlights = buildDynamicFlightSchedules(
-      fromAirport,
-      toAirport,
-      date,
-      operatingAirlines,
-      durationInfo,
-      uniquePrices,
-      isIntl,
-      'Google Flights (Live Real-Time)'
-    );
-
-    serperFlightCache.set(cacheKey, { timestamp: Date.now(), data: parsedFlights });
-    return parsedFlights;
-  } catch (err) {
-    console.error('Error in fetchFlightsFromSerper:', err);
-    return null;
-  }
-};
-
-// Fetch real hotels via Serper Google Places
-const fetchHotelsFromSerper = async (city, apiKey) => {
-  try {
-    if (!city || !apiKey) return null;
-    const cleanCity = city.trim();
-    const query = `hotels in ${cleanCity}`;
-    console.log(`🏨 [Serper Places] Fetching Google real hotels for: ${query}`);
-
-    const response = await fetch('https://google.serper.dev/places', {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': apiKey.trim(),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ q: query, gl: 'in', hl: 'en' })
-    });
-
-    if (!response.ok) {
-      console.warn('Serper Places API returned status', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    if (!data.places || !Array.isArray(data.places) || data.places.length === 0) {
-      return null;
-    }
-
-    const hotelPhotos = [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1568084680786-a84f91d1153c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
-    ];
-
-    const amenitiesList = [
-      ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Complimentary Breakfast', 'Air Conditioning', '24/7 Room Service', 'Spa & Wellness'],
-      ['Ocean/City View', 'Fine Dining Restaurant', 'Valet Parking', 'Free Wi-Fi', 'Airport Shuttle', 'Gym & Fitness'],
-      ['Rooftop Lounge', 'Free Breakfast', 'Smart TV', 'Tea & Coffee Maker', 'Daily Housekeeping', 'Concierge Service'],
-      ['Infinity Pool', 'Private Balcony', 'Mini Bar', 'Laundry Service', 'Express Check-In', 'Doctor on Call']
-    ];
-
-    const roomTypes = [
-      'Deluxe King Room with Balcony',
-      'Executive Premier Sea/City View Suite',
-      'Royal Luxury Room with Breakfast',
-      'Superior Double Room',
-      'Club Suite with Lounge Access'
-    ];
-
-    const parsedHotels = data.places.map((place, idx) => {
-      const rating = place.rating ? Number(place.rating.toFixed(1)) : 4.4;
-      const stars = rating >= 4.6 ? 5 : rating >= 4.0 ? 4 : 3;
-
-      let basePrice;
-      if (stars === 5) {
-        basePrice = Math.round((7500 + (rating * 850) + (idx * 350)) / 100) * 100;
-      } else if (stars === 4) {
-        basePrice = Math.round((4200 + (rating * 500) + (idx * 250)) / 100) * 100;
-      } else {
-        basePrice = Math.round((2400 + (rating * 300) + (idx * 150)) / 100) * 100;
-      }
-
-      const originalPrice = Math.round((basePrice * 1.25) / 100) * 100;
-      const discount = Math.round(((originalPrice - basePrice) / originalPrice) * 100) + '% OFF';
-
-      const badge = rating >= 4.7 ? '⭐ Top Rated Google Choice' :
-                    rating >= 4.5 ? '✨ Luxury Moyatri Verified' :
-                    rating >= 4.2 ? '🔥 Popular Pick' : '💡 Best Value Deal';
-
-      const cleanTitle = (place.title || '').replace(/[\u{0080}-\u{FFFF}]/gu, '').trim() || place.title;
-
-      return {
-        id: `SERPER-HTL-${place.position || (idx + 1)}-${cleanCity.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}`,
-        name: cleanTitle,
-        city: cleanCity.charAt(0).toUpperCase() + cleanCity.slice(1).toLowerCase(),
-        location: `${cleanTitle}, ${cleanCity}`,
-        stars,
-        rating,
-        reviewsCount: place.ratingCount || Math.floor(250 + Math.random() * 850),
-        image: hotelPhotos[idx % hotelPhotos.length],
-        price: basePrice,
-        originalPrice,
-        discount,
-        amenities: amenitiesList[idx % amenitiesList.length],
-        badge,
-        roomType: roomTypes[idx % roomTypes.length],
-        source: 'Google Places (Live Serper API)',
-        verified: true,
-        latitude: place.latitude,
-        longitude: place.longitude
-      };
-    });
-
-    return parsedHotels;
-  } catch (err) {
-    console.error('Error querying Serper Places API:', err);
-    return null;
-  }
-};
-
-// Fetch real flights via SerpApi Google Flights
-const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
-  if (!apiKey || !from || !to) return null;
-  try {
-    const formattedDate = date || new Date().toISOString().split('T')[0];
-    const url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(from)}&arrival_id=${encodeURIComponent(to)}&outbound_date=${encodeURIComponent(formattedDate)}&currency=INR&hl=en&api_key=${apiKey.trim()}`;
-    console.log(`✈️ [SerpApi Google Flights] Querying: ${from} -> ${to} on ${formattedDate}`);
     const response = await fetch(url);
     if (!response.ok) {
       console.warn('SerpApi Google Flights returned status:', response.status);
       return null;
     }
-    const data = await response.json();
-    const flightResults = [...(data.best_flights || []), ...(data.other_flights || [])];
-    if (!flightResults || flightResults.length === 0) return null;
 
-    return flightResults.slice(0, 10).map((item, idx) => {
-      const flightLeg = (item.flights && item.flights[0]) || {};
-      const airlineName = flightLeg.airline || 'Air India';
-      const flightNumber = flightLeg.flight_number || `AI-${100 + idx}`;
-      const price = item.price || (4200 + idx * 350);
-      return {
-        id: `SERPAPI-${from}-${to}-${idx + 1}`,
-        flightNumber,
-        airline: airlineName,
-        airlineCode: flightNumber.slice(0, 2) || 'AI',
-        from: from.toUpperCase(),
-        to: to.toUpperCase(),
-        fromCity: flightLeg.departure_airport?.name || from.toUpperCase(),
-        toCity: flightLeg.arrival_airport?.name || to.toUpperCase(),
-        departureTime: flightLeg.departure_airport?.time || '08:00',
-        arrivalTime: flightLeg.arrival_airport?.time || '10:30',
-        duration: item.total_duration ? `${Math.floor(item.total_duration / 60)}h ${item.total_duration % 60}m` : '2h 15m',
-        basePrice: price,
-        aircraft: flightLeg.airplane || 'Airbus A320neo',
-        stops: item.flights?.length > 1 ? item.flights.length - 1 : 0,
-        status: 'On-Time',
-        source: 'Google Flights (Live SerpApi)'
-      };
+    const data = await response.json();
+    if (data.error) {
+      console.warn('SerpApi returned error:', data.error);
+      return null;
+    }
+
+    const rawList = [...(data.best_flights || []), ...(data.other_flights || [])];
+    if (!rawList || rawList.length === 0) {
+      console.log(`⚠️ [SerpApi] No flights found for route ${from} -> ${to}`);
+      return null;
+    }
+
+    console.log(`✅ [SerpApi Google Flights] Successfully retrieved ${rawList.length} real live flights for ${from} -> ${to}`);
+
+    const parsedFlights = rawList.map((item, idx) => {
+      const flightObj = mapSerpApiFlight(item, from, to, date, idx);
+      recentFlightsCache.set(flightObj.id, flightObj);
+      return flightObj;
     });
+
+    serpapiFlightCache.set(cacheKey, { timestamp: Date.now(), data: parsedFlights });
+    return parsedFlights;
   } catch (err) {
     console.error('Error querying SerpApi Google Flights:', err.message);
     return null;
@@ -1258,29 +1165,13 @@ app.get(['/api/coupons', '/api/promos/active', '/api/promos/suggestions'], (req,
   res.json({ success: true, count: coupons.length, data: coupons, promos: coupons });
 });
 
-// Hotels (Moyatri Style Worldwide & Domestic Accommodation)
+// Hotels (Worldwide & Domestic Accommodation)
 app.get('/api/hotels', async (req, res) => {
   const { city } = req.query;
-  const apisConfig = readJSON(APIS_FILE, {});
-  const serperKey = apisConfig.serper?.apiKey || process.env.SERPER_API_KEY;
 
   if (city && city.trim()) {
     const q = city.trim();
-    // Try live Serper Google Places first if enabled
-    if ((apisConfig.activeProvider === 'serper' || apisConfig.serper?.enabled) && serperKey) {
-      const serperHotels = await fetchHotelsFromSerper(q, serperKey);
-      if (serperHotels && serperHotels.length > 0) {
-        return res.json({
-          success: true,
-          count: serperHotels.length,
-          data: serperHotels,
-          source: 'Google Places (Live Serper API)'
-        });
-      }
-    }
-
-    // Fallback to local hotels.json
-    const hotels = readJSON(HOTELS_FILE);
+    const hotels = readJSON(HOTELS_FILE, []);
     const filtered = hotels.filter(h =>
       (h.city && h.city.toLowerCase().includes(q.toLowerCase())) ||
       (h.location && h.location.toLowerCase().includes(q.toLowerCase())) ||
@@ -1288,25 +1179,20 @@ app.get('/api/hotels', async (req, res) => {
     );
 
     if (filtered.length > 0) {
-      return res.json({ success: true, count: filtered.length, data: filtered, source: 'Local Database' });
+      return res.json({ success: true, count: filtered.length, data: filtered, source: 'AirSkyGo Luxury Hotel Collection' });
     }
 
-    // If query didn't match local database and Serper had no places, dynamically return realistic hotels for that city
-    if (serperKey) {
-      const fallbackList = hotels.map((h, i) => ({
-        ...h,
-        id: `HTL-GEN-${i + 1}-${q.toUpperCase()}`,
-        city: q.charAt(0).toUpperCase() + q.slice(1),
-        location: `${h.name}, ${q}`,
-        source: 'Moyatri Travel Engine'
-      }));
-      return res.json({ success: true, count: fallbackList.length, data: fallbackList, source: 'Moyatri Travel Engine' });
-    }
-
-    return res.json({ success: true, count: filtered.length, data: filtered });
+    const fallbackList = hotels.map((h, i) => ({
+      ...h,
+      id: `HTL-GEN-${i + 1}-${q.toUpperCase()}`,
+      city: q.charAt(0).toUpperCase() + q.slice(1),
+      location: `${h.name}, ${q}`,
+      source: 'AirSkyGo Travel Engine'
+    }));
+    return res.json({ success: true, count: fallbackList.length, data: fallbackList, source: 'AirSkyGo Travel Engine' });
   }
 
-  const hotels = readJSON(HOTELS_FILE);
+  const hotels = readJSON(HOTELS_FILE, []);
   res.json({ success: true, count: hotels.length, data: hotels, source: 'Featured Luxury Collection' });
 });
 
@@ -1348,33 +1234,22 @@ app.get('/api/flights', async (req, res) => {
   let flights = [];
   let dataSource = 'Database / Local Engine';
 
-  // 1. Prioritize Serper Live Flight Search (Google Search & Live Fares API)
-  const serperKey = apisConfig.serper?.apiKey || process.env.SERPER_API_KEY;
-  if ((apisConfig.activeProvider === 'serper' || apisConfig.serper?.enabled) && serperKey && from && to) {
-    const serperFlights = await fetchFlightsFromSerper(from, to, date, serperKey);
-    if (serperFlights && serperFlights.length > 0) {
-      flights = serperFlights;
-      dataSource = 'Google Flights Real-Time (Serper Live)';
-    }
-  }
-
-  // 2. Check SerpApi ONLY if activeProvider is 'serpapi' and a valid non-dummy key is provided
+  // 1. Query SerpApi Google Flights (Dedicated Real-Time Live Flight API)
   const serpapiKey = apisConfig.serpapi?.apiKey || process.env.SERPAPI_KEY;
-  if (flights.length === 0 && apisConfig.activeProvider === 'serpapi' && serpapiKey && serpapiKey !== 'test_key_auto' && from && to) {
+  const isSerpApiActive = apisConfig.activeProvider === 'serpapi' || apisConfig.serpapi?.enabled !== false;
+  if (isSerpApiActive && serpapiKey && from && to) {
     const serpapiFlights = await fetchFlightsFromSerpApi(from, to, date, serpapiKey);
     if (serpapiFlights && serpapiFlights.length > 0) {
       flights = serpapiFlights;
-      dataSource = 'Google Flights (SerpApi Real-Time)';
+      dataSource = 'Google Flights Real-Time (SerpApi Live)';
     }
   }
 
-  // 3. Assemble final flight list
+  // 2. Assemble final flight list
   const allFlights = readJSON(FLIGHTS_FILE, []);
   if (from && to) {
     if (flights.length > 0) {
-      // Real live flights returned from Google Serper!
-      // DO NOT prepend outdated static mock flights.
-      // Only include custom flights specifically added by the admin from the admin panel.
+      // Real live flights returned from Google Flights via SerpApi!
       const adminCreatedFlights = allFlights.filter(f => 
         f.isCustomAdmin === true &&
         f.from.toUpperCase() === from.toUpperCase() && 
@@ -1384,7 +1259,7 @@ app.get('/api/flights', async (req, res) => {
         flights = [...adminCreatedFlights, ...flights];
       }
     } else {
-      // Fallback only if no live flights could be retrieved
+      // Fallback only if no live flights could be retrieved or offline
       const matched = allFlights.filter(f => 
         f.from.toUpperCase() === from.toUpperCase() && 
         f.to.toUpperCase() === to.toUpperCase()
@@ -1439,7 +1314,7 @@ app.get('/api/flights/:id', (req, res) => {
   const flights = readJSON(FLIGHTS_FILE, []);
   let flight = flights.find(f => f.id === id) || recentFlightsCache.get(id);
 
-  if (!flight && (id.startsWith('DYN-') || id.startsWith('LIVE-') || id.startsWith('SERPER-'))) {
+  if (!flight && (id.startsWith('DYN-') || id.startsWith('LIVE-') || id.startsWith('SERPAPI-') || id.startsWith('SERPER-'))) {
     const parts = id.split('-');
     if (parts.length >= 3) {
       const dynFlights = generateDynamicFlights(parts[1], parts[2]);
@@ -2614,41 +2489,6 @@ app.put('/api/admin/apis', (req, res) => {
   res.json({ success: true, message: 'API configurations updated successfully!', data: updated });
 });
 
-app.post('/api/admin/apis/test-serper', async (req, res) => {
-  const { apiKey } = req.body;
-  if (!apiKey) {
-    return res.status(400).json({ success: false, message: 'Serper API key is required' });
-  }
-
-  try {
-    const testRes = await fetch('https://google.serper.dev/search', {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': apiKey.trim(),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ q: 'flights from Delhi to Mumbai', gl: 'in' })
-    });
-
-    if (testRes.ok) {
-      const data = await testRes.json();
-      return res.json({
-        success: true,
-        message: 'Serper API Connected Successfully! Google Search engine is active.',
-        credits: data.credits || 'Active'
-      });
-    } else {
-      const errText = await testRes.text();
-      return res.status(400).json({
-        success: false,
-        message: `Serper API Error (${testRes.status}): ${errText || 'Invalid API Key'}`
-      });
-    }
-  } catch (err) {
-    return res.status(500).json({ success: false, message: `Connection failed: ${err.message}` });
-  }
-});
-
 // A9.1 Test SerpApi (Google Flights) Connection
 app.post('/api/admin/apis/test-serpapi', async (req, res) => {
   const { apiKey } = req.body;
@@ -2677,7 +2517,7 @@ app.post('/api/admin/apis/test-serpapi', async (req, res) => {
   }
 });
 
-// A9.2 Integrated API & Payment Settings (Matches airskyindia.com/admin/settings)
+// A9.2 Integrated API & Payment Settings
 app.get('/api/admin/api-settings', (req, res) => {
   const apis = readJSON(APIS_FILE, {});
   const paymentSettings = readJSON(PAYMENT_SETTINGS_FILE, {});
@@ -2689,7 +2529,8 @@ app.get('/api/admin/api-settings', (req, res) => {
     data: {
       serpapi: {
         apiKey: apis.serpapi?.apiKey || '',
-        enabled: apis.serpapi?.enabled !== false
+        enabled: apis.serpapi?.enabled !== false,
+        status: apis.serpapi?.apiKey ? 'Active (Google Flights Live)' : 'Not Configured'
       },
       razorpay: {
         keyId: paymentSettings.razorpay?.keyId || '',
@@ -2707,25 +2548,7 @@ app.get('/api/admin/api-settings', (req, res) => {
         legalName: siteSettings.legalName || 'Air Sky Travels Private Limited',
         companyGstin: siteSettings.companyGstin || '07ABCCS8601B1ZP'
       },
-      // Extra APIs ("apna wala extra jo bhi ha")
-      activeProvider: apis.activeProvider || 'serper',
-      serper: {
-        apiKey: apis.serper?.apiKey || '',
-        enabled: apis.serper?.enabled !== false,
-        status: apis.serper?.status || 'Active (Live Google Search)'
-      },
-      amadeus: {
-        clientId: apis.amadeus?.clientId || '',
-        clientSecret: apis.amadeus?.clientSecret || '',
-        environment: apis.amadeus?.environment || 'test',
-        enabled: !!apis.amadeus?.enabled,
-        status: apis.amadeus?.status || 'Not Configured'
-      },
-      aviationStack: {
-        accessKey: apis.aviationStack?.accessKey || '',
-        enabled: !!apis.aviationStack?.enabled,
-        status: apis.aviationStack?.status || 'Not Configured'
-      }
+      activeProvider: apis.activeProvider || 'serpapi'
     }
   });
 });
@@ -2737,40 +2560,19 @@ app.post('/api/admin/api-settings', (req, res) => {
       razorpay,
       upi,
       general,
-      activeProvider,
-      serper,
-      amadeus,
-      aviationStack
+      activeProvider
     } = req.body;
 
     // 1. Update APIS_FILE
     const currentApis = readJSON(APIS_FILE, {});
     const updatedApis = {
       ...currentApis,
-      activeProvider: activeProvider || currentApis.activeProvider || 'serper',
+      activeProvider: activeProvider || 'serpapi',
       serpapi: {
         apiKey: (serpapi?.apiKey !== undefined ? serpapi.apiKey : currentApis.serpapi?.apiKey || '').trim(),
         enabled: serpapi?.enabled !== undefined ? !!serpapi.enabled : true,
         engine: 'google_flights',
-        status: serpapi?.apiKey ? 'Configured (Google Flights)' : 'Not Configured'
-      },
-      serper: {
-        apiKey: (serper?.apiKey !== undefined ? serper.apiKey : currentApis.serper?.apiKey || '').trim(),
-        enabled: serper?.enabled !== undefined ? !!serper.enabled : true,
-        engine: 'google_search',
-        status: serper?.apiKey ? 'Active (Live Google Search)' : 'Not Configured'
-      },
-      amadeus: {
-        clientId: (amadeus?.clientId !== undefined ? amadeus.clientId : currentApis.amadeus?.clientId || '').trim(),
-        clientSecret: (amadeus?.clientSecret !== undefined ? amadeus.clientSecret : currentApis.amadeus?.clientSecret || '').trim(),
-        environment: amadeus?.environment || currentApis.amadeus?.environment || 'test',
-        enabled: amadeus?.enabled !== undefined ? !!amadeus.enabled : false,
-        status: amadeus?.clientId ? 'Configured' : 'Not Configured'
-      },
-      aviationStack: {
-        accessKey: (aviationStack?.accessKey !== undefined ? aviationStack.accessKey : currentApis.aviationStack?.accessKey || '').trim(),
-        enabled: aviationStack?.enabled !== undefined ? !!aviationStack.enabled : false,
-        status: aviationStack?.accessKey ? 'Configured' : 'Not Configured'
+        status: (serpapi?.apiKey || currentApis.serpapi?.apiKey) ? 'Active (Google Flights Live)' : 'Not Configured'
       }
     };
     writeJSON(APIS_FILE, updatedApis);

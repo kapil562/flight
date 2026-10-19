@@ -228,14 +228,7 @@ export const api = {
     return res.json();
   },
 
-  testSerperApiKey: async (apiKey) => {
-    const res = await fetch(`${API_BASE}/admin/apis/test-serper`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ apiKey })
-    });
-    return res.json();
-  },
+
 
   // Moyatri Multi-Services
   getHotels: async (city = '') => {
