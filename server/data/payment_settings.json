@@ -3,22 +3,22 @@
   "paymentMode": "manual",
   "upi": {
     "vpa": "care@airsky",
-    "businessName": "AIR SKY LUXURY",
+    "name": "AIR SKY LUXURY",
     "mcc": "5499",
-    "name": "AIR SKY LUXURY"
+    "businessName": "AIR SKY LUXURY"
   },
   "methods": {
     "upiQr": true,
     "upiApps": true,
-    "card": true,
-    "netBanking": true
+    "card": false,
+    "netBanking": false
   },
   "apps": {
     "any": false,
     "phonepe": true,
-    "gpay": true,
-    "paytm": true,
-    "bhim": true,
+    "gpay": false,
+    "paytm": false,
+    "bhim": false,
     "other": false
   },
   "deepLinks": {
@@ -38,7 +38,7 @@
     "bhim": true,
     "other": false
   },
-  "updatedAt": "2026-10-19T14:46:34.803Z",
+  "updatedAt": "2026-10-19T17:24:19.371Z",
   "razorpay": {
     "keyId": "",
     "keySecret": "",

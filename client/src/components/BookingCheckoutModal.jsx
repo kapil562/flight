@@ -34,6 +34,15 @@ const formatTerminal = (term) => {
   return str;
 };
 
+const DEFAULT_DEEP_LINKS = {
+  any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  other: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02'
+};
+
 export default function BookingCheckoutModal({
   flight,
   currentPrice,
@@ -137,8 +146,28 @@ export default function BookingCheckoutModal({
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   // Payment method & Admin UPI Settings
-  const [paymentSettings, setPaymentSettings] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('upi'); // 'upi', 'card', 'netbanking'
+  const [paymentSettings, setPaymentSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_payment_settings');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [paymentMethod, setPaymentMethod] = useState(() => {
+    try {
+      const saved = localStorage.getItem('asg_payment_settings');
+      if (saved) {
+        const ps = JSON.parse(saved);
+        if (ps.methods?.upiQr !== false) return 'upiQr';
+        if (ps.methods?.upiApps !== false) return 'upiApps';
+        if (ps.methods?.card === true) return 'card';
+        if (ps.methods?.netBanking === true) return 'netbanking';
+      }
+    } catch {}
+    return 'upiQr';
+  });
+  const [selectedUpiApp, setSelectedUpiApp] = useState('');
   const [utrNumber, setUtrNumber] = useState('');
   const [copiedVpa, setCopiedVpa] = useState(false);
   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
@@ -150,6 +179,22 @@ export default function BookingCheckoutModal({
     api.getPaymentSettings().then(res => {
       if (res.success && res.data) {
         setPaymentSettings(res.data);
+        try { localStorage.setItem('asg_payment_settings', JSON.stringify(res.data)); } catch (e) {}
+
+        const m = res.data.methods || {};
+        // Auto select first enabled method if current is not active
+        const isCurrentEnabled = 
+          (paymentMethod === 'upiQr' && m.upiQr !== false) ||
+          (paymentMethod === 'upiApps' && m.upiApps !== false) ||
+          (paymentMethod === 'card' && m.card === true) ||
+          (paymentMethod === 'netbanking' && m.netBanking === true);
+
+        if (!isCurrentEnabled) {
+          if (m.upiQr !== false) setPaymentMethod('upiQr');
+          else if (m.upiApps !== false) setPaymentMethod('upiApps');
+          else if (m.card === true) setPaymentMethod('card');
+          else if (m.netBanking === true) setPaymentMethod('netbanking');
+        }
       }
     }).catch(() => {});
 
@@ -194,6 +239,75 @@ export default function BookingCheckoutModal({
 
   const subTotalBeforeDiscount = baseFare + totalSeatFee + totalMealsFee + baggageFee + insuranceFee + taxes;
   const grandTotal = Math.max(0, subTotalBeforeDiscount - discountAmount);
+
+  // Dynamic Payment Methods & UPI Apps filtered strictly by Admin Settings
+  const activeMethods = paymentSettings?.methods || { upiQr: true, upiApps: true, card: false, netBanking: false };
+  const isUpiQrEnabled = activeMethods.upiQr !== false;
+  const isUpiAppsEnabled = activeMethods.upiApps !== false;
+  const isCardEnabled = !!activeMethods.card;
+  const isNetBankingEnabled = !!activeMethods.netBanking;
+
+  const paymentTabs = [
+    ...(isUpiQrEnabled ? [{ id: 'upiQr', label: 'UPI QR Code', icon: QrCode, badge: 'Instant' }] : []),
+    ...(isUpiAppsEnabled ? [{ id: 'upiApps', label: 'UPI Apps', icon: Smartphone, badge: 'Popular' }] : []),
+    ...(isCardEnabled ? [{ id: 'card', label: 'Credit / Debit', icon: CreditCard }] : []),
+    ...(isNetBankingEnabled ? [{ id: 'netbanking', label: 'Net Banking', icon: Building }] : [])
+  ];
+
+  const activeAppsConfig = paymentSettings?.apps || paymentSettings?.upiApps || {
+    phonepe: true,
+    gpay: true,
+    paytm: true,
+    bhim: true,
+    any: false,
+    other: false
+  };
+
+  const ALL_UPI_APPS = [
+    { key: 'phonepe', name: 'PhonePe', color: 'bg-[#5f259f]', textColor: 'text-white', badge: 'Fastest' },
+    { key: 'gpay', name: 'Google Pay', color: 'bg-[#4285f4]', textColor: 'text-white', badge: 'Popular' },
+    { key: 'paytm', name: 'Paytm', color: 'bg-[#00b9f5]', textColor: 'text-white', badge: 'Instant' },
+    { key: 'bhim', name: 'BHIM UPI', color: 'bg-[#ee3124]', textColor: 'text-white' },
+    { key: 'any', name: 'Any UPI App', color: 'bg-slate-900', textColor: 'text-white' },
+    { key: 'other', name: 'Other UPI', color: 'bg-slate-700', textColor: 'text-white' }
+  ];
+
+  const visibleUpiApps = ALL_UPI_APPS.filter(app => !!activeAppsConfig[app.key]);
+
+  // Ensure selected paymentMethod is one of the currently enabled tabs
+  useEffect(() => {
+    if (paymentTabs.length > 0) {
+      const isValid = paymentTabs.some(t => t.id === paymentMethod || (t.id === 'upiQr' && paymentMethod === 'upi'));
+      if (!isValid) {
+        setPaymentMethod(paymentTabs[0].id);
+      }
+    }
+  }, [paymentSettings, paymentMethod]);
+
+  const getAppDeepLink = (appKey) => {
+    const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
+    const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Air Sky India';
+    const activeMcc = paymentSettings?.upi?.mcc || '5499';
+    const txnRef = `ASG${flight?.id || 'FL'}${Date.now().toString().slice(-6)}`;
+    const note = `Flight ${flight?.flightNumber || 'Ticket'}`;
+    const amount = Number(grandTotal || 0).toFixed(2);
+
+    const template = paymentSettings?.deepLinks?.[appKey] || DEFAULT_DEEP_LINKS[appKey] || DEFAULT_DEEP_LINKS.any;
+    return template
+      .replace(/{vpa}/g, encodeURIComponent(activeVpa))
+      .replace(/{name}/g, encodeURIComponent(activeName))
+      .replace(/{amount}/g, encodeURIComponent(amount))
+      .replace(/{note}/g, encodeURIComponent(note))
+      .replace(/{tr}/g, encodeURIComponent(txnRef))
+      .replace(/{mc}/g, encodeURIComponent(activeMcc))
+      .replace(/{currency}/g, 'INR');
+  };
+
+  const handleLaunchUpiApp = (appKey, appName) => {
+    setSelectedUpiApp(appName);
+    const url = getAppDeepLink(appKey);
+    window.location.href = url;
+  };
 
   // Auto-apply initial coupon if passed
   useEffect(() => {
@@ -524,8 +638,8 @@ export default function BookingCheckoutModal({
     setIsProcessing(true);
 
     try {
-      const isManualUpi = paymentMethod === 'upi';
-      const activeVpa = paymentSettings?.upi?.vpa || 'paytm.s2zbyoe@pty';
+      const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
+      const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
 
       const bookingPayload = {
         flightId: flight.id,
@@ -583,6 +697,7 @@ export default function BookingCheckoutModal({
           method: paymentMethod,
           utrNumber: isManualUpi ? utrNumber : null,
           vpa: isManualUpi ? activeVpa : null,
+          selectedApp: paymentMethod === 'upiApps' ? selectedUpiApp : null,
           bank: paymentMethod === 'netbanking' ? selectedBank : null,
           cardLast4: paymentMethod === 'card' ? (cardDetails.number.slice(-4) || '4242') : null,
           status: isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED'
@@ -2355,55 +2470,48 @@ export default function BookingCheckoutModal({
                     </span>
                   </div>
 
-                  {/* Payment Method Selector Tabs */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('upi')}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer relative ${
-                        paymentMethod === 'upi'
-                          ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="absolute -top-2 right-1.5 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
-                        Instant
-                      </span>
-                      <QrCode className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
-                      <div className="text-[11px] sm:text-xs font-extrabold">UPI / QR Code</div>
-                    </button>
+                  {/* Payment Method Selector Tabs - Dynamically loaded from Admin settings */}
+                  {paymentTabs.length > 0 ? (
+                    <div className={`grid gap-2 ${
+                      paymentTabs.length === 1 ? 'grid-cols-1' :
+                      paymentTabs.length === 2 ? 'grid-cols-2' :
+                      paymentTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
+                    }`}>
+                      {paymentTabs.map(tab => {
+                        const Icon = tab.icon;
+                        const isSelected = paymentMethod === tab.id || (tab.id === 'upiQr' && paymentMethod === 'upi');
+                        return (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setPaymentMethod(tab.id)}
+                            className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer relative ${
+                              isSelected
+                                ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
+                                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            {tab.badge && (
+                              <span className="absolute -top-2 right-1.5 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
+                                {tab.badge}
+                              </span>
+                            )}
+                            <Icon className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
+                            <div className="text-[11px] sm:text-xs font-extrabold truncate">{tab.label}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 font-bold text-center">
+                      Payment gateway currently undergoing maintenance. Please contact support via WhatsApp.
+                    </div>
+                  )}
 
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('card')}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                        paymentMethod === 'card'
-                          ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <CreditCard className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
-                      <div className="text-[11px] sm:text-xs font-extrabold">Credit / Debit</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('netbanking')}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                        paymentMethod === 'netbanking'
-                          ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
-                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <Building className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
-                      <div className="text-[11px] sm:text-xs font-extrabold">Net Banking</div>
-                    </button>
-                  </div>
-
-                  {/* UPI QR Payment Content */}
-                  {paymentMethod === 'upi' && (() => {
-                    const activeVpa = paymentSettings?.upi?.vpa || 'paytm.s2zbyoe@pty';
-                    const activeName = paymentSettings?.upi?.businessName || 'Air Sky India';
+                  {/* 1. UPI QR Payment Content */}
+                  {isUpiQrEnabled && (paymentMethod === 'upiQr' || paymentMethod === 'upi') && (() => {
+                    const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
+                    const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Air Sky India';
                     const activeMcc = paymentSettings?.upi?.mcc || '5499';
                     const txnRef = `ASG${flight.id || 'FL'}${Date.now().toString().slice(-6)}`;
                     const note = `Flight ${flight.flightNumber || 'Ticket'}`;
@@ -2468,8 +2576,106 @@ export default function BookingCheckoutModal({
                     );
                   })()}
 
-                  {/* Card Payment Content */}
-                  {paymentMethod === 'card' && (
+                  {/* 2. UPI Apps Content */}
+                  {isUpiAppsEnabled && paymentMethod === 'upiApps' && (
+                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-extrabold text-slate-800 text-xs">Tap Any UPI App to Pay</p>
+                          <p className="text-[10px] text-slate-500">Fastest checkout on mobile & desktop</p>
+                        </div>
+                        <span className="text-[10px] font-mono font-black text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                          ₹{grandTotal.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      {/* App Buttons Grid */}
+                      {visibleUpiApps.length > 0 ? (
+                        <div className={`grid gap-2 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+                          {visibleUpiApps.map(app => (
+                            <button
+                              key={app.key}
+                              type="button"
+                              onClick={() => handleLaunchUpiApp(app.key, app.name)}
+                              className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all text-left cursor-pointer active:scale-[0.98] ${
+                                selectedUpiApp === app.name
+                                  ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-300'
+                                  : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
+                              }`}
+                            >
+                              <div className={`w-8 h-8 rounded-lg ${app.color} ${app.textColor} flex items-center justify-center shrink-0 shadow-xs font-black text-xs`}>
+                                <Smartphone className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1">
+                                  <span>{app.name}</span>
+                                  {app.badge && (
+                                    <span className="text-[8px] font-black bg-emerald-100 text-emerald-800 px-1 py-0.2 rounded">
+                                      {app.badge}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-sky-600 font-bold flex items-center gap-0.5">
+                                  <span>Pay ₹{grandTotal.toLocaleString('en-IN')}</span>
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-500">
+                          No UPI apps enabled by admin. Please select UPI QR Code.
+                        </div>
+                      )}
+
+                      {/* App Launched Notification / UPI ID copy */}
+                      <div className="space-y-2 pt-1">
+                        {selectedUpiApp && (
+                          <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-[11px] font-bold flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Opened {selectedUpiApp}. Approve payment of ₹{grandTotal.toLocaleString('en-IN')} and enter UTR below.</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-1.5 p-2 bg-white rounded-xl border border-slate-200 text-xs">
+                          <span className="text-[10px] text-slate-400 font-mono">UPI ID:</span>
+                          <span className="font-bold text-slate-800 font-mono truncate text-[11px] flex-1">
+                            {paymentSettings?.upi?.vpa || 'care@airsky'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(paymentSettings?.upi?.vpa || 'care@airsky');
+                              setCopiedVpa(true);
+                              setTimeout(() => setCopiedVpa(false), 2000);
+                            }}
+                            className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                          >
+                            {copiedVpa ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
+                          </button>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                            12-Digit UTR / UPI Ref Number *
+                          </label>
+                          <input
+                            type="text"
+                            maxLength={16}
+                            placeholder="e.g. 423456789012"
+                            value={utrNumber}
+                            onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. Card Payment Content */}
+                  {isCardEnabled && paymentMethod === 'card' && (
                     <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
                       <div>
                         <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Card Number *</label>
@@ -2519,8 +2725,8 @@ export default function BookingCheckoutModal({
                     </div>
                   )}
 
-                  {/* Net Banking */}
-                  {paymentMethod === 'netbanking' && (
+                  {/* 4. Net Banking */}
+                  {isNetBankingEnabled && paymentMethod === 'netbanking' && (
                     <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
                       <label className="block font-bold text-slate-700 text-[11px]">Select Popular Bank:</label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
