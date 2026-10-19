@@ -137,7 +137,6 @@ export default function AdminPage() {
         couponsRes,
         airportsRes,
         settingsRes,
-        apisRes,
         customersRes,
         hotelsRes,
         holidaysRes,
@@ -151,7 +150,6 @@ export default function AdminPage() {
         api.getCoupons(),
         api.getAirports(),
         api.getSettings(),
-        api.getApisConfig(),
         api.getCustomers().catch(() => ({ success: false })),
         api.getAdminHotelBookings().catch(() => ({ success: false })),
         api.getAdminHolidayInquiries().catch(() => ({ success: false })),
@@ -166,7 +164,6 @@ export default function AdminPage() {
       if (couponsRes.success) setCoupons(couponsRes.data);
       if (airportsRes.success) setAirports(airportsRes.data);
       if (settingsRes.success && settingsRes.data) setSettingsForm(settingsRes.data);
-      if (apisRes && apisRes.success && apisRes.data) setApisForm(apisRes.data);
       if (customersRes.success) setCustomers(customersRes.data || []);
       if (hotelsRes.success) setHotelBookings(hotelsRes.data || []);
       if (holidaysRes.success) setHolidayInquiries(holidaysRes.data || []);
