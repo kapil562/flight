@@ -13,12 +13,33 @@ export default function RealAircraftSeatMap({
   onSeatClick,
   onAutoAssignFree,
   layoutData,
-  loading = false
+  loading = false,
+  selectedFareTier = 'saver'
 }) {
   const [hoveredSeat, setHoveredSeat] = useState(null);
 
   const activePax = passengers[activePassengerIndex] || passengers[0] || {};
   const activePaxName = `${activePax.title || ''} ${activePax.firstName || ''} ${activePax.lastName || ''}`.trim() || `Traveller ${activePassengerIndex + 1}`;
+
+  // Helper to calculate effective seat price based on chosen fare tier
+  const getSeatEffectivePrice = (seat) => {
+    if (selectedFareTier === 'super') {
+      // AIR SKY GO VIP includes Extra Legroom and all seats for free (₹0)
+      return 0;
+    }
+    if (selectedFareTier === 'flexi') {
+      // Flexi Plus includes Free Standard Seat selection (Window, Aisle, Middle)
+      const isXL = seat.type?.toLowerCase().includes('xl') ||
+                   seat.type?.toLowerCase().includes('legroom') ||
+                   seat.row === 1 || seat.row === 12 || seat.row === 13;
+      if (isXL) {
+        return seat.price;
+      }
+      return 0; // Standard seats Free
+    }
+    // Saver
+    return seat.price;
+  };
 
   // Default rows if backend layout is loading
   const rows = layoutData?.rows || Array.from({ length: 28 }).map((_, rIdx) => {
@@ -96,7 +117,9 @@ export default function RealAircraftSeatMap({
             className="text-xs font-bold text-sky-300 bg-sky-950/80 hover:bg-sky-900/90 px-3 py-1.5 rounded-xl border border-sky-500/40 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>⚡ Auto-Assign Free Seats (₹0)</span>
+            <span>
+              {selectedFareTier === 'super' ? '⚡ Auto-Assign Extra Legroom XL (₹0 VIP)' : selectedFareTier === 'flexi' ? '⚡ Auto-Assign Free Window/Aisle (₹0)' : '⚡ Auto-Assign Free Seats (₹0)'}
+            </span>
           </button>
         </div>
 
@@ -154,7 +177,11 @@ export default function RealAircraftSeatMap({
                 <span className={`text-[10px] font-black px-1.5 py-0.2 rounded ${
                   hoveredSeat.price === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                 }`}>
-                  {hoveredSeat.price === 0 ? 'FREE SEAT' : `+₹${hoveredSeat.price}`}
+                  {hoveredSeat.price === 0
+                    ? (hoveredSeat.rawPrice > 0
+                        ? (selectedFareTier === 'super' ? 'FREE (VIP Plan)' : 'FREE (Flexi Plus)')
+                        : 'FREE SEAT')
+                    : `+₹${hoveredSeat.price}`}
                 </span>
                 {hoveredSeat.isOccupied && (
                   <span className="bg-slate-200 text-slate-700 text-[10px] font-bold px-1.5 py-0.2 rounded">
@@ -181,28 +208,50 @@ export default function RealAircraftSeatMap({
 
       {/* Seat Color & Legend Bar */}
       <div className="bg-white p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-semibold text-slate-600">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-emerald-50 border-2 border-emerald-500 shadow-xs shrink-0"></div>
-            <span>Free Standard (₹0)</span>
+        {selectedFareTier === 'super' ? (
+          <div className="flex items-center justify-between text-xs font-bold text-amber-900 bg-amber-50 p-2.5 rounded-xl border border-amber-300">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>AIR SKY GO VIP Plan Active: All Extra Legroom XL, Front & Standard Seats are 100% FREE!</span>
+            </div>
+            <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase">
+              ₹0 ALL SEATS
+            </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-sky-50 border-2 border-sky-500 shadow-xs shrink-0"></div>
-            <span>Window/Aisle (₹120-150)</span>
+        ) : selectedFareTier === 'flexi' ? (
+          <div className="flex items-center justify-between text-xs font-bold text-sky-900 bg-sky-50 p-2.5 rounded-xl border border-sky-300">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-sky-600" />
+              <span>Flexi Plus Plan Active: Free Standard Seat Selection (Window, Aisle & Middle are ₹0)!</span>
+            </div>
+            <span className="bg-sky-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase">
+              FREE STANDARD
+            </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-amber-50 border-2 border-amber-500 shadow-xs shrink-0"></div>
-            <span>XL Legroom (₹350-650)</span>
+        ) : (
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-semibold text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded bg-emerald-50 border-2 border-emerald-500 shadow-xs shrink-0"></div>
+              <span>Free Standard (₹0)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded bg-sky-50 border-2 border-sky-500 shadow-xs shrink-0"></div>
+              <span>Window/Aisle (₹120-150)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded bg-amber-50 border-2 border-amber-400 shadow-xs shrink-0"></div>
+              <span>XL Legroom (₹350-650)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3.5 h-3.5 rounded bg-sky-600 text-white flex items-center justify-center font-bold text-[8px] shadow-sm shrink-0">✓</div>
+              <span>Selected Seat</span>
+            </div>
+            <div className="flex items-center gap-1.5 col-span-2 sm:col-span-1">
+              <div className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300 opacity-60 shrink-0"></div>
+              <span>Occupied</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-sky-600 text-white flex items-center justify-center font-bold text-[8px] shadow-sm shrink-0">✓</div>
-            <span>Selected Seat</span>
-          </div>
-          <div className="flex items-center gap-1.5 col-span-2 sm:col-span-1">
-            <div className="w-3.5 h-3.5 rounded bg-slate-200 border border-slate-300 opacity-60 shrink-0"></div>
-            <span>Occupied</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ======================================================== */}
@@ -301,6 +350,9 @@ export default function RealAircraftSeatMap({
                       const isSelectedForAny = !!passengerAssigned;
                       const assignedPaxIdx = passengerAssigned ? passengers.indexOf(passengerAssigned) : -1;
 
+                      const effectivePrice = getSeatEffectivePrice(seat);
+                      const isFreeFromTier = effectivePrice === 0 && seat.price > 0;
+
                       // Authentic Airline Seat Styling with Headrest & Armrest
                       let seatClasses = 'bg-white border-slate-300 text-slate-700 hover:border-sky-500 hover:shadow-md';
                       let headrestColor = 'bg-slate-200';
@@ -314,10 +366,18 @@ export default function RealAircraftSeatMap({
                       } else if (isSelectedForAny) {
                         seatClasses = 'bg-emerald-600 border-emerald-700 text-white shadow-md font-bold';
                         headrestColor = 'bg-emerald-800';
-                      } else if (seat.price > 300) {
+                      } else if (isFreeFromTier) {
+                        if (selectedFareTier === 'super') {
+                          seatClasses = 'bg-amber-50/90 border-amber-400 text-amber-900 hover:bg-amber-100 ring-1 ring-amber-300 shadow-xs';
+                          headrestColor = 'bg-amber-300';
+                        } else {
+                          seatClasses = 'bg-emerald-50/90 border-emerald-400 text-emerald-900 hover:bg-emerald-100 ring-1 ring-emerald-300 shadow-xs';
+                          headrestColor = 'bg-emerald-300';
+                        }
+                      } else if (effectivePrice > 300) {
                         seatClasses = 'bg-amber-50/80 border-amber-400 text-amber-900 hover:bg-amber-100';
                         headrestColor = 'bg-amber-300';
-                      } else if (seat.price > 0) {
+                      } else if (effectivePrice > 0) {
                         seatClasses = 'bg-sky-50/80 border-sky-300 text-sky-900 hover:bg-sky-100';
                         headrestColor = 'bg-sky-200';
                       } else {
@@ -332,11 +392,11 @@ export default function RealAircraftSeatMap({
                           disabled={seat.isOccupied}
                           whileHover={!seat.isOccupied ? { scale: 1.08 } : undefined}
                           whileTap={!seat.isOccupied ? { scale: 0.94 } : undefined}
-                          onMouseEnter={() => setHoveredSeat(seat)}
+                          onMouseEnter={() => setHoveredSeat({ ...seat, price: effectivePrice, rawPrice: seat.price })}
                           onMouseLeave={() => setHoveredSeat(null)}
-                          onClick={() => onSeatClick(seat)}
+                          onClick={() => onSeatClick({ ...seat, price: effectivePrice, rawPrice: seat.price })}
                           className={`h-9 sm:h-11 rounded-t-lg rounded-b-xs sm:rounded-t-xl sm:rounded-b-md border sm:border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
-                          title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
+                          title={`${seat.seatNumber} (${seat.type}) - ${effectivePrice > 0 ? `+₹${effectivePrice}` : (isFreeFromTier ? (selectedFareTier === 'super' ? 'FREE WITH VIP' : 'FREE WITH FLEXI PLUS') : 'FREE')}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
                           <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
@@ -353,8 +413,14 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-75 font-mono">
-                            {seat.price > 0 ? `₹${seat.price}` : 'Free'}
+                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-85 font-mono">
+                            {effectivePrice > 0 ? (
+                              `₹${effectivePrice}`
+                            ) : (
+                              <span className={isFreeFromTier ? (selectedFareTier === 'super' ? 'text-amber-800 font-black' : 'text-emerald-700 font-black') : 'text-slate-600'}>
+                                {isFreeFromTier ? 'FREE ✓' : 'Free'}
+                              </span>
+                            )}
                           </div>
                         </motion.button>
                       );
@@ -372,6 +438,9 @@ export default function RealAircraftSeatMap({
                       const isSelectedForAny = !!passengerAssigned;
                       const assignedPaxIdx = passengerAssigned ? passengers.indexOf(passengerAssigned) : -1;
 
+                      const effectivePrice = getSeatEffectivePrice(seat);
+                      const isFreeFromTier = effectivePrice === 0 && seat.price > 0;
+
                       let seatClasses = 'bg-white border-slate-300 text-slate-700 hover:border-sky-500 hover:shadow-md';
                       let headrestColor = 'bg-slate-200';
 
@@ -384,10 +453,18 @@ export default function RealAircraftSeatMap({
                       } else if (isSelectedForAny) {
                         seatClasses = 'bg-emerald-600 border-emerald-700 text-white shadow-md font-bold';
                         headrestColor = 'bg-emerald-800';
-                      } else if (seat.price > 300) {
+                      } else if (isFreeFromTier) {
+                        if (selectedFareTier === 'super') {
+                          seatClasses = 'bg-amber-50/90 border-amber-400 text-amber-900 hover:bg-amber-100 ring-1 ring-amber-300 shadow-xs';
+                          headrestColor = 'bg-amber-300';
+                        } else {
+                          seatClasses = 'bg-emerald-50/90 border-emerald-400 text-emerald-900 hover:bg-emerald-100 ring-1 ring-emerald-300 shadow-xs';
+                          headrestColor = 'bg-emerald-300';
+                        }
+                      } else if (effectivePrice > 300) {
                         seatClasses = 'bg-amber-50/80 border-amber-400 text-amber-900 hover:bg-amber-100';
                         headrestColor = 'bg-amber-300';
-                      } else if (seat.price > 0) {
+                      } else if (effectivePrice > 0) {
                         seatClasses = 'bg-sky-50/80 border-sky-300 text-sky-900 hover:bg-sky-100';
                         headrestColor = 'bg-sky-200';
                       } else {
@@ -402,11 +479,11 @@ export default function RealAircraftSeatMap({
                           disabled={seat.isOccupied}
                           whileHover={!seat.isOccupied ? { scale: 1.08 } : undefined}
                           whileTap={!seat.isOccupied ? { scale: 0.94 } : undefined}
-                          onMouseEnter={() => setHoveredSeat(seat)}
+                          onMouseEnter={() => setHoveredSeat({ ...seat, price: effectivePrice, rawPrice: seat.price })}
                           onMouseLeave={() => setHoveredSeat(null)}
-                          onClick={() => onSeatClick(seat)}
+                          onClick={() => onSeatClick({ ...seat, price: effectivePrice, rawPrice: seat.price })}
                           className={`h-9 sm:h-11 rounded-t-lg rounded-b-xs sm:rounded-t-xl sm:rounded-b-md border sm:border-2 flex flex-col items-center justify-between p-0.5 sm:p-1 transition-all cursor-pointer relative overflow-hidden ${seatClasses}`}
-                          title={`${seat.seatNumber} (${seat.type}) - ${seat.price > 0 ? `+₹${seat.price}` : 'FREE'}`}
+                          title={`${seat.seatNumber} (${seat.type}) - ${effectivePrice > 0 ? `+₹${effectivePrice}` : (isFreeFromTier ? (selectedFareTier === 'super' ? 'FREE WITH VIP' : 'FREE WITH FLEXI PLUS') : 'FREE')}`}
                         >
                           {/* Realistic Headrest Cushion Bar */}
                           <div className={`w-full h-1 sm:h-1.5 rounded-full ${headrestColor} opacity-70 mb-0.5`}></div>
@@ -423,8 +500,14 @@ export default function RealAircraftSeatMap({
                           </div>
 
                           {/* Price Tag Indicator */}
-                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-75 font-mono">
-                            {seat.price > 0 ? `₹${seat.price}` : 'Free'}
+                          <div className="text-[6.5px] sm:text-[8px] font-bold opacity-85 font-mono">
+                            {effectivePrice > 0 ? (
+                              `₹${effectivePrice}`
+                            ) : (
+                              <span className={isFreeFromTier ? (selectedFareTier === 'super' ? 'text-amber-800 font-black' : 'text-emerald-700 font-black') : 'text-slate-600'}>
+                                {isFreeFromTier ? 'FREE ✓' : 'Free'}
+                              </span>
+                            )}
                           </div>
                         </motion.button>
                       );

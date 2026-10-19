@@ -217,6 +217,27 @@ export default function BookingCheckoutModal({
     setPassengers(updated);
   };
 
+  // Meal options helper based on active fare tier
+  const getMealOptions = (tier) => [
+    { 
+      name: 'No Meal', 
+      price: 0, 
+      desc: 'No food pre-booked' 
+    },
+    { 
+      name: 'Complimentary Sandwich / Snack', 
+      price: (tier === 'flexi' || tier === 'super') ? 0 : 349, 
+      desc: 'Grilled Chicken / Veg Club Sandwich',
+      badge: (tier === 'flexi' || tier === 'super') ? 'Free in Plan' : null
+    },
+    { 
+      name: 'Veg Special Gourmet Meal', 
+      price: tier === 'super' ? 0 : 299, 
+      desc: 'Hot Paneer Curry + Paratha & Dessert',
+      badge: tier === 'super' ? 'Free with VIP' : null
+    }
+  ];
+
   // Set meal for passenger
   const handleMealSelect = (index, mealName, price) => {
     const updated = [...passengers];
@@ -240,19 +261,29 @@ export default function BookingCheckoutModal({
       if (isRet) {
         updated[existingIdx].returnSeat = '';
         updated[existingIdx].returnSeatPrice = 0;
+        updated[existingIdx].rawReturnSeatPrice = 0;
       } else {
         updated[existingIdx].onwardSeat = '';
         updated[existingIdx].onwardSeatPrice = 0;
+        updated[existingIdx].rawOnwardSeatPrice = 0;
       }
     }
+
+    const effectivePrice = seat.price || 0;
+    const rawPrice = seat.rawPrice !== undefined ? seat.rawPrice : seat.price;
+    const seatType = seat.type || 'Standard';
 
     if (flight?.isRoundTrip) {
       if (isRet) {
         updated[activePassengerIndex].returnSeat = seat.seatNumber;
-        updated[activePassengerIndex].returnSeatPrice = seat.price || 0;
+        updated[activePassengerIndex].returnSeatPrice = effectivePrice;
+        updated[activePassengerIndex].rawReturnSeatPrice = rawPrice;
+        updated[activePassengerIndex].returnSeatType = seatType;
       } else {
         updated[activePassengerIndex].onwardSeat = seat.seatNumber;
-        updated[activePassengerIndex].onwardSeatPrice = seat.price || 0;
+        updated[activePassengerIndex].onwardSeatPrice = effectivePrice;
+        updated[activePassengerIndex].rawOnwardSeatPrice = rawPrice;
+        updated[activePassengerIndex].onwardSeatType = seatType;
       }
       const onS = updated[activePassengerIndex].onwardSeat || '';
       const retS = updated[activePassengerIndex].returnSeat || '';
@@ -260,7 +291,9 @@ export default function BookingCheckoutModal({
       updated[activePassengerIndex].seatPrice = (updated[activePassengerIndex].onwardSeatPrice || 0) + (updated[activePassengerIndex].returnSeatPrice || 0);
     } else {
       updated[activePassengerIndex].seat = seat.seatNumber;
-      updated[activePassengerIndex].seatPrice = seat.price || 0;
+      updated[activePassengerIndex].seatPrice = effectivePrice;
+      updated[activePassengerIndex].rawSeatPrice = rawPrice;
+      updated[activePassengerIndex].seatType = seatType;
     }
 
     setPassengers(updated);
@@ -278,22 +311,96 @@ export default function BookingCheckoutModal({
   const handleAutoAssignFreeSeats = () => {
     const updated = [...passengers];
     updated.forEach((p, i) => {
-      const seatOn = `${14 + i}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`;
-      const seatRet = `${16 + i}${['F', 'E', 'D', 'C', 'B', 'A'][i % 6]}`;
+      // In VIP, prioritize Front XL seats (Row 1)
+      const row = selectedFareTier === 'super' ? 1 : (14 + i);
+      const seatOn = `${row}${['A', 'B', 'C', 'D', 'E', 'F'][i % 6]}`;
+      const seatRet = `${row + 1}${['F', 'E', 'D', 'C', 'B', 'A'][i % 6]}`;
       if (flight?.isRoundTrip) {
         p.onwardSeat = seatOn;
         p.returnSeat = seatRet;
         p.seat = `${seatOn} (Dep) / ${seatRet} (Ret)`;
         p.onwardSeatPrice = 0;
         p.returnSeatPrice = 0;
+        p.rawOnwardSeatPrice = selectedFareTier === 'super' ? 650 : 0;
+        p.rawReturnSeatPrice = selectedFareTier === 'super' ? 650 : 0;
+        p.onwardSeatType = selectedFareTier === 'super' ? 'XL Front Premium' : 'Standard';
+        p.returnSeatType = selectedFareTier === 'super' ? 'XL Front Premium' : 'Standard';
         p.seatPrice = 0;
       } else {
         p.seat = seatOn;
         p.seatPrice = 0;
+        p.rawSeatPrice = selectedFareTier === 'super' ? 650 : 0;
+        p.seatType = selectedFareTier === 'super' ? 'XL Front Premium' : 'Standard';
       }
     });
     setPassengers(updated);
   };
+
+  // Dynamically recalculate passenger seat and meal prices if user changes selectedFareTier
+  useEffect(() => {
+    setPassengers(prev => prev.map(p => {
+      const updatedP = { ...p };
+
+      if (flight?.isRoundTrip) {
+        if (updatedP.onwardSeat) {
+          const rawPrice = updatedP.rawOnwardSeatPrice !== undefined ? updatedP.rawOnwardSeatPrice : (updatedP.onwardSeatPrice || 0);
+          const isXL = updatedP.onwardSeatType?.toLowerCase().includes('xl') || updatedP.onwardSeatType?.toLowerCase().includes('legroom') || updatedP.onwardSeat.startsWith('1') || updatedP.onwardSeat.startsWith('12') || updatedP.onwardSeat.startsWith('13');
+          if (selectedFareTier === 'super') {
+            updatedP.onwardSeatPrice = 0;
+          } else if (selectedFareTier === 'flexi') {
+            updatedP.onwardSeatPrice = isXL ? rawPrice : 0;
+          } else {
+            updatedP.onwardSeatPrice = rawPrice;
+          }
+        }
+        if (updatedP.returnSeat) {
+          const rawPrice = updatedP.rawReturnSeatPrice !== undefined ? updatedP.rawReturnSeatPrice : (updatedP.returnSeatPrice || 0);
+          const isXL = updatedP.returnSeatType?.toLowerCase().includes('xl') || updatedP.returnSeatType?.toLowerCase().includes('legroom') || updatedP.returnSeat.startsWith('1') || updatedP.returnSeat.startsWith('12') || updatedP.returnSeat.startsWith('13');
+          if (selectedFareTier === 'super') {
+            updatedP.returnSeatPrice = 0;
+          } else if (selectedFareTier === 'flexi') {
+            updatedP.returnSeatPrice = isXL ? rawPrice : 0;
+          } else {
+            updatedP.returnSeatPrice = rawPrice;
+          }
+        }
+        updatedP.seatPrice = (updatedP.onwardSeatPrice || 0) + (updatedP.returnSeatPrice || 0);
+      } else if (updatedP.seat) {
+        const rawPrice = updatedP.rawSeatPrice !== undefined ? updatedP.rawSeatPrice : (updatedP.seatPrice || 0);
+        const isXL = updatedP.seatType?.toLowerCase().includes('xl') || updatedP.seatType?.toLowerCase().includes('legroom') || updatedP.seat.startsWith('1') || updatedP.seat.startsWith('12') || updatedP.seat.startsWith('13');
+        if (selectedFareTier === 'super') {
+          updatedP.seatPrice = 0;
+        } else if (selectedFareTier === 'flexi') {
+          updatedP.seatPrice = isXL ? rawPrice : 0;
+        } else {
+          updatedP.seatPrice = rawPrice;
+        }
+      }
+
+      // Sync meal prices based on tier
+      if (updatedP.meal) {
+        if (updatedP.meal === 'No Meal') {
+          updatedP.mealPrice = 0;
+        } else if (selectedFareTier === 'super') {
+          updatedP.mealPrice = 0;
+        } else if (selectedFareTier === 'flexi') {
+          if (updatedP.meal.toLowerCase().includes('sandwich') || updatedP.meal.toLowerCase().includes('snack')) {
+            updatedP.mealPrice = 0;
+          } else {
+            updatedP.mealPrice = 299;
+          }
+        } else {
+          if (updatedP.meal.toLowerCase().includes('sandwich') || updatedP.meal.toLowerCase().includes('snack')) {
+            updatedP.mealPrice = 349;
+          } else {
+            updatedP.mealPrice = 299;
+          }
+        }
+      }
+
+      return updatedP;
+    }));
+  }, [selectedFareTier]);
 
   // Apply Promo
   const handleApplyPromo = async (codeToUse) => {
@@ -1194,6 +1301,50 @@ export default function BookingCheckoutModal({
                     </div>
                   )}
 
+                  {/* Active Flexibility Tier Benefit Live Notice */}
+                  {selectedFareTier === 'super' ? (
+                    <div className="p-3 sm:p-3.5 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent border border-amber-300 rounded-2xl flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Sparkles className="w-5 h-5 text-amber-600 shrink-0" />
+                        <div>
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-900 block">
+                            AIR SKY GO VIP Luxury Plan Benefits Active
+                          </span>
+                          <span className="text-[11px] text-amber-800">
+                            ✨ <strong>Extra Legroom XL</strong>, Front Premium & All Seats are <strong>100% FREE (₹0)</strong>. Full Hot Gourmet Meals are also included free!
+                          </span>
+                        </div>
+                      </div>
+                      <span className="hidden sm:inline-block px-2.5 py-1 bg-amber-500 text-white font-black text-[10px] uppercase rounded-full shrink-0 shadow-xs">
+                        VIP Active
+                      </span>
+                    </div>
+                  ) : selectedFareTier === 'flexi' ? (
+                    <div className="p-3 sm:p-3.5 bg-gradient-to-r from-sky-500/15 via-sky-500/10 to-transparent border border-sky-300 rounded-2xl flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Zap className="w-5 h-5 text-sky-600 shrink-0" />
+                        <div>
+                          <span className="text-xs font-black uppercase tracking-wider text-sky-900 block">
+                            Flexi Plus Plan Benefits Active
+                          </span>
+                          <span className="text-[11px] text-sky-800">
+                            ⚡ <strong>Free Standard Seat Selection</strong> (Window, Aisle & Middle are ₹0). Complimentary Snack / Sandwich Meal is also <strong>FREE (₹0)</strong>!
+                          </span>
+                        </div>
+                      </div>
+                      <span className="hidden sm:inline-block px-2.5 py-1 bg-sky-600 text-white font-black text-[10px] uppercase rounded-full shrink-0 shadow-xs">
+                        Flexi Plus Active
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="p-3 sm:p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-2.5 text-xs text-slate-600">
+                      <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                      <span>
+                        <strong>Saver Plan:</strong> Standard middle seats are free (₹0). Window, Aisle and Extra Legroom seats have nominal standard fees.
+                      </span>
+                    </div>
+                  )}
+
                   <RealAircraftSeatMap
                     flight={flight?.isRoundTrip && seatFlightLeg === 'return' ? (flight.returnFlight || flight) : (flight?.onwardFlight || flight)}
                     passengers={passengers.map(p => ({
@@ -1206,6 +1357,7 @@ export default function BookingCheckoutModal({
                     onAutoAssignFree={handleAutoAssignFreeSeats}
                     layoutData={layoutData}
                     loading={loadingSeats}
+                    selectedFareTier={selectedFareTier}
                   />
 
                   {flight?.isRoundTrip && seatFlightLeg === 'onward' && (
@@ -1229,7 +1381,9 @@ export default function BookingCheckoutModal({
                         <Utensils className="w-4 h-4 text-sky-600" />
                         <span className="font-extrabold text-xs sm:text-sm text-slate-900">Select In-Flight Meals (Optional)</span>
                       </div>
-                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-500">Freshly prepared on-board</span>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-500">
+                        {selectedFareTier === 'super' ? '✨ Full Hot Gourmet Meals Free with VIP' : selectedFareTier === 'flexi' ? '🥪 Complimentary Snack Free with Flexi Plus' : 'Freshly prepared on-board'}
+                      </span>
                     </div>
 
                     <div className="space-y-2.5">
@@ -1246,21 +1400,21 @@ export default function BookingCheckoutModal({
                               </span>
                             </div>
                             <span className="text-[11px] font-extrabold text-slate-600">
-                              {p.meal} {p.mealPrice > 0 && <span className="text-sky-700 font-bold">(+₹{p.mealPrice})</span>}
+                              {p.meal} {p.mealPrice > 0 ? (
+                                <span className="text-sky-700 font-bold">(+₹{p.mealPrice})</span>
+                              ) : p.meal && p.meal !== 'No Meal' ? (
+                                <span className="text-emerald-700 font-bold">(FREE)</span>
+                              ) : null}
                             </span>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                            {[
-                              { name: 'No Meal', price: 0, desc: 'No food pre-booked' },
-                              { name: 'Veg Special Meal', price: 299, desc: 'Hot Paneer Curry + Paratha' },
-                              { name: 'Non-Veg Gourmet Snack', price: 349, desc: 'Grilled Chicken Sandwich' }
-                            ].map(m => (
+                            {getMealOptions(selectedFareTier).map(m => (
                               <button
                                 key={m.name}
                                 type="button"
                                 onClick={() => handleMealSelect(idx, m.name, m.price)}
-                                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden ${
                                   p.meal === m.name
                                     ? 'bg-sky-50 border-sky-500 text-sky-900 font-bold shadow-xs'
                                     : 'bg-slate-50/60 border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -1268,9 +1422,16 @@ export default function BookingCheckoutModal({
                               >
                                 <div className="font-bold flex items-center justify-between">
                                   <span>{m.name}</span>
-                                  <span className="font-mono text-[10px] text-slate-500">{m.price === 0 ? 'Free' : `+₹${m.price}`}</span>
+                                  <span className={`font-mono text-[10px] ${m.price === 0 ? 'text-emerald-700 font-black' : 'text-slate-500'}`}>
+                                    {m.price === 0 ? 'FREE' : `+₹${m.price}`}
+                                  </span>
                                 </div>
                                 <div className="text-[10px] text-slate-400 mt-0.5 truncate">{m.desc}</div>
+                                {m.badge && (
+                                  <span className="inline-block mt-1 text-[9px] font-black px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded">
+                                    ✓ {m.badge}
+                                  </span>
+                                )}
                               </button>
                             ))}
                           </div>
@@ -1652,14 +1813,26 @@ export default function BookingCheckoutModal({
                             <span className="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 font-bold text-xs flex items-center gap-1">
                               <Armchair className="w-3.5 h-3.5 text-sky-600" />
                               <span>Seat: <strong className="font-mono text-sky-700">{p.seat || 'Auto'}</strong></span>
-                              {p.seatPrice > 0 && <span className="text-[10px] text-sky-600">(+₹{p.seatPrice})</span>}
+                              {p.seatPrice > 0 ? (
+                                <span className="text-[10px] text-sky-600 font-mono">(+₹{p.seatPrice})</span>
+                              ) : p.seat ? (
+                                <span className="text-[10px] text-emerald-700 font-black">
+                                  {selectedFareTier === 'super' ? '(FREE - VIP)' : selectedFareTier === 'flexi' ? '(FREE - Flexi)' : '(FREE)'}
+                                </span>
+                              ) : null}
                             </span>
 
                             {/* Meal Pill */}
                             <span className="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-xs flex items-center gap-1">
                               <Utensils className="w-3 h-3 text-amber-600" />
                               <span className="truncate max-w-[140px]">{p.meal || 'No meal'}</span>
-                              {p.mealPrice > 0 && <span className="text-[10px] text-amber-700">(+₹{p.mealPrice})</span>}
+                              {p.mealPrice > 0 ? (
+                                <span className="text-[10px] text-amber-700 font-mono">(+₹{p.mealPrice})</span>
+                              ) : p.meal && p.meal !== 'No Meal' ? (
+                                <span className="text-[10px] text-emerald-700 font-black">
+                                  {selectedFareTier === 'super' ? '(FREE - VIP)' : '(FREE - Plan)'}
+                                </span>
+                              ) : null}
                             </span>
                           </div>
                         </div>
@@ -2368,17 +2541,31 @@ export default function BookingCheckoutModal({
                     </div>
                   )}
 
-                  {totalSeatFee > 0 && (
+                  {totalSeatFee > 0 ? (
                     <div className="flex justify-between">
                       <span>Seat Selection ({passengers.filter(p => p.seatPrice > 0).length} Paid)</span>
                       <span className="font-bold font-mono text-sky-700">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
                     </div>
+                  ) : passengers.some(p => p.seat) && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Seat Selection ({passengers.filter(p => p.seat).length} Selected)</span>
+                      <span className="font-bold font-mono">
+                        {selectedFareTier === 'super' ? 'FREE (VIP Plan)' : selectedFareTier === 'flexi' ? 'FREE (Flexi Plus)' : 'FREE'}
+                      </span>
+                    </div>
                   )}
 
-                  {totalMealsFee > 0 && (
+                  {totalMealsFee > 0 ? (
                     <div className="flex justify-between">
                       <span>Meals & In-Flight Food</span>
                       <span className="font-bold font-mono text-sky-700">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
+                    </div>
+                  ) : passengers.some(p => p.meal && p.meal !== 'No Meal') && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Meals & In-Flight Food</span>
+                      <span className="font-bold font-mono">
+                        {selectedFareTier === 'super' ? 'FREE (VIP Gourmet)' : 'FREE (Plan Benefit)'}
+                      </span>
                     </div>
                   )}
 
