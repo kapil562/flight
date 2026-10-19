@@ -299,6 +299,15 @@ export default function FlightList({
       result.sort((a, b) => (a.departureTime || '').localeCompare(b.departureTime || ''));
     }
 
+    // Guarantee 100% duplicate-free results
+    const seen = new Set();
+    result = result.filter(f => {
+      const key = `${f.airlineCode || f.airline}_${f.departureTime}_${f.arrivalTime}_${f.from}_${f.to}_${f.stops}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     return result;
   };
 

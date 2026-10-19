@@ -857,8 +857,11 @@ const mapSerpApiFlight = (item, from, to, date, idx) => {
   };
   const airlineColor = colorMap[airlineCode] || '#002B7F';
 
+  const legFlightNumbers = flightLegs.map(l => (l.flight_number || '').trim().replace(/\s+/, '-')).filter(Boolean);
   const rawFlightNo = firstLeg.flight_number || `${airlineCode}-${100 + idx}`;
-  const flightNumber = rawFlightNo.includes('-') ? rawFlightNo : rawFlightNo.replace(/\s+/, '-');
+  const flightNumber = legFlightNumbers.length > 1
+    ? (legFlightNumbers[0] === legFlightNumbers[legFlightNumbers.length - 1] ? legFlightNumbers[0] : `${legFlightNumbers[0]} + ${legFlightNumbers[legFlightNumbers.length - 1]}`)
+    : (rawFlightNo.includes('-') ? rawFlightNo : rawFlightNo.replace(/\s+/, '-'));
 
   const depTimeFull = firstLeg.departure_airport?.time || '08:00';
   const arrTimeFull = lastLeg.arrival_airport?.time || '10:30';
@@ -1002,8 +1005,24 @@ const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
       return flightObj;
     });
 
-    serpapiFlightCache.set(cacheKey, { timestamp: Date.now(), data: parsedFlights });
-    return parsedFlights;
+    // Deduplicate identical flights (same airline, departure time, arrival time, stops)
+    const dedupMap = new Map();
+    for (const f of parsedFlights) {
+      const key = `${f.airlineCode || f.airline}_${f.departureTime}_${f.arrivalTime}_${f.stops}_${f.duration}`;
+      if (!dedupMap.has(key)) {
+        dedupMap.set(key, f);
+      } else {
+        const existing = dedupMap.get(key);
+        if (f.basePrice < existing.basePrice) {
+          dedupMap.set(key, f);
+        }
+      }
+    }
+    const uniqueFlights = Array.from(dedupMap.values());
+    console.log(`✨ [SerpApi Deduplication] Filtered ${parsedFlights.length} raw results -> ${uniqueFlights.length} unique flights`);
+
+    serpapiFlightCache.set(cacheKey, { timestamp: Date.now(), data: uniqueFlights });
+    return uniqueFlights;
   } catch (err) {
     console.error('Error querying SerpApi Google Flights:', err.message);
     return null;
@@ -1303,6 +1322,21 @@ app.get('/api/flights', async (req, res) => {
   if (maxPrice) {
     flights = flights.filter(f => f.basePrice <= parseInt(maxPrice));
   }
+
+  // Ensure 100% duplicate-free flight results
+  const finalDedup = new Map();
+  for (const f of flights) {
+    const key = `${f.airlineCode || f.airline}_${f.departureTime}_${f.arrivalTime}_${f.stops}_${f.from}_${f.to}`;
+    if (!finalDedup.has(key)) {
+      finalDedup.set(key, f);
+    } else {
+      const existing = finalDedup.get(key);
+      if (f.basePrice < existing.basePrice) {
+        finalDedup.set(key, f);
+      }
+    }
+  }
+  flights = Array.from(finalDedup.values());
 
   // Sorting
   if (sort === 'cheapest') {
