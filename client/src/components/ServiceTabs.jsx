@@ -69,7 +69,7 @@ export default function ServiceTabs({
   if (visibleServices.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-40">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mb-3 sm:-mb-5 relative z-10">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-xl border border-slate-200/90 flex items-center justify-between gap-1.5 sm:gap-2.5 overflow-x-auto scrollbar-none w-full">
         {visibleServices.map((srv) => {
           const Icon = srv.icon;

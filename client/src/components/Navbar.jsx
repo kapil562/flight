@@ -93,7 +93,7 @@ export default function Navbar({
   const navItems = allNavItems.filter(item => enabledServices[item.id] !== false);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
       
       {/* Top Announcement & Customer Support Bar (Moyatri Style) */}
       <div className="bg-gradient-to-r from-sky-800 via-blue-900 to-indigo-950 text-white text-[10px] sm:text-xs py-1.5 px-3 sm:px-6 flex items-center justify-between font-semibold tracking-wide">
@@ -375,7 +375,7 @@ export default function Navbar({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 overflow-hidden"
+                      className="absolute right-0 top-full mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 overflow-hidden"
                     >
                       <div className="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50">
                         <p className="text-xs font-black text-slate-900 leading-tight">{currentUser.name || 'My Account'}</p>
