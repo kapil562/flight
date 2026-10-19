@@ -28,6 +28,7 @@ import ContactPage from './pages/ContactPage';
 import TermsPage from './pages/TermsPage';
 import { api } from './utils/api';
 import defaultAirports from './data/airports.json';
+import { auth, signOut, onAuthStateChanged } from './firebase';
 
 function MainWebsite() {
   const navigate = useNavigate();
@@ -302,13 +303,36 @@ function MainWebsite() {
     executeFlightSearch(searchParams);
   };
 
+  // Listen to Firebase auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const userObj = {
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Traveller',
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL || null,
+          role: 'traveller',
+          tier: 'SkyClub Member',
+          points: 500
+        };
+        setCurrentUser(userObj);
+        localStorage.setItem('asg_user', JSON.stringify(userObj));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   // User auth actions
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setAuthModalOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {}
     localStorage.removeItem('asg_user');
     setCurrentUser(null);
   };
