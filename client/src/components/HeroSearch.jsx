@@ -437,12 +437,17 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               </div>
                               <div className="overflow-y-auto max-h-52 p-1">
                                 {airports
-                                  .filter(a =>
-                                    !legSearch ||
-                                    a.city.toLowerCase().includes(legSearch.toLowerCase()) ||
-                                    a.code.toLowerCase().includes(legSearch.toLowerCase()) ||
-                                    a.name.toLowerCase().includes(legSearch.toLowerCase())
-                                  )
+                                  .filter(a => {
+                                    if (!legSearch) return true;
+                                    const q = legSearch.toLowerCase().trim();
+                                    return (
+                                      (a.city && a.city.toLowerCase().includes(q)) ||
+                                      (a.code && a.code.toLowerCase().includes(q)) ||
+                                      (a.name && a.name.toLowerCase().includes(q)) ||
+                                      (a.state && a.state.toLowerCase().includes(q)) ||
+                                      (a.country && a.country.toLowerCase().includes(q))
+                                    );
+                                  })
                                   .map(airport => (
                                     <div
                                       key={airport.code}
@@ -455,9 +460,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                                         leg.from === airport.code ? 'bg-sky-50 font-bold' : ''
                                       }`}
                                     >
-                                      <div>
-                                        <span className="font-bold text-slate-900">{airport.city} ({airport.code})</span>
-                                        <div className="text-[10px] text-slate-500 truncate max-w-[180px]">{airport.name}</div>
+                                      <div className="min-w-0 pr-2">
+                                        <div className="font-bold text-slate-900 truncate">{airport.city} ({airport.code})</div>
+                                        <div className="text-[10px] text-slate-500 truncate max-w-[200px]">{airport.name}</div>
                                       </div>
                                       <span className="font-mono font-bold text-sky-600 px-1.5 py-0.5 bg-sky-100 rounded text-[10px]">
                                         {airport.code}
@@ -529,12 +534,17 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               </div>
                               <div className="overflow-y-auto max-h-52 p-1">
                                 {airports
-                                  .filter(a =>
-                                    !legSearch ||
-                                    a.city.toLowerCase().includes(legSearch.toLowerCase()) ||
-                                    a.code.toLowerCase().includes(legSearch.toLowerCase()) ||
-                                    a.name.toLowerCase().includes(legSearch.toLowerCase())
-                                  )
+                                  .filter(a => {
+                                    if (!legSearch) return true;
+                                    const q = legSearch.toLowerCase().trim();
+                                    return (
+                                      (a.city && a.city.toLowerCase().includes(q)) ||
+                                      (a.code && a.code.toLowerCase().includes(q)) ||
+                                      (a.name && a.name.toLowerCase().includes(q)) ||
+                                      (a.state && a.state.toLowerCase().includes(q)) ||
+                                      (a.country && a.country.toLowerCase().includes(q))
+                                    );
+                                  })
                                   .map(airport => (
                                     <div
                                       key={airport.code}
@@ -547,9 +557,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                                         leg.to === airport.code ? 'bg-sky-50 font-bold' : ''
                                       }`}
                                     >
-                                      <div>
-                                        <span className="font-bold text-slate-900">{airport.city} ({airport.code})</span>
-                                        <div className="text-[10px] text-slate-500 truncate max-w-[180px]">{airport.name}</div>
+                                      <div className="min-w-0 pr-2">
+                                        <div className="font-bold text-slate-900 truncate">{airport.city} ({airport.code})</div>
+                                        <div className="text-[10px] text-slate-500 truncate max-w-[200px]">{airport.name}</div>
                                       </div>
                                       <span className="font-mono font-bold text-blue-600 px-1.5 py-0.5 bg-blue-100 rounded text-[10px]">
                                         {airport.code}
@@ -744,15 +754,19 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-sky-500"
                       />
                     </div>
-                    <div className="overflow-y-auto max-h-60 p-1">
+                    <div className="overflow-y-auto max-h-64 p-1">
                       {airports
-                        .filter(a => 
-                          !searchFrom || 
-                          a.city.toLowerCase().includes(searchFrom.toLowerCase()) || 
-                          a.code.toLowerCase().includes(searchFrom.toLowerCase()) || 
-                          a.name.toLowerCase().includes(searchFrom.toLowerCase()) ||
-                          (a.country && a.country.toLowerCase().includes(searchFrom.toLowerCase()))
-                        )
+                        .filter(a => {
+                          if (!searchFrom) return true;
+                          const q = searchFrom.toLowerCase().trim();
+                          return (
+                            (a.city && a.city.toLowerCase().includes(q)) || 
+                            (a.code && a.code.toLowerCase().includes(q)) || 
+                            (a.name && a.name.toLowerCase().includes(q)) ||
+                            (a.state && a.state.toLowerCase().includes(q)) ||
+                            (a.country && a.country.toLowerCase().includes(q))
+                          );
+                        })
                         .map(airport => (
                           <div
                             key={airport.code}
@@ -761,11 +775,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               fromCode === airport.code ? 'bg-sky-50 font-bold' : ''
                             }`}
                           >
-                            <div>
-                              <div className="text-sm font-bold text-slate-900">{airport.city} ({airport.code})</div>
-                              <div className="text-xs text-slate-500 truncate max-w-[200px]">{airport.name}</div>
+                            <div className="min-w-0 pr-2">
+                              <div className="text-sm font-bold text-slate-900 truncate">
+                                {airport.city} <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                              </div>
+                              <div className="text-xs text-slate-500 truncate max-w-[280px] sm:max-w-[340px]">
+                                {airport.name}{airport.state ? `, ${airport.state}` : ''}
+                              </div>
                             </div>
-                            <span className="text-xs font-mono font-bold text-sky-600 px-2 py-0.5 bg-sky-100 rounded-md">
+                            <span className="text-xs font-mono font-bold text-sky-600 px-2 py-0.5 bg-sky-100 rounded-md shrink-0">
                               {airport.code}
                             </span>
                           </div>
@@ -856,15 +874,19 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500"
                       />
                     </div>
-                    <div className="overflow-y-auto max-h-60 p-1">
+                    <div className="overflow-y-auto max-h-64 p-1">
                       {airports
-                        .filter(a => 
-                          !searchTo || 
-                          a.city.toLowerCase().includes(searchTo.toLowerCase()) || 
-                          a.code.toLowerCase().includes(searchTo.toLowerCase()) || 
-                          a.name.toLowerCase().includes(searchTo.toLowerCase()) ||
-                          (a.country && a.country.toLowerCase().includes(searchTo.toLowerCase()))
-                        )
+                        .filter(a => {
+                          if (!searchTo) return true;
+                          const q = searchTo.toLowerCase().trim();
+                          return (
+                            (a.city && a.city.toLowerCase().includes(q)) || 
+                            (a.code && a.code.toLowerCase().includes(q)) || 
+                            (a.name && a.name.toLowerCase().includes(q)) ||
+                            (a.state && a.state.toLowerCase().includes(q)) ||
+                            (a.country && a.country.toLowerCase().includes(q))
+                          );
+                        })
                         .map(airport => (
                           <div
                             key={airport.code}
@@ -873,11 +895,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               toCode === airport.code ? 'bg-sky-50 font-bold' : ''
                             }`}
                           >
-                            <div>
-                              <div className="text-sm font-bold text-slate-900">{airport.city} ({airport.code})</div>
-                              <div className="text-xs text-slate-500 truncate max-w-[200px]">{airport.name}</div>
+                            <div className="min-w-0 pr-2">
+                              <div className="text-sm font-bold text-slate-900 truncate">
+                                {airport.city} <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                              </div>
+                              <div className="text-xs text-slate-500 truncate max-w-[280px] sm:max-w-[340px]">
+                                {airport.name}{airport.state ? `, ${airport.state}` : ''}
+                              </div>
                             </div>
-                            <span className="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 bg-blue-100 rounded-md">
+                            <span className="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 bg-blue-100 rounded-md shrink-0">
                               {airport.code}
                             </span>
                           </div>

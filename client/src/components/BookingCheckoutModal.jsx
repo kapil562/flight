@@ -10,12 +10,20 @@ import AirlineBadge from './AirlineBadge';
 import RealAircraftSeatMap from './RealAircraftSeatMap';
 
 const INDIAN_AIRPORTS = new Set([
-  'DEL', 'BOM', 'BLR', 'GOI', 'HYD', 'CCU', 'MAA', 'AMD', 'JAI', 'COK',
-  'PNQ', 'LKO', 'VNS', 'PAT', 'SXR', 'IXC', 'ATQ', 'IDR', 'BHO', 'NAG',
-  'GAU', 'BBI', 'IXB', 'VTZ', 'TRV', 'CJB', 'IXE', 'STV', 'UDR', 'DED',
-  'IXJ', 'IXL', 'BDQ', 'RPR', 'IXR', 'IXZ', 'TIR', 'HBX', 'IMF', 'DMU',
-  'AJL', 'IXS', 'DIB', 'TEZ', 'JGA', 'IXU', 'BHU', 'IXD', 'IXM', 'TRZ',
-  'TCR', 'MYQ', 'AGX', 'CNN', 'KNU', 'NDC', 'KLH', 'SHL', 'IXA'
+  'DEL', 'BOM', 'BLR', 'HYD', 'CCU', 'MAA', 'AMD', 'PNQ', 'GOX', 'GOI', 
+  'COK', 'JAI', 'LKO', 'VNS', 'AYJ', 'PAT', 'SXR', 'IXC', 'ATQ', 'IDR', 
+  'BHO', 'NAG', 'GAU', 'BBI', 'IXB', 'VTZ', 'TRV', 'CCJ', 'CNN', 'CJB', 
+  'TRZ', 'IXM', 'TCR', 'SXV', 'PNY', 'IXE', 'HBX', 'IXG', 'GBI', 'RQY', 
+  'MYQ', 'IXX', 'VDY', 'STV', 'BDQ', 'HSR', 'BHU', 'BHJ', 'JGA', 'PBD', 
+  'IXK', 'IXY', 'UDR', 'JDH', 'JSA', 'BKB', 'KQH', 'KTU', 'DED', 'PGH', 
+  'NNS', 'DHM', 'KUU', 'SLV', 'IXJ', 'IXL', 'IXD', 'GOP', 'AGR', 'BEK', 
+  'KNU', 'HDO', 'KBK', 'HRH', 'MZS', 'AZH', 'SHV', 'CWK', 'GWL', 'JLR', 
+  'HJR', 'REW', 'RPR', 'PAB', 'JGB', 'IXR', 'DGH', 'IXW', 'DBR', 'GAY', 
+  'RDP', 'COH', 'JRG', 'RRK', 'PYB', 'UKE', 'VGA', 'TIR', 'RJA', 'CDP', 
+  'KJB', 'IXA', 'IMF', 'DMU', 'DIB', 'IXS', 'JRH', 'TEZ', 'RUP', 'IXI', 
+  'SHL', 'AJL', 'PYG', 'HGI', 'IXT', 'TEI', 'ZER', 'IXZ', 'AGX', 'SAG', 
+  'KLH', 'IXU', 'JLG', 'NDC', 'SDW', 'GDB', 'ISK', 'BUP', 'AIP', 'LUH', 
+  'IXP'
 ]);
 
 export default function BookingCheckoutModal({

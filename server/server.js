@@ -165,8 +165,18 @@ const getRealisticFlightDuration = (fromCode, toCode) => {
 
   if (directDurations[key]) return directDurations[key];
 
-  const isIntl = ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(c1) ||
-                 ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(c2);
+  let isIntl = false;
+  try {
+    const airports = readJSON(AIRPORTS_FILE);
+    const a1 = airports.find(a => a.code && a.code.toUpperCase() === c1);
+    const a2 = airports.find(a => a.code && a.code.toUpperCase() === c2);
+    if ((a1 && a1.country && a1.country !== 'India') || (a2 && a2.country && a2.country !== 'India')) {
+      isIntl = true;
+    }
+  } catch (e) {
+    isIntl = ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(c1) ||
+             ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(c2);
+  }
   
   if (isIntl) return { dur: '4h 30m', minutes: 270 };
   return { dur: '2h 10m', minutes: 130 };
@@ -320,7 +330,9 @@ const fetchFlightsFromSerper = async (from, to, date, apiKey) => {
       city: to.toUpperCase() 
     };
 
-    const isIntl = ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(from.toUpperCase()) || 
+    const isIntl = (fromAirport?.country && fromAirport.country !== 'India') || 
+                   (toAirport?.country && toAirport.country !== 'India') ||
+                   ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(from.toUpperCase()) || 
                    ['DXB', 'LHR', 'JFK', 'SIN', 'BKK', 'DOH', 'AUH', 'KUL', 'KTM'].includes(to.toUpperCase());
 
     // Search query that reliably returns live Google airfares

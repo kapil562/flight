@@ -27,6 +27,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import TermsPage from './pages/TermsPage';
 import { api } from './utils/api';
+import defaultAirports from './data/airports.json';
 
 function MainWebsite() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ function MainWebsite() {
     currencyCode: 'INR',
     announcement: { enabled: true, text: '🎉 Special Festive Sale: Get Flat ₹500 OFF with code AIRSKY500!' }
   });
-  const [airports, setAirports] = useState([]);
+  const [airports, setAirports] = useState(defaultAirports || []);
   const [flights, setFlights] = useState([]);
   const [loadingFlights, setLoadingFlights] = useState(false);
   const [multiCityLegsData, setMultiCityLegsData] = useState(null);
@@ -108,7 +109,7 @@ function MainWebsite() {
         setBrand(brandRes.data);
         try { localStorage.setItem('asg_brand', JSON.stringify(brandRes.data)); } catch (e) {}
       }
-      if (airportsRes.success) {
+      if (airportsRes && airportsRes.success && Array.isArray(airportsRes.data) && airportsRes.data.length > 0) {
         setAirports(airportsRes.data);
       }
     } catch (err) {
