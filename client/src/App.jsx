@@ -455,14 +455,14 @@ function MainWebsite() {
 
         {activeService === 'hotels' && currentEnabledServices.hotels !== false && (
           <>
-            <HotelSection />
+            <HotelSection settings={settings} brand={brand} />
             <OffersSection />
           </>
         )}
 
         {activeService === 'holidays' && currentEnabledServices.holidays !== false && (
           <>
-            <HolidaysSection />
+            <HolidaysSection settings={settings} brand={brand} />
             <OffersSection />
           </>
         )}
