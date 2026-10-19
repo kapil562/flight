@@ -440,16 +440,6 @@ function MainWebsite() {
         brand={brand}
       />
 
-      {/* Mobile Sticky Bottom Navigation Bar (MakeMyTrip / Ixigo pattern) */}
-      <BottomNav
-        activeService={activeService}
-        onSelectService={setActiveService}
-        onOpenMyBookings={() => setMyBookingsOpen(true)}
-        onOpenAuth={() => setAuthModalOpen(true)}
-        currentUser={currentUser}
-        settings={settings}
-        brand={brand}
-      />
 
       <AnimatePresence>
         {/* Quick PNR Checker Modal */}

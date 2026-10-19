@@ -10,7 +10,7 @@ export default function WhatsAppSupportButton({ onOpenQuickPnr, brand = null }) 
   const brandName = brand?.name || 'AIR SKY Go';
 
   return (
-    <aside aria-label="Support and Help" className="fixed bottom-20 md:bottom-6 right-3 sm:right-6 z-50 flex flex-col items-end pointer-events-none">
+    <aside aria-label="Support and Help" className="fixed bottom-5 sm:bottom-6 right-3 sm:right-6 z-50 flex flex-col items-end pointer-events-none">
       
       {/* Support Card (Exactly matching user screenshot, with responsive full-screen coverage) */}
       <AnimatePresence>
