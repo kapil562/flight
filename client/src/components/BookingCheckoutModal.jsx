@@ -298,12 +298,12 @@ export default function BookingCheckoutModal({
   };
 
   const ALL_UPI_APPS = [
-    { key: 'phonepe', name: 'PhonePe', color: 'bg-[#5f259f]', textColor: 'text-white', badge: 'Fastest' },
-    { key: 'gpay', name: 'Google Pay', color: 'bg-[#4285f4]', textColor: 'text-white', badge: 'Popular' },
-    { key: 'paytm', name: 'Paytm', color: 'bg-[#00b9f5]', textColor: 'text-white', badge: 'Instant' },
-    { key: 'bhim', name: 'BHIM UPI', color: 'bg-[#ee3124]', textColor: 'text-white' },
-    { key: 'any', name: 'Any UPI App', color: 'bg-slate-900', textColor: 'text-white' },
-    { key: 'other', name: 'Other UPI', color: 'bg-slate-700', textColor: 'text-white' }
+    { key: 'phonepe', name: 'PhonePe', iconUrl: '/icons/phonepe.png', badge: 'Fastest' },
+    { key: 'gpay', name: 'Google Pay', iconUrl: '/icons/gpay.png', badge: 'Popular' },
+    { key: 'paytm', name: 'Paytm', iconUrl: '/icons/paytm.png', badge: 'Instant' },
+    { key: 'bhim', name: 'BHIM UPI', iconUrl: '/icons/bhim.png' },
+    { key: 'any', name: 'Any UPI App', iconUrl: null },
+    { key: 'other', name: 'Other UPI', iconUrl: null }
   ];
 
   const visibleUpiApps = ALL_UPI_APPS.filter(app => !!activeAppsConfig[app.key]);
@@ -2526,7 +2526,7 @@ export default function BookingCheckoutModal({
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs space-y-2.5 animate-fadeIn"
                 >
-                  {/* Flight Details & Fare Breakup Strip */}
+                  {/* Flight Details Strip */}
                   <div className="flex items-center justify-between p-2 sm:p-2.5 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white rounded-xl shadow-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
@@ -2534,15 +2534,6 @@ export default function BookingCheckoutModal({
                         <div className="text-xs font-black truncate">{flight.airline} • {flight.from} ➔ {flight.to}</div>
                         <div className="text-[10px] text-slate-300 font-semibold truncate">{passengers.length} Pax • {flight.departureTime}</div>
                       </div>
-                    </div>
-                    <div className="text-right shrink-0 ml-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowFareBreakupPopup(true)}
-                        className="text-[10px] sm:text-xs text-sky-300 hover:text-white underline font-extrabold cursor-pointer py-0.5"
-                      >
-                        Fare Breakup
-                      </button>
                     </div>
                   </div>
 
@@ -2695,8 +2686,16 @@ export default function BookingCheckoutModal({
                                   : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
                               }`}
                             >
-                              <div className={`w-7 h-7 rounded-lg ${app.color} ${app.textColor} flex items-center justify-center shrink-0 shadow-xs font-black text-xs`}>
-                                <Smartphone className="w-3.5 h-3.5" />
+                              <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1 overflow-hidden">
+                                {app.iconUrl ? (
+                                  <img
+                                    src={app.iconUrl}
+                                    alt={app.name}
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <Smartphone className="w-4 h-4 text-slate-700" />
+                                )}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center gap-1">
