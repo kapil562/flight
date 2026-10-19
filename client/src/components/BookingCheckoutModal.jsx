@@ -75,6 +75,7 @@ export default function BookingCheckoutModal({
     const count = Math.max(1, passengersCount);
     return Array.from({ length: count }).map((_, idx) => ({
       title: 'Mr',
+      gender: 'Male',
       firstName: idx === 0 ? prefillFirst : '',
       lastName: idx === 0 ? prefillLast : '',
       passportNumber: '',
@@ -209,6 +210,7 @@ export default function BookingCheckoutModal({
       ...passengers,
       {
         title: (type === 'Child' || type === 'Infant') ? 'Master' : 'Mr',
+        gender: 'Male',
         firstName: '',
         lastName: '',
         passportNumber: '',
@@ -237,6 +239,13 @@ export default function BookingCheckoutModal({
   const updatePassenger = (index, field, value) => {
     const updated = [...passengers];
     updated[index][field] = value;
+    if (field === 'title') {
+      if (value === 'Mr' || value === 'Master') {
+        updated[index].gender = 'Male';
+      } else if (value === 'Ms' || value === 'Mrs' || value === 'Miss') {
+        updated[index].gender = 'Female';
+      }
+    }
     setPassengers(updated);
   };
 
@@ -547,7 +556,7 @@ export default function BookingCheckoutModal({
           passportNumber: p.passportNumber || null,
           passportExpiry: p.passportExpiry || null,
           nationality: p.nationality || null,
-          gender: p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female',
+          gender: p.gender || (p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female'),
           seat: p.seat || '12A',
           seatPrice: p.seatPrice || 0,
           meal: p.meal,
@@ -930,7 +939,20 @@ export default function BookingCheckoutModal({
                               </select>
                             </div>
 
-                            <div className="sm:col-span-5">
+                            <div className="sm:col-span-2">
+                              <label className="block text-[11px] font-bold text-slate-500 mb-1">Gender *</label>
+                              <select
+                                value={p.gender || (p.title === 'Ms' || p.title === 'Mrs' || p.title === 'Miss' ? 'Female' : 'Male')}
+                                onChange={(e) => updatePassenger(idx, 'gender', e.target.value)}
+                                className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold focus:ring-2 focus:ring-sky-500"
+                              >
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </div>
+
+                            <div className="sm:col-span-4">
                               <label className="block text-[11px] font-bold text-slate-500 mb-1">First & Middle Name *</label>
                               <input
                                 type="text"
@@ -941,7 +963,7 @@ export default function BookingCheckoutModal({
                               />
                             </div>
 
-                            <div className="sm:col-span-5">
+                            <div className="sm:col-span-4">
                               <label className="block text-[11px] font-bold text-slate-500 mb-1">Last Name *</label>
                               <input
                                 type="text"
