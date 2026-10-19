@@ -147,21 +147,17 @@ export default function FlightCard({
                   </div>
                   <div className="relative flex items-center justify-center">
                     <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
-                    <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
+                    {/* Bati 1: Origin dot */}
+                    <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5 shadow-xs"></div>
+                    {/* Bati 2: Middle stop dot ONLY if bich me stop hai */}
                     {flight.stops > 0 && (
                       <div 
                         className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
                         title={`Layover: ${flight.layover || flight.layoverCity || `${flight.stops} Stop`}`}
                       ></div>
                     )}
-                    <motion.div 
-                      className="absolute bg-white px-0.5"
-                      animate={{ x: [-10, 10, -10] }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                    >
-                      <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
-                    </motion.div>
-                    <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5"></div>
+                    {/* Bati 2 (direct) / Bati 3 (stop): Destination dot */}
+                    <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5 shadow-xs"></div>
                   </div>
                   <div className="text-[10px] font-semibold text-slate-400 mt-1">
                     {flight.stops === 0 ? (

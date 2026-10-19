@@ -1138,25 +1138,13 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             {/* Big Search CTA Button */}
             <motion.button
               type="button"
-              disabled={loading}
               onClick={handleSearchSubmit}
-              whileHover={{ scale: loading ? 1 : 1.02 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
-              className={`w-full sm:w-auto h-11 sm:h-auto px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-sky-600/30 hover:shadow-sky-600/50 transition-all flex items-center justify-center gap-2.5 shrink-0 ${
-                loading ? 'opacity-85 cursor-wait' : 'cursor-pointer'
-              }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:w-auto h-11 sm:h-auto px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-sky-600/30 hover:shadow-sky-600/50 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
             >
-              {loading ? (
-                <>
-                  <Plane className="w-5 h-5 text-sky-200 animate-bounce rotate-45" />
-                  <span>SEARCHING FLIGHTS...</span>
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                  <span>{tripType === 'multiCity' ? `SEARCH ${legs.length} FLIGHTS` : 'SEARCH FLIGHTS'}</span>
-                </>
-              )}
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+              <span>{tripType === 'multiCity' ? `SEARCH ${legs.length} FLIGHTS` : 'SEARCH FLIGHTS'}</span>
             </motion.button>
           </div>
 

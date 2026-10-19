@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Filter, SlidersHorizontal, ArrowUpDown, Sun, Sunset, Moon, Sunrise, RotateCcw, X, Check, Plane, Calendar, ArrowRight, Sparkles, CheckCircle2, Tag, Copy, Zap } from 'lucide-react';
 import FlightCard from './FlightCard';
 import AirlineBadge from './AirlineBadge';
-import FlightSearchLoader from './FlightSearchLoader';
 
 export default function FlightList({ 
   flights = [], 
@@ -908,15 +907,15 @@ export default function FlightList({
           {/* FLIGHTS RENDERING                                         */}
           {/* ========================================================= */}
           {loading ? (
-            <FlightSearchLoader
-              searchParams={searchParams}
-              airports={airports}
-              isRoundTrip={isRoundTrip}
-              roundTripData={roundTripData}
-              isMultiCity={isMultiCity}
-              multiCityLegsData={multiCityLegsData}
-              brand={brand}
-            />
+            <div className="space-y-4">
+              {[1, 2, 3].map(n => (
+                <div key={n} className="bg-white rounded-2xl p-6 border border-slate-200 animate-pulse space-y-4">
+                  <div className="h-6 bg-slate-200 rounded w-1/4"></div>
+                  <div className="h-12 bg-slate-100 rounded"></div>
+                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
           ) : isRoundTrip ? (
             /* ========================================================= */
             /* ROUND TRIP SPLIT 2-COLUMN VIEW (DESKTOP) & TABS (MOBILE)   */

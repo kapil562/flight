@@ -166,18 +166,13 @@ function MainWebsite() {
   // Fetch flights when searchParams change (handles One Way, Round Trip & Multi-City)
   const executeFlightSearch = async (params) => {
     setLoadingFlights(true);
-    // Smooth delay so user gets rich animated flight search experience
-    const minDelay = new Promise(resolve => setTimeout(resolve, 1200));
     try {
       if (params.tripType === 'multiCity' && params.legs && params.legs.length > 0) {
         setRoundTripData(null);
         const legQueries = params.legs.map(leg => 
           api.searchFlights({ from: leg.from, to: leg.to, date: leg.date })
         );
-        const [legResults] = await Promise.all([
-          Promise.all(legQueries),
-          minDelay
-        ]);
+        const legResults = await Promise.all(legQueries);
         const legsStructured = legResults.map((res, idx) => ({
           legIndex: idx,
           from: params.legs[idx].from,
@@ -190,22 +185,18 @@ function MainWebsite() {
       } else if (params.tripType === 'roundTrip') {
         setMultiCityLegsData(null);
         const returnDateToUse = params.returnDate || params.date;
-        const [searchResponses] = await Promise.all([
-          Promise.all([
-            api.searchFlights({
-              from: params.from,
-              to: params.to,
-              date: params.date
-            }),
-            api.searchFlights({
-              from: params.to,
-              to: params.from,
-              date: returnDateToUse
-            })
-          ]),
-          minDelay
+        const [onwardRes, returnRes] = await Promise.all([
+          api.searchFlights({
+            from: params.from,
+            to: params.to,
+            date: params.date
+          }),
+          api.searchFlights({
+            from: params.to,
+            to: params.from,
+            date: returnDateToUse
+          })
         ]);
-        const [onwardRes, returnRes] = searchResponses;
 
         const onwardFlights = onwardRes?.success && Array.isArray(onwardRes.data) ? onwardRes.data : [];
         const returnFlights = returnRes?.success && Array.isArray(returnRes.data) ? returnRes.data : [];
@@ -222,14 +213,11 @@ function MainWebsite() {
       } else {
         setRoundTripData(null);
         setMultiCityLegsData(null);
-        const [res] = await Promise.all([
-          api.searchFlights({
-            from: params.from,
-            to: params.to,
-            date: params.date
-          }),
-          minDelay
-        ]);
+        const res = await api.searchFlights({
+          from: params.from,
+          to: params.to,
+          date: params.date
+        });
         if (res.success) {
           setFlights(res.data);
         }

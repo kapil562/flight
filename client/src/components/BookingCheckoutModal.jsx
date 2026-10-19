@@ -796,7 +796,6 @@ export default function BookingCheckoutModal({
                                 {flight.onwardFlight?.stops > 0 && (
                                   <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
                                 )}
-                                <Plane className="w-3 h-3 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
                                 <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400 -right-0.5"></div>
                               </div>
                               <div className="text-[9px] font-bold truncate">
@@ -847,7 +846,6 @@ export default function BookingCheckoutModal({
                                 {flight.returnFlight?.stops > 0 && (
                                   <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
                                 )}
-                                <Plane className="w-3 h-3 text-indigo-300 rotate-90 bg-slate-900 px-0.5" />
                                 <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-400 -right-0.5"></div>
                               </div>
                               <div className="text-[9px] font-bold truncate">
@@ -909,7 +907,6 @@ export default function BookingCheckoutModal({
                                   {leg.stops > 0 && (
                                     <div className="absolute w-1.5 h-1.5 rounded-full bg-amber-400 border border-slate-950 z-10" />
                                   )}
-                                  <Plane className="w-2.5 h-2.5 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
                                   <div className="absolute w-1 h-1 rounded-full bg-indigo-400 -right-0.5"></div>
                                 </div>
                                 <div className="text-[8px] font-bold truncate">
@@ -976,7 +973,6 @@ export default function BookingCheckoutModal({
                               {flight.stops > 0 && (
                                 <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
                               )}
-                              <Plane className="w-3 h-3 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
                               <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400 -right-0.5"></div>
                             </div>
                             <div className="text-[9px] font-bold truncate">
@@ -1753,7 +1749,6 @@ export default function BookingCheckoutModal({
                               {flight.onwardFlight?.stops > 0 && (
                                 <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                               )}
-                              <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
                               <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                             </div>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
@@ -1830,7 +1825,6 @@ export default function BookingCheckoutModal({
                               {flight.returnFlight?.stops > 0 && (
                                 <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                               )}
-                              <Plane className="w-3.5 h-3.5 text-indigo-600 rotate-90 absolute bg-white px-0.5" />
                               <div className="absolute w-1.5 h-1.5 rounded-full bg-purple-500 -right-0.5"></div>
                             </div>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
@@ -1905,7 +1899,6 @@ export default function BookingCheckoutModal({
                                 {leg.stops > 0 && (
                                   <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                                 )}
-                                <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
                                 <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                               </div>
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
@@ -1977,7 +1970,6 @@ export default function BookingCheckoutModal({
                             {flight.stops > 0 && (
                               <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                             )}
-                            <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
                             <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                           </div>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
