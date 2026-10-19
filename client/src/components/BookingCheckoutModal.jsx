@@ -750,13 +750,15 @@ export default function BookingCheckoutModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-xs ${step === 4 ? 'overflow-y-auto sm:overflow-hidden' : 'overflow-y-auto'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-xs ${step === 4 ? 'overflow-y-auto sm:overflow-hidden' : 'overflow-y-auto'}`}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 20 }}
-        className={`bg-slate-50 rounded-none sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border-0 sm:border sm:border-slate-200 overflow-hidden flex flex-col ${
+        className={`bg-slate-50 rounded-3xl w-full ${
+          step === 4 ? 'max-w-md my-auto border border-slate-200' : 'max-w-5xl my-auto border-0 sm:border sm:border-slate-200'
+        } shadow-2xl overflow-hidden flex flex-col ${
           step === 4 ? 'h-auto max-h-[96vh]' : 'h-full sm:h-auto max-h-full sm:max-h-[94vh]'
         }`}
       >
@@ -806,11 +808,11 @@ export default function BookingCheckoutModal({
         </div>
 
         {/* Modal Body */}
-        <div className={`overflow-x-hidden ${step === 4 ? 'overflow-y-auto lg:overflow-y-hidden p-2.5 sm:p-4' : 'overflow-y-auto p-3 sm:p-6'} flex-1`}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5">
+        <div className={`overflow-x-hidden ${step === 4 ? 'overflow-y-auto sm:overflow-hidden p-2.5 sm:p-3 scrollbar-none' : 'overflow-y-auto p-3 sm:p-6'} flex-1`}>
+          <div className={step === 4 ? 'w-full' : 'grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5'}>
             
             {/* Left Column: Form / Steps */}
-            <div className={`${step === 4 ? 'lg:col-span-7' : 'lg:col-span-8'} space-y-3 sm:space-y-4`}>
+            <div className={`${step === 4 ? 'w-full' : 'lg:col-span-8'} space-y-3 sm:space-y-4`}>
               
               {/* 4-Step Flow Indicators - Fluid & Responsive (Hidden on Step 4 for zero-scroll fit) */}
               {step !== 4 && (
@@ -2483,10 +2485,10 @@ export default function BookingCheckoutModal({
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
-                  className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn"
+                  className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs space-y-2.5 animate-fadeIn"
                 >
-                  {/* Mobile Compact Flight & Total Price Strip (Only visible on mobile screens) */}
-                  <div className="flex lg:hidden items-center justify-between p-2.5 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white rounded-xl shadow-xs">
+                  {/* Flight Details & Fare Breakup Strip */}
+                  <div className="flex items-center justify-between p-2 sm:p-2.5 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white rounded-xl shadow-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
                       <div className="min-w-0">
@@ -2495,11 +2497,10 @@ export default function BookingCheckoutModal({
                       </div>
                     </div>
                     <div className="text-right shrink-0 ml-2">
-                      <div className="text-sm font-black font-mono text-emerald-400">₹{grandTotal.toLocaleString('en-IN')}</div>
                       <button
                         type="button"
                         onClick={() => setShowFareBreakupPopup(true)}
-                        className="text-[9px] text-sky-300 underline font-bold cursor-pointer"
+                        className="text-[10px] sm:text-xs text-sky-300 hover:text-white underline font-extrabold cursor-pointer py-0.5"
                       >
                         Fare Breakup
                       </button>
@@ -2576,9 +2577,6 @@ export default function BookingCheckoutModal({
                               alt="UPI QR Code"
                               className="w-24 h-24 sm:w-28 sm:h-28 mx-auto object-contain"
                             />
-                            <div className="mt-0.5 text-[11px] font-black text-slate-900 font-mono">
-                              ₹{grandTotal.toLocaleString('en-IN')}
-                            </div>
                           </div>
 
                           {/* UPI Instructions */}
@@ -2603,9 +2601,6 @@ export default function BookingCheckoutModal({
                           <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Tap Any UPI App to Pay</p>
                           <p className="text-[9px] sm:text-[10px] text-slate-500">Opens app directly on mobile & PC</p>
                         </div>
-                        <span className="text-[10px] font-mono font-black text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
-                          ₹{grandTotal.toLocaleString('en-IN')}
-                        </span>
                       </div>
 
                       {/* App Buttons Grid */}
@@ -2630,7 +2625,7 @@ export default function BookingCheckoutModal({
                                   <span>{app.name}</span>
                                 </div>
                                 <div className="text-[9px] text-sky-600 font-bold flex items-center gap-0.5">
-                                  <span>Pay ₹{grandTotal.toLocaleString('en-IN')}</span>
+                                  <span>Tap to Pay</span>
                                   <ExternalLink className="w-2 h-2" />
                                 </div>
                               </div>
@@ -2728,13 +2723,13 @@ export default function BookingCheckoutModal({
 
 
 
-                  {/* Mobile-Only Action Buttons (Integrated in card so zero scroll is needed on mobile) */}
-                  <div className="block lg:hidden pt-2 border-t border-slate-100 space-y-1.5">
+                  {/* Action Buttons */}
+                  <div className="pt-2 border-t border-slate-100 space-y-1.5">
                     <button
                       type="button"
                       disabled={isProcessing}
                       onClick={handleFinalBooking}
-                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
+                      className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
                     >
                       {isProcessing ? (
                         <>
@@ -2773,8 +2768,8 @@ export default function BookingCheckoutModal({
 
             </div>
 
-            {/* Right Column: Fare Breakup & PromoSuggestions (Hidden on mobile when step === 4 for zero-scroll fit) */}
-            <div className={`${step === 4 ? 'hidden lg:block lg:col-span-5' : 'lg:col-span-4'} space-y-4`}>
+            {/* Right Column: Fare Breakup & PromoSuggestions (Hidden on step === 4 for zero-scroll fit) */}
+            <div className={`${step === 4 ? 'hidden' : 'lg:col-span-4'} space-y-4`}>
               
 
 
