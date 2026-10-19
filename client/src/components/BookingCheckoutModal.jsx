@@ -191,6 +191,30 @@ export default function BookingCheckoutModal({
   const [selectedBank, setSelectedBank] = useState('HDFC Bank');
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+
+  // Poll booking status when in isVerifyingPayment mode until Admin approves it
+  useEffect(() => {
+    let interval = null;
+    if (isVerifyingPayment && createdPnr) {
+      interval = setInterval(async () => {
+        try {
+          const res = await api.getBookingByPnr(createdPnr);
+          const booking = res?.data || res?.booking;
+          if (booking && (booking.status === 'CONFIRMED' || booking.payment?.status === 'PAID')) {
+            clearInterval(interval);
+            setIsVerifyingPayment(false);
+            onBookingSuccess(booking);
+          }
+        } catch (err) {
+          console.warn('Polling status error:', err);
+        }
+      }, 2500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isVerifyingPayment, createdPnr, onBookingSuccess]);
 
   // 5-minute countdown timer on Step 4 (Payment)
   useEffect(() => {
@@ -848,7 +872,12 @@ export default function BookingCheckoutModal({
 
       const res = await api.createBooking(bookingPayload);
       if (res.success && (res.data || res.booking)) {
-        onBookingSuccess(res.data || res.booking);
+        if (isManualUpi) {
+          // Put the modal in Live Verification Waiting mode while Admin verifies
+          setIsVerifyingPayment(true);
+        } else {
+          onBookingSuccess(res.data || res.booking);
+        }
       } else {
         alert(res.message || 'Booking submission failed. Please try again.');
       }
@@ -2653,6 +2682,89 @@ export default function BookingCheckoutModal({
                     </div>
                   </div>
 
+                  {/* LIVE PAYMENT VERIFICATION SCREEN (While Admin Verifies & Ticks Approve) */}
+                  {isVerifyingPayment ? (
+                    <div className="py-6 px-4 bg-gradient-to-b from-slate-50 to-white rounded-2xl border-2 border-sky-400 shadow-lg text-center space-y-4 animate-fadeIn">
+                      {/* Radar / Pulsing animation */}
+                      <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+                        <div className="absolute inset-0 rounded-full bg-sky-400/20 animate-ping" />
+                        <div className="absolute inset-2 rounded-full bg-sky-500/30 animate-pulse" />
+                        <div className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-sky-600 to-blue-600 text-white flex items-center justify-center shadow-md">
+                          <RefreshCw className="w-7 h-7 animate-spin" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <span className="inline-block px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-[11px] font-black tracking-wide uppercase animate-pulse">
+                          ⏳ Payment Verification in Progress
+                        </span>
+                        <h4 className="text-base sm:text-lg font-black text-slate-900">
+                          Payment Sent — Verifying with Bank
+                        </h4>
+                        <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+                          Aapka payment reference submit ho chuka hai. Hum payment server se verify kar rahe hain. <strong>Jaise hi verify hoga, automatically aapka confirmed ticket screen par dikhega aur PDF download ka option aayega.</strong>
+                        </p>
+                      </div>
+
+                      {/* Booking Reference Card */}
+                      <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs max-w-xs mx-auto space-y-1.5 text-xs text-left">
+                        <div className="flex justify-between items-center text-slate-600 pb-1.5 border-b border-slate-100">
+                          <span className="font-semibold text-slate-500">Booking PNR:</span>
+                          <span className="font-mono font-black text-sky-800 text-sm">{createdPnr}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-600">
+                          <span className="font-semibold text-slate-500">Amount Paid:</span>
+                          <span className="font-mono font-extrabold text-slate-900">₹{grandTotal.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-600">
+                          <span className="font-semibold text-slate-500">App / Method:</span>
+                          <span className="font-bold text-slate-800">{selectedUpiApp || paymentMethod}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-600 pt-1 border-t border-slate-100">
+                          <span className="font-semibold text-slate-500">Live Status:</span>
+                          <span className="text-amber-700 font-extrabold flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block" />
+                            Waiting for Approval
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Manual Refresh & Help */}
+                      <div className="pt-2 flex flex-col items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!createdPnr) return;
+                            try {
+                              const res = await api.getBookingByPnr(createdPnr);
+                              const b = res?.data || res?.booking;
+                              if (b && (b.status === 'CONFIRMED' || b.payment?.status === 'PAID')) {
+                                setIsVerifyingPayment(false);
+                                onBookingSuccess(b);
+                              } else {
+                                alert('Verification in progress. Please wait a moment while the admin verifies your payment.');
+                              }
+                            } catch (e) {
+                              console.warn(e);
+                            }
+                          }}
+                          className="px-4 py-2 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer transition-all"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Check Status Now</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleWhatsAppHelp}
+                          className="text-[11px] text-emerald-700 hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          Need instant help? WhatsApp Support
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+
                   {/* 5-Minute Session Timer Strip */}
                   <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-medium">
                     <div className="flex items-center gap-1.5">
@@ -3012,6 +3124,8 @@ export default function BookingCheckoutModal({
                       </button>
                     </div>
                   </div>
+                    </>
+                  )}
                 </motion.div>
               )}
 

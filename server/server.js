@@ -2547,6 +2547,15 @@ app.patch('/api/admin/bookings/:pnr/status', (req, res) => {
   }
 
   bookings[index].status = status;
+  if (!bookings[index].payment) {
+    bookings[index].payment = {};
+  }
+  if (status === 'CONFIRMED') {
+    bookings[index].payment.status = 'PAID';
+  } else if (status === 'CANCELLED') {
+    bookings[index].payment.status = 'CANCELLED';
+  }
+  bookings[index].updatedAt = new Date().toISOString();
   writeJSON(BOOKINGS_FILE, bookings);
 
   res.json({ success: true, message: `Booking ${pnr} status updated to ${status}`, booking: bookings[index] });
