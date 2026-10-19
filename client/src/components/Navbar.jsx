@@ -132,12 +132,12 @@ export default function Navbar({
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18">
+        <div className="flex items-center justify-between min-h-[72px] sm:h-20 py-1.5 sm:py-2">
           
           {/* Logo & Brand Identity */}
           <motion.div 
             onClick={() => onSelectService('flights')} 
-            className="flex items-center gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-3 cursor-pointer group select-none py-1"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -145,7 +145,7 @@ export default function Navbar({
               <img
                 src={brand.logo}
                 alt={brand.name || 'Brand Logo'}
-                className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
+                className="h-12 sm:h-16 md:h-18 w-auto max-w-[260px] sm:max-w-[320px] object-contain"
               />
             ) : (
               <>
