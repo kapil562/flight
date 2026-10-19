@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeftRight, Calendar, Users, Search, Plane, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { ArrowLeftRight, Calendar, Users, Search, Plane, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight, Compass, Sparkles } from 'lucide-react';
 import CustomDatePicker from './CustomDatePicker';
 
 const getTodayDateString = (offsetDays = 0) => {
@@ -286,41 +286,25 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   };
 
   return (
-    <div className="relative pt-7 sm:pt-12 pb-6 sm:pb-12 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 text-white rounded-2xl sm:rounded-[2.5rem] shadow-xl z-10">
-      {/* Background ambient lighting */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden rounded-2xl sm:rounded-[2.5rem]">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
-        
-        {/* Banner Title (Controlled by Admin CMS) */}
-        <motion.div 
-          className="text-center max-w-3xl mx-auto mb-2 sm:mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sky-200 text-xs font-semibold uppercase tracking-wider mb-3">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            {heroSettings.badgeText}
+    <div className="py-6 sm:py-8 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      
+      {/* Search Header Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8">
+        <div className="relative z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-sky-200 mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            {heroSettings.badgeText || 'Verified Flight Deals • Best Guaranteed Rates'}
           </div>
-          <h1 className="text-xl sm:text-5xl font-extrabold tracking-tight text-white mb-1 sm:mb-2 leading-tight">
-            {heroSettings.title} <span className="bg-gradient-to-r from-sky-400 via-cyan-300 to-amber-300 bg-clip-text text-transparent">{heroSettings.brandHighlight}</span>
-          </h1>
-          <p className="hidden sm:block text-slate-300 text-xs sm:text-base">
-            {heroSettings.subtitle}
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
+            Book Worldwide Flights at Guaranteed Lowest Fares
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300">
+            {heroSettings.subtitle || 'Real-time live airline fares with instant seat map & verified PNR tickets with zero convenience fee.'}
           </p>
-        </motion.div>
+        </div>
 
-        {/* Main Search Box Card */}
-        <motion.div 
-          className="bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-3 sm:p-7 shadow-2xl border border-slate-100 relative"
-          initial={{ opacity: 0, y: 25, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
+        {/* Search Input Box */}
+        <div className="relative z-10 mt-6 bg-white text-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-100">
           
           {/* Top Options Row: Trip Type & Class */}
           <div className="flex items-center justify-between gap-1.5 pb-2.5 sm:pb-4 mb-2.5 sm:mb-4 border-b border-slate-100">
@@ -1148,20 +1132,23 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             </motion.button>
           </div>
 
-        </motion.div>
+        </div>
 
-        {/* Quick Route Shortcuts (Controlled by Admin CMS) */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-sky-200">
-          <span className="font-semibold text-slate-400">Popular Routes:</span>
+        {/* Quick Destinations / Popular Routes */}
+        <div className="relative z-10 mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-xs font-bold text-sky-200 shrink-0 flex items-center gap-1">
+            <Compass className="w-3.5 h-3.5" /> Popular:
+          </span>
           {quickRoutes.map(qr => (
             <button
               key={`${qr.from}-${qr.to}`}
+              type="button"
               onClick={() => {
                 setFromCode(qr.from);
                 setToCode(qr.to);
-                onSearch({ from: qr.from, to: qr.to, date: departureDate });
+                onSearch({ from: qr.from, to: qr.to, date: departureDate, tripType: 'oneWay', travelClass, passengers, specialFare });
               }}
-              className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 transition-colors backdrop-blur-xs font-medium cursor-pointer"
+              className="px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer backdrop-blur-md border bg-white/10 hover:bg-white/20 text-white border-white/20"
             >
               {qr.label}
             </button>
