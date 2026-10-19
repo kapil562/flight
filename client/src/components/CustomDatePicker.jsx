@@ -168,16 +168,11 @@ export default function CustomDatePicker({
         aria-label={`Select ${label} date`}
         className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/50 hover:bg-white h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between cursor-pointer select-none group focus:outline-hidden focus:ring-2 focus:ring-sky-500"
       >
-        <div className="flex items-center justify-between text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
+        <div className="flex items-center text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
           <div className="flex items-center gap-1.5 truncate">
             <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 shrink-0 group-hover:scale-110 transition-transform" />
             <span className="truncate">{label}</span>
           </div>
-          {value && (
-            <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.2 rounded sm:hidden">
-              {SHORT_MONTHS[selectedDateObj.getMonth()]}
-            </span>
-          )}
         </div>
 
         {value ? (
