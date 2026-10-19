@@ -673,14 +673,14 @@ export default function BookingCheckoutModal({
             <div className="lg:col-span-8 space-y-4 sm:space-y-5">
               
               {/* 4-Step Flow Indicators - Fluid & Responsive */}
-              <div className="bg-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between w-full">
+              <div className="bg-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs overflow-x-auto scrollbar-none">
+                <div className="flex items-center justify-between w-full min-w-[310px] gap-1 sm:gap-1.5">
                   
                   {/* Step 1 */}
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
                       step === 1 ? 'bg-sky-600 text-white shadow-xs' : step > 1 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
@@ -693,13 +693,13 @@ export default function BookingCheckoutModal({
                   </button>
 
                   {/* Connecting line */}
-                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+                  <div className={`flex-1 min-w-[8px] sm:min-w-[16px] h-0.5 mx-1 sm:mx-2 transition-colors ${step > 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
                   {/* Step 2 */}
                   <button
                     type="button"
                     onClick={() => step > 1 ? setStep(2) : handleProceedToSeats()}
-                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
                       step === 2 ? 'bg-sky-600 text-white shadow-xs' : step > 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
@@ -707,18 +707,19 @@ export default function BookingCheckoutModal({
                       {step > 2 ? '✓' : '2'}
                     </span>
                     <span className={`text-[10px] sm:text-xs font-extrabold ${step === 2 ? 'text-sky-600' : 'text-slate-600'}`}>
-                      Seats & Meals
+                      <span>Seats</span>
+                      <span className="hidden sm:inline">&nbsp;& Meals</span>
                     </span>
                   </button>
 
                   {/* Connecting line */}
-                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 2 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+                  <div className={`flex-1 min-w-[8px] sm:min-w-[16px] h-0.5 mx-1 sm:mx-2 transition-colors ${step > 2 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
                   {/* Step 3 */}
                   <button
                     type="button"
                     onClick={() => step > 2 ? setStep(3) : handleProceedToReview()}
-                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
                       step === 3 ? 'bg-sky-600 text-white shadow-xs' : step > 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
@@ -726,18 +727,19 @@ export default function BookingCheckoutModal({
                       {step > 3 ? '✓' : '3'}
                     </span>
                     <span className={`text-[10px] sm:text-xs font-extrabold ${step === 3 ? 'text-sky-600' : 'text-slate-600'}`}>
-                      Overview & Offers
+                      <span>Review</span>
+                      <span className="hidden sm:inline">&nbsp;& Offers</span>
                     </span>
                   </button>
 
                   {/* Connecting line */}
-                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 3 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+                  <div className={`flex-1 min-w-[8px] sm:min-w-[16px] h-0.5 mx-1 sm:mx-2 transition-colors ${step > 3 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
                   {/* Step 4 */}
                   <button
                     type="button"
                     onClick={() => step > 3 ? setStep(4) : handleProceedToPayment()}
-                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
                       step === 4 ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-400'
