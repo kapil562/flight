@@ -132,7 +132,7 @@ export default function Navbar({
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[72px] sm:h-20 py-1.5 sm:py-2">
+        <div className="flex items-center justify-between min-h-[82px] sm:min-h-[96px] md:min-h-[108px] py-1.5 sm:py-2">
           
           {/* Logo & Brand Identity */}
           <motion.div 
@@ -145,7 +145,7 @@ export default function Navbar({
               <img
                 src={brand.logo}
                 alt={brand.name || 'Brand Logo'}
-                className="h-12 sm:h-16 md:h-18 w-auto max-w-[260px] sm:max-w-[320px] object-contain"
+                className="h-16 sm:h-20 md:h-24 lg:h-28 max-h-[105px] w-auto max-w-[280px] sm:max-w-[360px] object-contain drop-shadow-xs"
               />
             ) : (
               <>
