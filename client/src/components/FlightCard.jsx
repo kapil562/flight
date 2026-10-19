@@ -84,109 +84,100 @@ export default function FlightCard({
         )}
 
         <div className="p-4 sm:p-5">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            
-            {/* Airline Col */}
-            <div className="md:col-span-3">
-              <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} />
-              <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                <span className="font-mono font-semibold">{flight.flightNumber}</span>
-                <span>•</span>
-                <span className="truncate">{flight.aircraft}</span>
-              </div>
-            </div>
-
-            {/* Timings & Duration Col */}
-            <div className="md:col-span-5 flex items-center justify-between sm:justify-around gap-2">
-              
-              {/* Departure */}
-              <div className="text-left">
-                <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {flight.departureTime}
+          {isSelectable || compact ? (
+            /* ======================================================== */
+            /* COMPACT COMBO / SPLIT-VIEW LAYOUT (Zero Text Collisions)  */
+            /* ======================================================== */
+            <div>
+              {/* Row 1: Airline Badge, Flight No, Aircraft & Stops Badge */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-2 min-w-0">
+                  <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} size="sm" />
+                  <div className="min-w-0 flex items-center gap-1.5 text-xs text-slate-500">
+                    <span className="font-mono font-bold text-slate-700">{flight.flightNumber}</span>
+                    <span>•</span>
+                    <span className="truncate max-w-[130px]">{flight.aircraft}</span>
+                  </div>
                 </div>
-                <div className="text-xs font-bold text-slate-700">{flight.from}</div>
-                <div className="text-[11px] text-slate-500">{flight.fromCity}</div>
-                {flight.terminal?.from && (
-                  <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.from}</div>
-                )}
-              </div>
-
-              {/* Path and Duration line */}
-              <div className="flex-1 max-w-[140px] text-center px-2">
-                <div className="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
-                  <Clock className="w-3 h-3 text-slate-400" />
-                  <span>{flight.duration}</span>
-                </div>
-                
-                <div className="relative flex items-center justify-center">
-                  <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
-                  <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
-                  {flight.stops > 0 && (
-                    <div 
-                      className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
-                      title={`Layover: ${flight.layover || flight.layoverCity || '1 Stop'}`}
-                    ></div>
-                  )}
-                  <motion.div 
-                    className="absolute bg-white px-0.5"
-                    animate={{ x: [-12, 12, -12] }}
-                    transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
-                  </motion.div>
-                  <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5"></div>
-                </div>
-
-                <div className="text-[10px] font-semibold text-slate-400 mt-1">
+                <div className="shrink-0">
                   {flight.stops === 0 ? (
-                    <span className="text-emerald-600 font-bold">Non-Stop</span>
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Non-Stop
+                    </span>
                   ) : (
-                    <span className="text-amber-700 font-bold inline-flex items-center gap-1">
-                      <span>{flight.stops} Stop</span>
-                      {(flight.layoverAirport || flight.layoverCity) && (
-                        <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
-                      )}
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                      {flight.stops} Stop {flight.layoverAirport ? `via ${flight.layoverAirport}` : ''}
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Arrival */}
-              <div className="text-right">
-                <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  {flight.arrivalTime}
+              {/* Row 2: Timings & Route (Clear 3-Column Grid) */}
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 py-1.5">
+                {/* Departure */}
+                <div className="text-left min-w-0">
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
+                    {flight.departureTime}
+                  </div>
+                  <div className="text-xs font-black text-slate-800 mt-1 flex items-center gap-1">
+                    <span>{flight.from}</span>
+                    {flight.terminal?.from && (
+                      <span className="text-[10px] text-slate-400 font-semibold">({formatTerminal(flight.terminal.from)})</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-500 truncate">{flight.fromCity}</div>
                 </div>
-                <div className="text-xs font-bold text-slate-700">{flight.to}</div>
-                <div className="text-[11px] text-slate-500">{flight.toCity}</div>
-                {flight.terminal?.to && (
-                  <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.to}</div>
-                )}
+
+                {/* Duration Line */}
+                <div className="w-24 sm:w-28 text-center px-1">
+                  <div className="text-[10px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
+                    <Clock className="w-3 h-3 text-slate-400" />
+                    <span>{flight.duration}</span>
+                  </div>
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-600 to-indigo-600"></div>
+                    <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                    <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 bg-white" />
+                    <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                  </div>
+                  <div className="text-[10px] font-semibold text-slate-400 mt-1">
+                    {flight.stops === 0 ? 'Direct' : `${flight.stops} Stop`}
+                  </div>
+                </div>
+
+                {/* Arrival */}
+                <div className="text-right min-w-0">
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
+                    {flight.arrivalTime}
+                  </div>
+                  <div className="text-xs font-black text-slate-800 mt-1 flex items-center justify-end gap-1">
+                    <span>{flight.to}</span>
+                    {flight.terminal?.to && (
+                      <span className="text-[10px] text-slate-400 font-semibold">({formatTerminal(flight.terminal.to)})</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-500 truncate">{flight.toCity}</div>
+                </div>
               </div>
 
-            </div>
-
-            {/* Pricing & Multiple Booking Actions Col */}
-            <div className="md:col-span-4 flex flex-col items-start md:items-end justify-between gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
-              
-              {/* Price display with Strikethrough & Savings */}
-              <div className="text-left md:text-right">
-                <div className="flex items-center md:justify-end gap-2">
-                  <span className="text-xs line-through text-slate-400 font-semibold">
-                    ₹{originalPrice.toLocaleString('en-IN')}
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                    Save ₹{totalSavings.toLocaleString('en-IN')}
-                  </span>
+              {/* Row 3: Price (Left) & Select Action (Right) */}
+              <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100">
+                <div>
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-[11px] line-through text-slate-400 font-semibold">
+                      ₹{originalPrice.toLocaleString('en-IN')}
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
+                      Save ₹{totalSavings.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+                    ₹{currentPrice.toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  ₹{currentPrice.toLocaleString('en-IN')}
-                </div>
-                <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
-              </div>
 
-              {/* Primary Booking / Selection Action */}
-              <div className="w-full md:w-auto">
-                {isSelectable ? (
+                <div>
                   <motion.button
                     type="button"
                     onClick={(e) => {
@@ -196,7 +187,7 @@ export default function FlightCard({
                     }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full md:w-auto px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                       isSelected
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 ring-2 ring-emerald-300'
                         : 'bg-white hover:bg-sky-50 text-sky-700 border-2 border-sky-600 shadow-sky-600/10'
@@ -212,7 +203,115 @@ export default function FlightCard({
                       <span>{selectLabel}</span>
                     )}
                   </motion.button>
-                ) : (
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* ======================================================== */
+            /* STANDARD WIDE LAYOUT (One-Way Desktop Flights)            */
+            /* ======================================================== */
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              
+              {/* Airline Col */}
+              <div className="md:col-span-3">
+                <AirlineBadge code={flight.airlineCode} name={flight.airline} logoUrl={flight.airlineLogo || flight.logo} />
+                <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                  <span className="font-mono font-semibold">{flight.flightNumber}</span>
+                  <span>•</span>
+                  <span className="truncate">{flight.aircraft}</span>
+                </div>
+              </div>
+
+              {/* Timings & Duration Col */}
+              <div className="md:col-span-5 flex items-center justify-between sm:justify-around gap-2">
+                
+                {/* Departure */}
+                <div className="text-left">
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    {flight.departureTime}
+                  </div>
+                  <div className="text-xs font-bold text-slate-700">{flight.from}</div>
+                  <div className="text-[11px] text-slate-500">{flight.fromCity}</div>
+                  {flight.terminal?.from && (
+                    <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.from}</div>
+                  )}
+                </div>
+
+                {/* Path and Duration line */}
+                <div className="flex-1 max-w-[140px] text-center px-2">
+                  <div className="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-center gap-1">
+                    <Clock className="w-3 h-3 text-slate-400" />
+                    <span>{flight.duration}</span>
+                  </div>
+                  
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-full h-0.5 bg-gradient-to-r from-sky-300 via-sky-500 to-indigo-500"></div>
+                    <div className="absolute w-2 h-2 rounded-full bg-sky-500 -left-0.5"></div>
+                    {flight.stops > 0 && (
+                      <div 
+                        className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" 
+                        title={`Layover: ${flight.layover || flight.layoverCity || '1 Stop'}`}
+                      ></div>
+                    )}
+                    <motion.div 
+                      className="absolute bg-white px-0.5"
+                      animate={{ x: [-12, 12, -12] }}
+                      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90" />
+                    </motion.div>
+                    <div className="absolute w-2 h-2 rounded-full bg-indigo-500 -right-0.5"></div>
+                  </div>
+
+                  <div className="text-[10px] font-semibold text-slate-400 mt-1">
+                    {flight.stops === 0 ? (
+                      <span className="text-emerald-600 font-bold">Non-Stop</span>
+                    ) : (
+                      <span className="text-amber-700 font-bold inline-flex items-center gap-1">
+                        <span>{flight.stops} Stop</span>
+                        {(flight.layoverAirport || flight.layoverCity) && (
+                          <span className="text-slate-500 font-medium">via {flight.layoverAirport || flight.layoverCity}</span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Arrival */}
+                <div className="text-right">
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    {flight.arrivalTime}
+                  </div>
+                  <div className="text-xs font-bold text-slate-700">{flight.to}</div>
+                  <div className="text-[11px] text-slate-500">{flight.toCity}</div>
+                  {flight.terminal?.to && (
+                    <div className="text-[10px] text-slate-400 font-semibold">{flight.terminal.to}</div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Pricing & Multiple Booking Actions Col */}
+              <div className="md:col-span-4 flex flex-col items-start md:items-end justify-between gap-2 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                
+                {/* Price display with Strikethrough & Savings */}
+                <div className="text-left md:text-right">
+                  <div className="flex items-center md:justify-end gap-2">
+                    <span className="text-xs line-through text-slate-400 font-semibold">
+                      ₹{originalPrice.toLocaleString('en-IN')}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      Save ₹{totalSavings.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    ₹{currentPrice.toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
+                </div>
+
+                {/* Primary Booking / Selection Action */}
+                <div className="w-full md:w-auto">
                   <motion.button
                     onClick={() => onBookFlight(flight, currentPrice)}
                     whileHover={{ scale: 1.02 }}
@@ -222,11 +321,9 @@ export default function FlightCard({
                   >
                     Book Now
                   </motion.button>
-                )}
-              </div>
+                </div>
 
-              {/* Quick Coupon Chip (Only for standalone one-way booking) */}
-              {!isSelectable && (
+                {/* Quick Coupon Chip (Only for standalone one-way booking) */}
                 <div 
                   onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
@@ -235,11 +332,11 @@ export default function FlightCard({
                   <Tag className="w-3 h-3 text-emerald-600" />
                   <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
                 </div>
-              )}
+
+              </div>
 
             </div>
-
-          </div>
+          )}
 
           {/* Badges / Add-ons row */}
           <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">

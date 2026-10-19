@@ -117,6 +117,7 @@ export default function FlightList({
   const [selectedOnwardFlight, setSelectedOnwardFlight] = useState(null);
   const [selectedReturnFlight, setSelectedReturnFlight] = useState(null);
   const [mobileRoundTab, setMobileRoundTab] = useState('onward'); // 'onward' | 'return'
+  const [roundTripViewMode, setRoundTripViewMode] = useState('split'); // 'split' | 'tabs'
 
   // Auto-initialize selected onward and return flights with the cheapest available options
   useEffect(() => {
@@ -604,43 +605,79 @@ export default function FlightList({
                 </div>
               </div>
 
-              {/* Mobile Tab Switcher (Departure vs Return) */}
-              <div className="lg:hidden mt-3.5 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setMobileRoundTab('onward')}
-                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
-                    mobileRoundTab === 'onward'
-                      ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-sky-400'
-                      : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
-                  }`}
-                >
-                  <div className={`text-[10px] uppercase font-black ${mobileRoundTab === 'onward' ? 'text-sky-600' : 'text-sky-300'}`}>
-                    1. Departure Flight
-                  </div>
-                  <div className="text-xs font-black truncate">{roundTripData.from} ➔ {roundTripData.to}</div>
-                  <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'onward' ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                    {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice} (${selectedOnwardFlight.airline})` : 'Choose Flight'}
-                  </div>
-                </button>
+              {/* Responsive Tab & View Switcher (Desktop & Mobile) */}
+              <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div className="grid grid-cols-2 gap-2 flex-1 min-w-[280px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileRoundTab('onward');
+                      if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                    }}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      mobileRoundTab === 'onward'
+                        ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-sky-400'
+                        : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-black ${mobileRoundTab === 'onward' ? 'text-sky-600' : 'text-sky-300'}`}>
+                        1. Departure Flight
+                      </span>
+                      {selectedOnwardFlight && <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />}
+                    </div>
+                    <div className="text-xs font-black truncate">{roundTripData.from} ➔ {roundTripData.to}</div>
+                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'onward' ? 'text-emerald-600' : 'text-emerald-300'}`}>
+                      {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')} (${selectedOnwardFlight.airline})` : 'Choose Flight'}
+                    </div>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setMobileRoundTab('return')}
-                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
-                    mobileRoundTab === 'return'
-                      ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-indigo-400'
-                      : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
-                  }`}
-                >
-                  <div className={`text-[10px] uppercase font-black ${mobileRoundTab === 'return' ? 'text-indigo-600' : 'text-sky-300'}`}>
-                    2. Return Flight
-                  </div>
-                  <div className="text-xs font-black truncate">{roundTripData.to} ➔ {roundTripData.from}</div>
-                  <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'return' ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                    {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice} (${selectedReturnFlight.airline})` : 'Choose Flight'}
-                  </div>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileRoundTab('return');
+                      if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                    }}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      mobileRoundTab === 'return'
+                        ? 'bg-white text-slate-900 border-white shadow-md font-extrabold ring-2 ring-indigo-400'
+                        : 'bg-white/10 text-white border-white/10 hover:bg-white/15'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] uppercase font-black ${mobileRoundTab === 'return' ? 'text-indigo-600' : 'text-sky-300'}`}>
+                        2. Return Flight
+                      </span>
+                      {selectedReturnFlight && <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />}
+                    </div>
+                    <div className="text-xs font-black truncate">{roundTripData.to} ➔ {roundTripData.from}</div>
+                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'return' ? 'text-emerald-600' : 'text-emerald-300'}`}>
+                      {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')} (${selectedReturnFlight.airline})` : 'Choose Flight'}
+                    </div>
+                  </button>
+                </div>
+
+                {/* Desktop View Layout Toggle (Split vs Tabs) */}
+                <div className="hidden lg:flex items-center gap-1 bg-white/10 p-1 rounded-xl border border-white/15 text-xs font-bold shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setRoundTripViewMode('split')}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      roundTripViewMode === 'split' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'
+                    }`}
+                  >
+                    Side-by-Side
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRoundTripViewMode('tabs')}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      roundTripViewMode === 'tabs' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-200 hover:text-white'
+                    }`}
+                  >
+                    Step Tabs
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -811,100 +848,158 @@ export default function FlightList({
             /* ROUND TRIP SPLIT 2-COLUMN VIEW (DESKTOP) & TABS (MOBILE)   */
             /* ========================================================= */
             <div>
-              {/* Desktop 2-Column Split View */}
-              <div className="hidden lg:grid lg:grid-cols-2 gap-5 items-start">
-                
-                {/* Left Column: Departure Flights */}
-                <div className="space-y-3.5">
-                  <div className="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-3.5 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-sky-700 tracking-wider block">
-                        Departure Flight
-                      </span>
-                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
-                        <span>{roundTripData.from}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
-                        <span>{roundTripData.to}</span>
-                      </h4>
-                      <p className="text-[11px] text-slate-500 font-medium">
-                        {roundTripData.departureDate} • {processedOnwardFlights.length} Flights available
-                      </p>
+              {/* Desktop View: Split 2-Columns OR Step Tabs based on user toggle */}
+              {roundTripViewMode === 'split' ? (
+                <div className="hidden lg:grid lg:grid-cols-2 gap-5 items-start">
+                  
+                  {/* Left Column: Departure Flights */}
+                  <div className="space-y-3.5">
+                    <div className="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-sky-700 tracking-wider block">
+                          Departure Flight
+                        </span>
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+                          <span>{roundTripData.from}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
+                          <span>{roundTripData.to}</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          {roundTripData.departureDate} • {processedOnwardFlights.length} Flights available
+                        </p>
+                      </div>
+
+                      {selectedOnwardFlight && (
+                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-sky-100 shadow-xs">
+                          <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
+                          <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
+                            ₹{selectedOnwardFlight.basePrice?.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {selectedOnwardFlight && (
-                      <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-sky-100 shadow-xs">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
-                        <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
-                          ₹{selectedOnwardFlight.basePrice?.toLocaleString('en-IN')}
+                    <div className="space-y-3">
+                      {processedOnwardFlights.map(flight => (
+                        <FlightCard
+                          key={`onward-${flight.id}`}
+                          flight={flight}
+                          travelClass={searchParams.travelClass}
+                          brand={brand}
+                          isSelectable={true}
+                          isSelected={selectedOnwardFlight?.id === flight.id}
+                          selectLabel="Select Departure"
+                          selectedLabel="Departure Chosen ✓"
+                          onSelect={() => setSelectedOnwardFlight(flight)}
+                          onBookFlight={() => setSelectedOnwardFlight(flight)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Return Flights */}
+                  <div className="space-y-3.5">
+                    <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
+                          Return Flight
                         </span>
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
+                          <span>{roundTripData.to}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>{roundTripData.from}</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          {roundTripData.returnDate} • {processedReturnFlights.length} Flights available
+                        </p>
                       </div>
-                    )}
-                  </div>
 
-                  <div className="space-y-3">
-                    {processedOnwardFlights.map(flight => (
-                      <FlightCard
-                        key={`onward-${flight.id}`}
-                        flight={flight}
-                        travelClass={searchParams.travelClass}
-                        brand={brand}
-                        isSelectable={true}
-                        isSelected={selectedOnwardFlight?.id === flight.id}
-                        selectLabel="Select Departure"
-                        selectedLabel="Departure Chosen ✓"
-                        onSelect={() => setSelectedOnwardFlight(flight)}
-                        onBookFlight={() => setSelectedOnwardFlight(flight)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Right Column: Return Flights */}
-                <div className="space-y-3.5">
-                  <div className="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-3.5 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
-                        Return Flight
-                      </span>
-                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
-                        <span>{roundTripData.to}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>{roundTripData.from}</span>
-                      </h4>
-                      <p className="text-[11px] text-slate-500 font-medium">
-                        {roundTripData.returnDate} • {processedReturnFlights.length} Flights available
-                      </p>
+                      {selectedReturnFlight && (
+                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-indigo-100 shadow-xs">
+                          <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
+                          <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
+                            ₹{selectedReturnFlight.basePrice?.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {selectedReturnFlight && (
-                      <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-indigo-100 shadow-xs">
-                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
-                        <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
-                          ₹{selectedReturnFlight.basePrice?.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    )}
+                    <div className="space-y-3">
+                      {processedReturnFlights.map(flight => (
+                        <FlightCard
+                          key={`return-${flight.id}`}
+                          flight={flight}
+                          travelClass={searchParams.travelClass}
+                          brand={brand}
+                          isSelectable={true}
+                          isSelected={selectedReturnFlight?.id === flight.id}
+                          selectLabel="Select Return"
+                          selectedLabel="Return Chosen ✓"
+                          onSelect={() => setSelectedReturnFlight(flight)}
+                          onBookFlight={() => setSelectedReturnFlight(flight)}
+                        />
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {processedReturnFlights.map(flight => (
-                      <FlightCard
-                        key={`return-${flight.id}`}
-                        flight={flight}
-                        travelClass={searchParams.travelClass}
-                        brand={brand}
-                        isSelectable={true}
-                        isSelected={selectedReturnFlight?.id === flight.id}
-                        selectLabel="Select Return"
-                        selectedLabel="Return Chosen ✓"
-                        onSelect={() => setSelectedReturnFlight(flight)}
-                        onBookFlight={() => setSelectedReturnFlight(flight)}
-                      />
-                    ))}
-                  </div>
                 </div>
-
-              </div>
+              ) : (
+                <div className="hidden lg:block space-y-4">
+                  {mobileRoundTab === 'onward' ? (
+                    <div>
+                      <div className="text-xs font-bold text-slate-600 mb-2.5 flex items-center justify-between bg-sky-50/70 p-3 rounded-xl border border-sky-200/80">
+                        <span className="font-extrabold text-sky-900 text-sm">Select Departure Flight: {roundTripData.from} ➔ {roundTripData.to}</span>
+                        <span className="font-mono text-sky-700 font-bold">{roundTripData.departureDate} • {processedOnwardFlights.length} Flights</span>
+                      </div>
+                      <div className="space-y-3">
+                        {processedOnwardFlights.map(flight => (
+                          <FlightCard
+                            key={`d-onward-${flight.id}`}
+                            flight={flight}
+                            travelClass={searchParams.travelClass}
+                            brand={brand}
+                            isSelectable={true}
+                            isSelected={selectedOnwardFlight?.id === flight.id}
+                            selectLabel="Select Departure"
+                            selectedLabel="Departure Chosen ✓"
+                            onSelect={() => {
+                              setSelectedOnwardFlight(flight);
+                              setMobileRoundTab('return');
+                            }}
+                            onBookFlight={() => {
+                              setSelectedOnwardFlight(flight);
+                              setMobileRoundTab('return');
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-xs font-bold text-slate-600 mb-2.5 flex items-center justify-between bg-indigo-50/70 p-3 rounded-xl border border-indigo-200/80">
+                        <span className="font-extrabold text-indigo-900 text-sm">Select Return Flight: {roundTripData.to} ➔ {roundTripData.from}</span>
+                        <span className="font-mono text-indigo-700 font-bold">{roundTripData.returnDate} • {processedReturnFlights.length} Flights</span>
+                      </div>
+                      <div className="space-y-3">
+                        {processedReturnFlights.map(flight => (
+                          <FlightCard
+                            key={`d-return-${flight.id}`}
+                            flight={flight}
+                            travelClass={searchParams.travelClass}
+                            brand={brand}
+                            isSelectable={true}
+                            isSelected={selectedReturnFlight?.id === flight.id}
+                            selectLabel="Select Return"
+                            selectedLabel="Return Chosen ✓"
+                            onSelect={() => setSelectedReturnFlight(flight)}
+                            onBookFlight={() => setSelectedReturnFlight(flight)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Mobile Single-Column Tab View */}
               <div className="lg:hidden space-y-4">
@@ -1039,83 +1134,6 @@ export default function FlightList({
 
       </div>
 
-      {/* ========================================================= */}
-      {/* STICKY FLOATING BOTTOM BAR FOR ROUND TRIP & MULTI-CITY     */}
-      {/* ========================================================= */}
-      {(isRoundTrip || isMultiCity) && (
-        <div className="fixed bottom-14 md:bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md text-white border-t border-slate-800 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] px-3 sm:px-6 py-2.5 sm:py-3.5">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            
-            {/* Route details left */}
-            {isRoundTrip ? (
-              <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto w-full sm:w-auto text-xs py-0.5">
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-[10px]">1</span>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block leading-tight font-medium">Departure ({roundTripData.departureDate})</span>
-                    <span className="font-extrabold text-white text-[11px] sm:text-xs">
-                      {selectedOnwardFlight ? `${selectedOnwardFlight.from} ➔ ${selectedOnwardFlight.to} • ${selectedOnwardFlight.departureTime} (₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')})` : 'Choose departure'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[10px]">2</span>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block leading-tight font-medium">Return ({roundTripData.returnDate})</span>
-                    <span className="font-extrabold text-white text-[11px] sm:text-xs">
-                      {selectedReturnFlight ? `${selectedReturnFlight.from} ➔ ${selectedReturnFlight.to} • ${selectedReturnFlight.departureTime} (₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')})` : 'Choose return'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto text-xs py-0.5">
-                <span className="text-[10px] uppercase font-bold text-sky-400 shrink-0">Multi-City:</span>
-                {multiCityLegsData.map((leg, i) => {
-                  const sel = selectedLegFlights[i];
-                  return (
-                    <div key={i} className="flex items-center gap-1.5 shrink-0 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
-                      <span className="text-[10px] font-black text-sky-300">L{i+1}:</span>
-                      <span className="font-bold text-white text-[11px]">{leg.from}➔{leg.to}</span>
-                      {sel ? (
-                        <span className="text-emerald-400 font-mono text-[10px] font-bold">₹{sel.basePrice?.toLocaleString('en-IN')}</span>
-                      ) : (
-                        <span className="text-amber-400 text-[10px] font-bold">Pending</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Total price + Action Button right */}
-            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-slate-800/80 pt-2 sm:pt-0">
-              <div className="text-left sm:text-right">
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-bold block leading-none mb-0.5">
-                  Total {isRoundTrip ? 'Round Trip' : 'Multi-City'} Fare
-                </span>
-                <span className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
-                  ₹{(isRoundTrip ? totalRoundTripPrice : totalMultiCityPrice).toLocaleString('en-IN')}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={isRoundTrip ? handleBookRoundTripCombo : handleBookMultiCityCombo}
-                disabled={isRoundTrip ? (!selectedOnwardFlight || !selectedReturnFlight) : false}
-                className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-40 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{isRoundTrip ? 'Book Round Trip Combo' : `Book Multi-City (${multiCityLegsData.length} Flights)`}</span>
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
 
       {/* MOBILE FILTER MODAL / DRAWER */}
       <AnimatePresence>
