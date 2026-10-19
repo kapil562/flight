@@ -962,7 +962,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "Book Round Trip" : "Departure Chosen"}
                           onSelect={() => handleOnwardFlightSelect(flight)}
                           onBookFlight={() => handleOnwardFlightSelect(flight)}
                         />
@@ -1007,7 +1007,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "Book Round Trip" : "Return Chosen"}
                           onSelect={() => handleReturnFlightSelect(flight)}
                           onBookFlight={() => handleReturnFlightSelect(flight)}
                         />
@@ -1034,7 +1034,7 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedOnwardFlight?.id === flight.id}
                             selectLabel="Select Departure"
-                            selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                            selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "Book Round Trip" : "Departure Chosen"}
                             onSelect={() => handleOnwardFlightSelect(flight)}
                             onBookFlight={() => handleOnwardFlightSelect(flight)}
                           />
@@ -1057,7 +1057,7 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedReturnFlight?.id === flight.id}
                             selectLabel="Select Return"
-                            selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                            selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "Book Round Trip" : "Return Chosen"}
                             onSelect={() => handleReturnFlightSelect(flight)}
                             onBookFlight={() => handleReturnFlightSelect(flight)}
                           />
@@ -1086,7 +1086,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "Book Round Trip" : "Departure Chosen"}
                           onSelect={() => handleOnwardFlightSelect(flight)}
                           onBookFlight={() => handleOnwardFlightSelect(flight)}
                         />
@@ -1109,7 +1109,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "Book Round Trip" : "Return Chosen"}
                           onSelect={() => handleReturnFlightSelect(flight)}
                           onBookFlight={() => handleReturnFlightSelect(flight)}
                         />
@@ -1212,7 +1212,7 @@ export default function FlightList({
                           isSelectable={isMultiCity}
                           isSelected={isSelectedForThisLeg}
                           selectLabel={`Select for Leg ${activeLegIndex + 1}`}
-                          selectedLabel={isSelectedForThisLeg && allLegsSelected ? `✓ Book All ${multiCityLegsData.length} Flights` : `Leg ${activeLegIndex + 1} Chosen`}
+                          selectedLabel={isSelectedForThisLeg && allLegsSelected ? `Book All ${multiCityLegsData.length} Flights` : `Leg ${activeLegIndex + 1} Chosen`}
                           onSelect={() => {
                             if (isMultiCity) {
                               if (isSelectedForThisLeg && allLegsSelected) {

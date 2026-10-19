@@ -31,7 +31,7 @@ export default function FlightCard({
   const currentPrice = flight.classes?.[travelClass] || flight.basePrice;
   const originalPrice = Math.round(currentPrice * 1.18);
   const totalSavings = originalPrice - currentPrice;
-  const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/[✓✔\s]+$/g, '').trim();
+  const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/^[✓✔\s]+|[✓✔\s]+$/g, '').trim();
 
   // Contact details from brand
   const activeBrand = brand || window.__BRAND__ || {};
