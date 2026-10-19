@@ -887,7 +887,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel="Departure Chosen ✓"
+                          selectedLabel="Departure Chosen"
                           onSelect={() => setSelectedOnwardFlight(flight)}
                           onBookFlight={() => setSelectedOnwardFlight(flight)}
                         />
@@ -932,7 +932,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel="Return Chosen ✓"
+                          selectedLabel="Return Chosen"
                           onSelect={() => setSelectedReturnFlight(flight)}
                           onBookFlight={() => setSelectedReturnFlight(flight)}
                         />
@@ -959,7 +959,7 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedOnwardFlight?.id === flight.id}
                             selectLabel="Select Departure"
-                            selectedLabel="Departure Chosen ✓"
+                            selectedLabel="Departure Chosen"
                             onSelect={() => {
                               setSelectedOnwardFlight(flight);
                               setMobileRoundTab('return');
@@ -988,7 +988,7 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedReturnFlight?.id === flight.id}
                             selectLabel="Select Return"
-                            selectedLabel="Return Chosen ✓"
+                            selectedLabel="Return Chosen"
                             onSelect={() => setSelectedReturnFlight(flight)}
                             onBookFlight={() => setSelectedReturnFlight(flight)}
                           />
@@ -1017,7 +1017,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel="Departure Chosen ✓"
+                          selectedLabel="Departure Chosen"
                           onSelect={() => {
                             setSelectedOnwardFlight(flight);
                             setMobileRoundTab('return');
@@ -1046,7 +1046,7 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel="Return Chosen ✓"
+                          selectedLabel="Return Chosen"
                           onSelect={() => setSelectedReturnFlight(flight)}
                           onBookFlight={() => setSelectedReturnFlight(flight)}
                         />
@@ -1100,7 +1100,7 @@ export default function FlightList({
                         isSelectable={isMultiCity}
                         isSelected={isSelectedForThisLeg}
                         selectLabel={`Select for Leg ${activeLegIndex + 1}`}
-                        selectedLabel={`Leg ${activeLegIndex + 1} Chosen ✓`}
+                        selectedLabel={`Leg ${activeLegIndex + 1} Chosen`}
                         onSelect={() => {
                           if (isMultiCity) {
                             setSelectedLegFlights(prev => ({ ...prev, [activeLegIndex]: flight }));

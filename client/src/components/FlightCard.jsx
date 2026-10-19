@@ -30,6 +30,7 @@ export default function FlightCard({
   const currentPrice = flight.classes?.[travelClass] || flight.basePrice;
   const originalPrice = Math.round(currentPrice * 1.18);
   const totalSavings = originalPrice - currentPrice;
+  const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/[✓✔\s]+$/g, '').trim();
 
   // Contact details from brand
   const activeBrand = brand || window.__BRAND__ || {};
@@ -196,11 +197,11 @@ export default function FlightCard({
                   >
                     {isSelected ? (
                       <>
-                        <Check className="w-4 h-4 stroke-[3]" />
-                        <span>{selectedLabel}</span>
+                        <Check className="w-4 h-4 stroke-[3] shrink-0" />
+                        <span className="whitespace-nowrap">{cleanSelectedLabel}</span>
                       </>
                     ) : (
-                      <span>{selectLabel}</span>
+                      <span className="whitespace-nowrap">{selectLabel}</span>
                     )}
                   </motion.button>
                 </div>
