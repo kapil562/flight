@@ -938,6 +938,71 @@ export default function BookingCheckoutModal({
                       </div>
                     </div>
                   )}
+
+                  {/* Single Flight Itinerary Banner (One-Way) */}
+                  {!flight.isRoundTrip && !flight.isMultiCity && (
+                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
+                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
+                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                          <span>Flight Itinerary ({flight.airline} • {flight.flightNumber})</span>
+                        </span>
+                        <span className="font-mono text-amber-300 font-bold">
+                          Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      <div className="bg-white/10 rounded-xl p-3 border border-white/15 space-y-2 text-xs">
+                        <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
+                          <span>{flight.airline} • {flight.flightNumber}</span>
+                          <span className="font-mono">{flight.departureDate || new Date().toISOString().split('T')[0]}</span>
+                        </div>
+
+                        {/* Route & Middle Stop Graphic */}
+                        <div className="flex items-center justify-between gap-1 py-0.5">
+                          <div className="text-left">
+                            <div className="font-black text-sm text-white">{flight.from}</div>
+                            <div className="text-[11px] font-mono text-sky-300 font-bold">{flight.departureTime}</div>
+                          </div>
+
+                          {/* Middle Stop Line */}
+                          <div className="text-center px-1.5 flex-1 max-w-[140px]">
+                            <div className="text-[9px] text-sky-200/80 font-bold">
+                              {flight.duration || '2h 15m'}
+                            </div>
+                            <div className="relative flex items-center justify-center my-0.5">
+                              <div className="w-full h-0.5 bg-sky-400/50"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-400 -left-0.5"></div>
+                              {flight.stops > 0 && (
+                                <div className="absolute w-2 h-2 rounded-full bg-amber-400 border border-slate-950 z-10" />
+                              )}
+                              <Plane className="w-3 h-3 text-sky-300 rotate-90 bg-slate-900 px-0.5" />
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400 -right-0.5"></div>
+                            </div>
+                            <div className="text-[9px] font-bold truncate">
+                              {flight.stops === 0 ? (
+                                <span className="text-emerald-300">Non-Stop</span>
+                              ) : (
+                                <span className="text-amber-300">
+                                  {flight.stops} Stop {flight.layoverAirport ? `via ${flight.layoverAirport}` : ''}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <div className="font-black text-sm text-white">{flight.to}</div>
+                            <div className="text-[11px] font-mono text-sky-300 font-bold">{flight.arrivalTime}</div>
+                          </div>
+                        </div>
+
+                        <div className="text-[10px] text-sky-100 flex items-center justify-between pt-1 border-t border-white/10">
+                          <span className="truncate">{flight.aircraft || 'Airbus/Boeing'}</span>
+                          <span className="text-sky-300 font-medium">{flight.baggage || 'Cabin 7kg, Check-in 15kg'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Traveller Details Card with "+ Add Traveller" Action */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
@@ -1682,12 +1747,23 @@ export default function BookingCheckoutModal({
                             <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
                               {flight.onwardFlight?.duration || flight.duration || '2h 15m'}
                             </span>
-                            <div className="relative flex items-center justify-center">
-                              <div className="w-full h-0.5 bg-sky-300"></div>
+                            <div className="relative flex items-center justify-center my-1">
+                              <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                              {flight.onwardFlight?.stops > 0 && (
+                                <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
+                              )}
                               <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                             </div>
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
-                              {flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops ? 'Non-Stop' : `${flight.onwardFlight.stops} Stop (${flight.onwardFlight.layoverAirport || flight.onwardFlight.layoverCity})`}
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
+                              flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops
+                                ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                : 'text-amber-800 bg-amber-50 border border-amber-200'
+                            }`}>
+                              {flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops
+                                ? 'Non-Stop'
+                                : `${flight.onwardFlight.stops} Stop (${flight.onwardFlight.layoverAirport || flight.onwardFlight.layoverCity || 'Connecting'})`}
                             </span>
                           </div>
 
@@ -1748,12 +1824,23 @@ export default function BookingCheckoutModal({
                             <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
                               {flight.returnFlight?.duration || '2h 15m'}
                             </span>
-                            <div className="relative flex items-center justify-center">
-                              <div className="w-full h-0.5 bg-indigo-300"></div>
+                            <div className="relative flex items-center justify-center my-1">
+                              <div className="w-full h-0.5 bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -left-0.5"></div>
+                              {flight.returnFlight?.stops > 0 && (
+                                <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
+                              )}
                               <Plane className="w-3.5 h-3.5 text-indigo-600 rotate-90 absolute bg-white px-0.5" />
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-purple-500 -right-0.5"></div>
                             </div>
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
-                              {flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops ? 'Non-Stop' : `${flight.returnFlight.stops} Stop (${flight.returnFlight.layoverAirport || flight.returnFlight.layoverCity})`}
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
+                              flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops
+                                ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                : 'text-amber-800 bg-amber-50 border border-amber-200'
+                            }`}>
+                              {flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops
+                                ? 'Non-Stop'
+                                : `${flight.returnFlight.stops} Stop (${flight.returnFlight.layoverAirport || flight.returnFlight.layoverCity || 'Connecting'})`}
                             </span>
                           </div>
 
@@ -1809,12 +1896,26 @@ export default function BookingCheckoutModal({
                             </div>
 
                             <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                              <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
+                                {leg.duration || '2h 15m'}
+                              </span>
                               <div className="relative flex items-center justify-center my-1">
-                                <div className="w-full h-0.5 bg-sky-300"></div>
+                                <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                                {leg.stops > 0 && (
+                                  <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
+                                )}
                                 <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                               </div>
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
-                                Direct Flight
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
+                                leg.stops === 0 || !leg.stops
+                                  ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                  : 'text-amber-800 bg-amber-50 border border-amber-200'
+                              }`}>
+                                {leg.stops === 0 || !leg.stops
+                                  ? 'Non-Stop'
+                                  : `${leg.stops} Stop (${leg.layoverAirport || 'Connecting'})`}
                               </span>
                             </div>
 
@@ -1870,15 +1971,24 @@ export default function BookingCheckoutModal({
                           <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5">
                             {flight.duration || '2h 15m'}
                           </span>
-                          <div className="relative flex items-center justify-center">
-                            <div className="w-full h-0.5 bg-sky-300"></div>
+                          <div className="relative flex items-center justify-center my-1">
+                            <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
+                            <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                            {flight.stops > 0 && (
+                              <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
+                            )}
                             <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                            <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
                           </div>
-                          <span className={`text-[10px] font-bold block mt-0.5 ${flight.stops === 0 ? 'text-emerald-600' : 'text-amber-700'}`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
+                            flight.stops === 0 
+                              ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' 
+                              : 'text-amber-800 bg-amber-50 border border-amber-200'
+                          }`}>
                             {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop (${flight.layoverAirport || flight.layoverCity || 'Connecting'})`}
                           </span>
                           {flight.stops > 0 && flight.layoverDuration && (
-                            <span className="text-[9px] text-slate-400 block font-medium">
+                            <span className="text-[9px] text-slate-400 block font-medium mt-0.5">
                               {flight.layoverDuration} Layover
                             </span>
                           )}
