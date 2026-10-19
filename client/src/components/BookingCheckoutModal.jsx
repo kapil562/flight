@@ -8,6 +8,7 @@ import {
 import { api } from '../utils/api';
 import AirlineBadge from './AirlineBadge';
 import RealAircraftSeatMap from './RealAircraftSeatMap';
+import StepTransitionLoader from './StepTransitionLoader';
 
 const INDIAN_AIRPORTS = new Set([
   'DEL', 'BOM', 'BLR', 'HYD', 'CCU', 'MAA', 'AMD', 'PNQ', 'GOX', 'GOI', 
@@ -57,6 +58,18 @@ export default function BookingCheckoutModal({
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection, 3 = Review & Offers, 4 = Payment Gateway
   const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
+  const [isStepLoading, setIsStepLoading] = useState(false);
+  const [transitionMeta, setTransitionMeta] = useState({ targetStep: 1, fromStep: 1 });
+
+  const transitionToStep = (targetStep) => {
+    if (targetStep === step) return;
+    setTransitionMeta({ targetStep, fromStep: step });
+    setIsStepLoading(true);
+    setTimeout(() => {
+      setStep(targetStep);
+      setIsStepLoading(false);
+    }, 750);
+  };
 
   // Check if international travel (from or to airport outside India)
   const isInternationalFlight = Boolean(
@@ -611,7 +624,7 @@ export default function BookingCheckoutModal({
       alert('Please enter a valid 10-digit mobile number');
       return;
     }
-    setStep(2);
+    transitionToStep(2);
   };
 
   // Step 2 Validation -> Proceed to Step 3 (Review & Confirmation)
@@ -625,12 +638,12 @@ export default function BookingCheckoutModal({
       }
     });
     setPassengers(updated);
-    setStep(3);
+    transitionToStep(3);
   };
 
   // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
   const handleProceedToPayment = () => {
-    setStep(4);
+    transitionToStep(4);
   };
 
   // Submit Final Booking
@@ -731,7 +744,7 @@ export default function BookingCheckoutModal({
 
   const handleBackFromPayment = () => {
     if (window.confirm('Are you sure you want to cancel this payment?')) {
-      setStep(3);
+      transitionToStep(3);
     }
   };
 
@@ -756,12 +769,22 @@ export default function BookingCheckoutModal({
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 20 }}
-        className={`bg-slate-50 rounded-3xl w-full ${
+        className={`bg-slate-50 rounded-3xl w-full relative ${
           step === 4 ? 'max-w-md my-auto border border-slate-200' : 'max-w-5xl my-auto border-0 sm:border sm:border-slate-200'
         } shadow-2xl overflow-hidden flex flex-col ${
           step === 4 ? 'h-auto max-h-[96vh]' : 'h-full sm:h-auto max-h-full sm:max-h-[94vh]'
         }`}
       >
+        <AnimatePresence>
+          {isStepLoading && (
+            <StepTransitionLoader
+              targetStep={transitionMeta.targetStep}
+              fromStep={transitionMeta.fromStep}
+              flight={flight}
+              passengersCount={passengers.length}
+            />
+          )}
+        </AnimatePresence>
         {/* Header */}
         <div className="bg-white px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
           {step === 4 ? (
@@ -822,7 +845,7 @@ export default function BookingCheckoutModal({
                   {/* Step 1 */}
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => transitionToStep(1)}
                     className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
@@ -841,7 +864,7 @@ export default function BookingCheckoutModal({
                   {/* Step 2 */}
                   <button
                     type="button"
-                    onClick={() => step > 1 ? setStep(2) : handleProceedToSeats()}
+                    onClick={() => step > 1 ? transitionToStep(2) : handleProceedToSeats()}
                     className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
@@ -861,7 +884,7 @@ export default function BookingCheckoutModal({
                   {/* Step 3 */}
                   <button
                     type="button"
-                    onClick={() => step > 2 ? setStep(3) : handleProceedToReview()}
+                    onClick={() => step > 2 ? transitionToStep(3) : handleProceedToReview()}
                     className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
@@ -881,7 +904,7 @@ export default function BookingCheckoutModal({
                   {/* Step 4 */}
                   <button
                     type="button"
-                    onClick={() => step > 3 ? setStep(4) : handleProceedToPayment()}
+                    onClick={() => step > 3 ? transitionToStep(4) : handleProceedToPayment()}
                     className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
@@ -1793,7 +1816,7 @@ export default function BookingCheckoutModal({
                   <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
                     <button
                       type="button"
-                      onClick={() => setStep(1)}
+                      onClick={() => transitionToStep(1)}
                       className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       <ArrowLeft className="w-4 h-4" />
@@ -2160,7 +2183,7 @@ export default function BookingCheckoutModal({
                       <div className="flex items-center gap-2 text-xs">
                         <button
                           type="button"
-                          onClick={() => setStep(1)}
+                          onClick={() => transitionToStep(1)}
                           className="text-sky-600 hover:text-sky-700 font-bold hover:underline cursor-pointer"
                         >
                           Edit Names
@@ -2168,7 +2191,7 @@ export default function BookingCheckoutModal({
                         <span className="text-slate-300">•</span>
                         <button
                           type="button"
-                          onClick={() => setStep(2)}
+                          onClick={() => transitionToStep(2)}
                           className="text-sky-600 hover:text-sky-700 font-bold hover:underline cursor-pointer"
                         >
                           Change Seats
@@ -2457,7 +2480,7 @@ export default function BookingCheckoutModal({
                   <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-3 border-t border-slate-200">
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => transitionToStep(2)}
                       className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       <ArrowLeft className="w-4 h-4" />
@@ -3049,7 +3072,7 @@ export default function BookingCheckoutModal({
             {step > 1 && (
               <button
                 type="button"
-                onClick={() => setStep(step - 1)}
+                onClick={() => transitionToStep(step - 1)}
                 className="h-11 sm:h-12 px-3 sm:px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-xs"
                 title="Back to previous step"
               >
