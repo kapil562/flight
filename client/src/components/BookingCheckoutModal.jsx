@@ -68,7 +68,7 @@ export default function BookingCheckoutModal({
     setTimeout(() => {
       setStep(targetStep);
       setIsStepLoading(false);
-    }, 750);
+    }, 450);
   };
 
   // Check if international travel (from or to airport outside India)
@@ -798,12 +798,7 @@ export default function BookingCheckoutModal({
       >
         <AnimatePresence>
           {isStepLoading && (
-            <StepTransitionLoader
-              targetStep={transitionMeta.targetStep}
-              fromStep={transitionMeta.fromStep}
-              flight={flight}
-              passengersCount={passengers.length}
-            />
+            <StepTransitionLoader targetStep={transitionMeta.targetStep} />
           )}
         </AnimatePresence>
         {/* Header */}
