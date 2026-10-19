@@ -180,6 +180,25 @@ export default function FlightList({
     onBookFlight(combinedFlight, totalRoundTripPrice, 'saver');
   };
 
+  const handleOnwardFlightSelect = (flight) => {
+    if (selectedOnwardFlight?.id === flight.id && selectedReturnFlight) {
+      handleBookRoundTripCombo();
+      return;
+    }
+    setSelectedOnwardFlight(flight);
+    if (!selectedReturnFlight) {
+      setMobileRoundTab('return');
+    }
+  };
+
+  const handleReturnFlightSelect = (flight) => {
+    if (selectedReturnFlight?.id === flight.id && selectedOnwardFlight) {
+      handleBookRoundTripCombo();
+      return;
+    }
+    setSelectedReturnFlight(flight);
+  };
+
   // Active pool of flights depending on current mode
   const activeFlightsPool = useMemo(() => {
     if (isRoundTrip && roundTripData) {
@@ -449,7 +468,7 @@ export default function FlightList({
   );
 
   return (
-    <div className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 ${(isRoundTrip || isMultiCity) ? 'pb-28 sm:pb-24' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 ${(isRoundTrip || isMultiCity) ? 'pb-36 sm:pb-32' : ''}`}>
 
       {/* Mobile Quick-Filter Pills Strip */}
       <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
@@ -943,9 +962,9 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel="Departure Chosen"
-                          onSelect={() => setSelectedOnwardFlight(flight)}
-                          onBookFlight={() => setSelectedOnwardFlight(flight)}
+                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                          onSelect={() => handleOnwardFlightSelect(flight)}
+                          onBookFlight={() => handleOnwardFlightSelect(flight)}
                         />
                       ))}
                     </div>
@@ -988,9 +1007,9 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel="Return Chosen"
-                          onSelect={() => setSelectedReturnFlight(flight)}
-                          onBookFlight={() => setSelectedReturnFlight(flight)}
+                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                          onSelect={() => handleReturnFlightSelect(flight)}
+                          onBookFlight={() => handleReturnFlightSelect(flight)}
                         />
                       ))}
                     </div>
@@ -1015,15 +1034,9 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedOnwardFlight?.id === flight.id}
                             selectLabel="Select Departure"
-                            selectedLabel="Departure Chosen"
-                            onSelect={() => {
-                              setSelectedOnwardFlight(flight);
-                              setMobileRoundTab('return');
-                            }}
-                            onBookFlight={() => {
-                              setSelectedOnwardFlight(flight);
-                              setMobileRoundTab('return');
-                            }}
+                            selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                            onSelect={() => handleOnwardFlightSelect(flight)}
+                            onBookFlight={() => handleOnwardFlightSelect(flight)}
                           />
                         ))}
                       </div>
@@ -1044,9 +1057,9 @@ export default function FlightList({
                             isSelectable={true}
                             isSelected={selectedReturnFlight?.id === flight.id}
                             selectLabel="Select Return"
-                            selectedLabel="Return Chosen"
-                            onSelect={() => setSelectedReturnFlight(flight)}
-                            onBookFlight={() => setSelectedReturnFlight(flight)}
+                            selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                            onSelect={() => handleReturnFlightSelect(flight)}
+                            onBookFlight={() => handleReturnFlightSelect(flight)}
                           />
                         ))}
                       </div>
@@ -1073,15 +1086,9 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
-                          selectedLabel="Departure Chosen"
-                          onSelect={() => {
-                            setSelectedOnwardFlight(flight);
-                            setMobileRoundTab('return');
-                          }}
-                          onBookFlight={() => {
-                            setSelectedOnwardFlight(flight);
-                            setMobileRoundTab('return');
-                          }}
+                          selectedLabel={selectedOnwardFlight?.id === flight.id && selectedReturnFlight ? "✓ Book Round Trip" : "Departure Chosen"}
+                          onSelect={() => handleOnwardFlightSelect(flight)}
+                          onBookFlight={() => handleOnwardFlightSelect(flight)}
                         />
                       ))}
                     </div>
@@ -1102,9 +1109,9 @@ export default function FlightList({
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
-                          selectedLabel="Return Chosen"
-                          onSelect={() => setSelectedReturnFlight(flight)}
-                          onBookFlight={() => setSelectedReturnFlight(flight)}
+                          selectedLabel={selectedReturnFlight?.id === flight.id && selectedOnwardFlight ? "✓ Book Round Trip" : "Return Chosen"}
+                          onSelect={() => handleReturnFlightSelect(flight)}
+                          onBookFlight={() => handleReturnFlightSelect(flight)}
                         />
                       ))}
                     </div>
@@ -1205,16 +1212,24 @@ export default function FlightList({
                           isSelectable={isMultiCity}
                           isSelected={isSelectedForThisLeg}
                           selectLabel={`Select for Leg ${activeLegIndex + 1}`}
-                          selectedLabel={`Leg ${activeLegIndex + 1} Chosen`}
+                          selectedLabel={isSelectedForThisLeg && allLegsSelected ? `✓ Book All ${multiCityLegsData.length} Flights` : `Leg ${activeLegIndex + 1} Chosen`}
                           onSelect={() => {
                             if (isMultiCity) {
-                              handleMultiCityPick(flight);
+                              if (isSelectedForThisLeg && allLegsSelected) {
+                                handleBookMultiCityCombo();
+                              } else {
+                                handleMultiCityPick(flight);
+                              }
                             }
                           }}
                           onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
                             const couponToUse = initialCoupon || copiedCoupon || '';
                             if (isMultiCity) {
-                              handleMultiCityPick(f);
+                              if (isSelectedForThisLeg && allLegsSelected) {
+                                handleBookMultiCityCombo();
+                              } else {
+                                handleMultiCityPick(f);
+                              }
                             } else {
                               onBookFlight(f, currentPrice, selectedFareTier, couponToUse);
                             }
@@ -1231,6 +1246,218 @@ export default function FlightList({
         </main>
 
       </div>
+
+
+      {/* ========================================================= */}
+      {/* STICKY BOTTOM ACTION DOCK (Round Trip & Multi-City)       */}
+      {/* Zero scrolling required to book combo!                    */}
+      {/* ========================================================= */}
+      <AnimatePresence>
+        {isRoundTrip && (selectedOnwardFlight || selectedReturnFlight) && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+            className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white border-t border-sky-500/30 shadow-[0_-10px_35px_rgba(0,0,0,0.4)] px-3 sm:px-6 py-2.5 sm:py-3.5"
+          >
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+              
+              {/* Left / Middle: Selected Flight Chips */}
+              <div className="w-full sm:w-auto flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0">
+                
+                {/* Departure Flight Chip */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileRoundTab('onward');
+                    if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl border text-left shrink-0 transition-all cursor-pointer ${
+                    selectedOnwardFlight
+                      ? 'bg-sky-950/90 border-sky-400 text-sky-100 ring-1 ring-sky-400/50'
+                      : 'bg-white/5 border-dashed border-sky-400/40 text-sky-300/80 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] uppercase font-black tracking-wider text-sky-300">
+                      1. Departure
+                    </span>
+                    {selectedOnwardFlight && <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />}
+                  </div>
+                  <div className="text-xs font-black truncate max-w-[130px] sm:max-w-[180px]">
+                    {roundTripData.from} ➔ {roundTripData.to}
+                  </div>
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold truncate">
+                    {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')} (${selectedOnwardFlight.airline})` : 'Tap to Select'}
+                  </div>
+                </button>
+
+                {/* Return Flight Chip */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileRoundTab('return');
+                    if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl border text-left shrink-0 transition-all cursor-pointer ${
+                    selectedReturnFlight
+                      ? 'bg-indigo-950/90 border-indigo-400 text-indigo-100 ring-1 ring-indigo-400/50'
+                      : 'bg-white/5 border-dashed border-indigo-400/40 text-indigo-300/80 hover:bg-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] uppercase font-black tracking-wider text-indigo-300">
+                      2. Return
+                    </span>
+                    {selectedReturnFlight && <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />}
+                  </div>
+                  <div className="text-xs font-black truncate max-w-[130px] sm:max-w-[180px]">
+                    {roundTripData.to} ➔ {roundTripData.from}
+                  </div>
+                  <div className="text-[10px] font-mono text-emerald-400 font-bold truncate">
+                    {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')} (${selectedReturnFlight.airline})` : 'Tap to Select'}
+                  </div>
+                </button>
+
+              </div>
+
+              {/* Right: Total Price & Instant Book Action */}
+              <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0">
+                <div className="text-left sm:text-right">
+                  <div className="text-[9px] uppercase font-bold text-sky-200/80 tracking-wider">
+                    {selectedOnwardFlight && selectedReturnFlight ? 'Total Combo Fare' : 'Combo Fare'}
+                  </div>
+                  <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
+                    ₹{totalRoundTripPrice.toLocaleString('en-IN')}
+                  </div>
+                </div>
+
+                {selectedOnwardFlight && selectedReturnFlight ? (
+                  <button
+                    type="button"
+                    onClick={handleBookRoundTripCombo}
+                    className="flex-1 sm:flex-none px-5 sm:px-7 py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-102 active:scale-98"
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>Book Round Trip Combo</span>
+                    <ArrowRight className="w-4 h-4 shrink-0" />
+                  </button>
+                ) : !selectedReturnFlight ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileRoundTab('return');
+                      if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                    }}
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <span>Choose Return Flight</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileRoundTab('onward');
+                      if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
+                    }}
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <span>Choose Departure Flight</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isMultiCity && selectedLegsCount > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+            className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md text-white border-t border-emerald-500/30 shadow-[0_-10px_35px_rgba(0,0,0,0.4)] px-3 sm:px-6 py-2.5 sm:py-3.5"
+          >
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+              
+              {/* Multi-City Legs Chips */}
+              <div className="w-full sm:w-auto flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0">
+                {multiCityLegsData.map((leg, idx) => {
+                  const flight = selectedLegFlights[idx];
+                  const isActive = activeLegIndex === idx;
+                  return (
+                    <button
+                      key={`dock-leg-${idx}`}
+                      type="button"
+                      onClick={() => setActiveLegIndex(idx)}
+                      className={`px-3 py-1.5 rounded-xl border text-left shrink-0 transition-all cursor-pointer ${
+                        flight
+                          ? 'bg-emerald-950/90 border-emerald-400 text-emerald-100 ring-1 ring-emerald-400/50'
+                          : isActive
+                          ? 'bg-sky-900/80 border-sky-400 text-white ring-2 ring-sky-400'
+                          : 'bg-white/5 border-dashed border-white/20 text-slate-300 hover:bg-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9px] uppercase font-black tracking-wider text-sky-300">
+                          Leg {idx + 1}
+                        </span>
+                        {flight && <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-xs font-black truncate max-w-[110px] sm:max-w-[150px]">
+                        {leg.from} ➔ {leg.to}
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-emerald-400 truncate">
+                        {flight ? `₹${flight.basePrice?.toLocaleString('en-IN')}` : 'Select Flight'}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Price & Action */}
+              <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0">
+                <div className="text-left sm:text-right">
+                  <div className="text-[9px] uppercase font-bold text-sky-200/80 tracking-wider">
+                    {allLegsSelected ? `All ${multiCityLegsData.length} Legs Fare` : `Selected (${selectedLegsCount}/${multiCityLegsData.length})`}
+                  </div>
+                  <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
+                    ₹{totalMultiCityPrice.toLocaleString('en-IN')}
+                  </div>
+                </div>
+
+                {allLegsSelected ? (
+                  <button
+                    type="button"
+                    onClick={handleBookMultiCityCombo}
+                    className="flex-1 sm:flex-none px-5 sm:px-7 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-102 active:scale-98"
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>Book All {multiCityLegsData.length} Flights</span>
+                    <ArrowRight className="w-4 h-4 shrink-0" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setActiveLegIndex(nextMissingLegIndex)}
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <span>Choose Leg {nextMissingLegIndex + 1}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
 
       {/* MOBILE FILTER MODAL / DRAWER */}
