@@ -193,26 +193,71 @@ export default function BookingCheckoutModal({
   const [qrLoading, setQrLoading] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // Poll booking status when in isVerifyingPayment mode until Admin approves it
+  // Real-time synchronization when Admin approves booking:
+  // 1. BroadcastChannel (Instant 0ms across tabs)
+  // 2. Storage event (Instant 0ms across windows)
+  // 3. Fast Polling (1.5s interval fallback)
   useEffect(() => {
-    let interval = null;
-    if (isVerifyingPayment && createdPnr) {
-      interval = setInterval(async () => {
-        try {
-          const res = await api.getBookingByPnr(createdPnr);
-          const booking = res?.data || res?.booking;
-          if (booking && (booking.status === 'CONFIRMED' || booking.payment?.status === 'PAID')) {
-            clearInterval(interval);
-            setIsVerifyingPayment(false);
-            onBookingSuccess(booking);
+    if (!isVerifyingPayment || !createdPnr) return;
+
+    const checkApproval = (booking) => {
+      if (booking && (booking.status === 'CONFIRMED' || booking.payment?.status === 'PAID')) {
+        setIsVerifyingPayment(false);
+        onBookingSuccess(booking);
+        return true;
+      }
+      return false;
+    };
+
+    // 1. BroadcastChannel listener
+    let bc = null;
+    if (window.BroadcastChannel) {
+      try {
+        bc = new BroadcastChannel('asg_bookings_channel');
+        bc.onmessage = async (msg) => {
+          if (msg.data?.pnr?.toUpperCase() === createdPnr.toUpperCase() && msg.data?.status === 'CONFIRMED') {
+            const res = await api.getBookingByPnr(createdPnr);
+            const b = res?.data || res?.booking;
+            checkApproval(b || { ...msg.data, pnr: createdPnr, status: 'CONFIRMED' });
           }
-        } catch (err) {
-          console.warn('Polling status error:', err);
-        }
-      }, 2500);
+        };
+      } catch (e) {}
     }
+
+    // 2. LocalStorage cross-tab event listener
+    const handleStorageChange = async (e) => {
+      if (e.key === 'asg_booking_status_update' && e.newValue) {
+        try {
+          const data = JSON.parse(e.newValue);
+          if (data?.pnr?.toUpperCase() === createdPnr.toUpperCase() && data?.status === 'CONFIRMED') {
+            const res = await api.getBookingByPnr(createdPnr);
+            const b = res?.data || res?.booking;
+            checkApproval(b || { ...data, pnr: createdPnr, status: 'CONFIRMED' });
+          }
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // 3. Fast Polling (every 1.5s)
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.getBookingByPnr(createdPnr);
+        const booking = res?.data || res?.booking;
+        if (booking && checkApproval(booking)) {
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.warn('Polling status error:', err);
+      }
+    }, 1500);
+
     return () => {
       if (interval) clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+      if (bc) {
+        try { bc.close(); } catch (e) {}
+      }
     };
   }, [isVerifyingPayment, createdPnr, onBookingSuccess]);
 
@@ -872,6 +917,11 @@ export default function BookingCheckoutModal({
 
       const res = await api.createBooking(bookingPayload);
       if (res.success && (res.data || res.booking)) {
+        const returnedPnr = res?.data?.pnr || res?.booking?.pnr || createdPnr;
+        if (returnedPnr) {
+          setCreatedPnr(returnedPnr);
+          try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
+        }
         if (isManualUpi) {
           // Put the modal in Live Verification Waiting mode while Admin verifies
           setIsVerifyingPayment(true);

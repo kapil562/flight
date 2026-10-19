@@ -138,7 +138,13 @@ export const api = {
   },
 
   getBookingByPnr: async (pnr) => {
-    const res = await fetch(`${API_BASE}/bookings/${pnr}`);
+    const res = await fetch(`${API_BASE}/bookings/${encodeURIComponent(pnr)}?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     return res.json();
   },
 

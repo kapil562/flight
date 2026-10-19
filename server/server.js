@@ -1741,15 +1741,23 @@ app.get('/api/bookings', (req, res) => {
 
 // 12. Single Booking by PNR
 app.get('/api/bookings/:pnr', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   const { pnr } = req.params;
   const bookings = readJSON(BOOKINGS_FILE);
-  const booking = bookings.find(b => b.pnr.toUpperCase() === pnr.toUpperCase());
+  const searchPnr = (pnr || '').trim().toUpperCase();
+  const booking = bookings.find(b => 
+    (b.pnr && b.pnr.toUpperCase() === searchPnr) || 
+    (b.bookingId && b.bookingId.toUpperCase() === searchPnr)
+  );
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
   }
 
-  res.json({ success: true, data: booking });
+  res.json({ success: true, data: booking, booking });
 });
 
 // 13. Cancel Booking
@@ -2540,7 +2548,11 @@ app.patch('/api/admin/bookings/:pnr/status', (req, res) => {
   const { status } = req.body;
 
   const bookings = readJSON(BOOKINGS_FILE);
-  const index = bookings.findIndex(b => b.pnr.toUpperCase() === pnr.toUpperCase());
+  const searchPnr = (pnr || '').trim().toUpperCase();
+  const index = bookings.findIndex(b => 
+    (b.pnr && b.pnr.toUpperCase() === searchPnr) || 
+    (b.bookingId && b.bookingId.toUpperCase() === searchPnr)
+  );
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Booking not found' });

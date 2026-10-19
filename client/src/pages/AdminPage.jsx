@@ -435,6 +435,16 @@ export default function AdminPage() {
       if (res.success) {
         triggerAlert(`PNR ${pnr} status changed to ${newStatus}`);
         loadDashboardData();
+        // Broadcast to user checkout modal across tabs/windows
+        try {
+          const updateEvent = { pnr, status: newStatus, timestamp: Date.now() };
+          localStorage.setItem('asg_booking_status_update', JSON.stringify(updateEvent));
+          if (window.BroadcastChannel) {
+            const bc = new BroadcastChannel('asg_bookings_channel');
+            bc.postMessage(updateEvent);
+            bc.close();
+          }
+        } catch (e) {}
       }
     } catch (err) {
       alert('Error updating status');
