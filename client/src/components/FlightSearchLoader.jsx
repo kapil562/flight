@@ -4,15 +4,13 @@ import {
   Plane, 
   Sparkles, 
   ShieldCheck, 
-  Globe, 
+  CheckCircle2, 
   ArrowRight,
   Calendar,
   Users,
   Compass,
-  CheckCircle2,
-  Clock,
-  Luggage,
-  Cloud
+  Tag,
+  TrendingDown
 } from 'lucide-react';
 
 export default function FlightSearchLoader({
@@ -24,50 +22,26 @@ export default function FlightSearchLoader({
   multiCityLegsData = null,
   brand = null
 }) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const [progress, setProgress] = useState(15);
+  const [flightCount, setFlightCount] = useState(0);
+  const [lowestFare, setLowestFare] = useState(7999);
+  const [activeAirlineIdx, setActiveAirlineIdx] = useState(0);
+  const [messageIdx, setMessageIdx] = useState(0);
 
-  const searchSteps = [
-    {
-      icon: Globe,
-      title: "Connecting to Global Aviation Distribution Networks...",
-      sub: "Querying live GDS airline feeds (Amadeus, Sabre & Airline Direct APIs)"
-    },
-    {
-      icon: Plane,
-      title: "Searching 150+ Airlines for Real-Time Schedules...",
-      sub: "Locating fastest non-stop and optimal connecting flights"
-    },
-    {
-      icon: Sparkles,
-      title: "Scanning Lowest Airfares & Instant Web Discounts...",
-      sub: "Applying special promotional coupons, student and senior citizen fares"
-    },
-    {
-      icon: ShieldCheck,
-      title: "Confirming Live Seat Availability & Baggage Allowances...",
-      sub: "Fetching refundable fare rules, terminal gates and meal inclusions"
-    }
+  const searchMessages = [
+    "Connecting to Amadeus, Sabre & Airline Direct APIs...",
+    "Scanning 150+ airlines for non-stop & shortest layovers...",
+    "Comparing lowest airfares & applying secret promo discounts...",
+    "Locking in live seat availability & baggage allowances..."
   ];
 
-  // Rotate through steps
-  useEffect(() => {
-    const stepInterval = setInterval(() => {
-      setStepIndex((prev) => (prev + 1) % searchSteps.length);
-    }, 1800);
-
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 92) return 92;
-        return prev + Math.floor(Math.random() * 8) + 4;
-      });
-    }, 250);
-
-    return () => {
-      clearInterval(stepInterval);
-      clearInterval(progressInterval);
-    };
-  }, []);
+  const airlineBadges = [
+    { name: "IndiGo", code: "6E", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#00457C" },
+    { name: "Air India", code: "AI", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#ED1B24" },
+    { name: "Emirates", code: "EK", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#D71A21" },
+    { name: "Saudia", code: "SV", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#006C35" },
+    { name: "Qatar Airways", code: "QR", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#5C0632" },
+    { name: "Vistara", code: "UK", logo: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=80&q=80", color: "#3B1443" }
+  ];
 
   // Helper to resolve airport details
   const getAirportInfo = (query) => {
@@ -84,312 +58,434 @@ export default function FlightSearchLoader({
     };
   };
 
-  // Determine Origin & Destination depending on trip type
   let origin = getAirportInfo(searchParams.from || 'DEL');
   let destination = getAirportInfo(searchParams.to || 'BOM');
-  let tripLabel = 'ONE-WAY TRIP';
+  let tripTypeTitle = 'One-Way Flight';
 
   if (isRoundTrip) {
     origin = getAirportInfo(searchParams.from || roundTripData?.from);
     destination = getAirportInfo(searchParams.to || roundTripData?.to);
-    tripLabel = 'ROUND TRIP';
+    tripTypeTitle = 'Round-Trip Flight';
   } else if (isMultiCity && multiCityLegsData && multiCityLegsData.length > 0) {
     origin = getAirportInfo(multiCityLegsData[0]?.from || searchParams.from);
     destination = getAirportInfo(
       multiCityLegsData[multiCityLegsData.length - 1]?.to || searchParams.to
     );
-    tripLabel = `MULTI-CITY (${multiCityLegsData.length} LEGS)`;
+    tripTypeTitle = `Multi-City (${multiCityLegsData.length} Legs)`;
   }
 
   const travelClass = (searchParams.travelClass || 'economy').toUpperCase();
-  const passengerCount = 
+  const paxCount = 
     (searchParams.passengers?.adults || 1) + 
-    (searchParams.passengers?.children || 0) + 
-    (searchParams.passengers?.infants || 0);
+    (searchParams.passengers?.children || 0);
 
-  const popularAirlines = [
-    { name: "IndiGo", code: "6E", color: "from-blue-500 to-indigo-600" },
-    { name: "Air India", code: "AI", color: "from-red-500 to-amber-600" },
-    { name: "Emirates", code: "EK", color: "from-emerald-500 to-teal-700" },
-    { name: "Saudia", code: "SV", color: "from-green-600 to-emerald-800" },
-    { name: "Qatar Airways", code: "QR", color: "from-purple-600 to-rose-700" },
-    { name: "Vistara", code: "UK", color: "from-violet-600 to-indigo-800" }
-  ];
+  // Live dynamic counter simulations
+  useEffect(() => {
+    const flightTimer = setInterval(() => {
+      setFlightCount((prev) => {
+        if (prev >= 64) return 68;
+        return prev + Math.floor(Math.random() * 9) + 4;
+      });
+    }, 180);
 
-  const currentStep = searchSteps[stepIndex];
-  const StepIcon = currentStep.icon;
+    const fareTimer = setInterval(() => {
+      setLowestFare((prev) => {
+        if (prev <= 3450) return 3350;
+        return prev - Math.floor(Math.random() * 450) - 200;
+      });
+    }, 280);
+
+    const airlineTimer = setInterval(() => {
+      setActiveAirlineIdx((prev) => (prev + 1) % airlineBadges.length);
+    }, 450);
+
+    const msgTimer = setInterval(() => {
+      setMessageIdx((prev) => (prev + 1) % searchMessages.length);
+    }, 1600);
+
+    return () => {
+      clearInterval(flightTimer);
+      clearInterval(fareTimer);
+      clearInterval(airlineTimer);
+      clearInterval(msgTimer);
+    };
+  }, []);
 
   return (
     <div className="w-full space-y-6 my-2 animate-fadeIn">
       {/* ========================================================= */}
-      {/* 1. HERO ANIMATED FLIGHT STAGE BANNER                       */}
+      {/* 1. MAKEMYTRIP / SKYSCANNER SUNNY SKY ANIMATED STAGE        */}
       {/* ========================================================= */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 text-white p-6 sm:p-8 shadow-2xl border border-sky-500/25">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-sky-400 via-sky-300 to-blue-200 text-slate-900 shadow-2xl border-2 border-white/80 p-5 sm:p-8 min-h-[360px] sm:min-h-[420px] flex flex-col justify-between">
         
-        {/* Soft background ambient glowing orbs */}
-        <div className="absolute -top-24 -left-24 w-72 h-72 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-sky-400/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Radiant Sunlight in Top-Left */}
+        <div className="absolute -top-16 -left-16 w-64 h-64 bg-amber-200/50 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-100/60 rounded-full blur-xl pointer-events-none" />
 
-        {/* Top Header Pill Bar */}
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
+        {/* ========================================================= */}
+        {/* PARALLAX DRIFTING CLOUDS (Layered Depth)                   */}
+        {/* ========================================================= */}
+        {/* Background Clouds (Slow) */}
+        <motion.div
+          className="absolute pointer-events-none opacity-40 text-white"
+          animate={{ x: ['120%', '-40%'] }}
+          transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+          style={{ top: '8%' }}
+        >
+          <svg className="w-40 sm:w-56 h-20 fill-current" viewBox="0 0 200 80">
+            <path d="M 20,60 Q 20,40 40,40 Q 50,15 80,25 Q 110,10 130,30 Q 155,20 170,45 Q 185,50 180,65 Q 170,75 140,75 L 30,75 Q 15,75 20,60 Z" />
+          </svg>
+        </motion.div>
+
+        {/* Mid-level Cloud */}
+        <motion.div
+          className="absolute pointer-events-none opacity-60 text-white"
+          animate={{ x: ['110%', '-50%'] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'linear', delay: 3 }}
+          style={{ top: '38%' }}
+        >
+          <svg className="w-48 sm:w-64 h-24 fill-current drop-shadow-md" viewBox="0 0 200 80">
+            <path d="M 30,65 Q 25,45 50,42 Q 65,10 95,20 Q 125,5 145,28 Q 175,18 185,45 Q 195,60 180,70 L 40,70 Q 25,70 30,65 Z" />
+          </svg>
+        </motion.div>
+
+        {/* Foreground Clouds (Fast) */}
+        <motion.div
+          className="absolute pointer-events-none opacity-75 text-white/90"
+          animate={{ x: ['130%', '-60%'] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
+          style={{ bottom: '15%' }}
+        >
+          <svg className="w-56 sm:w-80 h-28 fill-current drop-shadow-lg" viewBox="0 0 200 80">
+            <path d="M 25,60 Q 20,38 45,35 Q 60,8 90,18 Q 120,4 140,25 Q 170,15 180,40 Q 190,55 175,68 L 35,68 Q 20,68 25,60 Z" />
+          </svg>
+        </motion.div>
+
+        {/* ========================================================= */}
+        {/* TOP STATUS & ROUTE PILL (Glassmorphism)                   */}
+        {/* ========================================================= */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 bg-white/75 backdrop-blur-md px-4 sm:px-6 py-2.5 rounded-2xl border border-white/90 shadow-sm">
+          <div className="flex items-center gap-2">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-600"></span>
             </span>
-            <span className="text-xs font-black tracking-widest uppercase text-emerald-400">
-              Live Flight Search In Progress
+            <span className="text-xs sm:text-sm font-black text-slate-800 tracking-wide uppercase">
+              {tripTypeTitle}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-white/10 border border-white/15 text-sky-200">
-              {tripLabel}
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+            <span className="px-2.5 py-1 rounded-lg bg-sky-100 text-sky-800 border border-sky-200">
+              {travelClass}
             </span>
-            <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-500/20 border border-sky-400/30 text-sky-300">
-              {travelClass} • {passengerCount} {passengerCount > 1 ? 'PAX' : 'PAX'}
+            <span className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 border border-amber-200">
+              {paxCount} Traveller{paxCount > 1 ? 's' : ''}
             </span>
+            {searchParams.date && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white text-slate-800 border border-slate-200">
+                <Calendar className="w-3 h-3 text-sky-600" />
+                <span>{searchParams.date}</span>
+              </span>
+            )}
           </div>
         </div>
 
         {/* ========================================================= */}
-        {/* 2. AIRPORT TO AIRPORT FLIGHT PATH ANIMATION               */}
+        {/* CENTER AIRPORT ROUTE & 3D ANIMATED JETLINER               */}
         {/* ========================================================= */}
         <div className="relative z-10 py-6 sm:py-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          
+          {/* Origin & Destination Cards Bar */}
+          <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto px-2">
             
-            {/* Origin Airport */}
-            <div className="md:col-span-3 text-left">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400 animate-pulse" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-300">
-                  Departure
-                </span>
-              </div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+            {/* Origin City Card */}
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg border border-white text-left min-w-[110px] sm:min-w-[180px]">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-sky-600 block">
+                Depart From
+              </span>
+              <div className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 {origin.code}
               </div>
-              <div className="text-base sm:text-lg font-bold text-slate-100 truncate">
+              <div className="text-xs sm:text-sm font-bold text-slate-700 truncate max-w-[120px] sm:max-w-[160px]">
                 {origin.city}
               </div>
-              <div className="text-xs text-sky-200/80 truncate max-w-[200px]">
-                {origin.name}
-              </div>
-              {searchParams.date && (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] text-sky-200 font-semibold border border-white/10">
-                  <Calendar className="w-3 h-3 text-sky-400" />
-                  <span>{searchParams.date}</span>
-                </div>
-              )}
             </div>
 
-            {/* Flight Trajectory & Animated Airplane */}
-            <div className="md:col-span-6 relative py-4 sm:py-6">
-              
-              {/* Route Line Track with glowing gradient */}
-              <div className="relative w-full h-12 flex items-center justify-center">
-                
-                {/* SVG Arched Dotted Flight Trajectory */}
-                <svg className="w-full h-14 overflow-visible" preserveAspectRatio="none" viewBox="0 0 300 40">
-                  <defs>
-                    <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.4" />
-                      <stop offset="50%" stopColor="#60a5fa" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="#818cf8" stopOpacity="0.4" />
-                    </linearGradient>
-                  </defs>
-                  {/* Subtle baseline track */}
-                  <path
-                    d="M 10 30 Q 150 0 290 30"
-                    fill="none"
-                    stroke="#1e293b"
-                    strokeWidth="3"
-                  />
-                  {/* Glowing flight trajectory */}
-                  <path
-                    d="M 10 30 Q 150 0 290 30"
-                    fill="none"
-                    stroke="url(#routeGradient)"
-                    strokeWidth="3"
-                    strokeDasharray="6 6"
-                    className="animate-pulse"
-                  />
-                </svg>
-
-                {/* Drifting Clouds in Background */}
-                <motion.div
-                  className="absolute pointer-events-none text-sky-300/20"
-                  animate={{ x: [120, -120], opacity: [0, 0.4, 0] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                  style={{ top: '15%' }}
-                >
-                  <Cloud className="w-8 h-8" />
-                </motion.div>
-                <motion.div
-                  className="absolute pointer-events-none text-white/15"
-                  animate={{ x: [80, -140], opacity: [0, 0.3, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "linear", delay: 2 }}
-                  style={{ top: '65%' }}
-                >
-                  <Cloud className="w-6 h-6" />
-                </motion.div>
-
-                {/* ANIMATED AIRPLANE GLIDING ALONG ROUTE */}
-                <motion.div
-                  className="absolute z-20 flex items-center pointer-events-none"
-                  animate={{
-                    left: ['5%', '88%'],
-                    y: ['2px', '-18px', '2px'],
-                    rotate: [10, 2, -6]
-                  }}
-                  transition={{
-                    duration: 2.8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  {/* Contrail Vapor Trail */}
-                  <div className="w-12 sm:w-16 h-1 bg-gradient-to-r from-transparent via-sky-300 to-white/90 rounded-full blur-[0.5px]" />
-                  
-                  {/* Plane Icon inside glowing pulse circle */}
-                  <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 border-2 border-white shadow-xl shadow-sky-400/50 flex items-center justify-center transform rotate-90">
-                    <Plane className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                </motion.div>
-
-              </div>
-
-              {/* Mid-route Info Banner */}
-              <div className="text-center mt-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-bold text-sky-200 border border-white/10">
-                  <Compass className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-                  <span>Scanning Direct & Best 1-Stop Connections</span>
+            {/* Middle Dotted Flight Trajectory with Center Badge */}
+            <div className="flex-1 px-2 relative hidden md:block">
+              <div className="relative flex items-center justify-center">
+                <div className="w-full h-1 border-t-2 border-dashed border-white/90" />
+                <span className="absolute px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[11px] font-extrabold text-sky-700 shadow-sm border border-sky-100 flex items-center gap-1.5 whitespace-nowrap">
+                  <Compass className="w-3.5 h-3.5 text-sky-600 animate-spin" style={{ animationDuration: '4s' }} />
+                  <span>Searching Best Route</span>
                 </span>
               </div>
             </div>
 
-            {/* Destination Airport */}
-            <div className="md:col-span-3 text-left md:text-right">
-              <div className="flex items-center md:justify-end gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-sky-300">
-                  Destination
-                </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400 animate-pulse" />
-              </div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+            {/* Destination City Card */}
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg border border-white text-right min-w-[110px] sm:min-w-[180px]">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600 block">
+                Arrive At
+              </span>
+              <div className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 {destination.code}
               </div>
-              <div className="text-base sm:text-lg font-bold text-slate-100 truncate">
+              <div className="text-xs sm:text-sm font-bold text-slate-700 truncate max-w-[120px] sm:max-w-[160px] ml-auto">
                 {destination.city}
               </div>
-              <div className="text-xs text-sky-200/80 truncate max-w-[200px] md:ml-auto">
-                {destination.name}
-              </div>
-              {(isRoundTrip && searchParams.returnDate) && (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 text-[11px] text-sky-200 font-semibold border border-white/10">
-                  <Calendar className="w-3 h-3 text-indigo-400" />
-                  <span>Return: {searchParams.returnDate}</span>
-                </div>
-              )}
             </div>
 
           </div>
+
+          {/* ========================================================= */}
+          {/* THE 3D AIRPLANE FLYING THROUGH THE SKY                    */}
+          {/* ========================================================= */}
+          <div className="relative w-full h-32 sm:h-40 my-3 flex items-center justify-center overflow-visible">
+            
+            {/* Dynamic Plane Shadow on Clouds */}
+            <motion.div
+              className="absolute w-28 sm:w-36 h-6 bg-slate-800/15 rounded-full blur-md pointer-events-none"
+              animate={{
+                scale: [0.9, 1.15, 0.9],
+                y: [40, 52, 40],
+                opacity: [0.15, 0.3, 0.15]
+              }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+            />
+
+            {/* THE COMMERCIAL JETLINER (Detailed SVG Illustration) */}
+            <motion.div
+              className="relative z-20 flex items-center justify-center"
+              animate={{
+                y: [-8, 8, -8],
+                rotate: [-2, 3, -2],
+                scale: [1, 1.04, 1]
+              }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+            >
+              {/* Twin Jet Engine Contrail Streams */}
+              <div className="absolute -left-20 sm:-left-28 top-1/2 -translate-y-1/2 flex flex-col gap-5 pointer-events-none">
+                {/* Upper engine exhaust trail */}
+                <motion.div
+                  className="w-24 sm:w-36 h-2 bg-gradient-to-r from-transparent via-white/80 to-white rounded-full blur-[1px]"
+                  animate={{ opacity: [0.4, 0.9, 0.4], scaleX: [0.9, 1.1, 0.9] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                {/* Lower engine exhaust trail */}
+                <motion.div
+                  className="w-24 sm:w-36 h-2 bg-gradient-to-r from-transparent via-white/80 to-white rounded-full blur-[1px]"
+                  animate={{ opacity: [0.9, 0.4, 0.9], scaleX: [1.1, 0.9, 1.1] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+                />
+              </div>
+
+              {/* Vector Jet Airplane Illustration */}
+              <svg 
+                className="w-32 sm:w-44 h-24 sm:h-32 drop-shadow-2xl" 
+                viewBox="0 0 240 160" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Airplane Body / Fuselage */}
+                <path
+                  d="M230 80 C210 65 140 68 80 70 L30 65 C20 65 15 72 20 80 C15 88 20 95 30 95 L80 90 C140 92 210 95 230 80 Z"
+                  fill="url(#fuselageGradient)"
+                  stroke="#0284c7"
+                  strokeWidth="1.5"
+                />
+
+                {/* Vertical Tail Fin */}
+                <path
+                  d="M20 75 L5 25 C3 20 8 18 14 20 L45 70 Z"
+                  fill="url(#tailGradient)"
+                  stroke="#0369a1"
+                  strokeWidth="1.5"
+                />
+
+                {/* Horizontal Stabilizer Tail */}
+                <path
+                  d="M15 80 L5 105 C3 108 8 110 12 108 L35 85 Z"
+                  fill="#0284c7"
+                />
+
+                {/* Main Wing (Top Wing) */}
+                <path
+                  d="M110 70 L140 10 C143 5 150 6 152 12 L160 70 Z"
+                  fill="url(#wingGradient)"
+                  stroke="#0284c7"
+                  strokeWidth="1.5"
+                />
+
+                {/* Turbofan Jet Engine (Mounted Under Upper Wing) */}
+                <rect x="125" y="48" width="34" height="12" rx="6" fill="#1e293b" />
+                <ellipse cx="157" cy="54" rx="3" ry="5" fill="#38bdf8" />
+                <circle cx="127" cy="54" r="4" fill="#0284c7" />
+
+                {/* Lower Wing */}
+                <path
+                  d="M110 90 L140 150 C143 155 150 154 152 148 L160 90 Z"
+                  fill="url(#wingGradient)"
+                  stroke="#0284c7"
+                  strokeWidth="1.5"
+                />
+
+                {/* Turbofan Jet Engine (Mounted Under Lower Wing) */}
+                <rect x="125" y="100" width="34" height="12" rx="6" fill="#1e293b" />
+                <ellipse cx="157" cy="106" rx="3" ry="5" fill="#38bdf8" />
+                <circle cx="127" cy="106" r="4" fill="#0284c7" />
+
+                {/* Cockpit Windshield Glass */}
+                <path
+                  d="M210 74 Q220 78 226 80 Q220 82 210 86 L205 74 Z"
+                  fill="#0369a1"
+                />
+
+                {/* Passenger Cabin Windows Row */}
+                {[65, 80, 95, 110, 125, 140, 155, 170, 185].map((x) => (
+                  <circle key={x} cx={x} cy="79" r="2" fill="#0284c7" />
+                ))}
+
+                {/* Aircraft Livery Speed Ribbon */}
+                <path
+                  d="M60 84 Q140 85 210 82"
+                  stroke="#f59e0b"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+
+                {/* SVG Color Gradients */}
+                <defs>
+                  <linearGradient id="fuselageGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#f8fafc" />
+                    <stop offset="50%" stopColor="#ffffff" />
+                    <stop offset="100%" stopColor="#e2e8f0" />
+                  </linearGradient>
+                  <linearGradient id="wingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#e0f2fe" />
+                    <stop offset="100%" stopColor="#0284c7" />
+                  </linearGradient>
+                  <linearGradient id="tailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0284c7" />
+                    <stop offset="100%" stopColor="#1e3a8a" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </motion.div>
+
+          </div>
+
         </div>
 
         {/* ========================================================= */}
-        {/* 3. DYNAMIC LIVE STEP TICKER & SHIMMER PROGRESS BAR         */}
+        {/* 3. DOPAMINE LIVE STATS: FLIGHT COUNTER & LOWEST FARE TICKER */}
         {/* ========================================================= */}
-        <div className="relative z-10 pt-4 border-t border-white/10 space-y-3">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
           
-          {/* Animated Message Transition */}
-          <div className="min-h-[46px] flex items-center justify-between gap-4">
+          {/* Card 1: Flights Found Rolling Counter */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-white flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                Live Flight Scanner
+              </span>
+              <div className="flex items-baseline gap-1.5 mt-0.5">
+                <span className="text-2xl sm:text-3xl font-black text-sky-600 font-mono">
+                  {flightCount}
+                </span>
+                <span className="text-xs font-extrabold text-slate-700">
+                  Flights Found
+                </span>
+              </div>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600 shrink-0">
+              <Plane className="w-5 h-5 rotate-45 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Card 2: Lowest Fare Dropping Counter */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-white flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                Cheapest Fare Unlocked
+              </span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-2xl sm:text-3xl font-black text-emerald-600 font-mono">
+                  ₹{lowestFare.toLocaleString('en-IN')}
+                </span>
+                <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                  BEST PRICE
+                </span>
+              </div>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+              <TrendingDown className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Card 3: Airline Partner Verification Slot */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-3.5 shadow-md border border-white flex items-center justify-between">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                Checking Airlines
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span 
+                  className="w-2.5 h-2.5 rounded-full animate-ping"
+                  style={{ backgroundColor: airlineBadges[activeAirlineIdx].color }}
+                />
+                <span className="text-sm font-black text-slate-900 truncate">
+                  {airlineBadges[activeAirlineIdx].name} ({airlineBadges[activeAirlineIdx].code})
+                </span>
+              </div>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-emerald-600 shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom Reassuring Step Message */}
+        <div className="relative z-10 mt-3 pt-3 border-t border-slate-300/60 flex items-center justify-between text-xs text-slate-800 font-semibold">
+          <div className="flex items-center gap-2 truncate">
+            <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-bounce" />
             <AnimatePresence mode="wait">
-              <motion.div
-                key={stepIndex}
-                initial={{ opacity: 0, y: 8 }}
+              <motion.span
+                key={messageIdx}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-                className="flex items-center gap-3"
+                exit={{ opacity: 0, y: -5 }}
+                className="truncate font-extrabold text-slate-800"
               >
-                <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 shadow-inner">
-                  <StepIcon className="w-4 h-4 text-sky-300 animate-bounce" />
-                </div>
-                <div>
-                  <h4 className="text-sm sm:text-base font-extrabold text-white">
-                    {currentStep.title}
-                  </h4>
-                  <p className="text-xs text-sky-200/70 hidden sm:block">
-                    {currentStep.sub}
-                  </p>
-                </div>
-              </motion.div>
+                {searchMessages[messageIdx]}
+              </motion.span>
             </AnimatePresence>
-
-            <span className="text-xs font-black font-mono text-sky-300 shrink-0">
-              {progress}%
-            </span>
           </div>
-
-          {/* Glowing Shimmer Progress Bar */}
-          <div className="relative w-full h-2.5 bg-slate-800/80 rounded-full overflow-hidden border border-white/10">
-            <motion.div
-              className="h-full bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-500 rounded-full relative"
-              initial={{ width: '15%' }}
-              animate={{ width: `${progress}%` }}
-              transition={{ ease: "easeOut", duration: 0.3 }}
-            >
-              {/* Shimmer light sweep */}
-              <div 
-                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                style={{
-                  animation: 'shimmer 1.5s infinite linear',
-                  backgroundSize: '200% 100%'
-                }}
-              />
-            </motion.div>
-          </div>
-
-          {/* Airlines being queried live pills */}
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold">
-              <span>Checking partner inventory:</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              {popularAirlines.map((al, idx) => (
-                <div
-                  key={al.code}
-                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all ${
-                    idx <= stepIndex + 1
-                      ? 'bg-white/15 text-white border-sky-400/40 shadow-xs'
-                      : 'bg-white/5 text-slate-400 border-white/5'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${al.color}`} />
-                  <span>{al.name}</span>
-                  {idx <= stepIndex && (
-                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
+          <span className="text-[11px] font-bold text-slate-600 shrink-0">
+            Powered by Global GDS
+          </span>
         </div>
 
       </div>
 
       {/* ========================================================= */}
-      {/* 4. REALISTIC SKELETON FLIGHT CARDS WITH SHIMMER GRADIENT   */}
+      {/* 2. REALISTIC FLIGHT CARD SKELETONS WITH SHIMMER GRADIENT   */}
       {/* ========================================================= */}
       <div className="space-y-3.5">
-        {[1, 2, 3].map((item) => (
+        {[1, 2, 3].map((card) => (
           <div
-            key={item}
-            className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 shadow-sm relative overflow-hidden"
+            key={card}
+            className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200 shadow-xs relative overflow-hidden"
           >
-            {/* Shimmer sweep effect over card */}
+            {/* Shimmer sweep animation */}
             <div 
               className="absolute inset-0 pointer-events-none opacity-40 bg-gradient-to-r from-transparent via-slate-100 to-transparent"
               style={{
@@ -422,7 +518,7 @@ export default function FlightSearchLoader({
                   <div className="h-3 bg-slate-100 rounded-md w-14 mx-auto animate-pulse" />
                   <div className="relative flex items-center justify-center">
                     <div className="w-full h-0.5 bg-slate-200" />
-                    <div className="absolute w-2 h-2 rounded-full bg-slate-300" />
+                    <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-400 border border-white" />
                   </div>
                   <div className="h-2.5 bg-slate-100 rounded-md w-16 mx-auto animate-pulse" />
                 </div>
