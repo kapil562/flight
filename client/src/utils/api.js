@@ -196,6 +196,13 @@ export const api = {
     return res.json();
   },
 
+  deleteBooking: async (pnr) => {
+    const res = await fetch(`${API_BASE}/admin/bookings/${pnr}`, {
+      method: 'DELETE'
+    });
+    return res.json();
+  },
+
   adminLogin: async (username, password) => {
     const res = await fetch(`${API_BASE}/admin/login`, {
       method: 'POST',

@@ -36,6 +36,8 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
   const [showHolidayModal, setShowHolidayModal] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState(null);
   const [bookingSearch, setBookingSearch] = useState('');
+  const [selectedBookingsList, setSelectedBookingsList] = useState([]);
+  const [viewingBooking, setViewingBooking] = useState(null);
   const [customerSearch, setCustomerSearch] = useState('');
   const [hotelSearch, setHotelSearch] = useState('');
   const [holidaySearch, setHolidaySearch] = useState('');
@@ -276,6 +278,52 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
     }
   };
 
+  // 9b. Delete Booking
+  const handleDeleteBooking = async (pnr) => {
+    if (!window.confirm(`Are you sure you want to delete booking ${pnr} permanently?`)) return;
+    try {
+      const res = await api.deleteBooking(pnr);
+      if (res.success) {
+        loadAdminData();
+        setSelectedBookingsList(prev => prev.filter(x => x !== pnr));
+      } else {
+        alert(res.message || 'Error deleting booking');
+      }
+    } catch (err) {
+      alert('Error deleting booking');
+    }
+  };
+
+  // 9c. Bulk Delete Bookings
+  const handleBulkDeleteBookings = async () => {
+    if (selectedBookingsList.length === 0) return;
+    if (!window.confirm(`Delete ${selectedBookingsList.length} selected bookings permanently?`)) return;
+    try {
+      for (const pnr of selectedBookingsList) {
+        await api.deleteBooking(pnr);
+      }
+      loadAdminData();
+      setSelectedBookingsList([]);
+    } catch (err) {
+      alert('Error during bulk deletion');
+    }
+  };
+
+  // 9d. Toggle booking checkbox selection
+  const handleToggleSelectBooking = (pnr) => {
+    setSelectedBookingsList(prev =>
+      prev.includes(pnr) ? prev.filter(x => x !== pnr) : [...prev, pnr]
+    );
+  };
+
+  const handleSelectAllBookings = (allPnrs) => {
+    if (selectedBookingsList.length === allPnrs.length) {
+      setSelectedBookingsList([]);
+    } else {
+      setSelectedBookingsList([...allPnrs]);
+    }
+  };
+
   // 10. Delete Customer
   const handleDeleteCustomer = async (id, name) => {
     if (!window.confirm(`Delete customer account for ${name || id}?`)) return;
@@ -431,6 +479,7 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
 
   const filteredBookings = bookings.filter(b =>
     (b.pnr || '').toLowerCase().includes(bookingSearch.toLowerCase()) ||
+    (b.bookingId || '').toLowerCase().includes(bookingSearch.toLowerCase()) ||
     (b.contact?.email || '').toLowerCase().includes(bookingSearch.toLowerCase()) ||
     (b.passengers || []).some(p => `${p.firstName || ''} ${p.lastName || ''}`.toLowerCase().includes(bookingSearch.toLowerCase()))
   );
@@ -1242,95 +1291,161 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                 </div>
               </div>
 
+              {selectedBookingsList.length > 0 && (
+                <div className="bg-sky-50 border border-sky-200 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                  <span className="font-bold text-sky-900">
+                    {selectedBookingsList.length} booking(s) selected
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleBulkDeleteBookings}
+                      className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete Selected
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-600">
-                    <thead className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                    <thead className="bg-slate-50/90 text-slate-700 font-bold text-xs border-b border-slate-200">
                       <tr>
-                        <th className="p-3.5">PNR #</th>
-                        <th className="p-3.5">Flight</th>
-                        <th className="p-3.5">Route</th>
-                        <th className="p-3.5">Passenger(s)</th>
-                        <th className="p-3.5">Total & Payment</th>
-                        <th className="p-3.5">Status</th>
-                        <th className="p-3.5 text-right">Change Status</th>
+                        <th className="p-3.5 w-10 text-center">
+                          <input
+                            type="checkbox"
+                            checked={filteredBookings.length > 0 && selectedBookingsList.length === filteredBookings.length}
+                            onChange={() => handleSelectAllBookings(filteredBookings.map(b => b.pnr))}
+                            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
+                          />
+                        </th>
+                        <th className="p-3.5 font-bold text-slate-900">Booking ID</th>
+                        <th className="p-3.5 font-bold text-slate-900">Passenger</th>
+                        <th className="p-3.5 font-bold text-slate-900">Route</th>
+                        <th className="p-3.5 font-bold text-slate-900">Amount</th>
+                        <th className="p-3.5 font-bold text-slate-900">Payment</th>
+                        <th className="p-3.5 font-bold text-slate-900">Status</th>
+                        <th className="p-3.5 font-bold text-slate-900">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
-                      {filteredBookings.map(b => (
-                        <tr key={b.pnr} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3.5 font-mono font-black text-sky-800">{b.pnr}</td>
-                          <td className="p-3.5 font-bold text-slate-900">{b.airline} ({b.flightNumber})</td>
-                          <td className="p-3.5 font-bold text-slate-800">
-                            {b.tripType === 'multiCity' || (b.multiCityLegs && b.multiCityLegs.length > 0) ? (
-                              <div>
-                                <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black bg-purple-100 text-purple-700 uppercase mr-1">
-                                  Multi-City
-                                </span>
-                                <span className="text-slate-900">
-                                  {b.multiCityLegs ? b.multiCityLegs.map(l => `${l.from} ➔ ${l.to}`).join(' • ') : b.route || `${b.from} → ${b.to}`}
-                                </span>
-                              </div>
-                            ) : (
-                              <span>{b.from} → {b.to}</span>
-                            )}
-                          </td>
-                          <td className="p-3.5">
-                            {b.passengers?.map((p, i) => (
-                              <div key={i} className="font-semibold text-slate-800">
-                                {p.firstName} {p.lastName} <span className="font-mono text-sky-700">({p.seat || 'No seat'})</span>
-                              </div>
-                            ))}
-                          </td>
-                          <td className="p-3.5 font-mono">
-                            <div className="font-black text-slate-900">₹{b.fare?.total?.toLocaleString('en-IN')}</div>
-                            <div className="text-[10px] text-slate-500 font-sans mt-0.5">
-                              {b.payment?.method || 'UPI'} • {b.payment?.status || 'Paid'}
-                            </div>
-                            {b.payment?.utrNumber && (
-                              <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-mono font-bold">
-                                <span>UTR: {b.payment.utrNumber}</span>
-                              </div>
-                            )}
-                          </td>
-                          <td className="p-3.5">
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              b.status === 'CONFIRMED'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : b.status === 'PENDING'
-                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                                : b.status === 'VERIFICATION_PENDING'
-                                ? 'bg-orange-100 text-orange-900 border border-orange-300'
-                                : 'bg-rose-100 text-rose-800'
-                            }`}>
-                              {b.status === 'VERIFICATION_PENDING' ? '⏳ Verification Pending' : b.status === 'PENDING' ? '⏳ PENDING' : b.status}
-                            </span>
-                            {b.status === 'VERIFICATION_PENDING' && (
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateBookingStatus(b.pnr, 'CONFIRMED')}
-                                className="mt-1.5 block text-[10px] font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-0.5 rounded shadow-2xs cursor-pointer"
-                                title="Click to quickly verify UTR and confirm booking"
-                              >
-                                ✓ Approve & Confirm
-                              </button>
-                            )}
-                          </td>
-                          <td className="p-3.5 text-right space-x-1">
-                            <select
-                              value={b.status}
-                              onChange={(e) => handleUpdateBookingStatus(b.pnr, e.target.value)}
-                              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 cursor-pointer"
-                            >
-                              <option value="PENDING">PENDING</option>
-                              <option value="CONFIRMED">CONFIRMED</option>
-                              <option value="VERIFICATION_PENDING">VERIFICATION_PENDING</option>
-                              <option value="CANCELLED">CANCELLED</option>
-                              <option value="REFUNDED">REFUNDED</option>
-                            </select>
+                      {filteredBookings.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" className="p-8 text-center text-slate-400">
+                            No bookings found matching your search.
                           </td>
                         </tr>
-                      ))}
+                      ) : filteredBookings.map(b => {
+                        const isPaymentPending = (b.payment?.status?.toLowerCase().includes('pending') || b.status === 'PENDING');
+                        const isPaid = (b.payment?.status?.toLowerCase().includes('paid') || b.status === 'CONFIRMED');
+                        const primaryPassenger = b.passengers?.[0]
+                          ? `${b.passengers[0].title ? b.passengers[0].title + ' ' : ''}${b.passengers[0].firstName || ''} ${b.passengers[0].lastName || ''}`.trim()
+                          : 'Guest';
+
+                        return (
+                          <tr key={b.pnr} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="p-3.5 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedBookingsList.includes(b.pnr)}
+                                onChange={() => handleToggleSelectBooking(b.pnr)}
+                                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="p-3.5 font-bold text-slate-900 font-sans tracking-tight">
+                              {b.bookingId || b.pnr}
+                            </td>
+                            <td className="p-3.5 text-slate-800 font-medium">
+                              {primaryPassenger}
+                              {b.passengers?.length > 1 && (
+                                <span className="text-[10px] text-slate-400 ml-1 font-semibold">
+                                  (+{b.passengers.length - 1})
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3.5 font-semibold text-slate-800">
+                              {b.from} → {b.to}
+                            </td>
+                            <td className="p-3.5 font-bold text-slate-900 font-mono">
+                              ₹{(b.fare?.total || b.fare?.basePrice || 0).toLocaleString('en-IN')}
+                            </td>
+                            <td className="p-3.5">
+                              <span className={`inline-block px-3 py-0.5 rounded-md text-[11px] font-bold ${
+                                isPaymentPending
+                                  ? 'bg-[#f59e0b] text-slate-950'
+                                  : isPaid
+                                  ? 'bg-[#10b981] text-white'
+                                  : 'bg-slate-200 text-slate-700'
+                              }`}>
+                                {isPaymentPending ? 'pending' : (b.payment?.status || 'paid').toLowerCase()}
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <span className={`inline-block px-3 py-0.5 rounded-md text-[11px] font-bold ${
+                                b.status === 'CONFIRMED'
+                                  ? 'bg-[#10b981] text-white'
+                                  : b.status === 'CANCELLED'
+                                  ? 'bg-[#ef4444] text-white'
+                                  : b.status === 'VERIFICATION_PENDING'
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-[#f59e0b] text-slate-950'
+                              }`}>
+                                {b.status === 'VERIFICATION_PENDING' ? 'verification' : b.status?.toLowerCase() || 'pending'}
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <div className="flex items-center gap-1.5">
+                                {/* 1. View / Eye button */}
+                                <button
+                                  type="button"
+                                  title="View Details"
+                                  onClick={() => setViewingBooking(b)}
+                                  className="w-7 h-7 rounded border border-blue-400 text-blue-500 hover:bg-blue-50 flex items-center justify-center cursor-pointer transition-colors"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                </button>
+
+                                {/* 2. Check / Confirm button */}
+                                <button
+                                  type="button"
+                                  title="Approve / Confirm"
+                                  onClick={() => handleUpdateBookingStatus(b.pnr, 'CONFIRMED')}
+                                  className="w-7 h-7 rounded border border-emerald-500 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center cursor-pointer transition-colors"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+
+                                {/* 3. Cross / Cancel button */}
+                                <button
+                                  type="button"
+                                  title="Cancel Booking"
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to cancel booking ${b.bookingId || b.pnr}?`)) {
+                                      handleUpdateBookingStatus(b.pnr, 'CANCELLED');
+                                    }
+                                  }}
+                                  className="w-7 h-7 rounded border border-rose-300 text-rose-500 hover:bg-rose-50 flex items-center justify-center cursor-pointer transition-colors"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+
+                                {/* 4. Trash / Delete button */}
+                                <button
+                                  type="button"
+                                  title="Delete Booking"
+                                  onClick={() => handleDeleteBooking(b.pnr)}
+                                  className="w-7 h-7 rounded border border-rose-300 text-rose-500 hover:bg-rose-50 flex items-center justify-center cursor-pointer transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -2565,6 +2680,219 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: VIEW BOOKING DETAILS */}
+        {viewingBooking && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-100">
+              {/* Header */}
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+                    <Ticket className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-lg">
+                      Booking Details #{viewingBooking.bookingId || viewingBooking.pnr}
+                    </h3>
+                    <div className="text-xs text-slate-500 font-mono">
+                      PNR: <span className="font-bold text-sky-700">{viewingBooking.pnr}</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewingBooking(null)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-6">
+                {/* Flight & Route Banner */}
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs font-bold text-slate-400 uppercase">Flight</div>
+                    <div className="text-base font-extrabold text-slate-900">
+                      {viewingBooking.airline} ({viewingBooking.flightNumber})
+                    </div>
+                    <div className="text-xs text-slate-500 font-medium capitalize">
+                      Class: {viewingBooking.travelClass || 'Economy'} • Trip: {viewingBooking.tripType || 'One Way'}
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-400 uppercase">Route</div>
+                    <div className="text-base font-extrabold text-sky-800">
+                      {viewingBooking.from} → {viewingBooking.to}
+                    </div>
+                    <div className="text-xs text-slate-500 font-medium">
+                      {viewingBooking.departureDate} at {viewingBooking.departureTime || '08:00'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Badges */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div className="text-xs font-bold text-slate-400 mb-1">Booking Status</div>
+                    <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${
+                      viewingBooking.status === 'CONFIRMED'
+                        ? 'bg-emerald-500 text-white'
+                        : viewingBooking.status === 'CANCELLED'
+                        ? 'bg-rose-500 text-white'
+                        : viewingBooking.status === 'VERIFICATION_PENDING'
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-amber-400 text-slate-950 font-bold'
+                    }`}>
+                      {viewingBooking.status}
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div className="text-xs font-bold text-slate-400 mb-1">Payment Status</div>
+                    <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${
+                      (viewingBooking.payment?.status?.toLowerCase().includes('pending') || viewingBooking.status === 'PENDING')
+                        ? 'bg-amber-400 text-slate-950 font-bold'
+                        : (viewingBooking.payment?.status?.toLowerCase().includes('paid') || viewingBooking.status === 'CONFIRMED')
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}>
+                      {viewingBooking.payment?.method || 'UPI'} • {viewingBooking.payment?.status || 'PENDING'}
+                    </span>
+                    {viewingBooking.payment?.utrNumber && (
+                      <div className="mt-1 text-[11px] font-mono font-bold text-blue-700">
+                        UTR: {viewingBooking.payment.utrNumber}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Passengers */}
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-sky-600" />
+                    Passengers Manifest ({viewingBooking.passengers?.length || 0})
+                  </h4>
+                  <div className="space-y-2">
+                    {viewingBooking.passengers?.map((p, idx) => (
+                      <div key={idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between text-xs">
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">
+                            {p.title} {p.firstName} {p.lastName}
+                          </div>
+                          <div className="text-slate-500">
+                            Gender: {p.gender || 'N/A'} • Nationality: {p.nationality || 'Indian'}
+                            {p.passportNumber && ` • Passport: ${p.passportNumber}`}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="inline-block px-2 py-0.5 rounded font-mono font-bold bg-sky-100 text-sky-800">
+                            Seat: {p.seat || 'Unassigned'}
+                          </span>
+                          <div className="text-[11px] text-slate-400 mt-0.5">
+                            Meal: {p.meal || 'No Meal'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Customer Contact */}
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                    <Phone className="w-4 h-4 text-sky-600" />
+                    Contact & Customer Details
+                  </h4>
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <div className="text-slate-400 font-bold">Email Address</div>
+                      <div className="font-bold text-slate-800">{viewingBooking.contact?.email || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-slate-400 font-bold">Phone Number</div>
+                      <div className="font-bold text-slate-800">{viewingBooking.contact?.phone || 'N/A'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fare Summary */}
+                <div>
+                  <h4 className="font-extrabold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
+                    <DollarSign className="w-4 h-4 text-sky-600" />
+                    Fare & Payment Details
+                  </h4>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Base Fare</span>
+                      <span className="font-mono">₹{viewingBooking.fare?.basePrice?.toLocaleString('en-IN') || 0}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Taxes & Fees</span>
+                      <span className="font-mono">₹{viewingBooking.fare?.taxes?.toLocaleString('en-IN') || 0}</span>
+                    </div>
+                    {viewingBooking.fare?.discount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-bold">
+                        <span>Discount</span>
+                        <span className="font-mono">-₹{viewingBooking.fare?.discount?.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
+                      <span>Total Amount</span>
+                      <span className="font-mono text-base text-sky-800">
+                        ₹{(viewingBooking.fare?.total || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons in Modal */}
+                <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUpdateBookingStatus(viewingBooking.pnr, 'CONFIRMED');
+                      setViewingBooking({ ...viewingBooking, status: 'CONFIRMED' });
+                    }}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    Confirm Booking
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Cancel booking ${viewingBooking.pnr}?`)) {
+                        handleUpdateBookingStatus(viewingBooking.pnr, 'CANCELLED');
+                        setViewingBooking({ ...viewingBooking, status: 'CANCELLED' });
+                      }
+                    }}
+                    className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel Booking
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleDeleteBooking(viewingBooking.pnr);
+                      setViewingBooking(null);
+                    }}
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete Permanently
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

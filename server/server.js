@@ -2552,6 +2552,20 @@ app.patch('/api/admin/bookings/:pnr/status', (req, res) => {
   res.json({ success: true, message: `Booking ${pnr} status updated to ${status}`, booking: bookings[index] });
 });
 
+// Admin Delete Flight Booking
+app.delete('/api/admin/bookings/:pnr', (req, res) => {
+  const { pnr } = req.params;
+  const bookings = readJSON(BOOKINGS_FILE);
+  const filtered = bookings.filter(b => b.pnr?.toUpperCase() !== pnr.toUpperCase() && b.bookingId?.toUpperCase() !== pnr.toUpperCase());
+
+  if (filtered.length === bookings.length) {
+    return res.status(404).json({ success: false, message: 'Booking not found' });
+  }
+
+  writeJSON(BOOKINGS_FILE, filtered);
+  res.json({ success: true, message: `Booking ${pnr} deleted successfully` });
+});
+
 // A9. Admin APIs Integration Management
 app.get('/api/admin/apis', (req, res) => {
   const apis = readJSON(APIS_FILE, {});

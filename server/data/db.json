@@ -2638,12 +2638,12 @@
         "method": "upiApps",
         "transactionId": "TXN_1792439128587",
         "utrNumber": null,
-        "status": "PENDING",
-        "paidAt": null,
+        "status": "VERIFICATION_PENDING",
+        "paidAt": "2026-10-19T19:45:28.587Z",
         "paidToVpa": null
       },
-      "checkInStatus": "Payment Pending",
-      "status": "PENDING",
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
       "createdAt": "2026-10-19T19:45:28.587Z"
     },
     {
