@@ -17,7 +17,9 @@ export default function Navbar({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileUserDropdownOpen, setMobileUserDropdownOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const mobileUserMenuRef = useRef(null);
 
   const siteName = brand?.name || settings.siteName || 'AIR SKY';
   const announcement = settings.announcement;
@@ -28,6 +30,9 @@ export default function Navbar({
     const handleOutsideClick = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setUserDropdownOpen(false);
+      }
+      if (mobileUserMenuRef.current && !mobileUserMenuRef.current.contains(e.target)) {
+        setMobileUserDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -348,18 +353,58 @@ export default function Navbar({
                 <span>Login</span>
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={onOpenMyBookings}
-                className="flex items-center gap-1.5 p-0.5 rounded-full border-2 border-sky-500 cursor-pointer active:scale-95 shadow-xs"
-                title="My Profile & Trips"
-              >
-                <img
-                  src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff&bold=true`}
-                  alt={currentUser.name}
-                  className="w-7 h-7 rounded-full object-cover"
-                />
-              </button>
+              <div className="relative" ref={mobileUserMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setMobileUserDropdownOpen(!mobileUserDropdownOpen)}
+                  className="flex items-center gap-1.5 p-0.5 rounded-full border-2 border-sky-500 cursor-pointer active:scale-95 shadow-xs"
+                  title="My Account & Logout"
+                >
+                  <img
+                    src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff&bold=true`}
+                    alt={currentUser.name}
+                    className="w-7 h-7 rounded-full object-cover"
+                  />
+                </button>
+
+                {/* Mobile User Quick Dropdown */}
+                <AnimatePresence>
+                  {mobileUserDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 overflow-hidden"
+                    >
+                      <div className="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50">
+                        <p className="text-xs font-black text-slate-900 leading-tight">{currentUser.name || 'My Account'}</p>
+                        <p className="text-[10px] text-slate-500 truncate mt-0.5">{currentUser.email || currentUser.phone}</p>
+                      </div>
+
+                      <div className="p-1 space-y-0.5">
+                        <button
+                          type="button"
+                          onClick={() => { onOpenMyBookings(); setMobileUserDropdownOpen(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <Ticket className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>My Bookings & Tickets</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => { if (onLogout) onLogout(); setMobileUserDropdownOpen(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
 
             <button
@@ -382,6 +427,31 @@ export default function Navbar({
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1 overflow-hidden shadow-lg"
           >
+            {/* Top User Info & Quick Logout Pill */}
+            {currentUser && (
+              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100 mb-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <img
+                    src={currentUser.avatar || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name || 'User')}&background=0284c7&color=fff&bold=true`}
+                    alt={currentUser.name}
+                    className="w-8 h-8 rounded-full object-cover border border-sky-400 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <div className="text-xs font-black text-slate-900 truncate">{currentUser.name || 'Account'}</div>
+                    <div className="text-[10px] text-slate-500 truncate">{currentUser.email || currentUser.phone}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { if (onLogout) onLogout(); setMobileMenuOpen(false); }}
+                  className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black flex items-center gap-1 shrink-0 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+
             {navItems.map(item => {
               const Icon = item.icon;
               return (
@@ -455,6 +525,31 @@ export default function Navbar({
                   <span>Terms & Conditions</span>
                 </Link>
               </div>
+
+              {/* Bottom Logout Button in Mobile Drawer */}
+              {currentUser ? (
+                <div className="pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => { if (onLogout) onLogout(); setMobileMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-extrabold text-rose-600 hover:bg-rose-50 cursor-pointer transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-600" />
+                    <span>Logout ({currentUser.name?.split(' ')[0] || 'Account'})</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => { onOpenAuth(); setMobileMenuOpen(false); }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-xs cursor-pointer"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Login / Register</span>
+                  </button>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
