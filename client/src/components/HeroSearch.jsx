@@ -12,6 +12,62 @@ const getTodayDateString = (offsetDays = 0) => {
   return `${year}-${month}-${day}`;
 };
 
+const POPULAR_HUBS = [
+  'DEL', 'BOM', 'BLR', 'HYD', 'GOI', 'GOX', 'CCU', 'MAA',
+  'AMD', 'PNQ', 'JAI', 'LKO', 'COK', 'PAT', 'IXC', 'SXR',
+  'VNS', 'GAU', 'DXB', 'BKK', 'SIN', 'LHR'
+];
+
+const filterAndSortAirports = (airportList, searchQuery) => {
+  if (!airportList || !Array.isArray(airportList)) return [];
+  const q = (searchQuery || '').trim().toLowerCase();
+  
+  if (!q) {
+    const popularSet = new Set(POPULAR_HUBS);
+    const popAirports = POPULAR_HUBS
+      .map(code => airportList.find(a => (a.code || '').toUpperCase() === code))
+      .filter(Boolean);
+    const otherAirports = airportList.filter(a => !popularSet.has((a.code || '').toUpperCase()));
+    return [...popAirports, ...otherAirports];
+  }
+
+  const filtered = airportList.filter(a => (
+    (a.city && a.city.toLowerCase().includes(q)) || 
+    (a.code && a.code.toLowerCase().includes(q)) || 
+    (a.name && a.name.toLowerCase().includes(q)) ||
+    (a.state && a.state.toLowerCase().includes(q)) ||
+    (a.country && a.country.toLowerCase().includes(q))
+  ));
+
+  return filtered.sort((a, b) => {
+    const aCode = (a.code || '').toLowerCase();
+    const bCode = (b.code || '').toLowerCase();
+    const aCity = (a.city || '').toLowerCase();
+    const bCity = (b.city || '').toLowerCase();
+
+    if (aCode === q && bCode !== q) return -1;
+    if (bCode === q && aCode !== q) return 1;
+
+    const aCityStarts = aCity.startsWith(q);
+    const bCityStarts = bCity.startsWith(q);
+    if (aCityStarts && !bCityStarts) return -1;
+    if (bCityStarts && !aCityStarts) return 1;
+
+    const aCodeStarts = aCode.startsWith(q);
+    const bCodeStarts = bCode.startsWith(q);
+    if (aCodeStarts && !bCodeStarts) return -1;
+    if (bCodeStarts && !aCodeStarts) return 1;
+
+    const aPop = POPULAR_HUBS.indexOf((a.code || '').toUpperCase());
+    const bPop = POPULAR_HUBS.indexOf((b.code || '').toUpperCase());
+    if (aPop !== -1 && bPop !== -1) return aPop - bPop;
+    if (aPop !== -1) return -1;
+    if (bPop !== -1) return 1;
+
+    return (a.city || '').localeCompare(b.city || '');
+  });
+};
+
 export default function HeroSearch({ airports, onSearch, searchParams, settings = {}, brand = null, loading = false }) {
   const [tripType, setTripType] = useState(searchParams?.tripType || 'oneWay'); // 'oneWay' | 'roundTrip' | 'multiCity'
   const [fromCode, setFromCode] = useState(searchParams?.from || '');
@@ -289,7 +345,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
     <div className="py-3 sm:py-8 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       
       {/* Search Header Banner */}
-      <div className="bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-8 lg:p-10 text-white shadow-2xl relative overflow-hidden mb-6 sm:mb-8">
+      <div className="bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-8 lg:p-10 text-white shadow-2xl relative mb-6 sm:mb-8">
         {/* Background ambient lighting */}
         <div className="absolute inset-0 opacity-25 pointer-events-none overflow-hidden rounded-2xl sm:rounded-3xl">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
@@ -310,7 +366,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         </div>
 
         {/* Search Input Box */}
-        <div className="relative z-10 mt-3 sm:mt-6 bg-white text-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl border border-slate-100">
+        <div className="relative z-30 mt-3 sm:mt-6 bg-white text-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl border border-slate-100">
           
           {/* Top Options Row: Trip Type & Class */}
           <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-4 mb-2.5 sm:mb-4 border-b border-slate-100">
@@ -447,7 +503,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -6, scale: 0.98 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 max-h-72 flex flex-col p-2"
+                              className="absolute top-full left-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] md:w-[390px] max-w-[420px] max-h-72 flex flex-col p-2"
                             >
                               <div className="p-2 border-b border-slate-100">
                                 <input
@@ -461,18 +517,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                                 />
                               </div>
                               <div className="overflow-y-auto max-h-52 p-1">
-                                {airports
-                                  .filter(a => {
-                                    if (!legSearch) return true;
-                                    const q = legSearch.toLowerCase().trim();
-                                    return (
-                                      (a.city && a.city.toLowerCase().includes(q)) ||
-                                      (a.code && a.code.toLowerCase().includes(q)) ||
-                                      (a.name && a.name.toLowerCase().includes(q)) ||
-                                      (a.state && a.state.toLowerCase().includes(q)) ||
-                                      (a.country && a.country.toLowerCase().includes(q))
-                                    );
-                                  })
+                                {filterAndSortAirports(airports, legSearch)
                                   .map(airport => (
                                     <div
                                       key={airport.code}
@@ -544,7 +589,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -6, scale: 0.98 }}
                               transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 max-h-72 flex flex-col p-2"
+                              className="absolute top-full left-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] md:w-[390px] max-w-[420px] max-h-72 flex flex-col p-2"
                             >
                               <div className="p-2 border-b border-slate-100">
                                 <input
@@ -558,18 +603,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                                 />
                               </div>
                               <div className="overflow-y-auto max-h-52 p-1">
-                                {airports
-                                  .filter(a => {
-                                    if (!legSearch) return true;
-                                    const q = legSearch.toLowerCase().trim();
-                                    return (
-                                      (a.city && a.city.toLowerCase().includes(q)) ||
-                                      (a.code && a.code.toLowerCase().includes(q)) ||
-                                      (a.name && a.name.toLowerCase().includes(q)) ||
-                                      (a.state && a.state.toLowerCase().includes(q)) ||
-                                      (a.country && a.country.toLowerCase().includes(q))
-                                    );
-                                  })
+                                {filterAndSortAirports(airports, legSearch)
                                   .map(airport => (
                                     <div
                                       key={airport.code}
@@ -766,13 +800,13 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.96 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 max-h-80 flex flex-col p-2"
+                    className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[380px] md:w-[420px] max-w-[440px] max-h-84 flex flex-col p-2"
                   >
                     <div className="p-2 border-b border-slate-100">
                       <input
                         type="text"
                         autoFocus
-                        placeholder="Type city, airport or code (e.g. LKO, Goa)..."
+                        placeholder="Type city, airport or code (e.g. DEL, BOM, Goa)..."
                         value={searchFrom}
                         onChange={(e) => setSearchFrom(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
@@ -780,19 +814,14 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                       />
                     </div>
                     <div className="overflow-y-auto max-h-64 p-1">
-                      {airports
-                        .filter(a => {
-                          if (!searchFrom) return true;
-                          const q = searchFrom.toLowerCase().trim();
-                          return (
-                            (a.city && a.city.toLowerCase().includes(q)) || 
-                            (a.code && a.code.toLowerCase().includes(q)) || 
-                            (a.name && a.name.toLowerCase().includes(q)) ||
-                            (a.state && a.state.toLowerCase().includes(q)) ||
-                            (a.country && a.country.toLowerCase().includes(q))
-                          );
-                        })
-                        .map(airport => (
+                      {!searchFrom && (
+                        <div className="px-2.5 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-500" /> Popular Origin Hubs
+                        </div>
+                      )}
+                      {filterAndSortAirports(airports, searchFrom).map((airport, idx) => {
+                        const isPop = POPULAR_HUBS.includes(airport.code);
+                        return (
                           <div
                             key={airport.code}
                             onClick={() => handleSelectFrom(airport.code)}
@@ -801,10 +830,16 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                             }`}
                           >
                             <div className="min-w-0 pr-2">
-                              <div className="text-sm font-bold text-slate-900 truncate">
-                                {airport.city} <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                              <div className="text-sm font-bold text-slate-900 truncate flex items-center gap-1.5">
+                                <span>{airport.city}</span>
+                                <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                                {isPop && !searchFrom && idx < 6 && (
+                                  <span className="text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
+                                    Popular
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-xs text-slate-500 truncate max-w-[280px] sm:max-w-[340px]">
+                              <div className="text-xs text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
                                 {airport.name}{airport.state ? `, ${airport.state}` : ''}
                               </div>
                             </div>
@@ -812,7 +847,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               {airport.code}
                             </span>
                           </div>
-                        ))}
+                        );
+                      })}
                       {searchFrom.trim().length >= 2 && !airports.some(a => a.code.toLowerCase() === searchFrom.toLowerCase() || a.city.toLowerCase() === searchFrom.toLowerCase()) && (
                         <div
                           onClick={() => handleSelectFrom(searchFrom)}
@@ -886,7 +922,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.96 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 max-h-80 flex flex-col p-2"
+                    className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[380px] md:w-[420px] max-w-[440px] max-h-84 flex flex-col p-2"
                   >
                     <div className="p-2 border-b border-slate-100">
                       <input
@@ -900,19 +936,14 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                       />
                     </div>
                     <div className="overflow-y-auto max-h-64 p-1">
-                      {airports
-                        .filter(a => {
-                          if (!searchTo) return true;
-                          const q = searchTo.toLowerCase().trim();
-                          return (
-                            (a.city && a.city.toLowerCase().includes(q)) || 
-                            (a.code && a.code.toLowerCase().includes(q)) || 
-                            (a.name && a.name.toLowerCase().includes(q)) ||
-                            (a.state && a.state.toLowerCase().includes(q)) ||
-                            (a.country && a.country.toLowerCase().includes(q))
-                          );
-                        })
-                        .map(airport => (
+                      {!searchTo && (
+                        <div className="px-2.5 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-500" /> Popular Destination Hubs
+                        </div>
+                      )}
+                      {filterAndSortAirports(airports, searchTo).map((airport, idx) => {
+                        const isPop = POPULAR_HUBS.includes(airport.code);
+                        return (
                           <div
                             key={airport.code}
                             onClick={() => handleSelectTo(airport.code)}
@@ -921,10 +952,16 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                             }`}
                           >
                             <div className="min-w-0 pr-2">
-                              <div className="text-sm font-bold text-slate-900 truncate">
-                                {airport.city} <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                              <div className="text-sm font-bold text-slate-900 truncate flex items-center gap-1.5">
+                                <span>{airport.city}</span>
+                                <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                                {isPop && !searchTo && idx < 6 && (
+                                  <span className="text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
+                                    Popular
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-xs text-slate-500 truncate max-w-[280px] sm:max-w-[340px]">
+                              <div className="text-xs text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
                                 {airport.name}{airport.state ? `, ${airport.state}` : ''}
                               </div>
                             </div>
@@ -932,7 +969,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               {airport.code}
                             </span>
                           </div>
-                        ))}
+                        );
+                      })}
                       {searchTo.trim().length >= 2 && !airports.some(a => a.code.toLowerCase() === searchTo.toLowerCase() || a.city.toLowerCase() === searchTo.toLowerCase()) && (
                         <div
                           onClick={() => handleSelectTo(searchTo)}
