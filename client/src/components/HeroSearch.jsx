@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeftRight, Calendar, Users, Search, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { ArrowLeftRight, Calendar, Users, Search, Plane, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight } from 'lucide-react';
 import CustomDatePicker from './CustomDatePicker';
 
 const getTodayDateString = (offsetDays = 0) => {
