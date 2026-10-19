@@ -132,12 +132,12 @@ export default function Navbar({
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between min-h-[72px] sm:min-h-[82px] py-1.5">
+        <div className="flex items-center justify-between min-h-[56px] sm:min-h-[64px] py-1 sm:py-1.5">
           
           {/* Logo & Brand Identity */}
           <motion.div 
             onClick={() => onSelectService('flights')} 
-            className="flex items-center gap-3 cursor-pointer group select-none py-0.5"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -145,29 +145,29 @@ export default function Navbar({
               <img
                 src={brand.logo}
                 alt={brand.name || 'Brand Logo'}
-                className="h-14 sm:h-16 md:h-20 max-h-[76px] w-auto max-w-[240px] sm:max-w-[280px] object-contain drop-shadow-xs"
+                className="h-7 sm:h-8 md:h-9 max-h-[38px] w-auto max-w-[120px] sm:max-w-[145px] md:max-w-[165px] object-contain drop-shadow-xs"
               />
             ) : (
               <>
                 <motion.div 
-                  className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-white shadow-md"
                   style={{ background: brand?.primary_color || '#ff6d01' }}
                   whileHover={{ rotate: 15, scale: 1.08 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <Plane className="w-6 h-6 rotate-45 transform" />
+                  <Plane className="w-4 h-4 sm:w-5 sm:h-5 rotate-45 transform" />
                 </motion.div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span
-                      className="text-2xl font-black tracking-tight"
+                      className="text-lg sm:text-xl font-black tracking-tight leading-none"
                       style={{ color: brand?.brand_text_color || '#0B1F3A' }}
                     >
                       {brand?.name || siteName}
                     </span>
                   </div>
                   <p
-                    className="text-[11px] font-bold tracking-wide hidden sm:block truncate max-w-xs uppercase"
+                    className="text-[10px] font-bold tracking-wide hidden sm:block truncate max-w-xs uppercase mt-0.5"
                     style={{ color: brand?.tagline_color || '#6b7280' }}
                   >
                     {brand?.tagline || settings.siteTagline || 'Premium Luxury Travel'}

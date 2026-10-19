@@ -142,7 +142,7 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
                 <img
                   src={brand.logo}
                   alt={brand.name || 'Brand Logo'}
-                  className="h-12 sm:h-14 md:h-16 w-auto max-w-[220px] object-contain brightness-105"
+                  className="h-8 sm:h-9 w-auto max-w-[150px] object-contain brightness-105"
                 />
               ) : (
                 <>

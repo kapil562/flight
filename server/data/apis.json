@@ -1,7 +1,7 @@
 {
   "activeProvider": "serpapi",
   "serpapi": {
-    "apiKey": "2c79932f789e8f8082790fb6926279ac0e51ed9656f40888f404c4d5ea0d9f6d",
+    "apiKey": "db980523d4dc5140fe5ca9e2ddd9ccde6b1b7d42f8fa2c8ff19b86329245b991",
     "enabled": true,
     "engine": "google_flights",
     "status": "Active (Google Flights Live)"
