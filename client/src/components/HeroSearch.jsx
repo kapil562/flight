@@ -50,6 +50,31 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
       const day = String(d.getDate()).padStart(2, '0');
       setReturnDate(`${y}-${m}-${day}`);
     }
+    if (type === 'multiCity') {
+      setLegs(prev => {
+        const updated = [...prev];
+        const origin0 = updated[0]?.from || fromCode || 'DEL';
+        const dest0 = updated[0]?.to || toCode || 'BOM';
+        const date0 = updated[0]?.date || departureDate || getTodayDateString(1);
+
+        const origin1 = updated[1]?.from || dest0 || 'BOM';
+        const dest1 = updated[1]?.to || (origin1 === 'BLR' ? 'DEL' : 'BLR');
+        let date1 = updated[1]?.date;
+        if (!date1 || date1 < date0) {
+          try {
+            const d = new Date(date0);
+            d.setDate(d.getDate() + 2);
+            date1 = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          } catch {
+            date1 = getTodayDateString(3);
+          }
+        }
+
+        updated[0] = { from: origin0, to: dest0, date: date0 };
+        updated[1] = { from: origin1, to: dest1, date: date1 };
+        return updated;
+      });
+    }
   };
 
   // Dropdown states
@@ -171,6 +196,22 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         updated[idx + 1].from = value;
       }
     }
+
+    // Auto-adjust subsequent leg dates if this leg's date is moved forward
+    if (field === 'date') {
+      for (let i = idx + 1; i < updated.length; i++) {
+        if (updated[i].date && updated[i].date < updated[i - 1].date) {
+          try {
+            const d = new Date(updated[i - 1].date);
+            d.setDate(d.getDate() + 1);
+            updated[i].date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          } catch {
+            updated[i].date = updated[i - 1].date;
+          }
+        }
+      }
+    }
+
     setLegs(updated);
   };
 

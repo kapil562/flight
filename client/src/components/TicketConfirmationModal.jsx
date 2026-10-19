@@ -198,7 +198,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             )}
 
             {/* Flight Route & Timings (One-Way only) */}
-            {booking.tripType !== 'roundTrip' && !booking.roundTripDetails && (
+            {booking.tripType !== 'roundTrip' && !booking.roundTripDetails && booking.tripType !== 'multiCity' && !booking.multiCityLegs && (
               <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                 <div className="sm:col-span-5 text-left">
                   <span className="text-3xl font-black text-slate-900 font-mono">{booking.from}</span>

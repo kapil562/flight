@@ -30,21 +30,25 @@ export default function FlightList({
   const [activeLegIndex, setActiveLegIndex] = useState(0);
   const [selectedLegFlights, setSelectedLegFlights] = useState({});
 
-  // Auto-initialize each multi-city leg's selected flight with the cheapest option
+  // Reset selected flights when search params or multiCityLegsData change
   useEffect(() => {
-    if (isMultiCity && multiCityLegsData) {
-      setSelectedLegFlights(prev => {
-        const initial = { ...prev };
-        multiCityLegsData.forEach((leg, idx) => {
-          if (!initial[idx] && leg.flights && leg.flights.length > 0) {
-            const sorted = [...leg.flights].sort((a, b) => a.basePrice - b.basePrice);
-            initial[idx] = sorted[0];
-          }
-        });
-        return initial;
-      });
-    }
-  }, [isMultiCity, multiCityLegsData]);
+    setSelectedLegFlights({});
+    setActiveLegIndex(0);
+  }, [JSON.stringify(searchParams.legs || [])]);
+
+  // Count of selected legs and status
+  const selectedLegsCount = useMemo(() => {
+    if (!isMultiCity || !multiCityLegsData) return 0;
+    return multiCityLegsData.filter((_, idx) => Boolean(selectedLegFlights[idx])).length;
+  }, [isMultiCity, multiCityLegsData, selectedLegFlights]);
+
+  const allLegsSelected = isMultiCity && Boolean(multiCityLegsData) && selectedLegsCount === multiCityLegsData.length;
+
+  const nextUnselectedLegIndex = useMemo(() => {
+    if (!isMultiCity || !multiCityLegsData) return 0;
+    const idx = multiCityLegsData.findIndex((_, i) => !selectedLegFlights[i]);
+    return idx === -1 ? 0 : idx;
+  }, [isMultiCity, multiCityLegsData, selectedLegFlights]);
 
   // Calculate total price for all selected multi-city legs
   const totalMultiCityPrice = useMemo(() => {
@@ -60,7 +64,9 @@ export default function FlightList({
     if (!isMultiCity || !multiCityLegsData) return;
     const legFlightsList = multiCityLegsData.map((_, idx) => selectedLegFlights[idx]).filter(Boolean);
     if (legFlightsList.length < multiCityLegsData.length) {
-      alert('Please select a flight for each leg of your multi-city trip before proceeding.');
+      const missingIdx = multiCityLegsData.findIndex((_, idx) => !selectedLegFlights[idx]);
+      setActiveLegIndex(missingIdx !== -1 ? missingIdx : 0);
+      alert(`Please select a flight for Leg ${missingIdx + 1} (${multiCityLegsData[missingIdx]?.from} ➔ ${multiCityLegsData[missingIdx]?.to}) before proceeding.`);
       return;
     }
 
@@ -703,21 +709,45 @@ export default function FlightList({
                   </div>
                 </div>
 
-                {/* Total Combined Fare Pill */}
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/15">
-                  <div className="text-right">
-                    <span className="text-[10px] text-sky-200 font-bold uppercase block leading-none mb-1">Total Combo Fare</span>
+                {/* Total Combined Fare Pill & Action */}
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3 sm:px-4 sm:py-2 rounded-2xl border border-white/15">
+                  <div className="flex items-center justify-between sm:block text-left sm:text-right">
+                    <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block leading-none sm:mb-1">
+                      {selectedLegsCount === 0 
+                        ? 'Total Fare' 
+                        : allLegsSelected 
+                          ? 'Total Combined Fare' 
+                          : `Selected (${selectedLegsCount}/${multiCityLegsData.length})`}
+                    </span>
                     <span className="text-lg sm:text-xl font-black text-amber-300 font-mono leading-none">
-                      ₹{totalMultiCityPrice.toLocaleString('en-IN')}
+                      {selectedLegsCount === 0 ? 'Select Flights' : `₹${totalMultiCityPrice.toLocaleString('en-IN')}`}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={handleBookMultiCityCombo}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                    onClick={() => {
+                      if (allLegsSelected) {
+                        handleBookMultiCityCombo();
+                      } else {
+                        setActiveLegIndex(nextUnselectedLegIndex);
+                        const el = document.getElementById('flight-results-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className={`w-full sm:w-auto px-4 py-2.5 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 ${
+                      allLegsSelected
+                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950'
+                        : 'bg-white hover:bg-slate-100 text-slate-800'
+                    }`}
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Book Complete Multi-City ({multiCityLegsData.length} Flights)</span>
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {selectedLegsCount === 0
+                        ? `Select Flight for Leg 1`
+                        : allLegsSelected
+                          ? `Book Complete Multi-City (${multiCityLegsData.length} Flights)`
+                          : `Next: Select Leg ${nextUnselectedLegIndex + 1}`}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -740,10 +770,11 @@ export default function FlightList({
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
+                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded flex items-center gap-1 ${
                           isCurrent ? 'bg-sky-600 text-white' : 'bg-white/20 text-sky-200'
                         }`}>
-                          Leg {idx + 1}
+                          <span>Leg {idx + 1}</span>
+                          {selected && <Check className="w-3 h-3 stroke-[3]" />}
                         </span>
                         <span className={`text-[11px] font-semibold ${isCurrent ? 'text-slate-500' : 'text-sky-200'}`}>
                           {leg.date}
@@ -766,8 +797,9 @@ export default function FlightList({
                           </span>
                         </div>
                       ) : (
-                        <div className="text-[11px] text-amber-300 font-bold mt-1">
-                          Click to select flight
+                        <div className="text-[11px] text-amber-300 font-bold mt-1 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                          <span>Click to select flight</span>
                         </div>
                       )}
                     </button>
@@ -1077,55 +1109,93 @@ export default function FlightList({
             /* ========================================================= */
             /* ONE-WAY / MULTI-CITY SINGLE COLUMN FLIGHTS LIST            */
             /* ========================================================= */
-            <AnimatePresence mode="popLayout">
-              <div className="space-y-4">
-                {processedFlights.map(flight => {
-                  const isSelectedForThisLeg = isMultiCity && selectedLegFlights[activeLegIndex]?.id === flight.id;
-
-                  return (
-                    <div key={flight.id} className="relative">
-                      {isSelectedForThisLeg && (
-                        <div className="bg-emerald-600 text-white text-[11px] font-black px-4 py-1.5 rounded-t-2xl flex items-center justify-between -mb-2 z-10 relative shadow-sm">
-                          <span className="flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Selected for Leg {activeLegIndex + 1} ({flight.from} ➔ {flight.to})</span>
-                          </span>
-                          <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold">Active Choice</span>
-                        </div>
-                      )}
-                      <FlightCard
-                        flight={flight}
-                        travelClass={searchParams.travelClass}
-                        brand={brand}
-                        isSelectable={isMultiCity}
-                        isSelected={isSelectedForThisLeg}
-                        selectLabel={`Select for Leg ${activeLegIndex + 1}`}
-                        selectedLabel={`Leg ${activeLegIndex + 1} Chosen`}
-                        onSelect={() => {
-                          if (isMultiCity) {
-                            setSelectedLegFlights(prev => ({ ...prev, [activeLegIndex]: flight }));
-                            if (activeLegIndex < multiCityLegsData.length - 1) {
-                              setActiveLegIndex(activeLegIndex + 1);
-                            }
-                          }
-                        }}
-                        onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
-                          const couponToUse = initialCoupon || copiedCoupon || '';
-                          if (isMultiCity) {
-                            setSelectedLegFlights(prev => ({ ...prev, [activeLegIndex]: f }));
-                            if (activeLegIndex < multiCityLegsData.length - 1) {
-                              setActiveLegIndex(activeLegIndex + 1);
-                            }
-                          } else {
-                            onBookFlight(f, currentPrice, selectedFareTier, couponToUse);
-                          }
-                        }}
-                      />
+            <div className="space-y-4">
+              {/* All Legs Selected Celebration Banner */}
+              {isMultiCity && allLegsSelected && (
+                <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 border border-emerald-400/40">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-xl shrink-0">
+                      ✓
+                    </span>
+                    <div>
+                      <h4 className="font-extrabold text-sm sm:text-base leading-tight">
+                        All {multiCityLegsData.length} Legs Selected!
+                      </h4>
+                      <p className="text-xs text-emerald-100 mt-0.5">
+                        Total Combined Fare: <strong className="text-white font-mono text-sm">₹{totalMultiCityPrice.toLocaleString('en-IN')}</strong>
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
-            </AnimatePresence>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleBookMultiCityCombo}
+                    className="w-full sm:w-auto px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0" />
+                    <span>Proceed to Book All {multiCityLegsData.length} Flights</span>
+                  </button>
+                </div>
+              )}
+
+              <AnimatePresence mode="popLayout">
+                <div className="space-y-4">
+                  {processedFlights.map(flight => {
+                    const isSelectedForThisLeg = isMultiCity && selectedLegFlights[activeLegIndex]?.id === flight.id;
+
+                    const handleMultiCityPick = (f) => {
+                      setSelectedLegFlights(prev => {
+                        const updated = { ...prev, [activeLegIndex]: f };
+                        const allDone = multiCityLegsData.every((_, i) => Boolean(updated[i]));
+                        if (!allDone && activeLegIndex < multiCityLegsData.length - 1) {
+                          setActiveLegIndex(activeLegIndex + 1);
+                          setTimeout(() => {
+                            const el = document.getElementById('flight-results-section');
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        }
+                        return updated;
+                      });
+                    };
+
+                    return (
+                      <div key={flight.id} className="relative">
+                        {isSelectedForThisLeg && (
+                          <div className="bg-emerald-600 text-white text-[11px] font-black px-4 py-1.5 rounded-t-2xl flex items-center justify-between -mb-2 z-10 relative shadow-sm">
+                            <span className="flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Selected for Leg {activeLegIndex + 1} ({flight.from} ➔ {flight.to})</span>
+                            </span>
+                            <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold">Active Choice</span>
+                          </div>
+                        )}
+                        <FlightCard
+                          flight={flight}
+                          travelClass={searchParams.travelClass}
+                          brand={brand}
+                          isSelectable={isMultiCity}
+                          isSelected={isSelectedForThisLeg}
+                          selectLabel={`Select for Leg ${activeLegIndex + 1}`}
+                          selectedLabel={`Leg ${activeLegIndex + 1} Chosen`}
+                          onSelect={() => {
+                            if (isMultiCity) {
+                              handleMultiCityPick(flight);
+                            }
+                          }}
+                          onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
+                            const couponToUse = initialCoupon || copiedCoupon || '';
+                            if (isMultiCity) {
+                              handleMultiCityPick(f);
+                            } else {
+                              onBookFlight(f, currentPrice, selectedFareTier, couponToUse);
+                            }
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </AnimatePresence>
+            </div>
           )}
 
         </main>

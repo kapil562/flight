@@ -1468,6 +1468,65 @@ export default function BookingCheckoutModal({
                         </div>
                       </div>
                     </div>
+                  ) : flight?.isMultiCity && flight.multiCityLegs ? (
+                    <div className="space-y-3.5">
+                      {flight.multiCityLegs.map((leg, i) => (
+                        <div key={i} className="bg-white rounded-2xl border border-sky-200/90 p-4 sm:p-5 shadow-xs space-y-3.5">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-wrap gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <AirlineBadge code={leg.airlineCode} name={leg.airline} size="sm" showDetails={false} />
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-black text-[10px] uppercase">
+                                    Leg {i + 1}
+                                  </span>
+                                  <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                                    {leg.airline} <span className="font-mono text-sky-700">({leg.flightNumber})</span>
+                                  </h4>
+                                </div>
+                                <span className="text-[11px] text-slate-500 font-semibold">
+                                  Date: <strong className="text-slate-800">{leg.date}</strong> • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                                </span>
+                              </div>
+                            </div>
+                            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                              Confirmed Leg {i + 1}
+                            </span>
+                          </div>
+
+                          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                            <div className="text-left min-w-0">
+                              <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                                {leg.departureTime}
+                              </div>
+                              <div className="text-xs font-bold text-slate-800">
+                                {leg.from} <span className="text-slate-500 font-normal">({leg.fromCity || leg.from})</span>
+                              </div>
+                            </div>
+
+                            <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                              <div className="relative flex items-center justify-center my-1">
+                                <div className="w-full h-0.5 bg-sky-300"></div>
+                                <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                              </div>
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded inline-block mt-0.5">
+                                Direct Flight
+                              </span>
+                            </div>
+
+                            <div className="text-left sm:text-right min-w-0">
+                              <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                                {leg.arrivalTime}
+                              </div>
+                              <div className="text-xs font-bold text-slate-800">
+                                {leg.to} <span className="text-slate-500 font-normal">({leg.toCity || leg.to})</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
                       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -2286,6 +2345,13 @@ export default function BookingCheckoutModal({
                         <span className="font-bold font-mono">₹{((flight.returnFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
                       </div>
                     </>
+                  ) : flight?.isMultiCity && flight.multiCityLegs ? (
+                    flight.multiCityLegs.map((leg, i) => (
+                      <div key={i} className="flex justify-between text-slate-700">
+                        <span>Leg {i + 1}: {leg.from} ➔ {leg.to} ({leg.airline})</span>
+                        <span className="font-bold font-mono">₹{((leg.price || Math.round(standardBaseFare / flight.multiCityLegs.length / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      </div>
+                    ))
                   ) : (
                     <div className="flex justify-between">
                       <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
