@@ -125,9 +125,8 @@ const writeJSON = (filePath, data) => {
   }
 };
 
-// In-memory cache for recent flights and SerpApi live searches
+// In-memory cache for booking lookup by flight ID
 const recentFlightsCache = new Map();
-const serpapiFlightCache = new Map();
 
 // Helper to determine realistic flight duration between airports
 const getRealisticFlightDuration = (fromCode, toCode) => {
@@ -970,22 +969,16 @@ const mapSerpApiFlight = (item, from, to, date, idx) => {
   };
 };
 
-// Fetch real flights via SerpApi Google Flights (Dedicated Engine)
+// Fetch real flights via SerpApi Google Flights (Dedicated Engine) - ALWAYS 100% LIVE, NEVER CACHED
 const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
   if (!apiKey || !from || !to) return null;
 
   const formattedDate = date || new Date().toISOString().split('T')[0];
-  const cacheKey = `${from.toUpperCase()}-${to.toUpperCase()}-${formattedDate}`;
-  const cached = serpapiFlightCache.get(cacheKey);
-  if (cached && (Date.now() - cached.timestamp < 20 * 60 * 1000)) {
-    console.log(`⚡ [SerpApi Cache Hit] Returning live Google Flights data for: ${cacheKey}`);
-    return cached.data;
-  }
 
   try {
     // type=2 specifies One-way trip on Google Flights in SerpApi
     const url = `https://serpapi.com/search.json?engine=google_flights&departure_id=${encodeURIComponent(from.toUpperCase())}&arrival_id=${encodeURIComponent(to.toUpperCase())}&outbound_date=${encodeURIComponent(formattedDate)}&type=2&currency=INR&hl=en&api_key=${apiKey.trim()}`;
-    console.log(`✈️ [SerpApi Google Flights] Querying live flights: ${from} -> ${to} on ${formattedDate}`);
+    console.log(`✈️ [SerpApi Google Flights] Querying 100% live direct flights: ${from} -> ${to} on ${formattedDate}`);
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -1029,7 +1022,6 @@ const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
     const uniqueFlights = Array.from(dedupMap.values());
     console.log(`✨ [SerpApi Deduplication] Filtered ${parsedFlights.length} raw results -> ${uniqueFlights.length} unique flights`);
 
-    serpapiFlightCache.set(cacheKey, { timestamp: Date.now(), data: uniqueFlights });
     return uniqueFlights;
   } catch (err) {
     console.error('Error querying SerpApi Google Flights:', err.message);
@@ -1261,8 +1253,11 @@ app.get('/api/flights', async (req, res) => {
   let flights = [];
   let dataSource = 'SerpApi Live Google Flights Engine';
 
-  // Real-Time Live Flight API (SerpApi Google Flights ONLY - No mock fallback)
-  const serpapiKey = apisConfig.serpapi?.apiKey || process.env.SERPAPI_KEY;
+  // Real-Time Live Flight API (SerpApi Google Flights ONLY - Direct live fetch, zero caching)
+  const configuredKey = apisConfig.serpapi?.apiKey;
+  const serpapiKey = (configuredKey !== undefined && configuredKey !== null)
+    ? configuredKey.trim()
+    : (process.env.SERPAPI_KEY || '').trim();
   const isSerpApiActive = apisConfig.activeProvider === 'serpapi' || apisConfig.serpapi?.enabled !== false;
 
   if (from && to) {
