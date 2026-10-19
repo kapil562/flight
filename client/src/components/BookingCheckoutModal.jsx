@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X, ShieldCheck, CheckCircle2, CreditCard, QrCode, Building, Tag, ArrowRight, ArrowLeft,
   Lock, Sparkles, Plane, Utensils, Luggage, Shield, Smartphone, Copy, Check, ExternalLink, Zap,
-  Phone, MessageCircle, FileText, AlertCircle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe
+  Phone, MessageCircle, FileText, AlertCircle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe, Clock
 } from 'lucide-react';
 import { api } from '../utils/api';
 import AirlineBadge from './AirlineBadge';
@@ -181,13 +181,44 @@ export default function BookingCheckoutModal({
     } catch {}
     return 'upiApps';
   });
-  const [selectedUpiApp, setSelectedUpiApp] = useState('');
+  const [selectedUpiApp, setSelectedUpiApp] = useState('PhonePe');
+  const [selectedAppKey, setSelectedAppKey] = useState('phonepe');
+  const [paymentTimerSeconds, setPaymentTimerSeconds] = useState(300); // 5 min = 300s
+  const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [utrNumber, setUtrNumber] = useState('');
   const [copiedVpa, setCopiedVpa] = useState(false);
   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [selectedBank, setSelectedBank] = useState('HDFC Bank');
   const [isProcessing, setIsProcessing] = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
+
+  // 5-minute countdown timer on Step 4 (Payment)
+  useEffect(() => {
+    if (step !== 4) {
+      setPaymentTimerSeconds(300);
+      setIsTimerExpired(false);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setPaymentTimerSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsTimerExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [step]);
+
+  const formatTimer = (totalSecs) => {
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
 
   const handleSelectPaymentMethod = (methodId) => {
     if ((methodId === 'upiQr' || methodId === 'upi') && paymentMethod !== methodId) {
@@ -338,8 +369,14 @@ export default function BookingCheckoutModal({
       .replace(/{currency}/g, 'INR');
   };
 
+  const handleSelectUpiApp = (appKey, appName) => {
+    setSelectedUpiApp(appName);
+    setSelectedAppKey(appKey);
+  };
+
   const handleLaunchUpiApp = (appKey, appName) => {
     setSelectedUpiApp(appName);
+    setSelectedAppKey(appKey);
     const url = getAppDeepLink(appKey);
     window.location.href = url;
   };
@@ -766,6 +803,22 @@ export default function BookingCheckoutModal({
 
   // Submit Final Booking
   const handleFinalBooking = async () => {
+    if (isTimerExpired) {
+      alert('Payment session has expired. Please renew the session to proceed.');
+      return;
+    }
+
+    // If on UPI Apps tab, redirect to the selected UPI app
+    if (paymentMethod === 'upiApps') {
+      const appKeyToUse = selectedAppKey || 'phonepe';
+      const deepLinkUrl = getAppDeepLink(appKeyToUse);
+      try {
+        window.location.href = deepLinkUrl;
+      } catch (err) {
+        console.warn('Redirect error:', err);
+      }
+    }
+
     setIsProcessing(true);
 
     try {
@@ -773,7 +826,8 @@ export default function BookingCheckoutModal({
       const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
       const bookingPayload = buildBookingPayload(createdPnr, {
         method: paymentMethod,
-        status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID'
+        status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
+        selectedApp: selectedUpiApp || 'PhonePe'
       }, finalStatus);
 
       const res = await api.createBooking(bookingPayload);
@@ -842,10 +896,18 @@ export default function BookingCheckoutModal({
         {/* Header */}
         <div className="bg-white px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
           {step === 4 ? (
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
                 Payment
               </h3>
+              <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold ${
+                paymentTimerSeconds <= 60 
+                  ? 'bg-rose-100 text-rose-700 border border-rose-300 animate-pulse' 
+                  : 'bg-amber-50 text-amber-800 border border-amber-300'
+              }`}>
+                <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>{formatTimer(paymentTimerSeconds)}</span>
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -2575,6 +2637,31 @@ export default function BookingCheckoutModal({
                     </div>
                   </div>
 
+                  {/* 5-Minute Session Timer Strip */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-medium">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span className="text-[11px] font-semibold text-slate-700">Complete payment within:</span>
+                      <span className={`font-mono font-black text-xs ${paymentTimerSeconds <= 60 ? 'text-rose-600 animate-pulse' : 'text-amber-800'}`}>
+                        {formatTimer(paymentTimerSeconds)}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-amber-700 font-bold hidden sm:inline">Fare locked for 5 min</span>
+                  </div>
+
+                  {isTimerExpired && (
+                    <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold text-center space-y-1 animate-shake">
+                      <p>⚠️ Payment session expired (5 min limit). Please renew to proceed.</p>
+                      <button
+                        type="button"
+                        onClick={() => { setPaymentTimerSeconds(300); setIsTimerExpired(false); }}
+                        className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[11px] font-bold cursor-pointer"
+                      >
+                        Renew 5-Min Session
+                      </button>
+                    </div>
+                  )}
+
                   {/* Header */}
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-1.5">
@@ -2702,50 +2789,63 @@ export default function BookingCheckoutModal({
 
                   {/* 2. UPI Apps Content */}
                   {isUpiAppsEnabled && paymentMethod === 'upiApps' && (
-                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Tap Any UPI App to Pay</p>
-                          <p className="text-[9px] sm:text-[10px] text-slate-500">Opens app directly on mobile & PC</p>
+                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">1. Select Your UPI App</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-500">App select karein, fir niche Pay button par click karke redirect hon</p>
                         </div>
+                        {selectedUpiApp && (
+                          <span className="text-[10px] font-black bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full border border-sky-200 flex items-center gap-1">
+                            <Check className="w-2.5 h-2.5 text-sky-600" />
+                            {selectedUpiApp}
+                          </span>
+                        )}
                       </div>
 
                       {/* App Buttons Grid */}
                       {visibleUpiApps.length > 0 ? (
                         <div className={`grid gap-1.5 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
-                          {visibleUpiApps.map(app => (
-                            <button
-                              key={app.key}
-                              type="button"
-                              onClick={() => handleLaunchUpiApp(app.key, app.name)}
-                              className={`p-2 rounded-xl border flex items-center gap-2 transition-all text-left cursor-pointer active:scale-[0.98] ${
-                                selectedUpiApp === app.name
-                                  ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-300'
-                                  : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1 overflow-hidden">
-                                {app.iconUrl ? (
-                                  <img
-                                    src={app.iconUrl}
-                                    alt={app.name}
-                                    className="w-full h-full object-contain"
-                                  />
-                                ) : (
-                                  <Smartphone className="w-4 h-4 text-slate-700" />
-                                )}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center gap-1">
-                                  <span>{app.name}</span>
+                          {visibleUpiApps.map(app => {
+                            const isSelected = (selectedUpiApp === app.name) || (selectedAppKey === app.key);
+                            return (
+                              <button
+                                key={app.key}
+                                type="button"
+                                onClick={() => handleSelectUpiApp(app.key, app.name)}
+                                className={`p-2 rounded-xl border flex items-center gap-2 transition-all text-left cursor-pointer active:scale-[0.98] relative ${
+                                  isSelected
+                                    ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-400 shadow-sm'
+                                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1 overflow-hidden">
+                                  {app.iconUrl ? (
+                                    <img
+                                      src={app.iconUrl}
+                                      alt={app.name}
+                                      className="w-full h-full object-contain"
+                                    />
+                                  ) : (
+                                    <Smartphone className="w-4 h-4 text-slate-700" />
+                                  )}
                                 </div>
-                                <div className="text-[9px] text-sky-600 font-bold flex items-center gap-0.5">
-                                  <span>Tap to Pay</span>
-                                  <ExternalLink className="w-2 h-2" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center justify-between">
+                                    <span>{app.name}</span>
+                                    {isSelected && (
+                                      <span className="w-3.5 h-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center">
+                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className={`text-[9px] font-bold flex items-center gap-0.5 ${isSelected ? 'text-sky-700 font-extrabold' : 'text-slate-400'}`}>
+                                    <span>{isSelected ? 'Selected' : 'Select'}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            </button>
-                          ))}
+                              </button>
+                            );
+                          })}
                         </div>
                       ) : (
                         <div className="p-2.5 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-500">
@@ -2754,9 +2854,18 @@ export default function BookingCheckoutModal({
                       )}
 
                       {selectedUpiApp && (
-                        <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-[10px] font-bold flex items-center gap-1.5 animate-fadeIn">
-                          <Check className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>Opened {selectedUpiApp}. Approve payment in app and confirm below.</span>
+                        <div className="p-2 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200 rounded-lg text-sky-900 text-[10px] font-medium flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                            <span><strong>{selectedUpiApp}</strong> chuna gaya hai. Niche button click karte hi app khulegi.</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleLaunchUpiApp(selectedAppKey, selectedUpiApp)}
+                            className="text-[9px] font-black text-sky-700 hover:text-sky-800 underline shrink-0 flex items-center gap-0.5"
+                          >
+                            Direct Open <ExternalLink className="w-2 h-2" />
+                          </button>
                         </div>
                       )}
                     </div>
@@ -2793,7 +2902,7 @@ export default function BookingCheckoutModal({
                           <input
                             type="password"
                             maxLength={4}
-                            placeholder="•••"
+                            placeholder="123"
                             value={cardDetails.cvv}
                             onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
                             className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-mono font-bold text-xs"
@@ -2842,19 +2951,28 @@ export default function BookingCheckoutModal({
                   <div className="pt-2 border-t border-slate-100 space-y-1.5">
                     <button
                       type="button"
-                      disabled={isProcessing}
+                      disabled={isProcessing || isTimerExpired}
                       onClick={handleFinalBooking}
                       className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
                     >
                       {isProcessing ? (
                         <>
                           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          <span>Confirming Instant PNR...</span>
+                          <span>Connecting & Opening {selectedUpiApp || 'UPI App'}...</span>
+                        </>
+                      ) : isTimerExpired ? (
+                        <>
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Session Expired — Please Renew</span>
                         </>
                       ) : (
                         <>
                           <ShieldCheck className="w-3.5 h-3.5" />
-                          <span>PAY ₹{grandTotal.toLocaleString('en-IN')} & CONFIRM</span>
+                          <span>
+                            {paymentMethod === 'upiApps' && selectedUpiApp
+                              ? `PAY ₹${grandTotal.toLocaleString('en-IN')} & OPEN ${selectedUpiApp.toUpperCase()}`
+                              : `PAY ₹${grandTotal.toLocaleString('en-IN')} & CONFIRM`}
+                          </span>
                         </>
                       )}
                     </button>
