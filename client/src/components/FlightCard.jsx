@@ -19,6 +19,7 @@ export default function FlightCard({
   brand = null,
   isSelectable = false,
   isSelected = false,
+  compact = false,
   selectLabel = 'Select Flight',
   selectedLabel = 'Selected',
   onSelect = null
