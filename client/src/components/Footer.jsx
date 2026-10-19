@@ -142,19 +142,21 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
                 <img
                   src={brand.logo}
                   alt={brand.name || 'Brand Logo'}
-                  className="h-10 w-auto max-w-[160px] object-contain rounded"
+                  className="h-10 w-auto max-w-[180px] object-contain"
                 />
               ) : (
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
-                  style={{ background: brand?.primary_color || '#ff6d01' }}
-                >
-                  <Plane className="w-4 h-4 rotate-45" />
-                </div>
+                <>
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
+                    style={{ background: brand?.primary_color || '#ff6d01' }}
+                  >
+                    <Plane className="w-4 h-4 rotate-45" />
+                  </div>
+                  <span className="text-xl font-extrabold text-white tracking-tight">
+                    {brand?.name || propSettings?.siteName || 'AIR SKY Go'}
+                  </span>
+                </>
               )}
-              <span className="text-xl font-extrabold text-white tracking-tight">
-                {brand?.name || propSettings?.siteName || 'AIR SKY Go'}
-              </span>
             </div>
             <p className="text-slate-400 leading-relaxed mb-3">
               {footerDesc}

@@ -145,34 +145,36 @@ export default function Navbar({
               <img
                 src={brand.logo}
                 alt={brand.name || 'Brand Logo'}
-                className="h-10 sm:h-12 w-auto max-w-[170px] object-contain rounded-lg"
+                className="h-10 sm:h-12 w-auto max-w-[220px] object-contain"
               />
             ) : (
-              <motion.div 
-                className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg"
-                style={{ background: brand?.primary_color || '#ff6d01' }}
-                whileHover={{ rotate: 15, scale: 1.08 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                <Plane className="w-6 h-6 rotate-45 transform" />
-              </motion.div>
-            )}
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="text-2xl font-black tracking-tight"
-                  style={{ color: brand?.brand_text_color || '#0B1F3A' }}
+              <>
+                <motion.div 
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg"
+                  style={{ background: brand?.primary_color || '#ff6d01' }}
+                  whileHover={{ rotate: 15, scale: 1.08 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  {brand?.name || siteName}
-                </span>
-              </div>
-              <p
-                className="text-[11px] font-bold tracking-wide hidden sm:block truncate max-w-xs uppercase"
-                style={{ color: brand?.tagline_color || '#6b7280' }}
-              >
-                {brand?.tagline || settings.siteTagline || 'Premium Luxury Travel'}
-              </p>
-            </div>
+                  <Plane className="w-6 h-6 rotate-45 transform" />
+                </motion.div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="text-2xl font-black tracking-tight"
+                      style={{ color: brand?.brand_text_color || '#0B1F3A' }}
+                    >
+                      {brand?.name || siteName}
+                    </span>
+                  </div>
+                  <p
+                    className="text-[11px] font-bold tracking-wide hidden sm:block truncate max-w-xs uppercase"
+                    style={{ color: brand?.tagline_color || '#6b7280' }}
+                  >
+                    {brand?.tagline || settings.siteTagline || 'Premium Luxury Travel'}
+                  </p>
+                </div>
+              </>
+            )}
           </motion.div>
 
           {/* Desktop Multi-Service Navigation Tabs (Moyatri Style) */}
