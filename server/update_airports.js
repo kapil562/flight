@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const airports = [
-  // --- TIER 1 & MAJOR METROS (INDIA) ---
+  // =========================================================================
+  // 🇮🇳 ALL INDIAN DOMESTIC & REGIONAL AIRPORTS (ALL STATES & UNION TERRITORIES)
+  // =========================================================================
+  // --- Metros & Major Hubs ---
   { code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi International Airport', state: 'Delhi', country: 'India' },
   { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj International Airport', state: 'Maharashtra', country: 'India' },
   { code: 'BLR', city: 'Bengaluru', name: 'Kempegowda International Airport (Bangalore)', state: 'Karnataka', country: 'India' },
@@ -135,53 +138,290 @@ const airports = [
   { code: 'LUH', city: 'Ludhiana', name: 'Sahnewal Airport', state: 'Punjab', country: 'India' },
   { code: 'IXP', city: 'Pathankot', name: 'Pathankot Airport', state: 'Punjab', country: 'India' },
 
-  // --- MAJOR INTERNATIONAL AIRPORTS (POPULAR WORLDWIDE DESTINATIONS) ---
+  // =========================================================================
+  // 🌍 COMPREHENSIVE INTERNATIONAL AIRPORTS WORLDWIDE (BY REGION)
+  // =========================================================================
+
+  // --- MIDDLE EAST & GULF (GCC) ---
   { code: 'DXB', city: 'Dubai', name: 'Dubai International Airport', state: 'Dubai', country: 'United Arab Emirates' },
+  { code: 'DWC', city: 'Dubai (Al Maktoum)', name: 'Al Maktoum International Airport', state: 'Dubai', country: 'United Arab Emirates' },
   { code: 'SHJ', city: 'Sharjah', name: 'Sharjah International Airport', state: 'Sharjah', country: 'United Arab Emirates' },
   { code: 'AUH', city: 'Abu Dhabi', name: 'Zayed International Airport', state: 'Abu Dhabi', country: 'United Arab Emirates' },
   { code: 'RKT', city: 'Ras Al Khaimah', name: 'Ras Al Khaimah International Airport', state: 'RAK', country: 'United Arab Emirates' },
+  { code: 'AAN', city: 'Al Ain', name: 'Al Ain International Airport', state: 'Abu Dhabi', country: 'United Arab Emirates' },
   { code: 'DOH', city: 'Doha', name: 'Hamad International Airport', state: 'Doha', country: 'Qatar' },
   { code: 'MCT', city: 'Muscat', name: 'Muscat International Airport', state: 'Muscat', country: 'Oman' },
+  { code: 'SLL', city: 'Salalah', name: 'Salalah Airport', state: 'Dhofar', country: 'Oman' },
   { code: 'BAH', city: 'Bahrain', name: 'Bahrain International Airport', state: 'Manama', country: 'Bahrain' },
   { code: 'KWI', city: 'Kuwait City', name: 'Kuwait International Airport', state: 'Al Farwaniyah', country: 'Kuwait' },
   { code: 'RUH', city: 'Riyadh', name: 'King Khalid International Airport', state: 'Riyadh', country: 'Saudi Arabia' },
-  { code: 'JED', city: 'Jeddah', name: 'King Abdulaziz International Airport (Makkah)', state: 'Makkah', country: 'Saudi Arabia' },
+  { code: 'JED', city: 'Jeddah', name: 'King Abdulaziz International Airport (Makkah/Hajj)', state: 'Makkah', country: 'Saudi Arabia' },
   { code: 'DMM', city: 'Dammam', name: 'King Fahd International Airport', state: 'Eastern Province', country: 'Saudi Arabia' },
+  { code: 'MED', city: 'Medina', name: 'Prince Mohammad bin Abdulaziz International Airport', state: 'Medina', country: 'Saudi Arabia' },
+  { code: 'AHB', city: 'Abha', name: 'Abha Regional Airport', state: 'Asir', country: 'Saudi Arabia' },
+  { code: 'AMM', city: 'Amman', name: 'Queen Alia International Airport', state: 'Amman', country: 'Jordan' },
+  { code: 'BEY', city: 'Beirut', name: 'Beirut–Rafic Hariri International Airport', state: 'Beirut', country: 'Lebanon' },
+  { code: 'TLV', city: 'Tel Aviv', name: 'Ben Gurion Airport', state: 'Tel Aviv', country: 'Israel' },
+  { code: 'BGW', city: 'Baghdad', name: 'Baghdad International Airport', state: 'Baghdad', country: 'Iraq' },
+  { code: 'EBL', city: 'Erbil', name: 'Erbil International Airport', state: 'Kurdistan', country: 'Iraq' },
+  { code: 'IKA', city: 'Tehran', name: 'Tehran Imam Khomeini International Airport', state: 'Tehran', country: 'Iran' },
+
+  // --- SOUTH ASIA (NEIGHBOURING COUNTRIES) ---
+  { code: 'KTM', city: 'Kathmandu', name: 'Tribhuvan International Airport', state: 'Bagmati', country: 'Nepal' },
+  { code: 'PKR', city: 'Pokhara', name: 'Pokhara International Airport', state: 'Gandaki', country: 'Nepal' },
+  { code: 'BWA', city: 'Bhairahawa', name: 'Gautam Buddha International Airport (Lumbini)', state: 'Lumbini', country: 'Nepal' },
+  { code: 'CMB', city: 'Colombo', name: 'Bandaranaike International Airport', state: 'Western Province', country: 'Sri Lanka' },
+  { code: 'HRI', city: 'Hambantota', name: 'Mattala Rajapaksa International Airport', state: 'Southern Province', country: 'Sri Lanka' },
+  { code: 'JAF', city: 'Jaffna', name: 'Jaffna International Airport', state: 'Northern Province', country: 'Sri Lanka' },
+  { code: 'MLE', city: 'Malé', name: 'Velana International Airport (Maldives)', state: 'Kaafu Atoll', country: 'Maldives' },
+  { code: 'GAN', city: 'Gan Island', name: 'Gan International Airport (Addu Atoll)', state: 'Addu Atoll', country: 'Maldives' },
+  { code: 'DAC', city: 'Dhaka', name: 'Hazrat Shahjalal International Airport', state: 'Dhaka', country: 'Bangladesh' },
+  { code: 'CGP', city: 'Chittagong', name: 'Shah Amanat International Airport', state: 'Chittagong', country: 'Bangladesh' },
+  { code: 'ZYL', city: 'Sylhet', name: 'Osmani International Airport', state: 'Sylhet', country: 'Bangladesh' },
+  { code: 'KHI', city: 'Karachi', name: 'Jinnah International Airport', state: 'Sindh', country: 'Pakistan' },
+  { code: 'LHE', city: 'Lahore', name: 'Allama Iqbal International Airport', state: 'Punjab', country: 'Pakistan' },
+  { code: 'ISB', city: 'Islamabad', name: 'Islamabad International Airport', state: 'Islamabad Capital Territory', country: 'Pakistan' },
+  { code: 'PBH', city: 'Paro', name: 'Paro International Airport (Thimphu)', state: 'Paro', country: 'Bhutan' },
+  { code: 'KBL', city: 'Kabul', name: 'Kabul International Airport', state: 'Kabul', country: 'Afghanistan' },
+
+  // --- SOUTHEAST ASIA ---
   { code: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport', state: 'Singapore', country: 'Singapore' },
   { code: 'BKK', city: 'Bangkok (Suvarnabhumi)', name: 'Suvarnabhumi International Airport', state: 'Bangkok', country: 'Thailand' },
   { code: 'DMK', city: 'Bangkok (Don Mueang)', name: 'Don Mueang International Airport', state: 'Bangkok', country: 'Thailand' },
   { code: 'HKT', city: 'Phuket', name: 'Phuket International Airport', state: 'Phuket', country: 'Thailand' },
+  { code: 'CNX', city: 'Chiang Mai', name: 'Chiang Mai International Airport', state: 'Chiang Mai', country: 'Thailand' },
+  { code: 'KBV', city: 'Krabi', name: 'Krabi International Airport', state: 'Krabi', country: 'Thailand' },
+  { code: 'USM', city: 'Koh Samui', name: 'Samui International Airport', state: 'Surat Thani', country: 'Thailand' },
   { code: 'KUL', city: 'Kuala Lumpur', name: 'Kuala Lumpur International Airport (KLIA)', state: 'Sepang', country: 'Malaysia' },
+  { code: 'PEN', city: 'Penang', name: 'Penang International Airport', state: 'Penang', country: 'Malaysia' },
+  { code: 'LGK', city: 'Langkawi', name: 'Langkawi International Airport', state: 'Kedah', country: 'Malaysia' },
+  { code: 'BKI', city: 'Kota Kinabalu', name: 'Kota Kinabalu International Airport', state: 'Sabah', country: 'Malaysia' },
   { code: 'DPS', city: 'Bali', name: 'Ngurah Rai International Airport (Denpasar)', state: 'Bali', country: 'Indonesia' },
-  { code: 'KTM', city: 'Kathmandu', name: 'Tribhuvan International Airport', state: 'Bagmati', country: 'Nepal' },
-  { code: 'CMB', city: 'Colombo', name: 'Bandaranaike International Airport', state: 'Western Province', country: 'Sri Lanka' },
-  { code: 'MLE', city: 'Malé', name: 'Velana International Airport (Maldives)', state: 'Kaafu Atoll', country: 'Maldives' },
-  { code: 'DAC', city: 'Dhaka', name: 'Hazrat Shahjalal International Airport', state: 'Dhaka', country: 'Bangladesh' },
+  { code: 'CGK', city: 'Jakarta', name: 'Soekarno–Hatta International Airport', state: 'Banten', country: 'Indonesia' },
+  { code: 'SUB', city: 'Surabaya', name: 'Juanda International Airport', state: 'East Java', country: 'Indonesia' },
+  { code: 'SGN', city: 'Ho Chi Minh City', name: 'Tan Son Nhat International Airport', state: 'Ho Chi Minh', country: 'Vietnam' },
+  { code: 'HAN', city: 'Hanoi', name: 'Noi Bai International Airport', state: 'Hanoi', country: 'Vietnam' },
+  { code: 'DAD', city: 'Da Nang', name: 'Da Nang International Airport', state: 'Da Nang', country: 'Vietnam' },
+  { code: 'PQC', city: 'Phu Quoc', name: 'Phu Quoc International Airport', state: 'Kien Giang', country: 'Vietnam' },
+  { code: 'MNL', city: 'Manila', name: 'Ninoy Aquino International Airport', state: 'Metro Manila', country: 'Philippines' },
+  { code: 'CEB', city: 'Cebu', name: 'Mactan–Cebu International Airport', state: 'Central Visayas', country: 'Philippines' },
+  { code: 'REP', city: 'Siem Reap', name: 'Siem Reap–Angkor International Airport', state: 'Siem Reap', country: 'Cambodia' },
+  { code: 'PNH', city: 'Phnom Penh', name: 'Phnom Penh International Airport', state: 'Phnom Penh', country: 'Cambodia' },
+  { code: 'VTE', city: 'Vientiane', name: 'Wattay International Airport', state: 'Vientiane', country: 'Laos' },
+  { code: 'RGN', city: 'Yangon', name: 'Yangon International Airport', state: 'Yangon', country: 'Myanmar' },
+
+  // --- EAST ASIA ---
+  { code: 'HKG', city: 'Hong Kong', name: 'Hong Kong International Airport', state: 'Chek Lap Kok', country: 'Hong Kong' },
+  { code: 'MFM', city: 'Macau', name: 'Macau International Airport', state: 'Macau', country: 'Macau' },
+  { code: 'TPE', city: 'Taipei', name: 'Taiwan Taoyuan International Airport', state: 'Taoyuan', country: 'Taiwan' },
+  { code: 'KHH', city: 'Kaohsiung', name: 'Kaohsiung International Airport', state: 'Kaohsiung', country: 'Taiwan' },
+  { code: 'NRT', city: 'Tokyo (Narita)', name: 'Narita International Airport', state: 'Chiba', country: 'Japan' },
+  { code: 'HND', city: 'Tokyo (Haneda)', name: 'Tokyo Haneda Airport', state: 'Tokyo', country: 'Japan' },
+  { code: 'KIX', city: 'Osaka', name: 'Kansai International Airport', state: 'Osaka', country: 'Japan' },
+  { code: 'NGO', city: 'Nagoya', name: 'Chubu Centrair International Airport', state: 'Aichi', country: 'Japan' },
+  { code: 'FUK', city: 'Fukuoka', name: 'Fukuoka Airport', state: 'Fukuoka', country: 'Japan' },
+  { code: 'CTS', city: 'Sapporo', name: 'New Chitose Airport', state: 'Hokkaido', country: 'Japan' },
+  { code: 'ICN', city: 'Seoul (Incheon)', name: 'Incheon International Airport', state: 'Incheon', country: 'South Korea' },
+  { code: 'GMP', city: 'Seoul (Gimpo)', name: 'Gimpo International Airport', state: 'Seoul', country: 'South Korea' },
+  { code: 'PUS', city: 'Busan', name: 'Gimhae International Airport', state: 'Busan', country: 'South Korea' },
+  { code: 'PEK', city: 'Beijing (Capital)', name: 'Beijing Capital International Airport', state: 'Beijing', country: 'China' },
+  { code: 'PKX', city: 'Beijing (Daxing)', name: 'Beijing Daxing International Airport', state: 'Beijing', country: 'China' },
+  { code: 'PVG', city: 'Shanghai (Pudong)', name: 'Shanghai Pudong International Airport', state: 'Shanghai', country: 'China' },
+  { code: 'SHA', city: 'Shanghai (Hongqiao)', name: 'Shanghai Hongqiao International Airport', state: 'Shanghai', country: 'China' },
+  { code: 'CAN', city: 'Guangzhou', name: 'Guangzhou Baiyun International Airport', state: 'Guangdong', country: 'China' },
+  { code: 'SZX', city: 'Shenzhen', name: 'Shenzhen Baoan International Airport', state: 'Guangdong', country: 'China' },
+  { code: 'CTU', city: 'Chengdu', name: 'Chengdu Tianfu International Airport', state: 'Sichuan', country: 'China' },
+
+  // --- CENTRAL ASIA & CAUCASUS ---
+  { code: 'TAS', city: 'Tashkent', name: 'Islam Karimov Tashkent International Airport', state: 'Tashkent', country: 'Uzbekistan' },
+  { code: 'ALA', city: 'Almaty', name: 'Almaty International Airport', state: 'Almaty', country: 'Kazakhstan' },
+  { code: 'NQZ', city: 'Astana', name: 'Nursultan Nazarbayev International Airport', state: 'Astana', country: 'Kazakhstan' },
+  { code: 'FRU', city: 'Bishkek', name: 'Manas International Airport', state: 'Chuy', country: 'Kyrgyzstan' },
+  { code: 'DYU', city: 'Dushanbe', name: 'Dushanbe International Airport', state: 'Dushanbe', country: 'Tajikistan' },
+  { code: 'ASB', city: 'Ashgabat', name: 'Ashgabat International Airport', state: 'Ashgabat', country: 'Turkmenistan' },
+  { code: 'GYD', city: 'Baku', name: 'Heydar Aliyev International Airport', state: 'Baku', country: 'Azerbaijan' },
+  { code: 'TBS', city: 'Tbilisi', name: 'Tbilisi International Airport', state: 'Tbilisi', country: 'Georgia' },
+  { code: 'EVN', city: 'Yerevan', name: 'Zvartnots International Airport', state: 'Yerevan', country: 'Armenia' },
+
+  // --- EUROPE (UK & IRELAND) ---
   { code: 'LHR', city: 'London (Heathrow)', name: 'Heathrow Airport', state: 'London', country: 'United Kingdom' },
   { code: 'LGW', city: 'London (Gatwick)', name: 'Gatwick Airport', state: 'London', country: 'United Kingdom' },
-  { code: 'CDG', city: 'Paris', name: 'Charles de Gaulle Airport', state: 'Île-de-France', country: 'France' },
+  { code: 'STN', city: 'London (Stansted)', name: 'Stansted Airport', state: 'Essex', country: 'United Kingdom' },
+  { code: 'LTN', city: 'London (Luton)', name: 'Luton Airport', state: 'Bedfordshire', country: 'United Kingdom' },
+  { code: 'MAN', city: 'Manchester', name: 'Manchester Airport', state: 'Greater Manchester', country: 'United Kingdom' },
+  { code: 'BHX', city: 'Birmingham', name: 'Birmingham Airport', state: 'West Midlands', country: 'United Kingdom' },
+  { code: 'EDI', city: 'Edinburgh', name: 'Edinburgh Airport', state: 'Scotland', country: 'United Kingdom' },
+  { code: 'GLA', city: 'Glasgow', name: 'Glasgow Airport', state: 'Scotland', country: 'United Kingdom' },
+  { code: 'DUB', city: 'Dublin', name: 'Dublin Airport', state: 'Leinster', country: 'Ireland' },
+
+  // --- EUROPE (WESTERN & CENTRAL) ---
+  { code: 'CDG', city: 'Paris (Charles de Gaulle)', name: 'Charles de Gaulle Airport', state: 'Île-de-France', country: 'France' },
+  { code: 'ORY', city: 'Paris (Orly)', name: 'Paris Orly Airport', state: 'Île-de-France', country: 'France' },
+  { code: 'NCE', city: 'Nice', name: 'Nice Côte dAzur Airport', state: 'Provence-Alpes-Côte dAzur', country: 'France' },
+  { code: 'LYS', city: 'Lyon', name: 'Lyon–Saint-Exupéry Airport', state: 'Auvergne-Rhône-Alpes', country: 'France' },
   { code: 'FRA', city: 'Frankfurt', name: 'Frankfurt Airport', state: 'Hesse', country: 'Germany' },
+  { code: 'MUC', city: 'Munich', name: 'Munich International Airport', state: 'Bavaria', country: 'Germany' },
+  { code: 'BER', city: 'Berlin', name: 'Berlin Brandenburg Airport', state: 'Brandenburg', country: 'Germany' },
+  { code: 'HAM', city: 'Hamburg', name: 'Hamburg Airport', state: 'Hamburg', country: 'Germany' },
+  { code: 'DUS', city: 'Dusseldorf', name: 'Düsseldorf Airport', state: 'North Rhine-Westphalia', country: 'Germany' },
   { code: 'AMS', city: 'Amsterdam', name: 'Amsterdam Airport Schiphol', state: 'North Holland', country: 'Netherlands' },
+  { code: 'BRU', city: 'Brussels', name: 'Brussels Airport', state: 'Flemish Brabant', country: 'Belgium' },
   { code: 'ZRH', city: 'Zurich', name: 'Zurich Airport', state: 'Zurich', country: 'Switzerland' },
+  { code: 'GVA', city: 'Geneva', name: 'Geneva Airport', state: 'Geneva', country: 'Switzerland' },
+  { code: 'BSL', city: 'Basel', name: 'EuroAirport Basel Mulhouse Freiburg', state: 'Basel', country: 'Switzerland' },
+  { code: 'VIE', city: 'Vienna', name: 'Vienna International Airport', state: 'Lower Austria', country: 'Austria' },
+  { code: 'PRG', city: 'Prague', name: 'Václav Havel Airport Prague', state: 'Prague', country: 'Czech Republic' },
+  { code: 'BUD', city: 'Budapest', name: 'Budapest Ferenc Liszt International Airport', state: 'Budapest', country: 'Hungary' },
+  { code: 'WAW', city: 'Warsaw', name: 'Warsaw Chopin Airport', state: 'Masovia', country: 'Poland' },
+  { code: 'KRK', city: 'Krakow', name: 'Kraków John Paul II International Airport', state: 'Lesser Poland', country: 'Poland' },
+
+  // --- EUROPE (SOUTHERN & MEDITERRANEAN) ---
+  { code: 'FCO', city: 'Rome', name: 'Leonardo da Vinci–Fiumicino Airport', state: 'Lazio', country: 'Italy' },
+  { code: 'MXP', city: 'Milan (Malpensa)', name: 'Milan Malpensa Airport', state: 'Lombardy', country: 'Italy' },
+  { code: 'LIN', city: 'Milan (Linate)', name: 'Milan Linate Airport', state: 'Lombardy', country: 'Italy' },
+  { code: 'VCE', city: 'Venice', name: 'Venice Marco Polo Airport', state: 'Veneto', country: 'Italy' },
+  { code: 'MAD', city: 'Madrid', name: 'Adolfo Suárez Madrid–Barajas Airport', state: 'Community of Madrid', country: 'Spain' },
+  { code: 'BCN', city: 'Barcelona', name: 'Josep Tarradellas Barcelona-El Prat Airport', state: 'Catalonia', country: 'Spain' },
+  { code: 'AGP', city: 'Malaga', name: 'Málaga Airport (Costa del Sol)', state: 'Andalusia', country: 'Spain' },
+  { code: 'PMI', city: 'Palma de Mallorca', name: 'Palma de Mallorca Airport', state: 'Balearic Islands', country: 'Spain' },
+  { code: 'LIS', city: 'Lisbon', name: 'Humberto Delgado Airport', state: 'Lisbon', country: 'Portugal' },
+  { code: 'OPO', city: 'Porto', name: 'Francisco Sá Carneiro Airport', state: 'Norte', country: 'Portugal' },
+  { code: 'ATH', city: 'Athens', name: 'Athens International Airport (Eleftherios Venizelos)', state: 'Attica', country: 'Greece' },
+  { code: 'JTR', city: 'Santorini', name: 'Santorini (Thira) National Airport', state: 'South Aegean', country: 'Greece' },
+  { code: 'JMK', city: 'Mykonos', name: 'Mykonos Airport', state: 'South Aegean', country: 'Greece' },
+  { code: 'HER', city: 'Heraklion (Crete)', name: 'Heraklion International Airport', state: 'Crete', country: 'Greece' },
+  { code: 'MLA', city: 'Malta', name: 'Malta International Airport', state: 'Luqa', country: 'Malta' },
+  { code: 'LCA', city: 'Larnaca', name: 'Larnaca International Airport', state: 'Larnaca', country: 'Cyprus' },
   { code: 'IST', city: 'Istanbul', name: 'Istanbul Airport', state: 'Istanbul', country: 'Turkey' },
+  { code: 'SAW', city: 'Istanbul (Sabiha)', name: 'Sabiha Gökçen International Airport', state: 'Istanbul', country: 'Turkey' },
+  { code: 'AYT', city: 'Antalya', name: 'Antalya Airport', state: 'Antalya', country: 'Turkey' },
+
+  // --- EUROPE (NORDICS & EASTERN) ---
+  { code: 'CPH', city: 'Copenhagen', name: 'Copenhagen Airport (Kastrup)', state: 'Capital Region', country: 'Denmark' },
+  { code: 'ARN', city: 'Stockholm', name: 'Stockholm Arlanda Airport', state: 'Stockholm County', country: 'Sweden' },
+  { code: 'OSL', city: 'Oslo', name: 'Oslo Airport (Gardermoen)', state: 'Viken', country: 'Norway' },
+  { code: 'HEL', city: 'Helsinki', name: 'Helsinki-Vantaa Airport', state: 'Uusimaa', country: 'Finland' },
+  { code: 'KEF', city: 'Reykjavik', name: 'Keflavík International Airport', state: 'Southern Peninsula', country: 'Iceland' },
+  { code: 'SVO', city: 'Moscow (Sheremetyevo)', name: 'Sheremetyevo International Airport', state: 'Moscow', country: 'Russia' },
+  { code: 'DME', city: 'Moscow (Domodedovo)', name: 'Domodedovo International Airport', state: 'Moscow', country: 'Russia' },
+  { code: 'LED', city: 'Saint Petersburg', name: 'Pulkovo Airport', state: 'Saint Petersburg', country: 'Russia' },
+
+  // --- NORTH AMERICA (UNITED STATES) ---
   { code: 'JFK', city: 'New York (JFK)', name: 'John F. Kennedy International Airport', state: 'New York', country: 'United States' },
   { code: 'EWR', city: 'New York (Newark)', name: 'Newark Liberty International Airport', state: 'New Jersey', country: 'United States' },
+  { code: 'LGA', city: 'New York (LaGuardia)', name: 'LaGuardia Airport', state: 'New York', country: 'United States' },
   { code: 'ORD', city: 'Chicago', name: "O'Hare International Airport", state: 'Illinois', country: 'United States' },
+  { code: 'MDW', city: 'Chicago (Midway)', name: 'Midway International Airport', state: 'Illinois', country: 'United States' },
   { code: 'SFO', city: 'San Francisco', name: 'San Francisco International Airport', state: 'California', country: 'United States' },
+  { code: 'SJC', city: 'San Jose (Silicon Valley)', name: 'Norman Y. Mineta San Jose International Airport', state: 'California', country: 'United States' },
+  { code: 'OAK', city: 'Oakland', name: 'Oakland International Airport', state: 'California', country: 'United States' },
   { code: 'LAX', city: 'Los Angeles', name: 'Los Angeles International Airport', state: 'California', country: 'United States' },
-  { code: 'YYZ', city: 'Toronto', name: 'Toronto Pearson International Airport', state: 'Ontario', country: 'Canada' },
+  { code: 'SEA', city: 'Seattle', name: 'Seattle-Tacoma International Airport (Sea-Tac)', state: 'Washington', country: 'United States' },
+  { code: 'BOS', city: 'Boston', name: 'Logan International Airport', state: 'Massachusetts', country: 'United States' },
+  { code: 'IAD', city: 'Washington D.C. (Dulles)', name: 'Washington Dulles International Airport', state: 'Virginia', country: 'United States' },
+  { code: 'DCA', city: 'Washington D.C. (Reagan)', name: 'Ronald Reagan Washington National Airport', state: 'Virginia', country: 'United States' },
+  { code: 'BWI', city: 'Baltimore / Washington', name: 'Baltimore/Washington International Thurgood Marshall Airport', state: 'Maryland', country: 'United States' },
+  { code: 'DFW', city: 'Dallas / Fort Worth', name: 'Dallas/Fort Worth International Airport', state: 'Texas', country: 'United States' },
+  { code: 'IAH', city: 'Houston (Bush)', name: 'George Bush Intercontinental Airport', state: 'Texas', country: 'United States' },
+  { code: 'HOU', city: 'Houston (Hobby)', name: 'William P. Hobby Airport', state: 'Texas', country: 'United States' },
+  { code: 'AUS', city: 'Austin', name: 'Austin-Bergstrom International Airport', state: 'Texas', country: 'United States' },
+  { code: 'ATL', city: 'Atlanta', name: 'Hartsfield-Jackson Atlanta International Airport', state: 'Georgia', country: 'United States' },
+  { code: 'MIA', city: 'Miami', name: 'Miami International Airport', state: 'Florida', country: 'United States' },
+  { code: 'MCO', city: 'Orlando', name: 'Orlando International Airport', state: 'Florida', country: 'United States' },
+  { code: 'TPA', city: 'Tampa', name: 'Tampa International Airport', state: 'Florida', country: 'United States' },
+  { code: 'FLL', city: 'Fort Lauderdale', name: 'Fort Lauderdale-Hollywood International Airport', state: 'Florida', country: 'United States' },
+  { code: 'PHX', city: 'Phoenix', name: 'Phoenix Sky Harbor International Airport', state: 'Arizona', country: 'United States' },
+  { code: 'DEN', city: 'Denver', name: 'Denver International Airport', state: 'Colorado', country: 'United States' },
+  { code: 'LAS', city: 'Las Vegas', name: 'Harry Reid International Airport', state: 'Nevada', country: 'United States' },
+  { code: 'SAN', city: 'San Diego', name: 'San Diego International Airport', state: 'California', country: 'United States' },
+  { code: 'DTW', city: 'Detroit', name: 'Detroit Metropolitan Wayne County Airport', state: 'Michigan', country: 'United States' },
+  { code: 'MSP', city: 'Minneapolis', name: 'Minneapolis–Saint Paul International Airport', state: 'Minnesota', country: 'United States' },
+  { code: 'PHL', city: 'Philadelphia', name: 'Philadelphia International Airport', state: 'Pennsylvania', country: 'United States' },
+  { code: 'CLT', city: 'Charlotte', name: 'Charlotte Douglas International Airport', state: 'North Carolina', country: 'United States' },
+  { code: 'RDU', city: 'Raleigh / Durham', name: 'Raleigh-Durham International Airport', state: 'North Carolina', country: 'United States' },
+  { code: 'BNA', city: 'Nashville', name: 'Nashville International Airport', state: 'Tennessee', country: 'United States' },
+  { code: 'HNL', city: 'Honolulu (Hawaii)', name: 'Daniel K. Inouye International Airport', state: 'Hawaii', country: 'United States' },
+
+  // --- NORTH AMERICA (CANADA & MEXICO) ---
+  { code: 'YYZ', city: 'Toronto (Pearson)', name: 'Toronto Pearson International Airport', state: 'Ontario', country: 'Canada' },
   { code: 'YVR', city: 'Vancouver', name: 'Vancouver International Airport', state: 'British Columbia', country: 'Canada' },
-  { code: 'SYD', city: 'Sydney', name: 'Sydney Kingsford Smith Airport', state: 'NSW', country: 'Australia' },
+  { code: 'YUL', city: 'Montreal', name: 'Montréal–Trudeau International Airport', state: 'Quebec', country: 'Canada' },
+  { code: 'YYC', city: 'Calgary', name: 'Calgary International Airport', state: 'Alberta', country: 'Canada' },
+  { code: 'YEG', city: 'Edmonton', name: 'Edmonton International Airport', state: 'Alberta', country: 'Canada' },
+  { code: 'YOW', city: 'Ottawa', name: 'Ottawa Macdonald-Cartier International Airport', state: 'Ontario', country: 'Canada' },
+  { code: 'YWG', city: 'Winnipeg', name: 'Winnipeg James Armstrong Richardson International Airport', state: 'Manitoba', country: 'Canada' },
+  { code: 'YHZ', city: 'Halifax', name: 'Halifax Stanfield International Airport', state: 'Nova Scotia', country: 'Canada' },
+  { code: 'MEX', city: 'Mexico City', name: 'Mexico City International Airport (Benito Juárez)', state: 'Mexico City', country: 'Mexico' },
+  { code: 'CUN', city: 'Cancun', name: 'Cancún International Airport', state: 'Quintana Roo', country: 'Mexico' },
+  { code: 'GDL', city: 'Guadalajara', name: 'Miguel Hidalgo y Costilla Guadalajara International Airport', state: 'Jalisco', country: 'Mexico' },
+
+  // --- OCEANIA (AUSTRALIA & NEW ZEALAND) ---
+  { code: 'SYD', city: 'Sydney', name: 'Sydney Kingsford Smith Airport', state: 'New South Wales', country: 'Australia' },
   { code: 'MEL', city: 'Melbourne', name: 'Melbourne Airport (Tullamarine)', state: 'Victoria', country: 'Australia' },
-  { code: 'NRT', city: 'Tokyo (Narita)', name: 'Narita International Airport', state: 'Chiba', country: 'Japan' },
-  { code: 'HND', city: 'Tokyo (Haneda)', name: 'Haneda Airport', state: 'Tokyo', country: 'Japan' },
-  { code: 'HKG', city: 'Hong Kong', name: 'Hong Kong International Airport', state: 'Chek Lap Kok', country: 'Hong Kong' }
+  { code: 'BNE', city: 'Brisbane', name: 'Brisbane Airport', state: 'Queensland', country: 'Australia' },
+  { code: 'PER', city: 'Perth', name: 'Perth Airport', state: 'Western Australia', country: 'Australia' },
+  { code: 'ADL', city: 'Adelaide', name: 'Adelaide Airport', state: 'South Australia', country: 'Australia' },
+  { code: 'CBR', city: 'Canberra', name: 'Canberra Airport', state: 'ACT', country: 'Australia' },
+  { code: 'OOL', city: 'Gold Coast', name: 'Gold Coast Airport', state: 'Queensland', country: 'Australia' },
+  { code: 'CNS', city: 'Cairns', name: 'Cairns Airport', state: 'Queensland', country: 'Australia' },
+  { code: 'AKL', city: 'Auckland', name: 'Auckland Airport', state: 'Auckland', country: 'New Zealand' },
+  { code: 'WLG', city: 'Wellington', name: 'Wellington International Airport', state: 'Wellington', country: 'New Zealand' },
+  { code: 'CHC', city: 'Christchurch', name: 'Christchurch International Airport', state: 'Canterbury', country: 'New Zealand' },
+  { code: 'ZQN', city: 'Queenstown', name: 'Queenstown Airport', state: 'Otago', country: 'New Zealand' },
+  { code: 'NAN', city: 'Nadi (Fiji)', name: 'Nadi International Airport', state: 'Western Division', country: 'Fiji' },
+
+  // --- AFRICA ---
+  { code: 'JNB', city: 'Johannesburg', name: 'O. R. Tambo International Airport', state: 'Gauteng', country: 'South Africa' },
+  { code: 'CPT', city: 'Cape Town', name: 'Cape Town International Airport', state: 'Western Cape', country: 'South Africa' },
+  { code: 'DUR', city: 'Durban', name: 'King Shaka International Airport', state: 'KwaZulu-Natal', country: 'South Africa' },
+  { code: 'NBO', city: 'Nairobi', name: 'Jomo Kenyatta International Airport', state: 'Nairobi', country: 'Kenya' },
+  { code: 'MBA', city: 'Mombasa', name: 'Moi International Airport', state: 'Coast', country: 'Kenya' },
+  { code: 'EBB', city: 'Entebbe / Kampala', name: 'Entebbe International Airport', state: 'Central Region', country: 'Uganda' },
+  { code: 'ADD', city: 'Addis Ababa', name: 'Addis Ababa Bole International Airport', state: 'Addis Ababa', country: 'Ethiopia' },
+  { code: 'CAI', city: 'Cairo', name: 'Cairo International Airport', state: 'Cairo', country: 'Egypt' },
+  { code: 'HRG', city: 'Hurghada', name: 'Hurghada International Airport', state: 'Red Sea', country: 'Egypt' },
+  { code: 'SSH', city: 'Sharm El Sheikh', name: 'Sharm El Sheikh International Airport', state: 'South Sinai', country: 'Egypt' },
+  { code: 'LOS', city: 'Lagos', name: 'Murtala Muhammed International Airport', state: 'Lagos', country: 'Nigeria' },
+  { code: 'ABV', city: 'Abuja', name: 'Nnamdi Azikiwe International Airport', state: 'Federal Capital Territory', country: 'Nigeria' },
+  { code: 'ACC', city: 'Accra', name: 'Kotoka International Airport', state: 'Greater Accra', country: 'Ghana' },
+  { code: 'CMN', city: 'Casablanca', name: 'Mohammed V International Airport', state: 'Casablanca-Settat', country: 'Morocco' },
+  { code: 'RAK', city: 'Marrakech', name: 'Marrakesh Menara Airport', state: 'Marrakesh-Safi', country: 'Morocco' },
+  { code: 'MRU', city: 'Mauritius', name: 'Sir Seewoosagur Ramgoolam International Airport', state: 'Plaine Magnien', country: 'Mauritius' },
+  { code: 'SEZ', city: 'Seychelles (Mahé)', name: 'Seychelles International Airport', state: 'Mahé', country: 'Seychelles' },
+  { code: 'TNR', city: 'Antananarivo', name: 'Ivato International Airport', state: 'Analamanga', country: 'Madagascar' },
+
+  // --- SOUTH AMERICA ---
+  { code: 'GRU', city: 'São Paulo (Guarulhos)', name: 'São Paulo/Guarulhos International Airport', state: 'São Paulo', country: 'Brazil' },
+  { code: 'GIG', city: 'Rio de Janeiro (Galeão)', name: 'Rio de Janeiro/Galeão International Airport', state: 'Rio de Janeiro', country: 'Brazil' },
+  { code: 'EZE', city: 'Buenos Aires (Ezeiza)', name: 'Ministro Pistarini International Airport', state: 'Buenos Aires', country: 'Argentina' },
+  { code: 'SCL', city: 'Santiago', name: 'Arturo Merino Benítez International Airport', state: 'Santiago Metropolitan', country: 'Chile' },
+  { code: 'BOG', city: 'Bogota', name: 'El Dorado International Airport', state: 'Bogota D.C.', country: 'Colombia' },
+  { code: 'LIM', city: 'Lima', name: 'Jorge Chávez International Airport', state: 'Callao', country: 'Peru' }
 ];
+
+// Deduplicate by code just in case
+const uniqueMap = new Map();
+for (const a of airports) {
+  const code = (a.code || '').trim().toUpperCase();
+  if (code && !uniqueMap.has(code)) {
+    uniqueMap.set(code, {
+      code,
+      city: a.city.trim(),
+      name: a.name.trim(),
+      state: a.state ? a.state.trim() : '',
+      country: a.country ? a.country.trim() : 'India'
+    });
+  }
+}
+const uniqueAirports = Array.from(uniqueMap.values());
+
+// Sort alphabetically by City
+uniqueAirports.sort((a, b) => a.city.localeCompare(b.city));
 
 // Write to server/data/airports.json
 const serverDataAirports = path.join(__dirname, 'data', 'airports.json');
-fs.writeFileSync(serverDataAirports, JSON.stringify(airports, null, 2), 'utf-8');
-console.log(`Successfully wrote ${airports.length} airports to ${serverDataAirports}`);
+fs.writeFileSync(serverDataAirports, JSON.stringify(uniqueAirports, null, 2), 'utf-8');
+console.log(`✅ Successfully wrote ${uniqueAirports.length} unique airports to ${serverDataAirports}`);
 
 // Write to client/src/data/airports.json
 const clientDataDir = path.join(__dirname, '..', 'client', 'src', 'data');
@@ -189,10 +429,10 @@ if (!fs.existsSync(clientDataDir)) {
   fs.mkdirSync(clientDataDir, { recursive: true });
 }
 const clientDataAirports = path.join(clientDataDir, 'airports.json');
-fs.writeFileSync(clientDataAirports, JSON.stringify(airports, null, 2), 'utf-8');
-console.log(`Successfully wrote ${airports.length} airports to ${clientDataAirports}`);
+fs.writeFileSync(clientDataAirports, JSON.stringify(uniqueAirports, null, 2), 'utf-8');
+console.log(`✅ Successfully wrote ${uniqueAirports.length} unique airports to ${clientDataAirports}`);
 
-// Update db.json if exists
+// Update db.json & data/db.json
 const dbFiles = [
   path.join(__dirname, 'db.json'),
   path.join(__dirname, 'data', 'db.json')
@@ -202,11 +442,11 @@ for (const dbFile of dbFiles) {
   if (fs.existsSync(dbFile)) {
     try {
       const dbContent = JSON.parse(fs.readFileSync(dbFile, 'utf-8'));
-      dbContent.airports = airports;
+      dbContent.airports = uniqueAirports;
       fs.writeFileSync(dbFile, JSON.stringify(dbContent, null, 2), 'utf-8');
-      console.log(`Updated airports in ${dbFile}`);
+      console.log(`✅ Updated airports in ${dbFile}`);
     } catch (e) {
-      console.error(`Error updating ${dbFile}:`, e);
+      console.error(`❌ Error updating ${dbFile}:`, e);
     }
   }
 }
