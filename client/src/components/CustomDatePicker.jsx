@@ -266,7 +266,7 @@ export default function CustomDatePicker({
                 }}
                 className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
               >
-                Tmrw
+                Tomorrow
               </button>
               <button
                 type="button"
