@@ -30,7 +30,7 @@ export default function BookingCheckoutModal({
   initialCoupon = '',
   initialFareTier = 'saver'
 }) {
-  const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection per User, 3 = Payment Gateway
+  const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection, 3 = Review & Offers, 4 = Payment Gateway
   const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
 
   // Check if international travel (from or to airport outside India)
@@ -301,8 +301,8 @@ export default function BookingCheckoutModal({
     setStep(2);
   };
 
-  // Step 2 Validation -> Proceed to Step 3 (Payment)
-  const handleProceedToPayment = () => {
+  // Step 2 Validation -> Proceed to Step 3 (Review & Confirmation)
+  const handleProceedToReview = () => {
     // Ensure all passengers have a seat (fallback to auto assigned)
     const updated = [...passengers];
     updated.forEach((p, i) => {
@@ -313,6 +313,11 @@ export default function BookingCheckoutModal({
     });
     setPassengers(updated);
     setStep(3);
+  };
+
+  // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
+  const handleProceedToPayment = () => {
+    setStep(4);
   };
 
   // Submit Final Booking
@@ -431,8 +436,9 @@ export default function BookingCheckoutModal({
               <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-1.5 truncate">
                 <span>
                   {step === 1 && 'Review Travellers'}
-                  {step === 2 && 'Select Seats'}
-                  {step === 3 && 'Payment Gateway'}
+                  {step === 2 && 'Select Seats & Meals'}
+                  {step === 3 && 'Review Booking & Offers'}
+                  {step === 4 && 'Payment Gateway'}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">({passengers.length})</span>
                 {discountAmount > 0 && (
@@ -467,8 +473,8 @@ export default function BookingCheckoutModal({
             {/* Left Column: Form / Steps */}
             <div className="lg:col-span-8 space-y-4 sm:space-y-5">
               
-              {/* 3-Step Flow Indicators - Fluid & Responsive */}
-              <div className="bg-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
+              {/* 4-Step Flow Indicators - Fluid & Responsive */}
+              <div className="bg-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs">
                 <div className="flex items-center justify-between w-full">
                   
                   {/* Step 1 */}
@@ -482,13 +488,13 @@ export default function BookingCheckoutModal({
                     }`}>
                       {step > 1 ? '✓' : '1'}
                     </span>
-                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 1 ? 'text-sky-600' : 'text-slate-600'}`}>
+                    <span className={`text-[10px] sm:text-xs font-extrabold ${step === 1 ? 'text-sky-600' : 'text-slate-600'}`}>
                       Travellers
                     </span>
                   </button>
 
-                  {/* Flexible connecting line */}
-                  <div className={`flex-1 h-0.5 mx-1.5 sm:mx-3 transition-colors ${step > 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+                  {/* Connecting line */}
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 1 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
                   {/* Step 2 */}
                   <button
@@ -501,26 +507,45 @@ export default function BookingCheckoutModal({
                     }`}>
                       {step > 2 ? '✓' : '2'}
                     </span>
-                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 2 ? 'text-sky-600' : 'text-slate-600'}`}>
-                      Seats
+                    <span className={`text-[10px] sm:text-xs font-extrabold ${step === 2 ? 'text-sky-600' : 'text-slate-600'}`}>
+                      Seats & Meals
                     </span>
                   </button>
 
-                  {/* Flexible connecting line */}
-                  <div className={`flex-1 h-0.5 mx-1.5 sm:mx-3 transition-colors ${step > 2 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+                  {/* Connecting line */}
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 2 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
 
                   {/* Step 3 */}
                   <button
                     type="button"
-                    onClick={() => step === 2 && handleProceedToPayment()}
+                    onClick={() => step > 2 ? setStep(3) : handleProceedToReview()}
                     className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
                   >
                     <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
-                      step === 3 ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-400'
+                      step === 3 ? 'bg-sky-600 text-white shadow-xs' : step > 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
                     }`}>
-                      3
+                      {step > 3 ? '✓' : '3'}
                     </span>
-                    <span className={`text-[11px] sm:text-xs font-extrabold ${step === 3 ? 'text-sky-600' : 'text-slate-400'}`}>
+                    <span className={`text-[10px] sm:text-xs font-extrabold ${step === 3 ? 'text-sky-600' : 'text-slate-600'}`}>
+                      Overview & Offers
+                    </span>
+                  </button>
+
+                  {/* Connecting line */}
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-colors ${step > 3 ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
+
+                  {/* Step 4 */}
+                  <button
+                    type="button"
+                    onClick={() => step > 3 ? setStep(4) : handleProceedToPayment()}
+                    className="flex items-center gap-1 sm:gap-1.5 cursor-pointer shrink-0"
+                  >
+                    <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 transition-colors ${
+                      step === 4 ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      4
+                    </span>
+                    <span className={`text-[10px] sm:text-xs font-extrabold ${step === 4 ? 'text-sky-600' : 'text-slate-400'}`}>
                       Payment
                     </span>
                   </button>
@@ -1127,10 +1152,10 @@ export default function BookingCheckoutModal({
 
                     <button
                       type="button"
-                      onClick={handleProceedToPayment}
+                      onClick={handleProceedToReview}
                       className="h-11 px-5 sm:px-6 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0"
                     >
-                      <span>Proceed to Payment (Step 3)</span>
+                      <span>Proceed to Review (Step 3)</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -1138,11 +1163,428 @@ export default function BookingCheckoutModal({
               )}
 
               {/* ======================================================== */}
-              {/* STEP 3: PAYMENT GATEWAY (UPI QR, CARDS, NETBANKING) */}
+              {/* STEP 3: BOOKING CONFIRMATION, OVERVIEW & COUPONS */}
               {/* ======================================================== */}
               {step === 3 && (
                 <motion.div
-                  key="checkout-step-3"
+                  key="checkout-step-3-review"
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  className="space-y-4 sm:space-y-5 animate-fadeIn"
+                >
+                  {/* Top Header Banner */}
+                  <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-blue-700 rounded-2xl p-4 sm:p-5 text-white shadow-md flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-sky-200 uppercase tracking-wider mb-1">
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span>Step 3 of 4: Booking Overview & Confirmation</span>
+                      </div>
+                      <h3 className="text-base sm:text-xl font-black text-white tracking-tight">
+                        Review Your Selection & Offers
+                      </h3>
+                      <p className="text-xs text-sky-100 mt-0.5">
+                        Please verify flight details, travellers, assigned seats, and promo discounts before payment.
+                      </p>
+                    </div>
+                    <div className="hidden sm:flex flex-col items-end shrink-0 pl-4 border-l border-white/20">
+                      <span className="text-[11px] text-sky-200 uppercase tracking-wider font-bold">Total Payable</span>
+                      <span className="text-2xl font-black text-white font-mono">₹{grandTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+
+                  {/* 1. Flight Itinerary Card */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
+                        <div>
+                          <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                            {flight.airline} <span className="font-mono text-sky-700">({flight.flightNumber})</span>
+                          </h4>
+                          <span className="text-[11px] text-slate-500 font-semibold">
+                            Aircraft: {flight.aircraft || 'Airbus A320neo'} • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
+                          </span>
+                        </div>
+                      </div>
+                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Confirmed Schedule
+                      </span>
+                    </div>
+
+                    {/* Flight Route & Timings */}
+                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                      {/* Departure */}
+                      <div className="text-left">
+                        <div className="text-lg sm:text-xl font-black text-slate-900">
+                          {flight.departureTime}
+                        </div>
+                        <div className="text-xs font-bold text-slate-800">
+                          {flight.fromCity} ({flight.from})
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1D/T3'}
+                        </div>
+                      </div>
+
+                      {/* Duration Divider */}
+                      <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
+                        <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5">
+                          {flight.duration || '2h 15m'}
+                        </span>
+                        <div className="relative flex items-center justify-center">
+                          <div className="w-full h-0.5 bg-sky-300"></div>
+                          <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 absolute bg-white px-0.5" />
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-600 block mt-0.5">
+                          {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop`}
+                        </span>
+                      </div>
+
+                      {/* Arrival */}
+                      <div className="text-left sm:text-right">
+                        <div className="text-lg sm:text-xl font-black text-slate-900">
+                          {flight.arrivalTime}
+                        </div>
+                        <div className="text-xs font-bold text-slate-800">
+                          {flight.toCity} ({flight.to})
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Terminal {flight.terminal?.to || 'T2/T3'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Travellers, Assigned Seats & Meals Card */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <UserPlus className="w-4 h-4 text-sky-600" />
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base">
+                          Traveller Details & Seat Assignments ({passengers.length})
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setStep(1)}
+                          className="text-sky-600 hover:text-sky-700 font-bold hover:underline cursor-pointer"
+                        >
+                          Edit Names
+                        </button>
+                        <span className="text-slate-300">•</span>
+                        <button
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="text-sky-600 hover:text-sky-700 font-bold hover:underline cursor-pointer"
+                        >
+                          Change Seats
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List of Passengers with Seats and Meals */}
+                    <div className="space-y-2">
+                      {passengers.map((p, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-800 font-black text-xs flex items-center justify-center shrink-0">
+                              {idx + 1}
+                            </span>
+                            <div>
+                              <span className="font-black text-slate-900 text-sm">
+                                {p.title} {p.firstName} {p.lastName}
+                              </span>
+                              <span className="text-[11px] text-slate-500 font-medium ml-2">
+                                ({p.type || 'Adult'}, {p.gender || 'Male'})
+                                {p.passportNumber ? ` • Passport: ${p.passportNumber}` : ''}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {/* Seat Pill */}
+                            <span className="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 font-bold text-xs flex items-center gap-1">
+                              <Armchair className="w-3.5 h-3.5 text-sky-600" />
+                              <span>Seat: <strong className="font-mono text-sky-700">{p.seat || 'Auto'}</strong></span>
+                              {p.seatPrice > 0 && <span className="text-[10px] text-sky-600">(+₹{p.seatPrice})</span>}
+                            </span>
+
+                            {/* Meal Pill */}
+                            <span className="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-xs flex items-center gap-1">
+                              <Utensils className="w-3 h-3 text-amber-600" />
+                              <span className="truncate max-w-[140px]">{p.meal || 'No meal'}</span>
+                              {p.mealPrice > 0 && <span className="text-[10px] text-amber-700">(+₹{p.mealPrice})</span>}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Contact Summary Info */}
+                    <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 bg-slate-100/60 p-2.5 rounded-xl border border-slate-200/60">
+                      <div className="flex items-center gap-3">
+                        <span>📱 <strong>Mobile:</strong> +91 {contact.phone}</span>
+                        <span>✉️ <strong>Email:</strong> {contact.email}</span>
+                      </div>
+                      <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        E-Ticket & PNR will be sent via SMS / WhatsApp & Email
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 3. Interactive Coupon Management Section */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-emerald-600" />
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base">
+                          Apply or Change Coupon / Promo Code
+                        </h4>
+                      </div>
+                      <span className="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        Save Extra on Airfare
+                      </span>
+                    </div>
+
+                    {/* If coupon is currently applied */}
+                    {discountAmount > 0 && (
+                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">🎉</span>
+                          <div>
+                            <div className="font-extrabold text-emerald-900 text-xs sm:text-sm flex items-center gap-1.5">
+                              <span>Coupon Applied: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700">{couponCode}</strong></span>
+                              <span className="text-emerald-700 font-black">(-₹{discountAmount.toLocaleString('en-IN')})</span>
+                            </div>
+                            <p className="text-[11px] text-emerald-700">
+                              You saved ₹{discountAmount.toLocaleString('en-IN')} on this booking!
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemovePromo}
+                          className="px-3 py-1.5 bg-white text-rose-600 hover:bg-rose-50 font-bold text-xs rounded-lg border border-rose-200 transition-colors cursor-pointer shadow-2xs shrink-0"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Coupon input field */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter any promo code (e.g. FLYAIRSKY)"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-sky-500 outline-none"
+                      />
+                      {discountAmount > 0 ? (
+                        <button
+                          type="button"
+                          onClick={handleRemovePromo}
+                          className="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition-colors cursor-pointer border border-rose-200 shrink-0"
+                        >
+                          Remove
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={applyingCoupon || !couponCode}
+                          onClick={() => handleApplyPromo()}
+                          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-extrabold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer shadow-xs shrink-0"
+                        >
+                          {applyingCoupon ? 'Checking...' : 'Apply Code'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Success / Error alerts */}
+                    {couponMsg && (
+                      <div className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{couponMsg}</span>
+                      </div>
+                    )}
+                    {couponError && (
+                      <div className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-xl flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>{couponError}</span>
+                      </div>
+                    )}
+
+                    {/* Available Coupons list */}
+                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+                        <span>Choose another coupon from available offers:</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Tap to apply instantly</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {(availableCoupons.length > 0 ? availableCoupons : [
+                          { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 3000, description: 'Flat ₹500 off on any flight' },
+                          { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500' },
+                          { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount' },
+                          { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight' }
+                        ]).map(c => {
+                          const isApplied = couponCode.toUpperCase() === c.code.toUpperCase() && discountAmount > 0;
+                          return (
+                            <div
+                              key={c.code}
+                              onClick={() => !isApplied && handleApplyPromo(c.code)}
+                              className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                                isApplied
+                                  ? 'bg-emerald-50/80 border-emerald-400 ring-2 ring-emerald-500/20'
+                                  : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono font-black text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                                    {c.code}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
+                                    {c.type === 'percent' ? `${c.discount}% OFF` : `₹${c.discount} OFF`}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                                  {c.description}
+                                </p>
+                              </div>
+
+                              <button
+                                type="button"
+                                className={`text-xs font-black px-3 py-1 rounded-lg shrink-0 ${
+                                  isApplied
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200'
+                                }`}
+                              >
+                                {isApplied ? 'Applied ✓' : 'Apply'}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Complete Fare Breakdown Card */}
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                        <Building className="w-4 h-4 text-sky-600" />
+                        <span>Fare Summary & Total Payable Amount</span>
+                      </h4>
+                      <span className="text-xs font-semibold text-slate-500">
+                        All taxes & charges included
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between text-slate-600">
+                        <span>Base Airfare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
+                        <span className="font-mono font-bold text-slate-900">₹{baseFare.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      <div className="flex justify-between text-slate-600">
+                        <span>Taxes, Aviation Security & Airport Fees</span>
+                        <span className="font-mono font-bold text-slate-900">₹{taxes.toLocaleString('en-IN')}</span>
+                      </div>
+
+                      {totalSeatFee > 0 && (
+                        <div className="flex justify-between text-slate-600">
+                          <span>Seat Selection Charges</span>
+                          <span className="font-mono font-bold text-slate-900">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+
+                      {totalMealsFee > 0 && (
+                        <div className="flex justify-between text-slate-600">
+                          <span>In-Flight Meals</span>
+                          <span className="font-mono font-bold text-slate-900">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+
+                      {baggageFee > 0 && (
+                        <div className="flex justify-between text-slate-600">
+                          <span>Extra Baggage</span>
+                          <span className="font-mono font-bold text-slate-900">+₹{baggageFee.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+
+                      {insuranceFee > 0 && (
+                        <div className="flex justify-between text-slate-600">
+                          <span>Comprehensive Travel Insurance</span>
+                          <span className="font-mono font-bold text-slate-900">+₹{insuranceFee.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between text-emerald-700 font-extrabold bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                          <span className="flex items-center gap-1.5">
+                            <Tag className="w-4 h-4 text-emerald-600" />
+                            <span>Promo Code Discount ({couponCode})</span>
+                          </span>
+                          <span className="font-mono font-black text-sm">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                        </div>
+                      )}
+
+                      <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                        <div>
+                          <span className="font-black text-slate-900 text-base sm:text-lg block">
+                            Grand Total Amount
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            Instant PNR Confirmation • No hidden extra fees
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl sm:text-3xl font-black text-sky-900 font-mono tracking-tight">
+                            ₹{grandTotal.toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 Action Navigation Buttons */}
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-3 border-t border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back to Seats (Step 2)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleProceedToPayment}
+                      className="h-12 px-6 sm:px-8 rounded-xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/30 flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0"
+                    >
+                      <span>Continue to Payment (Step 4)</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ======================================================== */}
+              {/* STEP 4: PAYMENT GATEWAY (UPI QR, CARDS, NETBANKING) */}
+              {/* ======================================================== */}
+              {step === 4 && (
+                <motion.div
+                  key="checkout-step-4"
                   initial={{ opacity: 0, x: 16 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -16 }}
@@ -1396,11 +1838,11 @@ export default function BookingCheckoutModal({
                   <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-4 border-t border-slate-200">
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => setStep(3)}
                       className="h-11 px-4 sm:px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors shrink-0"
                     >
                       <ArrowLeft className="w-4 h-4" />
-                      <span>Back to Seats</span>
+                      <span>Back to Review (Step 3)</span>
                     </button>
 
                     <button
@@ -1680,7 +2122,8 @@ export default function BookingCheckoutModal({
               type="button"
               onClick={() => {
                 if (step === 1) handleProceedToSeats();
-                else if (step === 2) handleProceedToPayment();
+                else if (step === 2) handleProceedToReview();
+                else if (step === 3) handleProceedToPayment();
                 else handleFinalBooking();
               }}
               disabled={isProcessing}
@@ -1690,9 +2133,11 @@ export default function BookingCheckoutModal({
                 {isProcessing
                   ? 'PROCESSING...'
                   : step === 1
-                  ? 'CONTINUE'
+                  ? 'CONTINUE TO SEATS'
                   : step === 2
-                  ? 'CONTINUE'
+                  ? 'CONTINUE TO REVIEW'
+                  : step === 3
+                  ? 'CONTINUE TO PAYMENT'
                   : `PAY ₹${grandTotal.toLocaleString('en-IN')}`}
               </span>
               {!isProcessing && <ArrowRight className="w-4 h-4" />}
