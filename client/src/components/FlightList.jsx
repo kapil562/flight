@@ -119,25 +119,7 @@ export default function FlightList({
   const [mobileRoundTab, setMobileRoundTab] = useState('onward'); // 'onward' | 'return'
   const [roundTripViewMode, setRoundTripViewMode] = useState('split'); // 'split' | 'tabs'
 
-  // Auto-initialize selected onward and return flights with the cheapest available options
-  useEffect(() => {
-    if (isRoundTrip && roundTripData) {
-      if (roundTripData.onward && roundTripData.onward.length > 0) {
-        setSelectedOnwardFlight(prev => {
-          if (prev && roundTripData.onward.some(f => f.id === prev.id)) return prev;
-          const sorted = [...roundTripData.onward].sort((a, b) => a.basePrice - b.basePrice);
-          return sorted[0];
-        });
-      }
-      if (roundTripData.return && roundTripData.return.length > 0) {
-        setSelectedReturnFlight(prev => {
-          if (prev && roundTripData.return.some(f => f.id === prev.id)) return prev;
-          const sorted = [...roundTripData.return].sort((a, b) => a.basePrice - b.basePrice);
-          return sorted[0];
-        });
-      }
-    }
-  }, [isRoundTrip, roundTripData]);
+
 
   // Calculate total round-trip price
   const totalRoundTripPrice = useMemo(() => {
@@ -586,28 +568,36 @@ export default function FlightList({
                 </div>
 
                 {/* Combo Fare Pill */}
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/15">
-                  <div className="text-right">
-                    <span className="text-[10px] text-sky-200 font-bold uppercase block leading-none mb-1">Total Combo Fare</span>
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3 sm:px-4 sm:py-2 rounded-2xl border border-white/15">
+                  <div className="flex items-center justify-between sm:block text-left sm:text-right">
+                    <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block leading-none sm:mb-1">
+                      {selectedOnwardFlight && selectedReturnFlight ? 'Total Combo Fare' : 'Combo Fare'}
+                    </span>
                     <span className="text-lg sm:text-xl font-black text-amber-300 font-mono leading-none">
-                      ₹{totalRoundTripPrice.toLocaleString('en-IN')}
+                      {selectedOnwardFlight || selectedReturnFlight
+                        ? `₹${totalRoundTripPrice.toLocaleString('en-IN')}`
+                        : 'Select Flights'}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={handleBookRoundTripCombo}
                     disabled={!selectedOnwardFlight || !selectedReturnFlight}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Book Round Trip Combo</span>
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {!selectedOnwardFlight && !selectedReturnFlight 
+                        ? 'Select Flights to Book' 
+                        : (!selectedOnwardFlight ? 'Select Departure Flight' : (!selectedReturnFlight ? 'Select Return Flight' : 'Book Round Trip Combo'))}
+                    </span>
                   </button>
                 </div>
               </div>
 
               {/* Responsive Tab & View Switcher (Desktop & Mobile) */}
               <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
-                <div className="grid grid-cols-2 gap-2 flex-1 min-w-[280px]">
+                <div className="grid grid-cols-2 gap-2 flex-1 min-w-[260px]">
                   <button
                     type="button"
                     onClick={() => {
@@ -627,8 +617,12 @@ export default function FlightList({
                       {selectedOnwardFlight && <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />}
                     </div>
                     <div className="text-xs font-black truncate">{roundTripData.from} ➔ {roundTripData.to}</div>
-                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'onward' ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                      {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')} (${selectedOnwardFlight.airline})` : 'Choose Flight'}
+                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${
+                      selectedOnwardFlight 
+                        ? (mobileRoundTab === 'onward' ? 'text-emerald-600' : 'text-emerald-300')
+                        : (mobileRoundTab === 'onward' ? 'text-slate-400 italic' : 'text-sky-200/70 italic')
+                    }`}>
+                      {selectedOnwardFlight ? `₹${selectedOnwardFlight.basePrice?.toLocaleString('en-IN')} (${selectedOnwardFlight.airline})` : 'Tap to Choose'}
                     </div>
                   </button>
 
@@ -651,8 +645,12 @@ export default function FlightList({
                       {selectedReturnFlight && <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />}
                     </div>
                     <div className="text-xs font-black truncate">{roundTripData.to} ➔ {roundTripData.from}</div>
-                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${mobileRoundTab === 'return' ? 'text-emerald-600' : 'text-emerald-300'}`}>
-                      {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')} (${selectedReturnFlight.airline})` : 'Choose Flight'}
+                    <div className={`text-[11px] font-mono mt-0.5 font-bold ${
+                      selectedReturnFlight 
+                        ? (mobileRoundTab === 'return' ? 'text-emerald-600' : 'text-emerald-300')
+                        : (mobileRoundTab === 'return' ? 'text-slate-400 italic' : 'text-sky-200/70 italic')
+                    }`}>
+                      {selectedReturnFlight ? `₹${selectedReturnFlight.basePrice?.toLocaleString('en-IN')} (${selectedReturnFlight.airline})` : 'Tap to Choose'}
                     </div>
                   </button>
                 </div>
