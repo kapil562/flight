@@ -128,8 +128,8 @@ export default function AdminPage() {
   }, []);
 
   // Fetch admin dashboard data when authenticated
-  const loadDashboardData = async () => {
-    setLoading(true);
+  const loadDashboardData = async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
     try {
       const [
         statsRes,
@@ -172,16 +172,20 @@ export default function AdminPage() {
       if (trainsRes.success) setTrainBookings(trainsRes.data || []);
       if (visasRes.success) setVisaApplications(visasRes.data || []);
     } catch (err) {
-      console.error('Error fetching admin data', err);
+      if (!isSilent) console.error('Error fetching admin data', err);
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadDashboardData();
-    }
+    if (!isAuthenticated) return;
+    loadDashboardData();
+    // Live background auto-polling every 2.5 seconds: any booking made on phone shows up immediately!
+    const pollTimer = setInterval(() => {
+      loadDashboardData(true);
+    }, 2500);
+    return () => clearInterval(pollTimer);
   }, [isAuthenticated]);
 
   // Handle Login

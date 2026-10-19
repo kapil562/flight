@@ -1580,26 +1580,35 @@ app.post('/api/bookings', (req, res) => {
       payment = {}
     } = req.body;
 
-    if (!flightId || passengers.length === 0) {
-      return res.status(400).json({ success: false, message: 'Missing flight details or passengers' });
-    }
+    const flightIdToUse = flightId || req.body.flightNumber || 'FL-101';
+    const passengersToUse = (Array.isArray(passengers) && passengers.length > 0) ? passengers : [{
+      title: 'Mr',
+      firstName: contact?.name || contact?.email?.split('@')[0] || 'Customer',
+      lastName: 'Traveller',
+      type: 'Adult',
+      seat: '12A'
+    }];
 
     const bookings = readJSON(BOOKINGS_FILE);
     const siteSettings = readJSON(SETTINGS_FILE, {});
     const prefix = (siteSettings.bookingPrefix || 'GS').trim().toUpperCase();
     const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    const pnr = req.body.pnr || `ASG-${randomSuffix}`;
+    const pnr = (req.body.pnr || `ASG-${randomSuffix}`).trim().toUpperCase();
     const bookingId = req.body.bookingId || `${prefix}${randomSuffix}`;
 
     // Check if booking was already initialized on Step 3 (Continue to Payment)
-    const existingIndex = req.body.pnr 
-      ? bookings.findIndex(b => b.pnr?.toUpperCase() === req.body.pnr?.toUpperCase()) 
+    const targetPnr = (req.body.pnr || '').trim().toUpperCase();
+    const existingIndex = targetPnr 
+      ? bookings.findIndex(b => (b.pnr && b.pnr.trim().toUpperCase() === targetPnr) || (b.bookingId && b.bookingId.trim().toUpperCase() === targetPnr)) 
       : -1;
 
     if (existingIndex !== -1) {
       bookings[existingIndex] = {
         ...bookings[existingIndex],
         ...req.body,
+        pnr: bookings[existingIndex].pnr, // Keep original consistent PNR
+        flightId: flightIdToUse,
+        passengers: passengersToUse,
         fare: {
           ...bookings[existingIndex].fare,
           ...(fare || {})
@@ -1626,7 +1635,7 @@ app.post('/api/bookings', (req, res) => {
     const newBooking = {
       pnr,
       bookingId,
-      flightId,
+      flightId: flightIdToUse,
       flightNumber: flightNumber || 'ASG-101',
       airline: airline || 'AirSkyGo Partner',
       from,
@@ -1642,7 +1651,7 @@ app.post('/api/bookings', (req, res) => {
       departureTime: departureTime || '08:00',
       arrivalTime: arrivalTime || '10:30',
       travelClass,
-      passengers,
+      passengers: passengersToUse,
       contact,
       fare: {
         basePrice: fare.basePrice || 4000,
@@ -1749,8 +1758,8 @@ app.get('/api/bookings/:pnr', (req, res) => {
   const bookings = readJSON(BOOKINGS_FILE);
   const searchPnr = (pnr || '').trim().toUpperCase();
   const booking = bookings.find(b => 
-    (b.pnr && b.pnr.toUpperCase() === searchPnr) || 
-    (b.bookingId && b.bookingId.toUpperCase() === searchPnr)
+    (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
+    (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
   );
 
   if (!booking) {
@@ -2550,27 +2559,30 @@ app.patch('/api/admin/bookings/:pnr/status', (req, res) => {
   const bookings = readJSON(BOOKINGS_FILE);
   const searchPnr = (pnr || '').trim().toUpperCase();
   const index = bookings.findIndex(b => 
-    (b.pnr && b.pnr.toUpperCase() === searchPnr) || 
-    (b.bookingId && b.bookingId.toUpperCase() === searchPnr)
+    (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
+    (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
   );
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
   }
 
-  bookings[index].status = status;
+  const normalizedStatus = (status || 'CONFIRMED').toUpperCase();
+  bookings[index].status = normalizedStatus;
   if (!bookings[index].payment) {
     bookings[index].payment = {};
   }
-  if (status === 'CONFIRMED') {
+  if (normalizedStatus === 'CONFIRMED') {
     bookings[index].payment.status = 'PAID';
-  } else if (status === 'CANCELLED') {
+    bookings[index].checkInStatus = 'Eligible';
+  } else if (normalizedStatus === 'CANCELLED') {
     bookings[index].payment.status = 'CANCELLED';
+    bookings[index].checkInStatus = 'Cancelled';
   }
   bookings[index].updatedAt = new Date().toISOString();
   writeJSON(BOOKINGS_FILE, bookings);
 
-  res.json({ success: true, message: `Booking ${pnr} status updated to ${status}`, booking: bookings[index] });
+  res.json({ success: true, message: `Booking ${pnr} status updated to ${normalizedStatus}`, booking: bookings[index] });
 });
 
 // Admin Delete Flight Booking

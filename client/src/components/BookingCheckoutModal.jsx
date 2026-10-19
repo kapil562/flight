@@ -197,11 +197,21 @@ export default function BookingCheckoutModal({
   // 1. BroadcastChannel (Instant 0ms across tabs)
   // 2. Storage event (Instant 0ms across windows)
   // 3. Fast Polling (1.5s interval fallback)
+  // Real-time synchronization when Admin approves booking:
+  // 1. BroadcastChannel (Instant 0ms across tabs)
+  // 2. Storage event (Instant 0ms across windows)
+  // 3. Fast Polling across devices/mobile phones (1.2s interval)
   useEffect(() => {
-    if (!isVerifyingPayment || !createdPnr) return;
+    const activePnr = createdPnr || localStorage.getItem('asg_current_pending_pnr');
+    if (!isVerifyingPayment || !activePnr) return;
 
+    let isDone = false;
     const checkApproval = (booking) => {
-      if (booking && (booking.status === 'CONFIRMED' || booking.payment?.status === 'PAID')) {
+      if (isDone || !booking) return false;
+      const bStatus = String(booking.status || '').trim().toUpperCase();
+      const pStatus = String(booking.payment?.status || '').trim().toUpperCase();
+      if (bStatus === 'CONFIRMED' || pStatus === 'PAID' || bStatus === 'PAID') {
+        isDone = true;
         setIsVerifyingPayment(false);
         onBookingSuccess(booking);
         return true;
@@ -209,16 +219,24 @@ export default function BookingCheckoutModal({
       return false;
     };
 
-    // 1. BroadcastChannel listener
+    // 0. Immediate fetch
+    api.getBookingByPnr(activePnr).then(res => {
+      const b = res?.data || res?.booking;
+      if (b) checkApproval(b);
+    }).catch(() => {});
+
+    // 1. BroadcastChannel listener (instant same-machine sync)
     let bc = null;
     if (window.BroadcastChannel) {
       try {
         bc = new BroadcastChannel('asg_bookings_channel');
         bc.onmessage = async (msg) => {
-          if (msg.data?.pnr?.toUpperCase() === createdPnr.toUpperCase() && msg.data?.status === 'CONFIRMED') {
-            const res = await api.getBookingByPnr(createdPnr);
-            const b = res?.data || res?.booking;
-            checkApproval(b || { ...msg.data, pnr: createdPnr, status: 'CONFIRMED' });
+          const msgPnr = String(msg.data?.pnr || '').trim().toUpperCase();
+          const msgStatus = String(msg.data?.status || '').trim().toUpperCase();
+          if (msgPnr === String(activePnr).trim().toUpperCase() && msgStatus === 'CONFIRMED') {
+            const res = await api.getBookingByPnr(activePnr);
+            const b = res?.data || res?.booking || { ...msg.data, pnr: activePnr, status: 'CONFIRMED' };
+            checkApproval(b);
           }
         };
       } catch (e) {}
@@ -229,20 +247,26 @@ export default function BookingCheckoutModal({
       if (e.key === 'asg_booking_status_update' && e.newValue) {
         try {
           const data = JSON.parse(e.newValue);
-          if (data?.pnr?.toUpperCase() === createdPnr.toUpperCase() && data?.status === 'CONFIRMED') {
-            const res = await api.getBookingByPnr(createdPnr);
-            const b = res?.data || res?.booking;
-            checkApproval(b || { ...data, pnr: createdPnr, status: 'CONFIRMED' });
+          const dataPnr = String(data?.pnr || '').trim().toUpperCase();
+          const dataStatus = String(data?.status || '').trim().toUpperCase();
+          if (dataPnr === String(activePnr).trim().toUpperCase() && dataStatus === 'CONFIRMED') {
+            const res = await api.getBookingByPnr(activePnr);
+            const b = res?.data || res?.booking || { ...data, pnr: activePnr, status: 'CONFIRMED' };
+            checkApproval(b);
           }
         } catch (err) {}
       }
     };
     window.addEventListener('storage', handleStorageChange);
 
-    // 3. Fast Polling (every 1.5s)
+    // 3. Fast Cross-Device Network Polling (every 1.2s)
     const interval = setInterval(async () => {
+      if (isDone) {
+        clearInterval(interval);
+        return;
+      }
       try {
-        const res = await api.getBookingByPnr(createdPnr);
+        const res = await api.getBookingByPnr(activePnr);
         const booking = res?.data || res?.booking;
         if (booking && checkApproval(booking)) {
           clearInterval(interval);
@@ -250,10 +274,10 @@ export default function BookingCheckoutModal({
       } catch (err) {
         console.warn('Polling status error:', err);
       }
-    }, 1500);
+    }, 1200);
 
     return () => {
-      if (interval) clearInterval(interval);
+      clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
       if (bc) {
         try { bc.close(); } catch (e) {}
@@ -787,43 +811,54 @@ export default function BookingCheckoutModal({
                         (paymentOverride?.method || paymentMethod) === 'upiApps';
     const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
 
+    const pnrToUse = customPnr || createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const flightIdToUse = flight?.id || flight?.flightId || flight?.flightNumber || 'FL-101';
+
+    const safePassengers = (passengers && passengers.length > 0 ? passengers : [{
+      title: 'Mr',
+      firstName: contact?.name || contact?.email?.split('@')[0] || 'Customer',
+      lastName: 'Traveller',
+      type: 'Adult',
+      seat: '12A'
+    }]).map((p, idx) => ({
+      title: p.title || 'Mr',
+      firstName: (p.firstName && p.firstName.trim()) || contact?.name || contact?.email?.split('@')[0] || `Passenger ${idx + 1}`,
+      lastName: (p.lastName && p.lastName.trim()) || 'Traveller',
+      passportNumber: p.passportNumber || null,
+      passportExpiry: p.passportExpiry || null,
+      nationality: p.nationality || 'Indian',
+      gender: p.gender || (p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female'),
+      seat: p.seat || '12A',
+      seatPrice: p.seatPrice || 0,
+      meal: p.meal || 'Standard',
+      type: p.type || 'Adult'
+    }));
+
     return {
-      pnr: customPnr || createdPnr || undefined,
-      flightId: flight.id,
-      flightNumber: flight.flightNumber,
-      airline: flight.airline,
-      airlineCode: flight.airlineCode,
-      from: flight.from,
-      to: flight.to,
-      fromCity: flight.fromCity,
-      toCity: flight.toCity,
-      departureDate: flight.departureDate || new Date().toISOString().split('T')[0],
-      departureTime: flight.departureTime,
-      arrivalTime: flight.arrivalTime,
-      travelClass: travelClass,
-      tripType: flight.tripType || (flight.isMultiCity ? 'multiCity' : flight.isRoundTrip ? 'roundTrip' : 'oneWay'),
-      multiCityLegs: flight.multiCityLegs || null,
-      roundTripDetails: flight.roundTripDetails || (flight.isRoundTrip ? { onward: flight.onwardFlight, return: flight.returnFlight } : null),
-      returnDate: flight.returnDate || null,
-      route: flight.isMultiCity
+      pnr: pnrToUse,
+      flightId: flightIdToUse,
+      flightNumber: flight?.flightNumber || 'ASG-101',
+      airline: flight?.airline || 'AirSkyGo',
+      airlineCode: flight?.airlineCode || 'ASG',
+      from: flight?.from,
+      to: flight?.to,
+      fromCity: flight?.fromCity || flight?.from,
+      toCity: flight?.toCity || flight?.to,
+      departureDate: flight?.departureDate || new Date().toISOString().split('T')[0],
+      departureTime: flight?.departureTime || '08:00',
+      arrivalTime: flight?.arrivalTime || '10:30',
+      travelClass: travelClass || 'Economy',
+      tripType: flight?.tripType || (flight?.isMultiCity ? 'multiCity' : flight?.isRoundTrip ? 'roundTrip' : 'oneWay'),
+      multiCityLegs: flight?.multiCityLegs || null,
+      roundTripDetails: flight?.roundTripDetails || (flight?.isRoundTrip ? { onward: flight.onwardFlight, return: flight.returnFlight } : null),
+      returnDate: flight?.returnDate || null,
+      route: flight?.isMultiCity
         ? (flight.multiCityLegs?.map(l => `${l.from} ➔ ${l.to}`).join(' • ') || `${flight.from} ➔ ${flight.to}`)
-        : flight.isRoundTrip
+        : flight?.isRoundTrip
           ? `${flight.from} ⇄ ${flight.to}`
           : `${flight.from} → ${flight.to}`,
-      passengers: passengers.map(p => ({
-        title: p.title,
-        firstName: p.firstName,
-        lastName: p.lastName,
-        passportNumber: p.passportNumber || null,
-        passportExpiry: p.passportExpiry || null,
-        nationality: p.nationality || null,
-        gender: p.gender || (p.title === 'Mr' || p.title === 'Master' ? 'Male' : 'Female'),
-        seat: p.seat || '12A',
-        seatPrice: p.seatPrice || 0,
-        meal: p.meal,
-        type: p.type || 'Adult'
-      })),
-      contact,
+      passengers: safePassengers,
+      contact: contact || {},
       gst: showGst ? gstDetails : null,
       fareTier: selectedFareTier,
       fare: {
@@ -854,12 +889,11 @@ export default function BookingCheckoutModal({
   };
 
   // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = async () => {
     // Generate upfront PNR so entry immediately logs in Admin Console as PENDING
-    const pnrToUse = createdPnr || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
-    if (!createdPnr) {
-      setCreatedPnr(pnrToUse);
-    }
+    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    setCreatedPnr(pnrToUse);
+    try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
 
     // Immediately create booking lead entry in Admin with PENDING status
     try {
@@ -867,13 +901,13 @@ export default function BookingCheckoutModal({
         method: paymentMethod || 'upiApps',
         status: 'PENDING'
       }, 'PENDING');
-      api.createBooking(initialPayload).then(res => {
-        if (res?.data?.pnr || res?.pnr) {
-          setCreatedPnr(res?.data?.pnr || res?.pnr);
-        }
-      }).catch(err => {
-        console.warn('Initial admin booking entry warning:', err);
-      });
+      
+      const res = await api.createBooking(initialPayload);
+      if (res?.data?.pnr || res?.booking?.pnr || res?.pnr) {
+        const returnedPnr = res?.data?.pnr || res?.booking?.pnr || res?.pnr;
+        setCreatedPnr(returnedPnr);
+        try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
+      }
     } catch (err) {
       console.warn('Initial admin booking entry error:', err);
     }
@@ -909,7 +943,11 @@ export default function BookingCheckoutModal({
     try {
       const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
       const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
-      const bookingPayload = buildBookingPayload(createdPnr, {
+      const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+      setCreatedPnr(pnrToUse);
+      try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
+
+      const bookingPayload = buildBookingPayload(pnrToUse, {
         method: paymentMethod,
         status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
         selectedApp: selectedUpiApp || 'PhonePe'
@@ -917,7 +955,7 @@ export default function BookingCheckoutModal({
 
       const res = await api.createBooking(bookingPayload);
       if (res.success && (res.data || res.booking)) {
-        const returnedPnr = res?.data?.pnr || res?.booking?.pnr || createdPnr;
+        const returnedPnr = res?.data?.pnr || res?.booking?.pnr || res?.pnr || pnrToUse;
         if (returnedPnr) {
           setCreatedPnr(returnedPnr);
           try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
@@ -2784,11 +2822,14 @@ export default function BookingCheckoutModal({
                         <button
                           type="button"
                           onClick={async () => {
-                            if (!createdPnr) return;
+                            const activePnr = createdPnr || localStorage.getItem('asg_current_pending_pnr');
+                            if (!activePnr) return;
                             try {
-                              const res = await api.getBookingByPnr(createdPnr);
+                              const res = await api.getBookingByPnr(activePnr);
                               const b = res?.data || res?.booking;
-                              if (b && (b.status === 'CONFIRMED' || b.payment?.status === 'PAID')) {
+                              const bStatus = String(b?.status || '').trim().toUpperCase();
+                              const pStatus = String(b?.payment?.status || '').trim().toUpperCase();
+                              if (b && (bStatus === 'CONFIRMED' || pStatus === 'PAID' || bStatus === 'PAID')) {
                                 setIsVerifyingPayment(false);
                                 onBookingSuccess(b);
                               } else {

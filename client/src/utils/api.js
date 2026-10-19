@@ -133,15 +133,22 @@ export const api = {
 
   getBookings: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    const res = await fetch(`${API_BASE}/bookings?${query}`);
+    const res = await fetch(`${API_BASE}/bookings?${query}&_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
     return res.json();
   },
 
   getBookingByPnr: async (pnr) => {
-    const res = await fetch(`${API_BASE}/bookings/${encodeURIComponent(pnr)}?_t=${Date.now()}`, {
+    const cleanPnr = encodeURIComponent(String(pnr || '').trim());
+    const res = await fetch(`${API_BASE}/bookings/${cleanPnr}?_t=${Date.now()}`, {
       cache: 'no-store',
       headers: {
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache'
       }
     });
@@ -149,14 +156,16 @@ export const api = {
   },
 
   cancelBooking: async (pnr) => {
-    const res = await fetch(`${API_BASE}/bookings/${pnr}/cancel`, {
+    const cleanPnr = encodeURIComponent(String(pnr || '').trim());
+    const res = await fetch(`${API_BASE}/bookings/${cleanPnr}/cancel`, {
       method: 'PATCH'
     });
     return res.json();
   },
 
   checkInBooking: async (pnr) => {
-    const res = await fetch(`${API_BASE}/bookings/${pnr}/checkin`, {
+    const cleanPnr = encodeURIComponent(String(pnr || '').trim());
+    const res = await fetch(`${API_BASE}/bookings/${cleanPnr}/checkin`, {
       method: 'PATCH'
     });
     return res.json();
@@ -164,7 +173,9 @@ export const api = {
 
   // Admin APIs
   getAdminStats: async () => {
-    const res = await fetch(`${API_BASE}/admin/stats`);
+    const res = await fetch(`${API_BASE}/admin/stats?_t=${Date.now()}`, {
+      cache: 'no-store'
+    });
     return res.json();
   },
 
@@ -194,7 +205,8 @@ export const api = {
   },
 
   updateBookingStatus: async (pnr, status) => {
-    const res = await fetch(`${API_BASE}/admin/bookings/${pnr}/status`, {
+    const cleanPnr = encodeURIComponent(String(pnr || '').trim());
+    const res = await fetch(`${API_BASE}/admin/bookings/${cleanPnr}/status?_t=${Date.now()}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
