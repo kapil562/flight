@@ -186,6 +186,27 @@ export default function BookingCheckoutModal({
   const [cardDetails, setCardDetails] = useState({ number: '', name: '', expiry: '', cvv: '' });
   const [selectedBank, setSelectedBank] = useState('HDFC Bank');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [qrLoading, setQrLoading] = useState(false);
+
+  const handleSelectPaymentMethod = (methodId) => {
+    if ((methodId === 'upiQr' || methodId === 'upi') && paymentMethod !== methodId) {
+      setQrLoading(true);
+      setTimeout(() => {
+        setQrLoading(false);
+      }, 1600);
+    }
+    setPaymentMethod(methodId);
+  };
+
+  useEffect(() => {
+    if (step === 4 && (paymentMethod === 'upiQr' || paymentMethod === 'upi')) {
+      setQrLoading(true);
+      const timer = setTimeout(() => {
+        setQrLoading(false);
+      }, 1600);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   // Fetch payment settings, seat layout and coupons on mount
   useEffect(() => {
@@ -2556,7 +2577,7 @@ export default function BookingCheckoutModal({
                           <button
                             key={tab.id}
                             type="button"
-                            onClick={() => setPaymentMethod(tab.id)}
+                            onClick={() => handleSelectPaymentMethod(tab.id)}
                             className={`p-2 rounded-xl border text-center transition-all cursor-pointer relative ${
                               isSelected
                                 ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
@@ -2594,22 +2615,61 @@ export default function BookingCheckoutModal({
                       <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div className="flex flex-row items-center justify-center gap-3.5 text-left">
                           {/* QR Box */}
-                          <div className="p-1.5 bg-white rounded-lg shadow-xs border border-slate-200 text-center shrink-0">
-                            <img
-                              src={qrUrl}
-                              alt="UPI QR Code"
-                              className="w-24 h-24 sm:w-28 sm:h-28 mx-auto object-contain"
-                            />
+                          <div className="p-1.5 bg-white rounded-xl shadow-xs border border-slate-200 text-center shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center relative overflow-hidden">
+                            {qrLoading ? (
+                              <div className="flex flex-col items-center justify-center w-full h-full p-1 bg-slate-50/90 relative rounded-lg">
+                                {/* Animated Scanning Beam */}
+                                <motion.div
+                                  className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-sky-500 to-transparent shadow-sm shadow-sky-400"
+                                  animate={{ top: ['15%', '85%', '15%'] }}
+                                  transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+                                />
+                                <div className="relative">
+                                  <QrCode className="w-8 h-8 text-sky-600 animate-pulse" />
+                                  <RefreshCw className="w-3.5 h-3.5 text-emerald-600 animate-spin absolute -bottom-1 -right-1" />
+                                </div>
+                                <span className="text-[7.5px] font-black text-slate-600 mt-1 uppercase tracking-tight text-center leading-tight">
+                                  Generating QR...
+                                </span>
+                              </div>
+                            ) : (
+                              <motion.img
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.25 }}
+                                src={qrUrl}
+                                alt="UPI QR Code"
+                                className="w-full h-full object-contain"
+                              />
+                            )}
                           </div>
 
                           {/* UPI Instructions */}
                           <div className="space-y-1 text-xs">
-                            <p className="font-extrabold text-slate-900 text-xs sm:text-sm">Scan & Pay with Any UPI App</p>
-                            <p className="text-[11px] text-slate-500">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
-                            <div className="pt-1 text-[10px] text-emerald-700 font-bold flex items-center gap-1">
-                              <Check className="w-3 h-3 text-emerald-600" />
-                              <span>Instant Ticket Confirmation</span>
-                            </div>
+                            {qrLoading ? (
+                              <div className="space-y-1 animate-fadeIn">
+                                <div className="flex items-center gap-1.5 text-sky-800 font-extrabold text-xs">
+                                  <RefreshCw className="w-3 h-3 animate-spin text-sky-600" />
+                                  <span>Creating Secure Dynamic QR...</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 leading-tight">
+                                  Connecting to UPI Bank Switch & locking live fare
+                                </p>
+                                <div className="text-[9px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                  <span>NPCI / 256-Bit Encrypted</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="font-extrabold text-slate-900 text-xs sm:text-sm">Scan & Pay with Any UPI App</p>
+                                <p className="text-[11px] text-slate-500">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
+                                <div className="pt-1 text-[10px] text-emerald-700 font-bold flex items-center gap-1">
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  <span>Instant Ticket Confirmation</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
