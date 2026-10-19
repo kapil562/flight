@@ -2726,23 +2726,7 @@ export default function BookingCheckoutModal({
                     </div>
                   )}
 
-                  {/* Confirmed Travellers Pill - Compact */}
-                  <div className="flex items-center justify-between px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px]">
-                    <div className="text-slate-600 truncate">
-                      <span className="font-bold text-slate-800">Traveller:</span> {passengers.map(p => `${p.firstName} (${p.seat || 'Assigned'})`).join(', ')}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to cancel this payment?')) {
-                          setStep(2);
-                        }
-                      }}
-                      className="text-sky-600 hover:text-sky-700 font-bold ml-1 shrink-0 cursor-pointer"
-                    >
-                      Seats
-                    </button>
-                  </div>
+
 
                   {/* Mobile-Only Action Buttons (Integrated in card so zero scroll is needed on mobile) */}
                   <div className="block lg:hidden pt-2 border-t border-slate-100 space-y-1.5">
