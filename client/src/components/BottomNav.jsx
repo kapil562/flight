@@ -33,7 +33,7 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
       id: 'holidays',
       label: 'Holidays',
       icon: Palmtree,
-      badge: 'DEALS',
+      badge: null,
       action: () => {
         onSelectService('holidays');
         window.scrollTo({ top: 0, behavior: 'smooth' });

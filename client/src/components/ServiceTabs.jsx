@@ -56,10 +56,10 @@ export default function ServiceTabs({
 
   const allServices = [
     { id: 'flights', label: 'Flights', icon: Plane, badge: null },
-    { id: 'hotels', label: 'Hotels', icon: Building2, badge: 'HOT' },
-    { id: 'holidays', label: 'Holidays', icon: Palmtree, badge: 'OFFERS' },
+    { id: 'hotels', label: 'Hotels', icon: Building2, badge: null },
+    { id: 'holidays', label: 'Holidays', icon: Palmtree, badge: null },
     { id: 'trains', label: 'Trains', icon: Train, badge: null },
-    { id: 'visa', label: 'Visa Services', icon: Globe2, badge: 'FAST' },
+    { id: 'visa', label: 'Visa Services', icon: Globe2, badge: null },
     { id: 'checkin', label: 'Web Check-In', icon: CheckSquare, badge: null, action: onOpenWebCheckIn },
     { id: 'pnr', label: 'Check PNR', icon: Search, badge: null, action: onOpenQuickPnr }
   ];
