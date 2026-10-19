@@ -734,13 +734,15 @@ export default function BookingCheckoutModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
+      className={`fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-xs ${step === 4 ? 'overflow-y-auto sm:overflow-hidden' : 'overflow-y-auto'}`}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 20 }}
-        className="bg-slate-50 rounded-none sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border-0 sm:border sm:border-slate-200 overflow-hidden flex flex-col h-full sm:h-auto max-h-full sm:max-h-[94vh]"
+        className={`bg-slate-50 rounded-none sm:rounded-3xl w-full max-w-5xl my-auto shadow-2xl border-0 sm:border sm:border-slate-200 overflow-hidden flex flex-col ${
+          step === 4 ? 'h-auto max-h-[96vh]' : 'h-full sm:h-auto max-h-full sm:max-h-[94vh]'
+        }`}
       >
         {/* Header */}
         <div className="bg-white px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-slate-200 flex items-center justify-between shrink-0">
@@ -752,7 +754,7 @@ export default function BookingCheckoutModal({
                   {step === 1 && 'Review Travellers'}
                   {step === 2 && 'Select Seats & Meals'}
                   {step === 3 && 'Review Booking & Offers'}
-                  {step === 4 && 'Payment Gateway'}
+                  {step === 4 && 'Payment Gateway (Final Step)'}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">({passengers.length})</span>
                 {discountAmount > 0 && (
@@ -781,13 +783,14 @@ export default function BookingCheckoutModal({
         </div>
 
         {/* Modal Body */}
-        <div className="overflow-y-auto overflow-x-hidden p-3 sm:p-6 flex-1">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div className={`overflow-x-hidden ${step === 4 ? 'overflow-y-auto lg:overflow-y-hidden p-2.5 sm:p-4' : 'overflow-y-auto p-3 sm:p-6'} flex-1`}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5">
             
             {/* Left Column: Form / Steps */}
-            <div className={`${step === 4 ? 'lg:col-span-7' : 'lg:col-span-8'} space-y-3.5 sm:space-y-4`}>
+            <div className={`${step === 4 ? 'lg:col-span-7' : 'lg:col-span-8'} space-y-3 sm:space-y-4`}>
               
-              {/* 4-Step Flow Indicators - Fluid & Responsive */}
+              {/* 4-Step Flow Indicators - Fluid & Responsive (Hidden on Step 4 for zero-scroll fit) */}
+              {step !== 4 && (
               <div className="bg-white px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs overflow-x-auto scrollbar-none">
                 <div className="flex items-center justify-between w-full min-w-[310px] gap-1 sm:gap-1.5">
                   
@@ -867,6 +870,7 @@ export default function BookingCheckoutModal({
                   </button>
                 </div>
               </div>
+              )}
 
               {/* ======================================================== */}
               {/* STEP 1: TRAVELLERS (ADD MULTIPLE USERS) & ADDONS */}
@@ -2458,13 +2462,34 @@ export default function BookingCheckoutModal({
                   exit={{ opacity: 0, scale: 0.98 }}
                   className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn"
                 >
-                  {/* Header */}
-                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-emerald-600" />
-                      <span className="font-extrabold text-slate-900 text-sm sm:text-base">Select Payment Method</span>
+                  {/* Mobile Compact Flight & Total Price Strip (Only visible on mobile screens) */}
+                  <div className="flex lg:hidden items-center justify-between p-2.5 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white rounded-xl shadow-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
+                      <div className="min-w-0">
+                        <div className="text-xs font-black truncate">{flight.airline} • {flight.from} ➔ {flight.to}</div>
+                        <div className="text-[10px] text-slate-300 font-semibold truncate">{passengers.length} Pax • {flight.departureTime}</div>
+                      </div>
                     </div>
-                    <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <div className="text-right shrink-0 ml-2">
+                      <div className="text-sm font-black font-mono text-emerald-400">₹{grandTotal.toLocaleString('en-IN')}</div>
+                      <button
+                        type="button"
+                        onClick={() => setShowFareBreakupPopup(true)}
+                        className="text-[9px] text-sky-300 underline font-bold cursor-pointer"
+                      >
+                        Fare Breakup
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="font-extrabold text-slate-900 text-xs sm:text-sm">Select Payment Method</span>
+                    </div>
+                    <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3 text-emerald-600" />
                       256-Bit SSL Encrypted
                     </span>
@@ -2472,7 +2497,7 @@ export default function BookingCheckoutModal({
 
                   {/* Payment Method Selector Tabs - Dynamically loaded from Admin settings */}
                   {paymentTabs.length > 0 ? (
-                    <div className={`grid gap-2 ${
+                    <div className={`grid gap-1.5 ${
                       paymentTabs.length === 1 ? 'grid-cols-1' :
                       paymentTabs.length === 2 ? 'grid-cols-2' :
                       paymentTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
@@ -2485,26 +2510,26 @@ export default function BookingCheckoutModal({
                             key={tab.id}
                             type="button"
                             onClick={() => setPaymentMethod(tab.id)}
-                            className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer relative ${
+                            className={`p-2 rounded-xl border text-center transition-all cursor-pointer relative ${
                               isSelected
                                 ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
                                 : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                             }`}
                           >
                             {tab.badge && (
-                              <span className="absolute -top-2 right-1.5 bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
+                              <span className="absolute -top-1.5 right-1 bg-emerald-600 text-white text-[7px] font-black px-1 rounded-full uppercase tracking-wider shadow-xs">
                                 {tab.badge}
                               </span>
                             )}
-                            <Icon className="w-4 h-4 mx-auto mb-0.5 text-sky-600" />
-                            <div className="text-[11px] sm:text-xs font-extrabold truncate">{tab.label}</div>
+                            <Icon className="w-3.5 h-3.5 mx-auto mb-0.5 text-sky-600" />
+                            <div className="text-[11px] font-extrabold truncate">{tab.label}</div>
                           </button>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 font-bold text-center">
-                      Payment gateway currently undergoing maintenance. Please contact support via WhatsApp.
+                    <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 font-bold text-center">
+                      Payment gateway maintenance. Please contact WhatsApp support.
                     </div>
                   )}
 
@@ -2516,33 +2541,33 @@ export default function BookingCheckoutModal({
                     const txnRef = `ASG${flight.id || 'FL'}${Date.now().toString().slice(-6)}`;
                     const note = `Flight ${flight.flightNumber || 'Ticket'}`;
                     const upiPayload = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(activeName)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent(note)}&mc=${encodeURIComponent(activeMcc)}&tr=${encodeURIComponent(txnRef)}`;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiPayload)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiPayload)}`;
 
                     return (
-                      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-                        <div className="flex flex-col sm:flex-row items-center gap-3.5">
+                      <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div className="flex flex-row items-center gap-3">
                           {/* QR Box */}
-                          <div className="p-2 bg-white rounded-xl shadow-xs border border-slate-200 text-center shrink-0">
+                          <div className="p-1.5 bg-white rounded-lg shadow-xs border border-slate-200 text-center shrink-0">
                             <img
                               src={qrUrl}
                               alt="UPI QR Code"
-                              className="w-32 h-32 mx-auto object-contain"
+                              className="w-20 h-20 sm:w-24 sm:h-24 mx-auto object-contain"
                             />
-                            <div className="mt-1 text-[11px] font-black text-slate-900 font-mono">
+                            <div className="mt-0.5 text-[10px] sm:text-[11px] font-black text-slate-900 font-mono">
                               ₹{grandTotal.toLocaleString('en-IN')}
                             </div>
                           </div>
 
                           {/* UPI Instructions & UTR */}
-                          <div className="flex-1 min-w-0 space-y-2 text-xs w-full">
-                            <div>
-                              <p className="font-extrabold text-slate-800 text-xs">Scan & Pay with Any UPI App</p>
-                              <p className="text-[10px] text-slate-500">Google Pay, PhonePe, Paytm, BHIM, CRED</p>
+                          <div className="flex-1 min-w-0 space-y-1.5 text-xs">
+                            <div className="flex items-center justify-between">
+                              <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Scan & Pay</p>
+                              <p className="text-[10px] text-slate-400 font-bold truncate">Any UPI App</p>
                             </div>
 
-                            <div className="flex items-center gap-1.5 p-2 bg-white rounded-xl border border-slate-200 text-xs">
-                              <span className="text-[10px] text-slate-400 font-mono">UPI ID:</span>
-                              <span className="font-bold text-slate-800 font-mono truncate text-[11px] flex-1">{activeVpa}</span>
+                            <div className="flex items-center gap-1.5 p-1.5 bg-white rounded-lg border border-slate-200 text-xs">
+                              <span className="text-[9px] text-slate-400 font-mono">UPI:</span>
+                              <span className="font-bold text-slate-800 font-mono truncate text-[10px] sm:text-[11px] flex-1">{activeVpa}</span>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -2550,15 +2575,15 @@ export default function BookingCheckoutModal({
                                   setCopiedVpa(true);
                                   setTimeout(() => setCopiedVpa(false), 2000);
                                 }}
-                                className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                                className="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[9px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
                               >
-                                {copiedVpa ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                {copiedVpa ? <Check className="w-2.5 h-2.5 text-emerald-600" /> : <Copy className="w-2.5 h-2.5" />}
                                 <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
                               </button>
                             </div>
 
                             <div>
-                              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                              <label className="block text-[10px] sm:text-[11px] font-bold text-slate-700 mb-0.5">
                                 12-Digit UTR / UPI Ref Number *
                               </label>
                               <input
@@ -2567,7 +2592,7 @@ export default function BookingCheckoutModal({
                                 placeholder="e.g. 423456789012"
                                 value={utrNumber}
                                 onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
-                                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
                               />
                             </div>
                           </div>
@@ -2578,11 +2603,11 @@ export default function BookingCheckoutModal({
 
                   {/* 2. UPI Apps Content */}
                   {isUpiAppsEnabled && paymentMethod === 'upiApps' && (
-                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-extrabold text-slate-800 text-xs">Tap Any UPI App to Pay</p>
-                          <p className="text-[10px] text-slate-500">Fastest checkout on mobile & desktop</p>
+                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Tap Any UPI App to Pay</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-500">Opens app directly on mobile & PC</p>
                         </div>
                         <span className="text-[10px] font-mono font-black text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
                           ₹{grandTotal.toLocaleString('en-IN')}
@@ -2591,56 +2616,51 @@ export default function BookingCheckoutModal({
 
                       {/* App Buttons Grid */}
                       {visibleUpiApps.length > 0 ? (
-                        <div className={`grid gap-2 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+                        <div className={`grid gap-1.5 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
                           {visibleUpiApps.map(app => (
                             <button
                               key={app.key}
                               type="button"
                               onClick={() => handleLaunchUpiApp(app.key, app.name)}
-                              className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all text-left cursor-pointer active:scale-[0.98] ${
+                              className={`p-2 rounded-xl border flex items-center gap-2 transition-all text-left cursor-pointer active:scale-[0.98] ${
                                 selectedUpiApp === app.name
                                   ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-300'
                                   : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
                               }`}
                             >
-                              <div className={`w-8 h-8 rounded-lg ${app.color} ${app.textColor} flex items-center justify-center shrink-0 shadow-xs font-black text-xs`}>
-                                <Smartphone className="w-4 h-4" />
+                              <div className={`w-7 h-7 rounded-lg ${app.color} ${app.textColor} flex items-center justify-center shrink-0 shadow-xs font-black text-xs`}>
+                                <Smartphone className="w-3.5 h-3.5" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <div className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1">
+                                <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center gap-1">
                                   <span>{app.name}</span>
-                                  {app.badge && (
-                                    <span className="text-[8px] font-black bg-emerald-100 text-emerald-800 px-1 py-0.2 rounded">
-                                      {app.badge}
-                                    </span>
-                                  )}
                                 </div>
-                                <div className="text-[10px] text-sky-600 font-bold flex items-center gap-0.5">
+                                <div className="text-[9px] text-sky-600 font-bold flex items-center gap-0.5">
                                   <span>Pay ₹{grandTotal.toLocaleString('en-IN')}</span>
-                                  <ExternalLink className="w-2.5 h-2.5" />
+                                  <ExternalLink className="w-2 h-2" />
                                 </div>
                               </div>
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <div className="p-3 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-500">
+                        <div className="p-2.5 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-500">
                           No UPI apps enabled by admin. Please select UPI QR Code.
                         </div>
                       )}
 
                       {/* App Launched Notification / UPI ID copy */}
-                      <div className="space-y-2 pt-1">
+                      <div className="space-y-1.5 pt-0.5">
                         {selectedUpiApp && (
-                          <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-[11px] font-bold flex items-center gap-2">
-                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>Opened {selectedUpiApp}. Approve payment of ₹{grandTotal.toLocaleString('en-IN')} and enter UTR below.</span>
+                          <div className="p-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-[10px] font-bold flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>Opened {selectedUpiApp}. Enter 12-digit UTR after payment.</span>
                           </div>
                         )}
 
-                        <div className="flex items-center gap-1.5 p-2 bg-white rounded-xl border border-slate-200 text-xs">
-                          <span className="text-[10px] text-slate-400 font-mono">UPI ID:</span>
-                          <span className="font-bold text-slate-800 font-mono truncate text-[11px] flex-1">
+                        <div className="flex items-center gap-1.5 p-1.5 bg-white rounded-lg border border-slate-200 text-xs">
+                          <span className="text-[9px] text-slate-400 font-mono">UPI ID:</span>
+                          <span className="font-bold text-slate-800 font-mono truncate text-[10px] sm:text-[11px] flex-1">
                             {paymentSettings?.upi?.vpa || 'care@airsky'}
                           </span>
                           <button
@@ -2650,15 +2670,15 @@ export default function BookingCheckoutModal({
                               setCopiedVpa(true);
                               setTimeout(() => setCopiedVpa(false), 2000);
                             }}
-                            className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                            className="px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-[9px] flex items-center gap-1 cursor-pointer transition-colors shrink-0"
                           >
-                            {copiedVpa ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            {copiedVpa ? <Check className="w-2.5 h-2.5 text-emerald-600" /> : <Copy className="w-2.5 h-2.5" />}
                             <span>{copiedVpa ? 'Copied' : 'Copy'}</span>
                           </button>
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                          <label className="block text-[10px] sm:text-[11px] font-bold text-slate-700 mb-0.5">
                             12-Digit UTR / UPI Ref Number *
                           </label>
                           <input
@@ -2667,7 +2687,7 @@ export default function BookingCheckoutModal({
                             placeholder="e.g. 423456789012"
                             value={utrNumber}
                             onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-mono font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none"
                           />
                         </div>
                       </div>
@@ -2676,50 +2696,50 @@ export default function BookingCheckoutModal({
 
                   {/* 3. Card Payment Content */}
                   {isCardEnabled && paymentMethod === 'card' && (
-                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
                       <div>
-                        <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Card Number *</label>
+                        <label className="block font-bold text-slate-600 text-[10px] mb-0.5">Card Number *</label>
                         <input
                           type="text"
                           maxLength={19}
                           placeholder="4111 2222 3333 4444"
                           value={cardDetails.number}
                           onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-mono font-bold text-xs"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Expiry *</label>
+                          <label className="block font-bold text-slate-600 text-[10px] mb-0.5">Expiry *</label>
                           <input
                             type="text"
                             maxLength={5}
                             placeholder="MM/YY"
                             value={cardDetails.expiry}
                             onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-mono font-bold text-xs"
                           />
                         </div>
                         <div>
-                          <label className="block font-bold text-slate-600 text-[11px] mb-0.5">CVV *</label>
+                          <label className="block font-bold text-slate-600 text-[10px] mb-0.5">CVV *</label>
                           <input
                             type="password"
                             maxLength={4}
                             placeholder="•••"
                             value={cardDetails.cvv}
                             onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-mono font-bold text-xs"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-mono font-bold text-xs"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block font-bold text-slate-600 text-[11px] mb-0.5">Cardholder Name *</label>
+                        <label className="block font-bold text-slate-600 text-[10px] mb-0.5">Cardholder Name *</label>
                         <input
                           type="text"
                           placeholder="Name on card"
                           value={cardDetails.name}
                           onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-bold text-xs"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-bold text-xs"
                         />
                       </div>
                     </div>
@@ -2727,15 +2747,15 @@ export default function BookingCheckoutModal({
 
                   {/* 4. Net Banking */}
                   {isNetBankingEnabled && paymentMethod === 'netbanking' && (
-                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
-                      <label className="block font-bold text-slate-700 text-[11px]">Select Popular Bank:</label>
+                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                      <label className="block font-bold text-slate-700 text-[10px]">Select Popular Bank:</label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                         {['HDFC Bank', 'ICICI Bank', 'State Bank of India', 'Axis Bank', 'Kotak Mahindra', 'Punjab National Bank'].map(b => (
                           <button
                             key={b}
                             type="button"
                             onClick={() => setSelectedBank(b)}
-                            className={`p-2 rounded-xl border text-left font-bold text-[11px] transition-all cursor-pointer ${
+                            className={`p-1.5 rounded-lg border text-left font-bold text-[10px] sm:text-[11px] transition-all cursor-pointer ${
                               selectedBank === b
                                 ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs'
                                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -2749,32 +2769,73 @@ export default function BookingCheckoutModal({
                   )}
 
                   {/* Confirmed Travellers Pill - Compact */}
-                  <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px]">
+                  <div className="flex items-center justify-between px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px]">
                     <div className="text-slate-600 truncate">
-                      <span className="font-bold text-slate-800">Traveller:</span> {passengers.map(p => `${p.firstName} (Seat ${p.seat || 'Assigned'})`).join(', ')}
+                      <span className="font-bold text-slate-800">Traveller:</span> {passengers.map(p => `${p.firstName} (${p.seat || 'Assigned'})`).join(', ')}
                     </div>
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="text-sky-600 hover:text-sky-700 font-bold ml-2 shrink-0 cursor-pointer"
+                      className="text-sky-600 hover:text-sky-700 font-bold ml-1 shrink-0 cursor-pointer"
                     >
-                      Change Seats
+                      Seats
                     </button>
+                  </div>
+
+                  {/* Mobile-Only Action Buttons (Integrated in card so zero scroll is needed on mobile) */}
+                  <div className="block lg:hidden pt-2 border-t border-slate-100 space-y-1.5">
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={handleFinalBooking}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Confirming Instant PNR...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>PAY ₹{grandTotal.toLocaleString('en-IN')} & CONFIRM</span>
+                        </>
+                      )}
+                    </button>
+
+                    <div className="flex items-center justify-between text-[10px] px-1 text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => setStep(3)}
+                        className="hover:text-slate-800 font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3 h-3" />
+                        <span>Back to Review</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleWhatsAppHelp}
+                        className="text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        <MessageCircle className="w-3 h-3" />
+                        <span>WhatsApp Help</span>
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
 
             </div>
 
-            {/* Right Column: Fare Breakup & PromoSuggestions */}
-            <div className={`${step === 4 ? 'lg:col-span-5' : 'lg:col-span-4'} space-y-4`}>
+            {/* Right Column: Fare Breakup & PromoSuggestions (Hidden on mobile when step === 4 for zero-scroll fit) */}
+            <div className={`${step === 4 ? 'hidden lg:block lg:col-span-5' : 'lg:col-span-4'} space-y-4`}>
               
 
 
               {step === 4 ? (
                 /* Step 4 Dedicated Payment Summary & Direct Action Card */
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs space-y-2.5 animate-fadeIn">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
                       <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
                       <div className="min-w-0">
@@ -2791,7 +2852,7 @@ export default function BookingCheckoutModal({
                     </span>
                   </div>
 
-                  <div className="space-y-1.5 text-xs text-slate-600">
+                  <div className="space-y-1 text-xs text-slate-600">
                     <div className="flex justify-between">
                       <span>Base Fare ({passengers.length} Pax)</span>
                       <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
@@ -2824,19 +2885,19 @@ export default function BookingCheckoutModal({
                     </div>
 
                     {discountAmount > 0 && (
-                      <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                      <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
                         <span>Promo Discount ({couponCode})</span>
                         <span className="font-mono">-₹{discountAmount.toLocaleString('en-IN')}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-2.5 border-t border-slate-100 flex items-baseline justify-between">
+                  <div className="pt-2 border-t border-slate-100 flex items-baseline justify-between">
                     <div>
                       <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Payable</div>
                       <div className="text-[10px] text-emerald-600 font-bold">All Taxes Included</div>
                     </div>
-                    <div className="text-2xl font-black text-slate-900 font-mono tracking-tight">
+                    <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
                       ₹{grandTotal.toLocaleString('en-IN')}
                     </div>
                   </div>
@@ -2846,11 +2907,11 @@ export default function BookingCheckoutModal({
                     type="button"
                     disabled={isProcessing}
                     onClick={handleFinalBooking}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-sm uppercase tracking-wide shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isProcessing ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                         <span>Confirming Instant PNR...</span>
                       </>
                     ) : (
@@ -2865,14 +2926,14 @@ export default function BookingCheckoutModal({
                   <button
                     type="button"
                     onClick={() => setStep(3)}
-                    className="w-full py-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-1 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <ArrowLeft className="w-3 h-3" />
                     <span>Back to Review (Step 3)</span>
                   </button>
 
                   {/* Trust & WhatsApp Support */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
                     <span className="flex items-center gap-1">
                       <Lock className="w-3 h-3 text-emerald-600" />
                       <span>Instant Airline Ticket</span>
@@ -2882,7 +2943,7 @@ export default function BookingCheckoutModal({
                       onClick={handleWhatsAppHelp}
                       className="text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1 cursor-pointer"
                     >
-                      <MessageCircle className="w-3.5 h-3.5" />
+                      <MessageCircle className="w-3 h-3" />
                       <span>WhatsApp Help</span>
                     </button>
                   </div>
