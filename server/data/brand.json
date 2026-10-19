@@ -1,5 +1,5 @@
 {
-  "name": "AIR SKY Go",
+  "name": "AIR SKY GO",
   "short_name": "Air Sky",
   "tagline": "Premium Luxury Travel",
   "primary_color": "#0284c7",
@@ -13,5 +13,28 @@
   "phone": "+91 72248 28030",
   "whatsapp": "+918077680310",
   "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
-  "updatedAt": "2026-10-18T22:06:08.692Z"
+  "updatedAt": "2026-10-19T10:03:39.401Z",
+  "enabledServices": {
+    "flights": true,
+    "hotels": true,
+    "holidays": true,
+    "trains": false,
+    "visa": false,
+    "checkin": false,
+    "pnr": true
+  },
+  "footer": {
+    "description": "Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.",
+    "copyright": "© 2026 AIR SKY. All rights reserved.",
+    "card1Title": "Real-Time Live Inventory",
+    "card1Desc": "Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.",
+    "card2Title": "Instant PNR & Digital Tickets",
+    "card2Desc": "Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.",
+    "card3Title": "24x7 Aviation Support",
+    "card3Desc": "Hassle-free web check-in support and instant automated cancellations with swift refund processing.",
+    "partnerAirlines": "IndiGo, Air India, Vistara, Akasa Air, SpiceJet, Emirates, Singapore Airlines",
+    "domesticRoutes": "DEL-BOM: Delhi to Mumbai Flights, DEL-BLR: Delhi to Bengaluru Flights, BOM-GOI: Mumbai to Goa Flights, DEL-GOI: Delhi to Goa Flights",
+    "intlRoutes": "DEL-DXB: Delhi to Dubai Flights, BLR-DEL: Bengaluru to Delhi Flights, BOM-DEL: Mumbai to Delhi Flights, DEL-HYD: Delhi to Hyderabad Flights"
+  },
+  "about": {}
 }

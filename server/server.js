@@ -1232,47 +1232,61 @@ app.get('/api/flights', async (req, res) => {
   const { from, to, date, stops, airline, sort, maxPrice } = req.query;
   const apisConfig = readJSON(APIS_FILE, {});
   let flights = [];
-  let dataSource = 'Database / Local Engine';
+  let dataSource = 'SerpApi Live Google Flights Engine';
 
-  // 1. Query SerpApi Google Flights (Dedicated Real-Time Live Flight API)
+  // Real-Time Live Flight API (SerpApi Google Flights ONLY - No mock fallback)
   const serpapiKey = apisConfig.serpapi?.apiKey || process.env.SERPAPI_KEY;
   const isSerpApiActive = apisConfig.activeProvider === 'serpapi' || apisConfig.serpapi?.enabled !== false;
-  if (isSerpApiActive && serpapiKey && from && to) {
+
+  if (from && to) {
+    if (!serpapiKey) {
+      console.warn(`[Flights Search] No SerpApi key configured. Returning 0 flights for ${from} -> ${to}.`);
+      return res.json({
+        success: true,
+        count: 0,
+        dataSource: 'SerpApi (No API Key Configured)',
+        message: 'SerpApi Key is not configured. Please add your SerpApi key in Admin Settings to search live flights.',
+        searchParams: { from, to, date },
+        data: []
+      });
+    }
+
+    if (!isSerpApiActive) {
+      console.warn(`[Flights Search] SerpApi is disabled in settings.`);
+      return res.json({
+        success: true,
+        count: 0,
+        dataSource: 'SerpApi (Disabled)',
+        message: 'SerpApi provider is disabled in settings.',
+        searchParams: { from, to, date },
+        data: []
+      });
+    }
+
     const serpapiFlights = await fetchFlightsFromSerpApi(from, to, date, serpapiKey);
     if (serpapiFlights && serpapiFlights.length > 0) {
       flights = serpapiFlights;
       dataSource = 'Google Flights Real-Time (SerpApi Live)';
-    }
-  }
-
-  // 2. Assemble final flight list
-  const allFlights = readJSON(FLIGHTS_FILE, []);
-  if (from && to) {
-    if (flights.length > 0) {
-      // Real live flights returned from Google Flights via SerpApi!
-      const adminCreatedFlights = allFlights.filter(f => 
-        f.isCustomAdmin === true &&
-        f.from.toUpperCase() === from.toUpperCase() && 
-        f.to.toUpperCase() === to.toUpperCase()
-      );
-      if (adminCreatedFlights.length > 0) {
-        flights = [...adminCreatedFlights, ...flights];
-      }
     } else {
-      // Fallback only if no live flights could be retrieved or offline
-      const matched = allFlights.filter(f => 
-        f.from.toUpperCase() === from.toUpperCase() && 
-        f.to.toUpperCase() === to.toUpperCase()
-      ).map(f => ({ ...f, source: f.source || 'AirSkyGo Aviation Engine' }));
+      // SerpApi returned null or 0 flights (invalid key, API error, or no flights found)
+      flights = [];
+      dataSource = 'Google Flights Real-Time (SerpApi Live - 0 results)';
+    }
 
-      const dynamicOnes = generateDynamicFlights(from.toUpperCase(), to.toUpperCase(), date);
-      const flightNos = new Set(matched.map(f => f.flightNumber));
-      const fillFromDynamic = dynamicOnes.filter(f => !flightNos.has(f.flightNumber));
-      flights = [...matched, ...fillFromDynamic];
-      dataSource = 'AirSkyGo Aviation Schedule Engine';
+    // Only allow custom flights explicitly added by Admin via Admin Panel
+    const allFlights = readJSON(FLIGHTS_FILE, []);
+    const adminCreatedFlights = allFlights.filter(f => 
+      f.isCustomAdmin === true &&
+      f.from && f.from.toUpperCase() === from.toUpperCase() && 
+      f.to && f.to.toUpperCase() === to.toUpperCase()
+    );
+    if (adminCreatedFlights.length > 0) {
+      flights = [...adminCreatedFlights, ...flights];
     }
   } else {
-    flights = allFlights.map(f => ({ ...f, source: f.source || 'AirSkyGo Aviation Engine' }));
+    // If no route searched, return empty array - absolutely no fake saved flights!
+    flights = [];
+    dataSource = 'Google Flights Real-Time (SerpApi Live)';
   }
 
   // Filter by stops
@@ -1312,15 +1326,7 @@ app.get('/api/flights', async (req, res) => {
 app.get('/api/flights/:id', (req, res) => {
   const { id } = req.params;
   const flights = readJSON(FLIGHTS_FILE, []);
-  let flight = flights.find(f => f.id === id) || recentFlightsCache.get(id);
-
-  if (!flight && (id.startsWith('DYN-') || id.startsWith('LIVE-') || id.startsWith('SERPAPI-') || id.startsWith('SERPER-'))) {
-    const parts = id.split('-');
-    if (parts.length >= 3) {
-      const dynFlights = generateDynamicFlights(parts[1], parts[2]);
-      flight = dynFlights.find(f => f.id === id) || dynFlights[parseInt(parts[3] || '1') - 1] || dynFlights[0];
-    }
-  }
+  const flight = flights.find(f => f.id === id) || recentFlightsCache.get(id);
 
   if (!flight) {
     return res.status(404).json({ success: false, message: 'Flight not found' });

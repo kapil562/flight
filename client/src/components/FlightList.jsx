@@ -1093,17 +1093,23 @@ export default function FlightList({
               <div className="w-16 h-16 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <RotateCcw className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-extrabold text-slate-900 mb-1">No Flights Match Your Filter</h3>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-1">
+                {flights.length === 0 ? 'No Live Flights Found' : 'No Flights Match Your Filter'}
+              </h3>
               <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">
-                Try loosening your filters or resetting the price and time slot preferences.
+                {flights.length === 0
+                  ? 'No real-time flights were returned for this route. Please make sure your SerpApi Key is valid and active in Admin Settings, or try different dates/airports.'
+                  : 'Try loosening your filters or resetting the price and time slot preferences.'}
               </p>
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="px-6 py-2.5 bg-sky-600 text-white font-bold rounded-xl text-sm shadow-md hover:bg-sky-500 transition-colors cursor-pointer"
-              >
-                Reset All Filters
-              </button>
+              {flights.length > 0 && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="px-6 py-2.5 bg-sky-600 text-white font-bold rounded-xl text-sm shadow-md hover:bg-sky-500 transition-colors cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              )}
             </div>
           ) : (
             /* ========================================================= */
