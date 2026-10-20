@@ -3085,20 +3085,6 @@ export default function BookingCheckoutModal({
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            const pendingBooking = buildBookingPayload(createdPnr, {
-                              method: paymentMethod,
-                              status: 'VERIFICATION_PENDING'
-                            }, 'VERIFICATION_PENDING');
-                            onBookingSuccess(ensureCompleteBookingData(pendingBooking));
-                          }}
-                          className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer transition-all"
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                          <span>Download / View Itinerary PDF</span>
-                        </button>
-                        <button
-                          type="button"
                           onClick={handleWhatsAppHelp}
                           className="text-[11px] text-emerald-700 hover:underline font-bold flex items-center gap-1 cursor-pointer"
                         >
