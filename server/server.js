@@ -2354,6 +2354,13 @@ app.post('/api/admin/payment-settings', (req, res) => {
     updatedAt: new Date().toISOString()
   };
   writeJSON(PAYMENT_SETTINGS_FILE, updated);
+
+  // Also write to client/public so static fetch works on Vercel
+  try {
+    const publicSettingsPath = path.join(__dirname, '..', 'client', 'public', 'payment_settings.json');
+    fs.writeFileSync(publicSettingsPath, JSON.stringify(updated, null, 2));
+  } catch (e) { /* ignore if path doesn't exist */ }
+
   res.json({
     success: true,
     message: 'Payment & UPI configuration saved securely! Live changes are now active.',

@@ -360,66 +360,41 @@ export default function BookingCheckoutModal({
     };
     window.addEventListener('asg_payment_settings_updated', handleSettingsUpdate);
 
-    // 3. Fetch from API and merge preserving user saved edits
-    api.getPaymentSettings().then(res => {
-      if (res.success && res.data) {
-        let currentLocal = null;
-        try {
-          const s = localStorage.getItem('asg_payment_settings');
-          if (s) {
-            currentLocal = JSON.parse(s);
-            if (currentLocal?.upi) {
-              if (currentLocal.upi.name && currentLocal.upi.name.includes('Meesho')) {
-                currentLocal.upi.name = 'AirSkyGo';
-                currentLocal.upi.businessName = 'AirSkyGo';
-              }
-              if (currentLocal.upi.vpa && currentLocal.upi.vpa.includes('mairtel')) {
-                currentLocal.upi.vpa = 'paytm.s2zbyoe@pty';
-              }
-            }
-          }
-        } catch (e) {}
+    // 3. Fetch from static /payment_settings.json (always authoritative after deploy)
+    const applySettings = (data) => {
+      const merged = {
+        ...data,
+        apps: { ...(data.apps || {}) },
+        upi: { ...(data.upi || {}) },
+        methods: { ...(data.methods || {}) },
+        deepLinks: { ...(data.deepLinks || {}) }
+      };
+      setPaymentSettings(merged);
+      try { localStorage.setItem('asg_payment_settings', JSON.stringify(merged)); } catch (e) {}
 
-        const merged = {
-          ...res.data,
-          ...(currentLocal || {}),
-          upi: {
-            ...(res.data.upi || {}),
-            ...(currentLocal?.upi || {})
-          },
-          methods: {
-            ...(res.data.methods || {}),
-            ...(currentLocal?.methods || {})
-          },
-          // Server is authoritative for apps toggle — do NOT let localStorage override
-          apps: {
-            ...(res.data.apps || {})
-          },
-          deepLinks: {
-            ...(res.data.deepLinks || {}),
-            ...(currentLocal?.deepLinks || {})
-          }
-        };
-
-        setPaymentSettings(merged);
-        try { localStorage.setItem('asg_payment_settings', JSON.stringify(merged)); } catch (e) {}
-
-        const m = merged.methods || {};
-        // Auto select first enabled method (priority: upiApps -> upiQr -> card -> netbanking)
-        const isCurrentEnabled = 
-          (paymentMethod === 'upiApps' && m.upiApps !== false) ||
-          (paymentMethod === 'upiQr' && m.upiQr !== false) ||
-          (paymentMethod === 'card' && m.card === true) ||
-          (paymentMethod === 'netbanking' && m.netBanking === true);
-
-        if (!isCurrentEnabled) {
-          if (m.upiApps !== false) setPaymentMethod('upiApps');
-          else if (m.upiQr !== false) setPaymentMethod('upiQr');
-          else if (m.card === true) setPaymentMethod('card');
-          else if (m.netBanking === true) setPaymentMethod('netbanking');
-        }
+      const m = merged.methods || {};
+      const isCurrentEnabled =
+        (paymentMethod === 'upiApps' && m.upiApps !== false) ||
+        (paymentMethod === 'upiQr' && m.upiQr !== false) ||
+        (paymentMethod === 'card' && m.card === true) ||
+        (paymentMethod === 'netbanking' && m.netBanking === true);
+      if (!isCurrentEnabled) {
+        if (m.upiApps !== false) setPaymentMethod('upiApps');
+        else if (m.upiQr !== false) setPaymentMethod('upiQr');
+        else if (m.card === true) setPaymentMethod('card');
+        else if (m.netBanking === true) setPaymentMethod('netbanking');
       }
-    }).catch(() => {});
+    };
+
+    // Static file is most reliable on Vercel (baked in at build time), fallback to API
+    fetch('/payment_settings.json?t=' + Date.now())
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => { applySettings(data); })
+      .catch(() => {
+        api.getPaymentSettings().then(res => {
+          if (res.success && res.data) applySettings(res.data);
+        }).catch(() => {});
+      });
 
     return () => {
       window.removeEventListener('asg_payment_settings_updated', handleSettingsUpdate);
