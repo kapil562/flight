@@ -1870,19 +1870,21 @@ app.get('/api/bookings/:pnr', async (req, res) => {
   const { pnr } = req.params;
   const searchPnr = (pnr || '').trim().toUpperCase();
 
-  let edgeBooking = null;
-  try {
-    const edgeObj = await getLiveBookingsFromEdge();
-    edgeBooking = edgeObj[searchPnr];
-  } catch (e) {}
-
   const bookings = readJSON(BOOKINGS_FILE, []);
   const fileBooking = bookings.find(b => 
     (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
     (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
   );
 
-  const booking = edgeBooking ? { ...(fileBooking || {}), ...edgeBooking } : fileBooking;
+  let edgeBooking = null;
+  if (!fileBooking) {
+    try {
+      const edgeObj = await getLiveBookingsFromEdge();
+      edgeBooking = edgeObj[searchPnr];
+    } catch (e) {}
+  }
+
+  const booking = fileBooking || edgeBooking;
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });

@@ -58,7 +58,11 @@ export default function BookingCheckoutModal({
   initialFareTier = 'saver'
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection, 3 = Review & Offers, 4 = Payment Gateway
-  const [createdPnr, setCreatedPnr] = useState(null);
+  const [createdPnr, setCreatedPnr] = useState(() => {
+    const fresh = `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    try { localStorage.setItem('asg_current_pending_pnr', fresh); } catch (e) {}
+    return fresh;
+  });
   const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
   const [isStepLoading, setIsStepLoading] = useState(false);
   const [transitionMeta, setTransitionMeta] = useState({ targetStep: 1, fromStep: 1 });
@@ -212,6 +216,7 @@ export default function BookingCheckoutModal({
       if (bStatus === 'CONFIRMED') {
         isDone = true;
         setIsVerifyingPayment(false);
+        try { localStorage.removeItem('asg_current_pending_pnr'); } catch (e) {}
         onBookingSuccess(booking);
         return true;
       }
@@ -260,24 +265,13 @@ export default function BookingCheckoutModal({
     };
     window.addEventListener('storage', handleStorageChange);
 
-    // 3. Fast Cross-Device Network Polling (every 1.2s via Vercel Edge Config & API)
+    // 3. Fast Network Polling (every 1.5s via API)
     const interval = setInterval(async () => {
       if (isDone) {
         clearInterval(interval);
         return;
       }
       try {
-        // Fast-path: Check live Edge Config directly
-        const edgeBookings = await getEdgeLiveBookings();
-        const cleanPnr = String(activePnr).trim().toUpperCase();
-        if (edgeBookings && edgeBookings[cleanPnr]) {
-          if (checkApproval(edgeBookings[cleanPnr])) {
-            clearInterval(interval);
-            return;
-          }
-        }
-
-        // Secondary: Check API
         const res = await api.getBookingByPnr(activePnr);
         const booking = res?.data || res?.booking;
         if (booking && checkApproval(booking)) {
@@ -286,7 +280,7 @@ export default function BookingCheckoutModal({
       } catch (err) {
         console.warn('Polling status error:', err);
       }
-    }, 1200);
+    }, 1500);
 
     return () => {
       clearInterval(interval);
@@ -3004,8 +2998,9 @@ export default function BookingCheckoutModal({
                               const b = res?.data || res?.booking;
                               const bStatus = String(b?.status || '').trim().toUpperCase();
                               const pStatus = String(b?.payment?.status || '').trim().toUpperCase();
-                              if (b && (bStatus === 'CONFIRMED' || pStatus === 'PAID' || bStatus === 'PAID')) {
+                              if (b && bStatus === 'CONFIRMED') {
                                 setIsVerifyingPayment(false);
+                                try { localStorage.removeItem('asg_current_pending_pnr'); } catch (e) {}
                                 onBookingSuccess(b);
                               } else {
                                 alert('Verification in progress. Please wait a moment while the admin verifies your payment.');
