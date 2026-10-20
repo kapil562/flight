@@ -1,11 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle2, Download, Printer, Share2, Plane, Calendar, Clock, MapPin, X, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Download, Printer, Share2, Plane, Calendar, Clock, MapPin, X, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import AirlineBadge from './AirlineBadge';
 
 export default function TicketConfirmationModal({ booking, onClose, onOpenMyBookings, brand = null }) {
   const ticketRef = useRef(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   // Trigger celebration confetti upon mount
   useEffect(() => {
@@ -20,8 +23,54 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
     window.print();
   };
 
-  const handleDownloadPDF = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    if (!ticketRef.current || isGeneratingPDF) return;
+    setIsGeneratingPDF(true);
+    try {
+      const element = ticketRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+      const margin = 12; // 12mm margins
+      const maxPrintWidth = pageWidth - (margin * 2); // 186mm
+      const maxPrintHeight = pageHeight - (margin * 2); // 273mm
+
+      let printWidth = maxPrintWidth;
+      let printHeight = (canvas.height * printWidth) / canvas.width;
+
+      // Mathematically ensure it strictly fits on 1 single page!
+      if (printHeight > maxPrintHeight) {
+        printHeight = maxPrintHeight;
+        printWidth = (canvas.width * printHeight) / canvas.height;
+      }
+
+      const posX = (pageWidth - printWidth) / 2;
+      const posY = Math.max(margin, (pageHeight - printHeight) / 3);
+
+      pdf.addImage(imgData, 'PNG', posX, posY, printWidth, printHeight, undefined, 'FAST');
+      pdf.save(`AirSkyGo-Ticket-${booking.pnr || 'CONFIRMED'}.pdf`);
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      // Fallback
+      window.print();
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   if (!booking) return null;
@@ -34,6 +83,34 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-2.5 sm:p-4 py-4 sm:py-8"
     >
+      {/* Print stylesheet to enforce exactly 1-page printout of ticket pass only */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-ticket, #printable-ticket * {
+            visibility: visible !important;
+          }
+          #printable-ticket {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 720px !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+            background: #ffffff !important;
+            z-index: 999999 !important;
+          }
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+        }
+      `}</style>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -79,16 +156,21 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         </div>
 
         {/* Boarding Pass / Ticket Card */}
-        <div className="p-3 sm:p-6 bg-slate-50" ref={ticketRef}>
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative">
+        <div className="p-3 sm:p-6 bg-slate-50">
+          <div
+            ref={ticketRef}
+            id="printable-ticket"
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative"
+          >
             
             {/* Top Ticket Header */}
-            <div className="p-3.5 sm:p-5 bg-slate-900 text-white flex items-center justify-between gap-2">
+            <div className="p-3.5 sm:p-5 bg-slate-900 text-white flex items-center justify-between gap-2 overflow-hidden">
               <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 {brand?.logo ? (
                   <img
                     src={brand.logo}
                     alt={brand.name || 'Brand Logo'}
+                    crossOrigin="anonymous"
                     className="h-6 sm:h-8 w-auto max-w-[90px] sm:max-w-[120px] object-contain rounded shrink-0"
                   />
                 ) : (
@@ -108,6 +190,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                 <div className="text-right">
                   <div className="text-[11px] sm:text-xs font-bold text-sky-400 truncate max-w-[90px] sm:max-w-[120px]">{booking.airline}</div>
                   <div className="text-[10px] sm:text-[11px] font-mono text-slate-400">{booking.flightNumber}</div>
+                  <div className="text-[10px] sm:text-[11px] font-mono font-bold text-amber-400">PNR: {booking.pnr}</div>
                 </div>
               </div>
             </div>
@@ -243,60 +326,62 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
             {/* Passenger, Class, Date & Seat Metadata Grid */}
             <div className="p-3.5 sm:p-5 bg-slate-50/50 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Passenger(s)</span>
-                <div className="font-extrabold text-slate-900 mt-0.5">
+                <div className="font-extrabold text-slate-900 mt-0.5 truncate">
                   {booking.passengers?.map((p, i) => (
                     <div key={i} className="truncate">{p.title} {p.firstName} {p.lastName}</div>
                   ))}
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Seat(s)</span>
-                <div className="font-extrabold text-sky-700 font-mono mt-0.5">
+                <div className="font-extrabold text-sky-700 font-mono mt-0.5 truncate">
                   {booking.passengers?.map(p => p.seat).filter(Boolean).join(', ') || '12A'}
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Travel Date</span>
-                <div className="font-extrabold text-slate-900 mt-0.5 font-mono">{booking.departureDate}</div>
+                <div className="font-extrabold text-slate-900 mt-0.5 font-mono truncate">{booking.departureDate}</div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Class / Gate</span>
-                <div className="font-extrabold text-slate-900 mt-0.5">
+                <div className="font-extrabold text-slate-900 mt-0.5 truncate">
                   <span className="capitalize">{booking.travelClass}</span> • Gate 14B
                 </div>
               </div>
             </div>
 
-            {/* Barcode & Total */}
-            <div className="p-4 sm:p-5 bg-white border-t border-slate-100 flex items-center justify-between">
-              <div>
+            {/* Barcode & Total - Fully Responsive to prevent Price Overflow */}
+            <div className="p-3.5 sm:p-5 bg-white border-t border-slate-100 flex items-center justify-between gap-3 overflow-hidden">
+              <div className="min-w-0 flex-1 overflow-hidden pr-2">
                 {/* Simulated Realistic Barcode */}
-                <div className="h-10 flex items-center gap-[3px] opacity-80">
-                  {Array.from({ length: 38 }).map((_, idx) => (
+                <div className="h-8 sm:h-10 flex items-center gap-[2px] sm:gap-[3px] opacity-80 overflow-hidden max-w-[130px] sm:max-w-[200px]">
+                  {Array.from({ length: 26 }).map((_, idx) => (
                     <div
                       key={idx}
-                      className={`h-full bg-slate-800 ${idx % 3 === 0 ? 'w-1' : idx % 5 === 0 ? 'w-1.5' : 'w-0.5'}`}
+                      className={`h-full bg-slate-800 shrink-0 ${idx % 3 === 0 ? 'w-1' : idx % 5 === 0 ? 'w-1 sm:w-1.5' : 'w-0.5'}`}
                     ></div>
                   ))}
                 </div>
-                <span className="text-[10px] font-mono text-slate-400 mt-1 block">ASG-{booking.pnr}-ETKT-2026</span>
+                <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 mt-1 block truncate">
+                  ASG-{booking.pnr}-ETKT-2026
+                </span>
               </div>
 
-              <div className="text-right">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Paid</span>
-                <div className="text-xl font-black text-slate-900 font-mono">
+              <div className="text-right shrink-0">
+                <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Total Paid</span>
+                <div className="text-lg sm:text-2xl font-black text-slate-900 font-mono whitespace-nowrap leading-tight">
                   ₹{booking.fare?.total?.toLocaleString('en-IN')}
                 </div>
-                <div className="flex items-center justify-end gap-1 mt-0.5">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                <div className="flex items-center justify-end gap-1 mt-1">
+                  <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded whitespace-nowrap inline-flex items-center ${
                     booking.status === 'VERIFICATION_PENDING'
                       ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                      : 'bg-emerald-50 text-emerald-600'
+                      : 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                   }`}>
                     {booking.status === 'VERIFICATION_PENDING' ? '⏳ Verification Pending' : (booking.payment?.method || 'PAID')}
                   </span>
@@ -328,13 +413,23 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: isGeneratingPDF ? 1 : 1.05 }}
+              whileTap={{ scale: isGeneratingPDF ? 1 : 0.95 }}
+              disabled={isGeneratingPDF}
               onClick={handleDownloadPDF}
-              className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+              className="px-4 sm:px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-75 disabled:cursor-not-allowed text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all shrink-0"
             >
-              <Download className="w-4 h-4" />
-              <span>Download E-Ticket</span>
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Generating PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Download E-Ticket</span>
+                </>
+              )}
             </motion.button>
           </div>
         </div>
