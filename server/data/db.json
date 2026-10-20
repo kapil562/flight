@@ -2586,7 +2586,7 @@
         "method": "upiQr",
         "transactionId": "TXN_1792491191090",
         "utrNumber": "",
-        "status": "PAID",
+        "status": "CANCELLED",
         "paidAt": "2026-10-20T10:14:31.065Z",
         "paidToVpa": null,
         "vpa": "paytm.s2zbyoe@pty",
@@ -2594,13 +2594,13 @@
         "bank": null,
         "cardLast4": null
       },
-      "checkInStatus": "Eligible",
-      "status": "CONFIRMED",
+      "checkInStatus": "Cancelled",
+      "status": "CANCELLED",
       "createdAt": "2026-10-20T10:13:11.090Z",
       "airlineCode": "QP",
       "gst": null,
       "fareTier": "saver",
-      "updatedAt": "2026-10-20T10:23:06.073Z"
+      "updatedAt": "2026-10-20T10:32:26.934Z"
     },
     {
       "pnr": "ASG-373051",
