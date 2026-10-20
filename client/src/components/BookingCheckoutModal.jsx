@@ -2942,7 +2942,7 @@ export default function BookingCheckoutModal({
                           ⏳ Payment Verification in Progress
                         </span>
                         <h4 className="text-base sm:text-lg font-black text-slate-900">
-                          Payment Sent — Verifying with Bank
+                          Payment Verifying
                         </h4>
                         <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
                           Your payment reference has been submitted and is being verified with the bank server. <strong>Once verified, your confirmed ticket will automatically appear on screen with the PDF download option.</strong>
