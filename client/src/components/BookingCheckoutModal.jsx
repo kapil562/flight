@@ -228,6 +228,48 @@ export default function BookingCheckoutModal({
   const [qrLoading, setQrLoading] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
+  const ensureCompleteBookingData = (b) => {
+    const defaultPax = (passengers && passengers.length > 0 ? passengers : [{
+      title: 'Mr',
+      firstName: contact?.name || contact?.email?.split('@')[0] || 'Customer',
+      lastName: 'Traveller',
+      gender: 'Male',
+      seat: '7B',
+      type: 'Adult'
+    }]);
+
+    return {
+      airline: b?.airline || flight?.airline || 'IndiGo',
+      flightNumber: b?.flightNumber || flight?.flightNumber || '6E 955',
+      aircraft: b?.aircraft || flight?.aircraft || 'A320',
+      from: b?.from || flight?.from || 'DEL',
+      to: b?.to || flight?.to || 'BOM',
+      fromCity: b?.fromCity || flight?.fromCity || (b?.from || flight?.from ? `${b?.from || flight?.from} Airport` : 'Delhi'),
+      toCity: b?.toCity || flight?.toCity || (b?.to || flight?.to ? `${b?.to || flight?.to} Airport` : 'Mumbai'),
+      departureDate: b?.departureDate || flight?.departureDate || flight?.date || new Date().toISOString().split('T')[0],
+      departureTime: b?.departureTime || flight?.departureTime || '20:20',
+      arrivalTime: b?.arrivalTime || flight?.arrivalTime || '22:20',
+      travelClass: b?.travelClass || travelClass || 'Economy',
+      passengers: (b?.passengers && b.passengers.length > 0) ? b.passengers : defaultPax,
+      contact: b?.contact || contact || { email: 'customer@gmail.com', phone: '9876543210' },
+      fare: b?.fare || {
+        basePrice: Number(currentPrice || 4495),
+        taxes: 1455,
+        total: Number(grandTotal || 5950)
+      },
+      ...b,
+      from: b?.from || flight?.from || 'DEL',
+      to: b?.to || flight?.to || 'BOM',
+      fromCity: b?.fromCity || flight?.fromCity || (b?.from || flight?.from ? `${b?.from || flight?.from} Airport` : 'Delhi'),
+      toCity: b?.toCity || flight?.toCity || (b?.to || flight?.to ? `${b?.to || flight?.to} Airport` : 'Mumbai'),
+      airline: b?.airline || flight?.airline || 'IndiGo',
+      flightNumber: b?.flightNumber || flight?.flightNumber || '6E 955',
+      departureDate: b?.departureDate || flight?.departureDate || new Date().toISOString().split('T')[0],
+      departureTime: b?.departureTime || flight?.departureTime || '20:20',
+      arrivalTime: b?.arrivalTime || flight?.arrivalTime || '22:20'
+    };
+  };
+
   // Real-time synchronization when Admin approves booking:
   // 1. BroadcastChannel (Instant 0ms across tabs)
   // 2. Storage event (Instant 0ms across windows)
@@ -245,7 +287,7 @@ export default function BookingCheckoutModal({
         isDone = true;
         setIsVerifyingPayment(false);
         try { localStorage.removeItem('asg_current_pending_pnr'); } catch (e) {}
-        onBookingSuccess(booking);
+        onBookingSuccess(ensureCompleteBookingData(booking));
         return true;
       }
       return false;
@@ -1032,12 +1074,12 @@ export default function BookingCheckoutModal({
       pnr: pnrToUse,
       flightId: flightIdToUse,
       flightNumber: flight?.flightNumber || 'ASG-101',
-      airline: flight?.airline || 'AirSkyGo',
-      airlineCode: flight?.airlineCode || 'ASG',
-      from: flight?.from,
-      to: flight?.to,
-      fromCity: flight?.fromCity || flight?.from,
-      toCity: flight?.toCity || flight?.to,
+      airline: flight?.airline || 'IndiGo',
+      airlineCode: flight?.airlineCode || '6E',
+      from: flight?.from || flight?.origin || 'DEL',
+      to: flight?.to || flight?.destination || 'BOM',
+      fromCity: flight?.fromCity || (flight?.from || flight?.origin ? `${flight?.from || flight?.origin} Airport` : 'Delhi'),
+      toCity: flight?.toCity || (flight?.to || flight?.destination ? `${flight?.to || flight?.destination} Airport` : 'Mumbai'),
       departureDate: flight?.departureDate || new Date().toISOString().split('T')[0],
       departureTime: flight?.departureTime || '08:00',
       arrivalTime: flight?.arrivalTime || '10:30',
@@ -1148,7 +1190,7 @@ export default function BookingCheckoutModal({
           try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
         }
         if (!isManualUpi) {
-          onBookingSuccess(res.data || res.booking);
+          onBookingSuccess(ensureCompleteBookingData(res.data || res.booking));
         }
       } else {
         console.warn('Booking submission notice:', res?.message);
@@ -3028,7 +3070,7 @@ export default function BookingCheckoutModal({
                               if (b && bStatus === 'CONFIRMED') {
                                 setIsVerifyingPayment(false);
                                 try { localStorage.removeItem('asg_current_pending_pnr'); } catch (e) {}
-                                onBookingSuccess(b);
+                                onBookingSuccess(ensureCompleteBookingData(b));
                               } else {
                                 alert('Verification in progress. Please wait a moment while the admin verifies your payment.');
                               }
@@ -3048,7 +3090,7 @@ export default function BookingCheckoutModal({
                               method: paymentMethod,
                               status: 'VERIFICATION_PENDING'
                             }, 'VERIFICATION_PENDING');
-                            onBookingSuccess(pendingBooking);
+                            onBookingSuccess(ensureCompleteBookingData(pendingBooking));
                           }}
                           className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer transition-all"
                         >

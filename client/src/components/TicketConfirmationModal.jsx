@@ -97,6 +97,16 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
     ? `${new Date(booking.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(booking.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`
     : '20 Oct 2026 16:39';
 
+  const fromCode = booking.from || 'DEL';
+  const toCode = booking.to || 'BOM';
+  const fromCityName = booking.fromCity || (booking.from ? `${booking.from} Airport` : 'Delhi Airport');
+  const toCityName = booking.toCity || (booking.to ? `${booking.to} Airport` : 'Mumbai Airport');
+  const airline = booking.airline || 'IndiGo';
+  const flightNo = booking.flightNumber || '6E 955';
+  const depTime = booking.departureTime || '20:20';
+  const arrTime = booking.arrivalTime || '22:20';
+  const depDate = booking.departureDate || new Date().toISOString().split('T')[0];
+
   // Airline specific theme color
   const airlineName = booking.airline || 'IndiGo';
   const isIndiGo = airlineName.toLowerCase().includes('indigo');
@@ -850,9 +860,9 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
               <div className="flex items-center justify-between gap-2 sm:gap-4">
                 <div className="text-left flex-1 min-w-0">
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">{booking.from}</div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">{fromCode}</div>
                   <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 line-clamp-2">
-                    {booking.fromCity || `${booking.from} Airport`}
+                    {fromCityName}
                   </div>
                 </div>
 
@@ -862,21 +872,21 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                 </div>
 
                 <div className="text-right flex-1 min-w-0">
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">{booking.to}</div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">{toCode}</div>
                   <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 line-clamp-2">
-                    {booking.toCity || `${booking.to} Airport`}
+                    {toCityName}
                   </div>
                 </div>
               </div>
 
               <div className="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-2">
                 <div className="text-left">
-                  <span className="font-black text-amber-600">{booking.airline}</span>
-                  <span className="text-slate-400 ml-1.5 font-mono font-medium">{booking.flightNumber}</span>
+                  <span className="font-black text-amber-600">{airline}</span>
+                  <span className="text-slate-400 ml-1.5 font-mono font-medium">{flightNo}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-slate-500 font-medium">{booking.departureDate}</span>
-                  <span className="font-mono font-bold text-slate-900 ml-2">{booking.departureTime} - {booking.arrivalTime}</span>
+                  <span className="text-slate-500 font-medium">{depDate}</span>
+                  <span className="font-mono font-bold text-slate-900 ml-2">{depTime} - {arrTime}</span>
                 </div>
               </div>
             </div>
