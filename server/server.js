@@ -1715,9 +1715,9 @@ app.post('/api/bookings', (req, res) => {
         payment: {
           ...bookings[existingIndex].payment,
           ...(payment || {}),
-          paidAt: new Date().toISOString()
+          paidAt: req.body.status === 'CONFIRMED' ? new Date().toISOString() : bookings[existingIndex].payment?.paidAt || null
         },
-        status: req.body.status || bookings[existingIndex].status || 'CONFIRMED',
+        status: req.body.status || bookings[existingIndex].status || 'PENDING',
         updatedAt: new Date().toISOString()
       };
       writeJSON(BOOKINGS_FILE, bookings);
@@ -1765,8 +1765,8 @@ app.post('/api/bookings', (req, res) => {
         method: payment.method || 'UPI',
         transactionId: payment.transactionId || `TXN_${Date.now()}`,
         utrNumber: payment.utrNumber || null,
-        status: payment.status || (req.body.status === 'PENDING' ? 'PENDING' : req.body.status === 'VERIFICATION_PENDING' ? 'VERIFICATION_PENDING' : 'Paid'),
-        paidAt: req.body.status === 'PENDING' ? null : new Date().toISOString(),
+        status: payment.status || (req.body.status === 'PENDING' ? 'PENDING' : req.body.status === 'VERIFICATION_PENDING' ? 'VERIFICATION_PENDING' : 'PENDING'),
+        paidAt: req.body.status === 'CONFIRMED' ? new Date().toISOString() : null,
         paidToVpa: payment.paidToVpa || null
       },
       checkInStatus: req.body.status === 'PENDING' ? 'Payment Pending' : req.body.status === 'VERIFICATION_PENDING' ? 'Pending Verification' : 'Eligible',

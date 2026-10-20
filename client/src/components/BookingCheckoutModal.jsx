@@ -208,8 +208,8 @@ export default function BookingCheckoutModal({
     const checkApproval = (booking) => {
       if (isDone || !booking) return false;
       const bStatus = String(booking.status || '').trim().toUpperCase();
-      const pStatus = String(booking.payment?.status || '').trim().toUpperCase();
-      if (bStatus === 'CONFIRMED' || pStatus === 'PAID' || bStatus === 'PAID') {
+      // ONLY accept explicit CONFIRMED status set by admin — never auto-confirm via payment.status
+      if (bStatus === 'CONFIRMED') {
         isDone = true;
         setIsVerifyingPayment(false);
         onBookingSuccess(booking);
@@ -218,11 +218,13 @@ export default function BookingCheckoutModal({
       return false;
     };
 
-    // 0. Immediate fetch
-    api.getBookingByPnr(activePnr).then(res => {
-      const b = res?.data || res?.booking;
-      if (b) checkApproval(b);
-    }).catch(() => {});
+    // 0. Delayed initial fetch (wait 2s for Edge Config to settle after booking creation)
+    const initialTimeout = setTimeout(() => {
+      api.getBookingByPnr(activePnr).then(res => {
+        const b = res?.data || res?.booking;
+        if (b) checkApproval(b);
+      }).catch(() => {});
+    }, 2000);
 
     // 1. BroadcastChannel listener (instant same-machine sync)
     let bc = null;
@@ -1095,7 +1097,7 @@ export default function BookingCheckoutModal({
       return;
     }
 
-    const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr';
+    const isManualUpi = ['upi', 'upiQr', 'upiApps'].includes(paymentMethod);
     const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
     const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
     setCreatedPnr(pnrToUse);
@@ -1104,7 +1106,7 @@ export default function BookingCheckoutModal({
     const bookingPayload = buildBookingPayload(pnrToUse, {
       method: paymentMethod,
       status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
-      selectedApp: selectedUpiApp || 'UPI QR'
+      selectedApp: selectedUpiApp || 'UPI'
     }, finalStatus);
 
     if (isManualUpi) {
