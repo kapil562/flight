@@ -86,7 +86,7 @@ export const getFirebaseErrorMessage = (error) => {
     case 'auth/too-many-requests':
       return 'Too many unsuccessful attempts. Access temporarily disabled. Please reset password or try again later.';
     case 'auth/unauthorized-domain':
-      return 'This web domain is not authorized in Firebase Console yet. Please sign in using Email & Password below, or use 1-Click Demo Login.';
+      return 'This web domain is not authorized in Firebase Console yet. Please add this domain to Firebase Console -> Authentication -> Settings -> Authorized domains, or sign in using Email & Password below.';
     default:
       return error.message || 'Authentication failed. Please check your credentials and try again.';
   }

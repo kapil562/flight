@@ -374,16 +374,6 @@ export default function LoginPage() {
                     <span>Continue with Google</span>
                   </button>
 
-                  {/* 1-Click Instant Demo Login */}
-                  <button
-                    type="button"
-                    onClick={handleDemoSignIn}
-                    disabled={loading}
-                    className="w-full py-2.5 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-300 text-amber-900 font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 mb-3"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    <span>⚡ 1-Click Demo Traveler Login (Instant Access)</span>
-                  </button>
 
                   {/* Divider */}
                   <div className="relative flex items-center justify-center my-4">
