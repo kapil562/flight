@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { CheckCircle2, Download, Printer, Share2, Plane, Calendar, Clock, MapPin, X, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -75,35 +76,94 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
   if (!booking) return null;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+  const modalContent = (
+    <div
+      id="ticket-modal-portal"
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-2.5 sm:p-4 py-4 sm:py-8"
     >
-      {/* Print stylesheet to enforce exactly 1-page printout of ticket pass only */}
+      {/* Print stylesheet to enforce strictly 1-page printout of ticket pass only */}
       <style>{`
         @media print {
-          body * {
-            visibility: hidden !important;
+          /* 1. Completely eliminate the entire 8392px React website root from print flow */
+          #root,
+          body > *:not(#ticket-modal-portal) {
+            display: none !important;
+            height: 0 !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
           }
-          #printable-ticket, #printable-ticket * {
-            visibility: visible !important;
+
+          /* 2. Reset html & body so height is auto and doesn't generate blank trailing sheets */
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: 100% !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          #printable-ticket {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
+
+          /* 3. Neutralize backdrop and hide non-printable UI elements */
+          #ticket-modal-portal {
+            position: static !important;
+            display: block !important;
             width: 100% !important;
-            max-width: 720px !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            overflow: visible !important;
+          }
+
+          .no-print,
+          #ticket-modal-portal .no-print {
+            display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
+          }
+
+          #ticket-modal-card-wrapper {
+            position: static !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+            transform: none !important;
+          }
+
+          #ticket-card-outer {
+            padding: 0 !important;
+            background: transparent !important;
+            margin: 0 auto !important;
+            max-width: 680px !important;
+          }
+
+          /* 4. Ticket Pass strictly 1 page */
+          #printable-ticket {
+            display: block !important;
+            position: static !important;
+            width: 100% !important;
+            max-width: 680px !important;
             margin: 0 auto !important;
             box-shadow: none !important;
-            border: 1px solid #e2e8f0 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 16px !important;
             background: #ffffff !important;
-            z-index: 999999 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
           }
+
           @page {
             size: A4 portrait;
             margin: 10mm;
@@ -112,6 +172,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       `}</style>
 
       <motion.div
+        id="ticket-modal-card-wrapper"
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -120,7 +181,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       >
         
         {/* Celebration Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 sm:p-6 text-center relative overflow-hidden">
+        <div className="no-print bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 sm:p-6 text-center relative overflow-hidden">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
@@ -156,7 +217,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         </div>
 
         {/* Boarding Pass / Ticket Card */}
-        <div className="p-3 sm:p-6 bg-slate-50">
+        <div id="ticket-card-outer" className="p-3 sm:p-6 bg-slate-50">
           <div
             ref={ticketRef}
             id="printable-ticket"
@@ -393,7 +454,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3">
+        <div className="no-print p-4 sm:p-5 border-t border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3">
           <button
             onClick={() => { onClose(); onOpenMyBookings(); }}
             className="text-xs font-bold text-sky-600 hover:text-sky-700 cursor-pointer"
@@ -435,6 +496,9 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         </div>
 
       </motion.div>
-    </motion.div>
+    </div>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(modalContent, document.body);
 }
