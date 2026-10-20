@@ -3072,21 +3072,7 @@ export default function BookingCheckoutModal({
                         </div>
                       )}
 
-                      {selectedUpiApp && (
-                        <div className="p-2 bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200 rounded-lg text-sky-900 text-[10px] font-medium flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                            <span><strong>{selectedUpiApp}</strong> chuna gaya hai. Niche button click karte hi app khulegi.</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleLaunchUpiApp(selectedAppKey, selectedUpiApp)}
-                            className="text-[9px] font-black text-sky-700 hover:text-sky-800 underline shrink-0 flex items-center gap-0.5"
-                          >
-                            Direct Open <ExternalLink className="w-2 h-2" />
-                          </button>
-                        </div>
-                      )}
+
                     </div>
                   )}
 
