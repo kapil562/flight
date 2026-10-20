@@ -55,8 +55,8 @@
       "method": "upiApps",
       "transactionId": "TXN_1792443911671",
       "utrNumber": "",
-      "status": "CANCELLED",
-      "paidAt": "2026-10-20T06:32:43.650Z",
+      "status": "VERIFICATION_PENDING",
+      "paidAt": "2026-10-20T06:43:47.380Z",
       "paidToVpa": null,
       "vpa": "care@airsky",
       "selectedApp": "PhonePe",
@@ -64,12 +64,12 @@
       "cardLast4": null
     },
     "checkInStatus": "Cancelled",
-    "status": "CANCELLED",
+    "status": "VERIFICATION_PENDING",
     "createdAt": "2026-10-19T21:05:11.671Z",
     "airlineCode": "SG",
     "gst": null,
     "fareTier": "saver",
-    "updatedAt": "2026-10-20T06:33:17.479Z"
+    "updatedAt": "2026-10-20T06:43:47.380Z"
   },
   {
     "pnr": "ASG-373051",

