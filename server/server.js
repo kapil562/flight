@@ -1141,9 +1141,9 @@ app.get('/api/payment-settings', (req, res) => {
     gatewayActive: true,
     paymentMode: 'manual',
     upi: {
-      vpa: 'r86j742993@mairtel',
-      name: 'Meesho Shooping',
-      businessName: 'Meesho Shooping',
+      vpa: 'paytm.s2zbyoe@pty',
+      name: 'AirSkyGo',
+      businessName: 'AirSkyGo',
       mcc: '5499'
     },
     methods: {
@@ -2662,8 +2662,8 @@ app.get('/api/admin/api-settings', (req, res) => {
         enabled: !!paymentSettings.razorpay?.enabled
       },
       upi: {
-        vpa: paymentSettings.upi?.vpa || 'r86j742993@mairtel',
-        businessName: paymentSettings.upi?.businessName || paymentSettings.upi?.name || 'Meesho Shooping'
+        vpa: paymentSettings.upi?.vpa || 'paytm.s2zbyoe@pty',
+        businessName: paymentSettings.upi?.businessName || paymentSettings.upi?.name || 'AirSkyGo'
       },
       general: {
         bookingPrefix: siteSettings.bookingPrefix || 'GS',
@@ -2726,8 +2726,8 @@ app.post('/api/admin/api-settings', (req, res) => {
         upi: {
           ...currentPay.upi,
           vpa: upi.vpa.trim(),
-          businessName: (upi.businessName || currentPay.upi?.businessName || 'Meesho Shooping').trim(),
-          name: (upi.businessName || currentPay.upi?.name || 'Meesho Shooping').trim()
+          businessName: (upi.businessName || currentPay.upi?.businessName || 'AirSkyGo').trim(),
+          name: (upi.businessName || currentPay.upi?.name || 'AirSkyGo').trim()
         }
       } : {}),
       razorpay: {

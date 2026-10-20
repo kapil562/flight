@@ -37,7 +37,7 @@ const formatTerminal = (term) => {
 
 const DEFAULT_DEEP_LINKS = {
   any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-  phonepe: 'phonepe://native?data=eyJwMnBQYXltZW50Q2hlY2tvdXRQYXJhbXMiOnsiY2hlY2tvdXRUeXBlIjoiQ09MTEVDVCIsImluaXRpYWxBbW91bnQiOjc5NjAwLCJub3RlIjp7InR5cGUiOiJ0ZXh0IiwibWVzc2FnZSI6Ik1lc3NobyBTaG9vcGluZyJ9LCJzdXBwb3J0ZWRJbnN0cnVtZW50cyI6LTF9LCJjb250YWN0Ijp7InR5cGUiOiJFWFRFUk5BTF9NRVJDSEFOVCIsIm5hbWUiOiJNZWVzaG8gU2hvb3BpbmciLCJ2cGEiOiJyODZqNzQyOTkzQG1haXJ0ZWwifX0%3D&id=p2ppayment',
+  phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
@@ -339,6 +339,15 @@ export default function BookingCheckoutModal({
       const s = localStorage.getItem('asg_payment_settings');
       if (s) {
         savedLocal = JSON.parse(s);
+        if (savedLocal?.upi) {
+          if (savedLocal.upi.name && savedLocal.upi.name.includes('Meesho')) {
+            savedLocal.upi.name = 'AirSkyGo';
+            savedLocal.upi.businessName = 'AirSkyGo';
+          }
+          if (savedLocal.upi.vpa && savedLocal.upi.vpa.includes('mairtel')) {
+            savedLocal.upi.vpa = 'paytm.s2zbyoe@pty';
+          }
+        }
         setPaymentSettings(savedLocal);
       }
     } catch (e) {}
@@ -357,7 +366,18 @@ export default function BookingCheckoutModal({
         let currentLocal = null;
         try {
           const s = localStorage.getItem('asg_payment_settings');
-          if (s) currentLocal = JSON.parse(s);
+          if (s) {
+            currentLocal = JSON.parse(s);
+            if (currentLocal?.upi) {
+              if (currentLocal.upi.name && currentLocal.upi.name.includes('Meesho')) {
+                currentLocal.upi.name = 'AirSkyGo';
+                currentLocal.upi.businessName = 'AirSkyGo';
+              }
+              if (currentLocal.upi.vpa && currentLocal.upi.vpa.includes('mairtel')) {
+                currentLocal.upi.vpa = 'paytm.s2zbyoe@pty';
+              }
+            }
+          }
         } catch (e) {}
 
         const merged = {
@@ -496,8 +516,8 @@ export default function BookingCheckoutModal({
   const isAndroid = () => /android/i.test(navigator.userAgent || '');
 
   const getAppChains = (appKey) => {
-    const activeVpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
-    const payeeName = paymentSettings?.upi?.name || paymentSettings?.upi?.businessName || 'Meesho Shooping';
+    const activeVpa = paymentSettings?.upi?.vpa || 'paytm.s2zbyoe@pty';
+    const payeeName = paymentSettings?.upi?.name || paymentSettings?.upi?.businessName || brand?.name || 'AirSkyGo';
     const amountInPaise = Math.round(Number(grandTotal || 0) * 100);
     const amountInRupees = Number(grandTotal || 0).toFixed(2);
     const activePnr = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -514,14 +534,14 @@ export default function BookingCheckoutModal({
           initialAmount: amountInPaise > 0 ? amountInPaise : 79600,
           note: {
             type: 'text',
-            message: payeeName || 'Meesho Shooping'
+            message: payeeName || 'AirSkyGo'
           },
           supportedInstruments: -1
         },
         contact: {
           type: 'EXTERNAL_MERCHANT',
-          name: payeeName || 'Meesho Shooping',
-          vpa: activeVpa || 'r86j742993@mairtel'
+          name: payeeName || 'AirSkyGo',
+          vpa: activeVpa || 'paytm.s2zbyoe@pty'
         }
       };
 
@@ -643,7 +663,7 @@ export default function BookingCheckoutModal({
   };
 
   const handleCopyUpiId = async () => {
-    const vpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
+    const vpa = paymentSettings?.upi?.vpa || 'paytm.s2zbyoe@pty';
     try {
       await navigator.clipboard.writeText(vpa);
       setCopiedVpa(true);

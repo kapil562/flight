@@ -8,7 +8,7 @@ import { api } from '../utils/api';
 
 const DEFAULT_DEEP_LINKS = {
   any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-  phonepe: 'phonepe://native?data=eyJwMnBQYXltZW50Q2hlY2tvdXRQYXJhbXMiOnsiY2hlY2tvdXRUeXBlIjoiQ09MTEVDVCIsImluaXRpYWxBbW91bnQiOjc5NjAwLCJub3RlIjp7InR5cGUiOiJ0ZXh0IiwibWVzc2FnZSI6Ik1lc3NobyBTaG9vcGluZyJ9LCJzdXBwb3J0ZWRJbnN0cnVtZW50cyI6LTF9LCJjb250YWN0Ijp7InR5cGUiOiJFWFRFUk5BTF9NRVJDSEFOVCIsIm5hbWUiOiJNZWVzaG8gU2hvb3BpbmciLCJ2cGEiOiJyODZqNzQyOTkzQG1haXJ0ZWwifX0%3D&id=p2ppayment',
+  phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
@@ -26,14 +26,21 @@ export default function AdminPaymentsUpi() {
       const saved = localStorage.getItem('asg_payment_settings');
       if (saved) {
         const parsed = JSON.parse(saved);
+        const cleanName = (parsed.upi?.name && !parsed.upi.name.includes('Meesho')) 
+          ? parsed.upi.name 
+          : 'AirSkyGo';
+        const cleanVpa = (parsed.upi?.vpa && !parsed.upi.vpa.includes('mairtel')) 
+          ? parsed.upi.vpa 
+          : 'paytm.s2zbyoe@pty';
+
         return {
           gatewayActive: parsed.gatewayActive !== false,
           paymentMode: parsed.paymentMode || 'manual',
           upi: {
-            vpa: parsed.upi?.vpa || 'r86j742993@mairtel',
-            name: parsed.upi?.name || 'Meesho Shooping',
+            vpa: cleanVpa,
+            name: cleanName,
             mcc: parsed.upi?.mcc || '5499',
-            businessName: parsed.upi?.businessName || parsed.upi?.name || 'Meesho Shooping'
+            businessName: cleanName
           },
           methods: {
             upiQr: parsed.methods?.upiQr !== false,
@@ -59,8 +66,9 @@ export default function AdminPaymentsUpi() {
       gatewayActive: true,
       paymentMode: 'manual', // 'manual' | 'auto'
       upi: {
-        vpa: 'r86j742993@mairtel',
-        name: 'Meesho Shooping',
+        vpa: 'paytm.s2zbyoe@pty',
+        name: 'AirSkyGo',
+        businessName: 'AirSkyGo',
         mcc: '5499'
       },
       methods: {
@@ -93,7 +101,16 @@ export default function AdminPaymentsUpi() {
         let localData = null;
         try {
           const saved = localStorage.getItem('asg_payment_settings');
-          if (saved) localData = JSON.parse(saved);
+          if (saved) {
+            localData = JSON.parse(saved);
+            if (localData?.upi?.name && localData.upi.name.includes('Meesho')) {
+              localData.upi.name = 'AirSkyGo';
+              localData.upi.businessName = 'AirSkyGo';
+            }
+            if (localData?.upi?.vpa && localData.upi.vpa.includes('mairtel')) {
+              localData.upi.vpa = 'paytm.s2zbyoe@pty';
+            }
+          }
         } catch (e) {}
 
         const merged = {
@@ -168,8 +185,8 @@ export default function AdminPaymentsUpi() {
   };
 
   const renderSampleLink = (template) => {
-    const vpa = encodeURIComponent(form.upi?.vpa || 'r86j742993@mairtel');
-    const name = encodeURIComponent(form.upi?.name || 'Meesho Shooping');
+    const vpa = encodeURIComponent(form.upi?.vpa || 'paytm.s2zbyoe@pty');
+    const name = encodeURIComponent(form.upi?.name || form.upi?.businessName || 'AirSkyGo');
     const mcc = form.upi?.mcc || '5499';
     const amount = '15597.00';
     const tr = 'GS6AC38C484D4FB';
@@ -214,7 +231,7 @@ export default function AdminPaymentsUpi() {
     }
   };
 
-  const liveUpiUrl = `upi://pay?pa=${encodeURIComponent(form.upi?.vpa || 'r86j742993@mairtel')}&pn=${encodeURIComponent(form.upi?.name || 'Meesho Shooping')}&mc=${form.upi?.mcc || '5499'}&cu=INR`;
+  const liveUpiUrl = `upi://pay?pa=${encodeURIComponent(form.upi?.vpa || 'paytm.s2zbyoe@pty')}&pn=${encodeURIComponent(form.upi?.name || form.upi?.businessName || 'AirSkyGo')}&mc=${form.upi?.mcc || '5499'}&cu=INR`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(liveUpiUrl)}`;
 
   if (loading) {
@@ -423,9 +440,19 @@ export default function AdminPaymentsUpi() {
                 <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="AIR SKY"
-                  value={form.upi?.name || ''}
-                  onChange={(e) => setForm({ ...form, upi: { ...form.upi, name: e.target.value } })}
+                  placeholder="AirSkyGo"
+                  value={form.upi?.name || form.upi?.businessName || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setForm({
+                      ...form,
+                      upi: {
+                        ...form.upi,
+                        name: val,
+                        businessName: val
+                      }
+                    });
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 font-bold text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-amber-500"
                 />
               </div>

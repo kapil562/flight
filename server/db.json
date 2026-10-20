@@ -2587,9 +2587,9 @@
         "transactionId": "TXN_1792443911671",
         "utrNumber": "",
         "status": "VERIFICATION_PENDING",
-        "paidAt": "2026-10-20T06:43:47.380Z",
+        "paidAt": "2026-10-20T07:56:47.159Z",
         "paidToVpa": null,
-        "vpa": "care@airsky",
+        "vpa": "paytm.s2zbyoe@pty",
         "selectedApp": "PhonePe",
         "bank": null,
         "cardLast4": null
@@ -2600,7 +2600,7 @@
       "airlineCode": "SG",
       "gst": null,
       "fareTier": "saver",
-      "updatedAt": "2026-10-20T06:43:47.380Z"
+      "updatedAt": "2026-10-20T07:56:47.159Z"
     },
     {
       "pnr": "ASG-373051",
@@ -4646,10 +4646,10 @@
     "gatewayActive": true,
     "paymentMode": "manual",
     "upi": {
-      "vpa": "care@airsky",
-      "name": "AIR SKY LUXURY",
+      "vpa": "paytm.s2zbyoe@pty",
+      "name": "AirSkyGo",
       "mcc": "5499",
-      "businessName": "AIR SKY LUXURY"
+      "businessName": "AirSkyGo"
     },
     "methods": {
       "upiQr": true,
@@ -4660,7 +4660,7 @@
     "apps": {
       "any": false,
       "phonepe": true,
-      "gpay": false,
+      "gpay": true,
       "paytm": false,
       "bhim": false,
       "other": false
@@ -4682,7 +4682,7 @@
       "bhim": true,
       "other": false
     },
-    "updatedAt": "2026-10-19T17:24:19.371Z",
+    "updatedAt": "2026-10-20T07:56:15.231Z",
     "razorpay": {
       "keyId": "",
       "keySecret": "",
