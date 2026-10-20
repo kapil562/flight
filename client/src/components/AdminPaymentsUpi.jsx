@@ -5,6 +5,7 @@ import {
   ExternalLink, Zap, RotateCcw, MessageSquare, Save
 } from 'lucide-react';
 import { api } from '../utils/api';
+import { getEdgePaymentSettings, saveEdgePaymentSettings } from '../utils/edgeConfig';
 
 const DEFAULT_DEEP_LINKS = {
   any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
@@ -96,19 +97,20 @@ export default function AdminPaymentsUpi() {
 
   const loadSettings = async () => {
     try {
+      // 1. Try Vercel Edge Config (always live, real-time across all devices)
+      const edgeData = await getEdgePaymentSettings();
+      if (edgeData) {
+        setForm(edgeData);
+        try { localStorage.setItem('asg_payment_settings', JSON.stringify(edgeData)); } catch (e) {}
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to API
       const res = await api.getPaymentSettings();
       if (res && res.success && res.data) {
-        const liveData = res.data;
-        if (liveData?.upi?.name && liveData.upi.name.includes('Meesho')) {
-          liveData.upi.name = 'AirSkyGo';
-          liveData.upi.businessName = 'AirSkyGo';
-        }
-        if (liveData?.upi?.vpa && liveData.upi.vpa.includes('mairtel')) {
-          liveData.upi.vpa = 'paytm.s2zbyoe@pty';
-        }
-
-        setForm(liveData);
-        try { localStorage.setItem('asg_payment_settings', JSON.stringify(liveData)); } catch (e) {}
+        setForm(res.data);
+        try { localStorage.setItem('asg_payment_settings', JSON.stringify(res.data)); } catch (e) {}
       }
     } catch (err) {
       console.warn('Using saved payment settings', err);
@@ -133,38 +135,21 @@ export default function AdminPaymentsUpi() {
         updatedAt: new Date().toISOString()
       };
 
-      // 1. Immediately persist to localStorage for instant reliable hydration
+      // 1. Save directly to Vercel Edge Config (instant global replication across all devices)
+      await saveEdgePaymentSettings(payloadToSave);
+
+      // 2. Immediately persist to localStorage for instant reliable hydration
       try {
         localStorage.setItem('asg_payment_settings', JSON.stringify(payloadToSave));
         window.dispatchEvent(new CustomEvent('asg_payment_settings_updated', { detail: payloadToSave }));
       } catch (storageErr) {}
 
-      // 2. Save to backend API
+      // 3. Save to backend API
       try {
         await api.updatePaymentSettings(payloadToSave);
       } catch (apiErr) {
         console.warn('API save notice:', apiErr);
       }
-
-      // 3. Direct Cloud Gist Sync for 100% instant cross-device live update
-      try {
-        const cloudToken = atob('Z2hwX2dYS0V3SlFZM29kNW9jZERDcXdtYmNIT0ZzT3ZubzQ0aXVJQg==');
-        fetch('https://api.github.com/gists/76bcfc1e9eef99f7697249bb4dca4360', {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${cloudToken}`,
-            'User-Agent': 'AirSkyGo-Admin-Direct',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            files: {
-              'payment_settings.json': {
-                content: JSON.stringify(payloadToSave, null, 2)
-              }
-            }
-          })
-        }).catch(() => {});
-      } catch (e) {}
 
       setForm(payloadToSave);
       setSaveSuccessMsg('Payment & UPI settings saved successfully!');

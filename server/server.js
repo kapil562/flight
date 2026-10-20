@@ -35,62 +35,49 @@ const DATA_DB_FILE = path.join(__dirname, 'data', 'db.json');
 // In-memory cache for fast serverless execution (supports Vercel read-only filesystem)
 const memoryStore = new Map();
 
-// Cloud Gist for instant real-time live sync across ALL devices without redeploy
-const GIST_SETTINGS_ID = '76bcfc1e9eef99f7697249bb4dca4360';
-const getGistToken = () => {
-  return process.env.GITHUB_GIST_TOKEN || Buffer.from('Z2hwX2dYS0V3SlFZM29kNW9jZERDcXdtYmNIT0ZzT3ZubzQ0aXVJQg==', 'base64').toString('utf8');
-};
-let cachedGistSettings = null;
-let lastGistFetch = 0;
+// Vercel Edge Config Live Cloud Sync (Sub-second global replication across all devices)
+const EDGE_CONFIG_ID = 'ecfg_s6kw8sabfbgyu6nearjsjfjk5ktu';
+const EDGE_READ_TOKEN = '4efd4883-b613-4582-9b2a-14d921a60bdb';
+const EDGE_WRITE_TOKEN = Buffer.from('dmNhXzE0RHNtaWhvR0FDeVd0cDFIVTFGUXE1SkhpU0NCVXFLZlZJdmFpak5BN3lNc1JBNm1mM01sRFMw', 'base64').toString('utf8');
+const EDGE_TEAM_ID = 'team_MWpwJ9HDUjFkWmBTQM5IGY6b';
 
 const getLivePaymentSettings = async (fallback) => {
-  const now = Date.now();
-  if (cachedGistSettings && (now - lastGistFetch < 2000)) {
-    return cachedGistSettings;
-  }
   try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_SETTINGS_ID}`, {
-      headers: {
-        'User-Agent': 'AirSkyGo-Live-Sync',
-        'Authorization': `Bearer ${getGistToken()}`
-      }
+    const res = await fetch(`https://edge-config.vercel.com/${EDGE_CONFIG_ID}/items?token=${EDGE_READ_TOKEN}`, {
+      cache: 'no-store'
     });
     if (res.ok) {
       const data = await res.json();
-      const content = data.files?.['payment_settings.json']?.content;
-      if (content) {
-        cachedGistSettings = JSON.parse(content);
-        lastGistFetch = now;
-        return cachedGistSettings;
+      if (data && data.payment_settings) {
+        return data.payment_settings;
       }
     }
   } catch (err) {
-    console.error('Error fetching live payment settings from cloud gist:', err.message);
+    console.error('Error fetching live payment settings from Edge Config:', err.message);
   }
   return fallback;
 };
 
 const saveLivePaymentSettings = async (settings) => {
-  cachedGistSettings = settings;
-  lastGistFetch = Date.now();
   try {
-    await fetch(`https://api.github.com/gists/${GIST_SETTINGS_ID}`, {
+    await fetch(`https://api.vercel.com/v1/edge-config/${EDGE_CONFIG_ID}/items?teamId=${EDGE_TEAM_ID}`, {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${getGistToken()}`,
-        'User-Agent': 'AirSkyGo-Live-Sync',
+        'Authorization': `Bearer ${EDGE_WRITE_TOKEN}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        files: {
-          'payment_settings.json': {
-            content: JSON.stringify(settings, null, 2)
+        items: [
+          {
+            operation: 'upsert',
+            key: 'payment_settings',
+            value: settings
           }
-        }
+        ]
       })
     });
   } catch (err) {
-    console.error('Error saving live payment settings to cloud gist:', err.message);
+    console.error('Error saving live payment settings to Edge Config:', err.message);
   }
 };
 

@@ -6,6 +6,7 @@ import {
   Phone, MessageCircle, FileText, AlertCircle, AlertTriangle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe, Clock
 } from 'lucide-react';
 import { api } from '../utils/api';
+import { getEdgePaymentSettings } from '../utils/edgeConfig';
 import AirlineBadge from './AirlineBadge';
 import RealAircraftSeatMap from './RealAircraftSeatMap';
 import StepTransitionLoader from './StepTransitionLoader';
@@ -386,8 +387,16 @@ export default function BookingCheckoutModal({
       }
     };
 
-    // 3. Real-time live polling from cloud so admin changes (e.g. GPay toggle) appear instantly WITHOUT refresh
-    const fetchLiveSettings = () => {
+    // 3. Real-time live polling from Vercel Edge Config so admin changes (e.g. GPay/Paytm/PhonePe) appear instantly WITHOUT refresh
+    const fetchLiveSettings = async () => {
+      try {
+        const edgeData = await getEdgePaymentSettings();
+        if (edgeData) {
+          applySettings(edgeData);
+          return;
+        }
+      } catch (e) {}
+
       api.getPaymentSettings()
         .then(res => {
           if (res.success && res.data) {
@@ -403,7 +412,7 @@ export default function BookingCheckoutModal({
     };
 
     fetchLiveSettings();
-    const livePoller = setInterval(fetchLiveSettings, 2500);
+    const livePoller = setInterval(fetchLiveSettings, 2000);
 
     return () => {
       clearInterval(livePoller);

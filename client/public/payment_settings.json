@@ -16,7 +16,7 @@
   "apps": {
     "any": false,
     "phonepe": true,
-    "gpay": false,
+    "gpay": true,
     "paytm": true,
     "bhim": false,
     "other": false
@@ -35,5 +35,5 @@
     "keySecret": "",
     "enabled": false
   },
-  "updatedAt": "2026-10-20T09:02:00.000Z"
+  "updatedAt": "2026-10-20T09:42:45.187Z"
 }
