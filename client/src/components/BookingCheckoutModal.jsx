@@ -335,12 +335,58 @@ export default function BookingCheckoutModal({
 
   // Fetch payment settings, seat layout and coupons on mount
   useEffect(() => {
+    // 1. Initial hydration from localStorage
+    let savedLocal = null;
+    try {
+      const s = localStorage.getItem('asg_payment_settings');
+      if (s) {
+        savedLocal = JSON.parse(s);
+        setPaymentSettings(savedLocal);
+      }
+    } catch (e) {}
+
+    // 2. Listen for live updates from Admin panel
+    const handleSettingsUpdate = (e) => {
+      if (e.detail) {
+        setPaymentSettings(e.detail);
+      }
+    };
+    window.addEventListener('asg_payment_settings_updated', handleSettingsUpdate);
+
+    // 3. Fetch from API and merge preserving user saved edits
     api.getPaymentSettings().then(res => {
       if (res.success && res.data) {
-        setPaymentSettings(res.data);
-        try { localStorage.setItem('asg_payment_settings', JSON.stringify(res.data)); } catch (e) {}
+        let currentLocal = null;
+        try {
+          const s = localStorage.getItem('asg_payment_settings');
+          if (s) currentLocal = JSON.parse(s);
+        } catch (e) {}
 
-        const m = res.data.methods || {};
+        const merged = {
+          ...res.data,
+          ...(currentLocal || {}),
+          upi: {
+            ...(res.data.upi || {}),
+            ...(currentLocal?.upi || {})
+          },
+          methods: {
+            ...(res.data.methods || {}),
+            ...(currentLocal?.methods || {})
+          },
+          apps: {
+            ...(res.data.apps || {}),
+            ...(currentLocal?.apps || {})
+          },
+          deepLinks: {
+            ...(res.data.deepLinks || {}),
+            ...(currentLocal?.deepLinks || {})
+          }
+        };
+
+        setPaymentSettings(merged);
+        try { localStorage.setItem('asg_payment_settings', JSON.stringify(merged)); } catch (e) {}
+
+        const m = merged.methods || {};
         // Auto select first enabled method (priority: upiApps -> upiQr -> card -> netbanking)
         const isCurrentEnabled = 
           (paymentMethod === 'upiApps' && m.upiApps !== false) ||
@@ -357,6 +403,12 @@ export default function BookingCheckoutModal({
       }
     }).catch(() => {});
 
+    return () => {
+      window.removeEventListener('asg_payment_settings_updated', handleSettingsUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
     api.getCoupons().then(res => {
       if (res.success && Array.isArray(res.data)) {
         setAvailableCoupons(res.data);
