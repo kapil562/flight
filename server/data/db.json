@@ -2583,14 +2583,14 @@
         "promoCode": null
       },
       "payment": {
-        "method": "upiApps",
+        "method": "upiQr",
         "transactionId": "TXN_1792443911671",
         "utrNumber": "",
         "status": "VERIFICATION_PENDING",
-        "paidAt": "2026-10-20T07:56:47.159Z",
+        "paidAt": "2026-10-20T08:01:46.565Z",
         "paidToVpa": null,
         "vpa": "paytm.s2zbyoe@pty",
-        "selectedApp": "PhonePe",
+        "selectedApp": null,
         "bank": null,
         "cardLast4": null
       },
@@ -2600,7 +2600,7 @@
       "airlineCode": "SG",
       "gst": null,
       "fareTier": "saver",
-      "updatedAt": "2026-10-20T07:56:47.159Z"
+      "updatedAt": "2026-10-20T08:01:46.565Z"
     },
     {
       "pnr": "ASG-373051",
@@ -4682,7 +4682,7 @@
       "bhim": true,
       "other": false
     },
-    "updatedAt": "2026-10-20T07:56:15.231Z",
+    "updatedAt": "2026-10-20T08:02:13.009Z",
     "razorpay": {
       "keyId": "",
       "keySecret": "",

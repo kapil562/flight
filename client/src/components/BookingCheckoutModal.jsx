@@ -528,25 +528,26 @@ export default function BookingCheckoutModal({
     const genericUpi = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
 
     if (appKey === 'phonepe') {
-      const payload = {
-        p2pPaymentCheckoutParams: {
-          checkoutType: 'COLLECT',
-          initialAmount: amountInPaise > 0 ? amountInPaise : 79600,
-          note: {
-            type: 'text',
-            message: payeeName || 'AirSkyGo'
-          },
-          supportedInstruments: -1
-        },
+      // Exact PhonePe P2P native redirect logic from user's store
+      const phonepePayload = {
         contact: {
-          type: 'EXTERNAL_MERCHANT',
-          name: payeeName || 'AirSkyGo',
-          vpa: activeVpa || 'paytm.s2zbyoe@pty'
+          cbcName: '',
+          nickName: '',
+          vpa: activeVpa,
+          type: 'VPA'
+        },
+        p2pPaymentCheckoutParams: {
+          note: `Pay For ${payeeName || 'AirSkyGo'}`,
+          isByDefaultKnownContact: true,
+          initialAmount: amountInPaise > 0 ? amountInPaise : 79600,
+          currency: 'INR',
+          checkoutType: 'DEFAULT',
+          transactionContext: 'p2p'
         }
       };
 
-      const base64 = btoa(JSON.stringify(payload));
-      const nativePhonePe = `phonepe://native?data=${encodeURIComponent(base64)}&id=p2ppayment`;
+      const phonepeBase64 = encodeURIComponent(btoa(JSON.stringify(phonepePayload)));
+      const nativePhonePe = `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
       const standardPhonePe = `phonepe://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}&tr=${txnRef}`;
       const intentPhonePe = `intent://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(payeeName)}&am=${amountInRupees}&cu=INR&tn=${encodeURIComponent(txnNote)}#Intent;scheme=upi;package=com.phonepe.app;end`;
 

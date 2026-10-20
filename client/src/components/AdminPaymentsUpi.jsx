@@ -8,9 +8,9 @@ import { api } from '../utils/api';
 
 const DEFAULT_DEEP_LINKS = {
   any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-  phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  phonepe: 'phonepe://native?data={data}&id=p2ppayment',
   gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-  paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  paytm: 'paytmmp://cash_wallet?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&featuretype=money_transfer',
   bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   other: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02'
 };
@@ -184,14 +184,38 @@ export default function AdminPaymentsUpi() {
     }
   };
 
-  const renderSampleLink = (template) => {
-    const vpa = encodeURIComponent(form.upi?.vpa || 'paytm.s2zbyoe@pty');
-    const name = encodeURIComponent(form.upi?.name || form.upi?.businessName || 'AirSkyGo');
+  const renderSampleLink = (template, appKey) => {
+    const rawVpa = form.upi?.vpa || 'paytm.s2zbyoe@pty';
+    const rawName = form.upi?.name || form.upi?.businessName || 'AirSkyGo';
+    const vpa = encodeURIComponent(rawVpa);
+    const name = encodeURIComponent(rawName);
     const mcc = form.upi?.mcc || '5499';
     const amount = '15597.00';
+    const amountInPaise = Math.round(Number(amount) * 100);
     const tr = 'GS6AC38C484D4FB';
     const note = encodeURIComponent(`Flight Booking ${tr}`);
     const currency = 'INR';
+
+    if (appKey === 'phonepe' || (template && template.startsWith('phonepe://native'))) {
+      const phonepePayload = {
+        contact: {
+          cbcName: '',
+          nickName: '',
+          vpa: rawVpa,
+          type: 'VPA'
+        },
+        p2pPaymentCheckoutParams: {
+          note: `Pay For ${rawName}`,
+          isByDefaultKnownContact: true,
+          initialAmount: amountInPaise,
+          currency: 'INR',
+          checkoutType: 'DEFAULT',
+          transactionContext: 'p2p'
+        }
+      };
+      const phonepeBase64 = encodeURIComponent(btoa(JSON.stringify(phonepePayload)));
+      return `phonepe://native?data=${phonepeBase64}&id=p2ppayment`;
+    }
 
     return (template || '')
       .replace(/{vpa}/g, vpa)
@@ -204,14 +228,14 @@ export default function AdminPaymentsUpi() {
   };
 
   const handleCopyLink = (key, template) => {
-    const rendered = renderSampleLink(template);
+    const rendered = renderSampleLink(template, key);
     navigator.clipboard.writeText(rendered);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const handleTestLink = (template) => {
-    const rendered = renderSampleLink(template);
+  const handleTestLink = (template, key) => {
+    const rendered = renderSampleLink(template, key);
     window.open(rendered, '_blank');
   };
 
@@ -616,7 +640,7 @@ export default function AdminPaymentsUpi() {
                 { key: 'other', label: 'Other UPI', scheme: 'upi://', bg: 'bg-slate-600' }
               ].map(app => {
                 const currentTemplate = form.deepLinks?.[app.key] || DEFAULT_DEEP_LINKS[app.key];
-                const rendered = renderSampleLink(currentTemplate);
+                const rendered = renderSampleLink(currentTemplate, app.key);
                 const isVisible = !!form.apps?.[app.key];
 
                 return (
@@ -638,7 +662,7 @@ export default function AdminPaymentsUpi() {
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => handleTestLink(currentTemplate)}
+                          onClick={() => handleTestLink(currentTemplate, app.key)}
                           className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                           title="Test open this link on device"
                         >
