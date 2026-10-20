@@ -2790,7 +2790,7 @@ export default function BookingCheckoutModal({
                           Payment Sent — Verifying with Bank
                         </h4>
                         <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-                          Aapka payment reference submit ho chuka hai. Hum payment server se verify kar rahe hain. <strong>Jaise hi verify hoga, automatically aapka confirmed ticket screen par dikhega aur PDF download ka option aayega.</strong>
+                          Your payment reference has been submitted and is being verified with the bank server. <strong>Once verified, your confirmed ticket will automatically appear on screen with the PDF download option.</strong>
                         </p>
                       </div>
 
