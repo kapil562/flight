@@ -19,7 +19,8 @@ import {
   Building2,
   Sparkles,
   CheckCircle2,
-  HelpCircle
+  HelpCircle,
+  ArrowRight
 } from 'lucide-react';
 import { api } from '../utils/api';
 
@@ -51,12 +52,7 @@ export default function AdminApiSettings({ onNavigateTab }) {
       clearKey: false,
       clearSecret: false
     },
-    // 3. UPI QR Code Payments
-    upi: {
-      vpa: 'paytm.s2zbyoe@pty',
-      businessName: 'Air Sky India'
-    },
-    // 4. General Settings
+    // 3. General Settings
     general: {
       bookingPrefix: 'GS',
       contactEmail: 'care@airskyindia.com',
@@ -85,10 +81,6 @@ export default function AdminApiSettings({ onNavigateTab }) {
             keySecret: res.data.razorpay?.keySecret || '',
             clearKey: false,
             clearSecret: false
-          },
-          upi: {
-            vpa: res.data.upi?.vpa || 'paytm.s2zbyoe@pty',
-            businessName: res.data.upi?.businessName || 'Air Sky India'
           },
           general: {
             bookingPrefix: res.data.general?.bookingPrefix || 'GS',
@@ -123,7 +115,6 @@ export default function AdminApiSettings({ onNavigateTab }) {
       const payload = {
         serpapi: form.serpapi,
         razorpay: form.razorpay,
-        upi: form.upi,
         general: form.general,
         activeProvider: form.activeProvider
       };
@@ -520,68 +511,45 @@ export default function AdminApiSettings({ onNavigateTab }) {
           </div>
         </div>
 
-        {/* CARD 3: UPI QR Code Payments */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-slate-200/80 flex flex-col justify-between">
+        {/* CARD 3: Payments & UPI Gateway (Direct pointer to Payments tab) */}
+        <div className="bg-gradient-to-br from-indigo-50/70 to-sky-50/70 rounded-3xl p-6 sm:p-7 shadow-xs border border-indigo-100/90 flex flex-col justify-between">
           <div>
-            <h6 className="font-extrabold text-slate-900 text-base mb-2 flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-emerald-500" />
-              UPI QR Code Payments
+            <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md mb-3">
+              <QrCode className="w-5 h-5" />
+            </div>
+            <h6 className="font-extrabold text-slate-900 text-base mb-1.5 flex items-center gap-2">
+              Payments &amp; UPI Configuration
             </h6>
-            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-              Accept payments via UPI QR code scan. Customer scans and pays directly.
+            <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+              UPI ID (VPA), QR Code, PhonePe, Paytm, Google Pay, and manual payment verification are managed exclusively in the dedicated <strong>Payments &amp; UPI</strong> section.
             </p>
 
-            {/* UPI VPA */}
-            <div className="mb-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">UPI VPA (ID)</label>
-              <input
-                type="text"
-                placeholder="yourname@upi"
-                value={form.upi.vpa}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    upi: { ...form.upi, vpa: e.target.value }
-                  })
-                }
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-mono focus:outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-              />
-            </div>
-
-            {/* Name (for QR) */}
-            <div className="mb-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">Name (for QR)</label>
-              <input
-                type="text"
-                placeholder="Your Business Name"
-                value={form.upi.businessName}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    upi: { ...form.upi, businessName: e.target.value }
-                  })
-                }
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-semibold"
-              />
-            </div>
-
-            {/* Alert info banner with link to Payments & UPI */}
-            <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-100 text-sky-900 text-[11px] sm:text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                To turn payment methods on or off, and to change the PhonePe / GPay / Paytm links, use the{' '}
-                <strong>Payments &amp; UPI</strong> page.{' '}
-                {onNavigateTab && (
-                  <button
-                    type="button"
-                    onClick={() => onNavigateTab('payments_upi')}
-                    className="text-sky-700 font-extrabold underline hover:text-sky-900 cursor-pointer ml-1 inline-block"
-                  >
-                    Open Payments &amp; UPI
-                  </button>
-                )}
+            <div className="p-3.5 bg-white/90 rounded-2xl border border-indigo-100 text-[11px] sm:text-xs text-slate-600 space-y-1.5 shadow-2xs">
+              <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Managed Exclusively in Payments &amp; UPI</span>
               </div>
+              <p className="text-slate-500 text-[11px] leading-relaxed">
+                All UPI settings, dynamic deep links, and payee names are centralized in the Payments tab to prevent conflicting overrides.
+              </p>
             </div>
+          </div>
+
+          <div className="pt-5">
+            {onNavigateTab ? (
+              <button
+                type="button"
+                onClick={() => onNavigateTab('payments_upi')}
+                className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              >
+                <span>Open Payments &amp; UPI Page</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <div className="text-[11px] font-bold text-indigo-700">
+                Go to sidebar &rarr; <strong>Payments &amp; UPI</strong>
+              </div>
+            )}
           </div>
         </div>
 
