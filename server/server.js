@@ -1161,7 +1161,7 @@ app.get('/api/payment-settings', (req, res) => {
     },
     deepLinks: {
       any: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
-      phonepe: 'phonepe://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
+      phonepe: 'phonepe://native?data=eyJwMnBQYXltZW50Q2hlY2tvdXRQYXJhbXMiOnsiY2hlY2tvdXRUeXBlIjoiQ09MTEVDVCIsImluaXRpYWxBbW91bnQiOjc5NjAwLCJub3RlIjp7InR5cGUiOiJ0ZXh0IiwibWVzc2FnZSI6Ik1lc3NobyBTaG9vcGluZyJ9LCJzdXBwb3J0ZWRJbnN0cnVtZW50cyI6LTF9LCJjb250YWN0Ijp7InR5cGUiOiJFWFRFUk5BTF9NRVJDSEFOVCIsIm5hbWUiOiJNZWVzaG8gU2hvb3BpbmciLCJ2cGEiOiJyODZqNzQyOTkzQG1haXJ0ZWwifX0%3D&id=p2ppayment',
       gpay: 'tez://upi/pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
       paytm: 'paytmmp://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
       bhim: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02',
