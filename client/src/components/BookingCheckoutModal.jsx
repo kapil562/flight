@@ -3025,7 +3025,6 @@ export default function BookingCheckoutModal({
                               const res = await api.getBookingByPnr(activePnr);
                               const b = res?.data || res?.booking;
                               const bStatus = String(b?.status || '').trim().toUpperCase();
-                              const pStatus = String(b?.payment?.status || '').trim().toUpperCase();
                               if (b && bStatus === 'CONFIRMED') {
                                 setIsVerifyingPayment(false);
                                 try { localStorage.removeItem('asg_current_pending_pnr'); } catch (e) {}
@@ -3041,6 +3040,20 @@ export default function BookingCheckoutModal({
                         >
                           <RefreshCw className="w-3.5 h-3.5" />
                           <span>Check Status Now</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const pendingBooking = buildBookingPayload(createdPnr, {
+                              method: paymentMethod,
+                              status: 'VERIFICATION_PENDING'
+                            }, 'VERIFICATION_PENDING');
+                            onBookingSuccess(pendingBooking);
+                          }}
+                          className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-sm flex items-center gap-1.5 cursor-pointer transition-all"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Download / View Itinerary PDF</span>
                         </button>
                         <button
                           type="button"

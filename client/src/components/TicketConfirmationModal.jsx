@@ -40,23 +40,17 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
     window.print();
   };
 
-  // Generate authentic IndiGo-style official PDF
+  // Generate authentic IndiGo-style official 6-page PDF
   const handleDownloadPDF = async () => {
-    if (!indigoPdfRef.current || isGeneratingPDF) return;
+    if (isGeneratingPDF) return;
     setIsGeneratingPDF(true);
     try {
-      const element = indigoPdfRef.current;
-      
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: 820
-      });
+      const pageElements = document.querySelectorAll('.indigo-pdf-page');
+      if (!pageElements || pageElements.length === 0) {
+        window.print();
+        return;
+      }
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -64,27 +58,25 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         compress: true,
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
-      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-      const margin = 8;
-      const maxPrintWidth = pageWidth - (margin * 2);
-      const maxPrintHeight = pageHeight - (margin * 2);
-
-      let printWidth = maxPrintWidth;
-      let printHeight = (canvas.height * printWidth) / canvas.width;
-
-      if (printHeight > maxPrintHeight) {
-        printHeight = maxPrintHeight;
-        printWidth = (canvas.width * printHeight) / canvas.height;
+      for (let i = 0; i < pageElements.length; i++) {
+        if (i > 0) pdf.addPage('a4', 'portrait');
+        const el = pageElements[i];
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          windowWidth: 794
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       }
 
-      const posX = (pageWidth - printWidth) / 2;
-      const posY = 8;
-
-      pdf.addImage(imgData, 'PNG', posX, posY, printWidth, printHeight, undefined, 'FAST');
-      pdf.save(`${booking.airline || 'IndiGo'}-Itinerary-${booking.bookingId || booking.pnr || 'CONFIRMED'}.pdf`);
+      const cleanPnr = (booking.pnr || booking.bookingId || 'CONFIRMED').toUpperCase();
+      pdf.save(`IndiGo-Itinerary-${cleanPnr}.pdf`);
     } catch (err) {
-      console.error('Error generating official PDF:', err);
+      console.error('Error generating official IndiGo PDF:', err);
       window.print();
     } finally {
       setIsGeneratingPDF(false);
@@ -100,6 +92,10 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
   const total = Number(fare.total || (basePrice + taxes - discount));
   const contactEmail = booking.contact?.email || 'customer@gmail.com';
   const contactPhone = booking.contact?.phone || '9876543210';
+  const cleanPnr = (booking.pnr || booking.bookingId || 'Y9WUNS').toUpperCase();
+  const bookingDateStr = booking.createdAt 
+    ? `${new Date(booking.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(booking.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`
+    : '20 Oct 2026 16:39';
 
   // Airline specific theme color
   const airlineName = booking.airline || 'IndiGo';
@@ -187,287 +183,611 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       `}</style>
 
       {/* ======================================================== */}
-      {/* 1. OFF-SCREEN INDIGO OFFICIAL ITINERARY FOR PDF CAPTURE  */}
+      {/* 1. OFF-SCREEN INDIGO OFFICIAL 6-PAGE ITINERARY FOR PDF   */}
       {/* ======================================================== */}
       <div
         style={{
           position: 'absolute',
           left: '-9999px',
           top: 0,
-          width: '780px',
+          width: '794px',
           background: '#ffffff',
           color: '#111827',
           fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
         }}
       >
+        {/* PAGE 1: Itinerary, Passenger Info & Flight Segment with Barcode */}
         <div
-          ref={indigoPdfRef}
-          id="indigo-official-pdf-ticket"
-          className="p-8 bg-white text-slate-900 space-y-4"
-          style={{ width: '780px', backgroundColor: '#ffffff' }}
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
         >
-          {/* Header Row: IndiGo Logo + Booking Date */}
-          <div className="flex items-center justify-between pb-3 border-b-2" style={{ borderColor: airlinePrimaryColor }}>
-            <div className="flex items-center gap-3">
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black tracking-tight" style={{ color: airlinePrimaryColor }}>
-                  {airlineName}
-                </span>
-                <div className="flex gap-0.5 ml-1">
-                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: airlinePrimaryColor }}></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 inline-block"></span>
-                </div>
-              </div>
-              <span className="text-xs text-slate-400 font-mono pl-3 border-l border-slate-300">
-                Itinerary / Tax Invoice
-              </span>
-            </div>
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
 
-            <div className="text-right">
-              <div className="text-xs font-bold text-slate-800">
-                *Date of booking: <span className="font-mono">{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '20 Oct 2026 16:39'}</span>
-              </div>
-              <div className="text-[10px] text-slate-400 font-mono">
-                Issued by AirSkyGo Booking Desk
-              </div>
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
+            </div>
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
             </div>
           </div>
 
-          {/* PNR & Payment Status Dotted Line */}
-          <div className="py-2 border-b border-dotted border-slate-400 flex items-center justify-between text-xs font-mono">
+          {/* Dotted border line: PNR & Payment Status */}
+          <div className="py-2 border-y border-dotted border-slate-900 flex justify-between items-center text-xs text-slate-900 font-medium">
             <div>
-              <span className="text-slate-500 font-semibold uppercase">PNR/Booking Reference: </span>
-              <span className="font-black text-sm text-slate-900 tracking-wider">{booking.pnr}</span>
+              <span className="font-bold">PNR/Booking Reference </span>
+              <span className="font-black text-sm ml-6 tracking-wider">{cleanPnr}</span>
             </div>
             <div>
-              <span className="text-slate-500 font-semibold uppercase">Payment Status: </span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-300">
-                Confirmed
+              <span className="font-bold">Payment Status </span>
+              <span className="font-bold ml-6">
+                {(booking.payment?.status || booking.status) === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
               </span>
             </div>
           </div>
 
-          {/* Passenger Information Box */}
-          <div className="border border-slate-700 rounded-lg p-3 space-y-2 bg-white">
-            <div className="text-xs font-black uppercase tracking-wide text-slate-900">
-              Passenger Information
+          {/* Passenger Information */}
+          <h3 className="text-base font-black text-slate-900 mt-4 mb-2">
+            Passenger Information
+          </h3>
+
+          <div className="border border-slate-900 rounded-xl p-3.5 mb-4">
+            <div className="text-sm font-black text-slate-900 mb-2">
+              {passengersList[0]?.title || 'Mr'} {passengersList[0]?.firstName || 'Ashu'} {passengersList[0]?.lastName || 'Sharma'} <span className="font-normal text-slate-700 text-xs ml-1">{passengersList[0]?.type || 'Adult'} | {passengersList[0]?.gender || 'Male'} |</span>
+            </div>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left font-black text-slate-900">
+                  <th className="pb-1 w-1/3">Sector</th>
+                  <th className="pb-1 w-1/3">Seat</th>
+                  <th className="pb-1 w-1/3">6E Add-ons</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-800 text-xs font-medium">
+                <tr>
+                  <td>{booking.from || 'DEL'}-{booking.to || 'NMI'}</td>
+                  <td>{passengersList[0]?.seat || '7B'}(Middle)</td>
+                  <td>Lite</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Flight Card with Barcode */}
+          <div className="border border-slate-900 rounded-xl p-4 mb-3">
+            <div className="flex justify-between items-center text-xs pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-1.5 font-bold text-slate-900 text-[11px]">
+                <svg className="w-3.5 h-3.5 text-slate-700 rotate-45" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                </svg>
+                <span>• {booking.flightNumber || '6E 955'} ({booking.aircraft || 'A320'}) • {booking.departureDate || '21 Oct 2026'} • Check-in/Bag Drop Closes: 60 mins before departure</span>
+              </div>
+              <div className="text-[#0284c7] font-medium text-[11px] bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                Lite | {booking.travelClass || 'Economy'}
+              </div>
             </div>
 
-            <div className="divide-y divide-slate-100">
-              {passengersList.map((p, idx) => (
-                <div key={idx} className="pt-1.5 first:pt-0">
-                  <div className="text-xs font-black text-slate-900">
-                    {p.title} {p.firstName} {p.lastName}
-                    <span className="text-slate-500 font-normal ml-3">
-                      {p.type || 'Adult'} | {p.gender || 'Male'} |
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 text-xs mt-1 text-slate-700">
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Sector</span>
-                      <span className="font-mono font-bold">{booking.from} - {booking.to}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">Seat</span>
-                      <span className="font-mono font-bold text-sky-800">{p.seat || '15A'} (Window)</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-slate-400 block uppercase font-semibold">{isIndiGo ? '6E Add-ons' : 'Add-ons'}</span>
-                      <span className="font-medium">{p.meal || 'Lite'} • {booking.travelClass || 'Economy'}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Authentic High-Density Boarding Barcode */}
+            <div className="my-3 py-1 bg-white flex items-center justify-center">
+              <svg className="w-full h-16" viewBox="0 0 650 70" preserveAspectRatio="none">
+                <rect x="0" y="0" width="8" height="70" fill="#000" />
+                <rect x="12" y="0" width="4" height="70" fill="#000" />
+                <rect x="20" y="0" width="6" height="70" fill="#000" />
+                {Array.from({ length: 90 }).map((_, idx) => {
+                  const isBlack = (idx * 19 + cleanPnr.charCodeAt(idx % cleanPnr.length)) % 3 !== 0;
+                  const w = idx % 7 === 0 ? 6 : idx % 3 === 0 ? 3.5 : 2;
+                  return isBlack ? (
+                    <rect key={idx} x={30 + idx * 6.5} y={0} width={w} height={70} fill="#000" />
+                  ) : null;
+                })}
+                <rect x="620" y="0" width="6" height="70" fill="#000" />
+                <rect x="630" y="0" width="4" height="70" fill="#000" />
+                <rect x="640" y="0" width="8" height="70" fill="#000" />
+              </svg>
+            </div>
+
+            {/* Flight Route Details */}
+            <div className="grid grid-cols-12 gap-2 items-center pt-2 text-slate-900">
+              <div className="col-span-5">
+                <div className="text-lg font-black">{booking.fromCity || 'Delhi'}</div>
+                <div className="text-xs text-slate-700 leading-tight">{booking.from || 'DEL'} - {booking.fromAirport || 'Indira Gandhi International Airport'}</div>
+                <div className="text-xs text-slate-600">(Terminal 1)</div>
+                <div className="text-sm font-black mt-2">{booking.departureTime || '20:20'} hrs, {booking.departureDate || '21 Oct 2026'}</div>
+              </div>
+              <div className="col-span-2 text-center text-xs text-slate-700 font-medium">
+                <div>—— Travel Time ~2h 0m ——</div>
+              </div>
+              <div className="col-span-5 text-right">
+                <div className="text-lg font-black">{booking.toCity || 'Navi Mumbai'}</div>
+                <div className="text-xs text-slate-700 leading-tight">{booking.to || 'NMI'} - {booking.toAirport || 'Navi Mumbai Airport'}</div>
+                <div className="text-xs text-slate-600">&nbsp;</div>
+                <div className="text-sm font-black mt-2">{booking.arrivalTime || '22:20'} hrs, {booking.departureDate || '21 Oct 2026'}</div>
+              </div>
             </div>
           </div>
 
-          {/* Boarding / Flight Coupon Box with Barcode */}
-          <div className="border border-slate-700 rounded-lg p-3.5 space-y-3 bg-white">
-            <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <Plane className="w-3.5 h-3.5 rotate-45" style={{ color: airlinePrimaryColor }} />
-                <span className="font-black text-slate-900">
-                  {booking.flightNumber} (Airbus A320) • {booking.departureDate}
-                </span>
-                <span className="text-slate-400">•</span>
-                <span className="text-[11px] font-bold text-rose-700">
-                  Check-in/Bag Drop Closes: 60 mins before departure
-                </span>
-              </div>
-              <div className="text-[11px] font-bold px-2 py-0.5 rounded border border-slate-300 bg-slate-50">
-                {booking.travelClass || 'Economy'}
-              </div>
+          <div className="text-[10px] text-slate-600 italic mb-8">
+            *Booking date reflects in UTC (Coordinated Universal Time), all other timings mentioned are as per local TIME
+          </div>
+
+          {/* Page 1 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>1/6</span>
+          </div>
+        </div>
+
+        {/* PAGE 2: Baggage Information, Fare Summary & Contact Details */}
+        <div
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
+
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
             </div>
-
-            <div className="grid grid-cols-12 gap-3 items-center py-1">
-              {/* Barcode Block (Realistic IndiGo style) */}
-              <div className="col-span-3">
-                <div className="border border-slate-300 p-1.5 rounded bg-white">
-                  <div className="h-14 flex items-center justify-center gap-[2px] overflow-hidden bg-slate-950 p-1 rounded">
-                    {Array.from({ length: 34 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-full bg-white shrink-0 ${
-                          i % 5 === 0 ? 'w-1.5' : i % 3 === 0 ? 'w-1' : 'w-0.5'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="text-[8px] font-mono text-center text-slate-500 mt-1 truncate">
-                    *{booking.pnr}*
-                  </div>
-                </div>
-              </div>
-
-              {/* Origin, Travel Time, Destination */}
-              <div className="col-span-9 grid grid-cols-3 gap-2 items-center text-center">
-                <div className="text-left">
-                  <div className="text-base font-black text-slate-900">{booking.fromCity || 'Delhi'}</div>
-                  <div className="text-[10px] text-slate-500 font-medium leading-tight">
-                    {booking.from} - {booking.fromCity || 'Indira Gandhi'} Airport (Terminal 1)
-                  </div>
-                  <div className="text-xs font-mono font-black text-slate-900 mt-1.5">
-                    {booking.departureTime} hrs, {booking.departureDate}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center justify-center">
-                  <div className="text-[10px] text-slate-500 font-semibold">Travel Time ~2h 15m</div>
-                  <div className="w-full flex items-center justify-center my-1.5">
-                    <div className="h-[2px] bg-slate-400 w-20 relative">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 border-t-2 border-r-2 border-slate-600 rotate-45" />
-                    </div>
-                  </div>
-                  <div className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">
-                    Non-Stop Flight
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="text-base font-black text-slate-900">{booking.toCity || 'Mumbai'}</div>
-                  <div className="text-[10px] text-slate-500 font-medium leading-tight">
-                    {booking.to} - {booking.toCity || 'Chhatrapati Shivaji'} Airport (Terminal 2)
-                  </div>
-                  <div className="text-xs font-mono font-black text-slate-900 mt-1.5">
-                    {booking.arrivalTime} hrs, {booking.departureDate}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-[9px] text-slate-400 italic pt-1 border-t border-slate-100">
-              *Booking date reflects in UTC (Coordinated Universal Time), all other flight timings are as per local airport time.
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
             </div>
           </div>
 
           {/* Baggage Information Box */}
-          <div className="border border-slate-700 rounded-lg p-3 space-y-2 bg-white">
-            <div className="text-xs font-black uppercase tracking-wide text-slate-900">
-              Baggage Information
-            </div>
-
-            <table className="w-full text-xs text-left border-collapse">
+          <div className="border border-slate-900 rounded-xl p-3.5 mb-4">
+            <h4 className="text-sm font-black text-slate-900 mb-2">Baggage Information</h4>
+            <table className="w-full text-xs mb-3">
               <thead>
-                <tr className="border-b border-slate-300 text-slate-500 text-[10px] uppercase font-bold">
-                  <th className="py-1 w-12">S.No</th>
-                  <th className="py-1 w-28">Sector</th>
-                  <th className="py-1">Adult / Child Baggage Allowance</th>
+                <tr className="text-left font-bold text-slate-900">
+                  <th className="pb-1 w-16">S.No</th>
+                  <th className="pb-1 w-36">Sector</th>
+                  <th className="pb-1">Adult</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-800 text-xs divide-y divide-slate-100">
+              <tbody className="text-slate-800 text-xs">
                 <tr>
-                  <td className="py-1.5 font-mono text-slate-500">1</td>
-                  <td className="py-1.5 font-bold font-mono">{booking.from} - {booking.to}</td>
-                  <td className="py-1.5 font-bold text-slate-900">
-                    Check-in: 15KG (1 piece only) • Cabin: Up to 7KG (1 bag + personal item)
-                  </td>
+                  <td>1</td>
+                  <td>{booking.from || 'DEL'} - {booking.to || 'NMI'}</td>
+                  <td>Check-in: 0KG, Cabin: Up to 7KG</td>
                 </tr>
               </tbody>
             </table>
 
-            <div className="text-[9px] text-slate-600 space-y-1 pt-1.5 border-t border-slate-100 leading-normal">
-              <p>• <strong>Cabin Baggage:</strong> One handbag up to 7 KG and 115 CM (L+W+H) shall be allowed per customer to place in overhead bin or under seat.</p>
-              <p>• <strong>Check-in Baggage:</strong> Free checked-in baggage allowance is 15 kg per person. Any baggage presented at the airport exceeding weight limit will be subject to standard airport baggage tariff.</p>
-              <p>• <strong>Lithium Batteries & Power Banks:</strong> Due to DGCA safety rules, power banks and spare lithium batteries must be carried in hand baggage only and are prohibited in check-in luggage.</p>
+            <div className="text-[10px] text-slate-700 space-y-2 leading-relaxed">
+              <p><strong>Check-in Cabin:</strong> One hand bag up to 7 KG and 115 CM (L+W+H), shall be allowed per customer. For contactless travel we recommend to place it under the seat in front, on board.</p>
+              <p>• <strong>Disclaimer (for Lite Fare):</strong> Lite Fare includes 7 kg cabin baggage only (to be placed preferably under the seat) with no check-in bag allowed. If your cabin bag does not fit within the permitted size or exceeds the weight limit, it will be refused at the boarding gate or placed in the aircraft hold subject to a fee.</p>
+              <p>• <strong>Check-in Baggage:</strong> Lite Fare does not include a check-in bag. Any check-in bag presented at the airport/boarding gate will be subject to charges as per the applicable Lite Fare baggage policy. Passengers may purchase check-in baggage separately after booking, via Manage Booking, web check-in, or at the airport at applicable rates.</p>
+              <p>• <strong>Cabin Baggage:</strong> Only one cabin bag up to 7 kg is permitted per customer, subject to regulatory size and weight limits.</p>
             </div>
           </div>
 
-          {/* Side-by-Side: Flight Summary (Fare Breakup) & Contact Details */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Box A: Flight Summary */}
-            <div className="border border-slate-700 rounded-lg overflow-hidden bg-white">
-              <div className="bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-900 border-b border-slate-700">
-                Flight Summary
+          {/* Flight Summary & Contact Details (Side by Side) */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Left: Flight summary */}
+            <div className="border border-slate-900 rounded-xl overflow-hidden">
+              <div className="bg-slate-50 px-3.5 py-1.5 font-black text-xs text-slate-900 border-b border-slate-300">
+                Flight summary
               </div>
-              <div className="p-2.5 space-y-1 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>AirFare Charge</span>
-                  <span className="font-mono font-medium">₹{basePrice.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Seat Fee</span>
-                  <span className="font-mono">₹{fare.seatCost ? fare.seatCost.toLocaleString('en-IN') : '0'}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Fuel Charge & Security Fee</span>
-                  <span className="font-mono">₹{Math.round(taxes * 0.45).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>User Development Fee (UDF)</span>
-                  <span className="font-mono">₹{Math.round(taxes * 0.35).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>GST for State</span>
-                  <span className="font-mono">₹{Math.round(taxes * 0.20).toLocaleString('en-IN')}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>Promo Discount ({fare.promoCode || 'SPECIAL'})</span>
-                    <span className="font-mono">-₹{discount.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
-                <div className="pt-1.5 mt-1 border-t-2 border-slate-800 flex justify-between items-center font-black text-xs text-slate-900">
-                  <span>Total Fare</span>
-                  <span className="font-mono text-sm">₹{total.toLocaleString('en-IN')}</span>
+              <div className="p-3 text-xs space-y-1.5 text-slate-800">
+                <div className="flex justify-between"><span>AirFare Charge</span><span>₹{basePrice.toLocaleString('en-IN')}</span></div>
+                <div className="flex justify-between"><span>Seat fee</span><span>₹{fare.seatCost ? Number(fare.seatCost).toLocaleString('en-IN') : '578'}</span></div>
+                <div className="flex justify-between"><span>Fuel Charge</span><span>₹900</span></div>
+                <div className="flex justify-between"><span>Aviation Security Fee</span><span>₹236</span></div>
+                <div className="flex justify-between"><span>User Development fee</span><span>₹152</span></div>
+                <div className="flex justify-between"><span>Arrival User Development Fee</span><span>₹319</span></div>
+                <div className="flex justify-between"><span>GST for Delhi</span><span>₹270</span></div>
+                <div className="pt-2 mt-2 border-t border-slate-900 flex justify-between font-black text-sm text-slate-900">
+                  <span>Total fare</span>
+                  <span>₹{total.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
 
-            {/* Box B: Contact Details */}
-            <div className="border border-slate-700 rounded-lg overflow-hidden bg-white flex flex-col justify-between">
+            {/* Right: Contact Details */}
+            <div className="border border-slate-900 rounded-xl overflow-hidden flex flex-col justify-between">
               <div>
-                <div className="bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-900 border-b border-slate-700">
+                <div className="bg-slate-50 px-3.5 py-1.5 font-black text-xs text-slate-900 border-b border-slate-300">
                   Contact Details
                 </div>
-                <div className="p-2.5 space-y-2 text-xs text-slate-700">
+                <div className="p-3 text-xs space-y-2 text-slate-800">
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase font-semibold">Mobile Number</span>
-                    <span className="font-mono font-bold text-slate-900">+91 {contactPhone}</span>
+                    <span className="font-semibold text-slate-600 block">Number:</span>
+                    <span className="font-mono font-bold">+91-{contactPhone}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block uppercase font-semibold">Email Address</span>
-                    <span className="font-mono font-bold text-slate-900">{contactEmail}</span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase font-semibold">Booking ID</span>
-                    <span className="font-mono font-bold text-sky-800">{booking.bookingId || booking.pnr}</span>
+                    <span className="font-semibold text-slate-600 block">E - mail:</span>
+                    <span className="font-mono font-bold">{contactEmail}</span>
                   </div>
                 </div>
-              </div>
-
-              <div className="p-2 bg-slate-50 border-t border-slate-200 text-[9px] text-slate-500 font-medium">
-                Issued via AirSkyGo OTA Booking Service • Verified DGCA Schedule.
               </div>
             </div>
           </div>
 
-          {/* Important Travel Advisory & Conditions */}
-          <div className="border-t border-slate-300 pt-2 text-[8.5px] text-slate-500 space-y-0.5 leading-relaxed">
-            <p><strong>Note & Guidelines:</strong></p>
-            <p>1. <strong>Photo ID:</strong> A valid original photo ID (Aadhaar, Passport, Voter ID, Driving License) is compulsory for all passengers for airport entry and boarding.</p>
-            <p>2. <strong>Reporting Time:</strong> Domestic check-in counters and baggage drop desks close strictly 60 minutes prior to scheduled departure. Boarding gates close 25 minutes prior.</p>
-            <p>3. <strong>Dangerous Goods:</strong> Flammable liquids, compressed gases, corrosive materials, and weapons are strictly prohibited in all airline baggage under DGCA regulations.</p>
+          {/* Note section */}
+          <div className="text-[10px] text-slate-700 leading-relaxed space-y-1">
+            <div className="font-black text-slate-900">Note</div>
+            <p>1. Foreigners intending to visit protected/restricted areas in the states of Arunachal Pradesh, Himachal Pradesh, Jammu & Kashmir, Meghalaya, Mizoram, Nagaland, Rajasthan, Sikkim, Uttarakhand and Andaman & Nicobar Islands must be in possession Protected Area Permit (PAP)/Restricted Area Permit (RAP). To apply please visit e-FRRO Home</p>
+          </div>
+
+          {/* Page 2 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>2/6</span>
+          </div>
+        </div>
+
+        {/* PAGE 3: Terms & Conditions, Carriage, Free Checked Baggage, Visa Rules */}
+        <div
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
+
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
+            </div>
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
+            </div>
+          </div>
+
+          <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
+            <p>2. Goods and Services Tax (GST) shall be levied at applicable rates on all air transportation services provided by IndiGo, except in cases specifically exempted under law.</p>
+            <p>3. This is not a GST invoice. For GST details, please refer the GST invoice which shall be sent to the email address in the name of the First passenger, mentioned in this itinerary. In case of a booking made by a GSTIN holder, the GST invoice shall be sent in the name of the GSTIN holder to the email address mentioned while providing the GSTIN information at the time of reservation.</p>
+            <p>4. Additionally, passengers may download the GST invoice using their PNR number on the IndiGo website www.goindigo.in.</p>
+            <p>5. GST shall also be applicable on any special services requested by the passenger at applicable rates.</p>
+            <p>6. Tax Invoices shall be only in INR, even in cases where the payment is made in a currency other than INR.</p>
+            <p>7. Airfare Charges include Base Fare and CUTE Charge.</p>
+            <p>8. PSF/ASF/UDF/ADF are collected on behalf of the Airport Authority of India (AAI)/Other Airport Operators. In case of no-show, you can claim the taxes on www.goindigo.in.</p>
+            <p>9. To know more about DGCA regulations and policies to ensure a seamless and compliant travel experience. Click here</p>
+            <p>10. All Indian and foreign citizens traveling to Nagaland (except citizen of Nagaland) are required to obtain a mandatory Inner Line Permit (ILP) to enter the state. Apply here.</p>
+
+            <div className="pt-2 font-black text-slate-900 text-xs">Terms & Conditions</div>
+            <p>To see our Condition of Carriage please visit: https://www.goindigo.in/information/conditions-of-carriage.html</p>
+
+            <div className="pt-1 font-black text-slate-900 text-xs">Must Read:</div>
+            <p>Refer Section-3, Series M Part IV of the Civil Aviation Requirements for information on facilities in cases of denied boarding, cancellations, and delays. Details at DGCA website: Home | Directorate General of Civil Aviation | Government of India (dgca.gov.in)</p>
+
+            <p><strong>Free Checked In Baggage Allowance</strong> is 15kg per person, one piece only (Domestic) / 30 kg (International, excluding Singapore to/from Tiruchirappalli & Chennai which is 30Kg). Free checked in baggage allowance for travel to Jeddah is 25 kg and from Jeddah is 25 kg + 5L Zamzam water. For travel to and from Abu Dhabi, Colombo, Doha, Dubai, Hong Kong, Istanbul, Kuwait, Muscat, Riyadh, Sharjah and Yangon the checked in baggage allowance is up to 30 kg per adult and child. This allowance does not apply to Infants. International passengers, please note that carrying satellite mobile phones into India is prohibited.</p>
+            <p>To help ensure a smooth journey, review our baggage guidelines before you travel. As allowances may vary by flight, the most accurate and updated details are available in your booking confirmation and on your ticket.</p>
+            <p>For Infants valid birth certificate is required.</p>
+
+            <p><strong>Passengers without valid visa</strong> to the arrival destination will not be permitted to board unless visa on arrival is permitted or visa is not required for such passengers as per the laws of the arrival destination. In case of international travel, nationality of passengers will be verified at the check-in counters at the airport. In the event, the information regarding nationality of passengers provided during purchase of tickets is found to be incorrect, certain additional fees/taxes may be required to be paid upfront at the check-in counter.</p>
+          </div>
+
+          {/* Page 3 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>3/6</span>
+          </div>
+        </div>
+
+        {/* PAGE 4: Power Bank Restrictions, Fog Advisory, General Guidelines */}
+        <div
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
+
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
+            </div>
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
+            </div>
+          </div>
+
+          <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
+            <div className="font-black text-slate-900 text-xs">Guidelines for Power Banks & Spare Lithium Batteries:</div>
+            <p>Due to potential fire risk, the following restrictions apply:</p>
+            <p>• Must be carried in hand baggage only and kept within reach<br/>• Must not be used, charged, or recharged during the flight<br/>• Maximum of two (2) devices per passenger<br/>• Each device must not exceed 160 Wh</p>
+
+            <div className="pt-1 font-black text-slate-900 text-xs">Fog Advisory</div>
+            <p>Customer satisfaction and hassle free travel are of utmost importance to us. At times, there are circumstances, which are beyond our control like weather related phenomena of fog. This unexpected phenomenon may cause inconvenience to you due to flight delays, rescheduling and cancellations.</p>
+            <p>We appreciate your patience and request for your kind cooperation in these times. We will endeavour to give you proactive information through text messages or emails. However, we would urge you to call our Call Centre or check updates on your flight at 9910383838.</p>
+            <p>Alternatively, to know flight status you can:<br/>- Download mobile app.<br/>- Visit website – www.goindigo.in<br/>- Tweet us @IndiGo6E, follow us on Facebook.<br/>- Send SMS, ST[space]flight number[space]departure date of flight as DDMM. For example: to know the status for 6E-333 for 11th February send &quot;ST 333 1102&quot; to 566772.<br/>- Live chat on website.</p>
+
+            <div className="pt-1 font-black text-slate-900 text-xs">General:</div>
+            <p>Check-in at www.goIndiGo.in is available. This service is not available for international travel and customers with infants or groups.</p>
+            <p>Changes/cancellations are permitted more than three (3) hours prior to scheduled departure and (four (4) hours for international sectors) with payment of change/cancellation fee and difference in fare if applicable.</p>
+            <p>A security search is compulsory.</p>
+            <p>A valid photo id, in original, is required for each person travelling. For foreign nationals, only passport, in original, will be considered as a valid photo id. For detailed terms and conditions, log on to www.goIndiGo.in</p>
+            <p>Check Your Flight Timings: To know the flight status on the day of departure, contact our 24 X 7 call centre or logon to our website or mobile app (available on iPhone, Windows, Android and Blackberry), or send an sms to 566772.</p>
+            <p>Indian Nationals travelling to and from Kathmandu are required to carry either Passport or Voter’s Id Card only as their valid photo Id, no other photo Id will be considered as valid.</p>
+            <p>Airfare Charges include Base Fare, Fuel Charge, CUTE Charge and Agency Commission payable to travel agents (if applicable).</p>
+            <p>Passengers going to UAE/ Oman from India on tourist/ employment visas require an &apos;OK TO BOARD&apos; comment in their PNR. Please check with your visa issuing agency.</p>
+            <p>Name changes are not permitted on your booking.</p>
+          </div>
+
+          {/* Page 4 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>4/6</span>
+          </div>
+        </div>
+
+        {/* PAGE 5: Food & Beverage, MacBook Battery Warning, Terminal Info, Delays */}
+        <div
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
+
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
+            </div>
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
+            </div>
+          </div>
+
+          <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
+            <p>Hot and cold food and beverages as shown in the Food and Beverage Menu may be purchased on board, subject to their availability. For ATRs and flights below 60 minutes flying time hot food or beverages will not be offered. On select flights below 30 minutes flying time only limited snacks (cookies and nuts) and water will be offered.</p>
+            <p>LED / LCD TVs of more than 99.06 cm in size will be charged. Refer to www.goIndiGo.in.</p>
+            <p>This booking is governed by IndiGo&apos;s fare rules and Conditions of Carriage that are available from Airport Counters, IndiGo Shops or www.goIndiGo.in</p>
+            <p>Flight schedules are subject to change and approval by authorities.</p>
+            <p>IndiGo reserves the right to deny boarding if credit card information is not supplied at check-in.</p>
+            <p>Hot Food and Beverages shall not be served on short sector flights.</p>
+            <p>Damaged, defective or recalled lithium batteries are prohibited from carriage by air. Customers are advised not to carry older generation Apple MacBook Pro laptops with 15 inch screen, purchased between September 2015 and February 2017 in hand baggage as well as in check-in baggage. In case the battery of such laptop is replaced, kindly carry the receipt of replacement provided by Apple, in absence of which carriage of such laptop shall be prohibited. For more information please visit Apple Support website.</p>
+
+            <div className="pt-1 font-black text-slate-900 text-xs">Terminal Information</div>
+            <p>International Terminal Information: For international flights, IndiGo will operate from the following terminals airports: New Delhi - Terminal 3, IGIA; Mumbai- International Terminal, CSIA; Dubai- Terminal 1, Dubai International Airport; Bangkok- Suvarnabhumi Airport; Singapore- Terminal 2, Changi Airport; Kathmandu- Tribhuvan International Airport; Muscat- Muscat International Airport. Chennai- International Terminal, Chennai International Airport; Hyderabad- International Terminal, RGIA; Kolkata- Terminal II, Kolkata International Airport; Kochi- International Terminal, Kochi International Airport and Thiruvananthapuram- International Terminal, Thiruvananthapuram.</p>
+            <p>IndiGo flights from Delhi to Singapore will depart from Terminal 3. In case a passenger is arriving into Delhi from a country other than India and is further booked on domestic flights departing from Terminal 1 or 2, he/she must make their own visa arrangements for transit to other airport terminals in Delhi. (i.e. from Terminal 3 to Terminal 1D or Terminal 2).</p>
+            <p>Domestic Terminal Information: Thiruvananthapuram - Effective 01 st Mar 2016, IndiGo operations for flight no. 6E-103 (Pune/Bengaluru to Thiruvananthapuram) and 6E-408 (Thiruvananthapuram to Bengaluru/Pune) will be carried out of the International Terminal (TB-2), Chakkai, Thiruvananthapuram -695024. Chandigarh - New Civil Air Terminal.</p>
+
+            <div className="pt-1 font-black text-slate-900 text-xs">Flight Delay or Cancellation</div>
+            <p>• At any time after a Booking has been made, we may change our schedules and/or cancel, terminate, divert, postpone, reschedule or delay any flight where we reasonably consider this to be justified by circumstances beyond our control, or for reasons of safety, or for commercial reasons. Circumstances beyond IndiGo&apos;s control can include, without limitation, weather, air traffic control, mechanical failures, acts of terrorism, acts of nature, force majeure, strikes, riots, wars, hostilities, disturbances, governmental regulations, orders.</p>
+          </div>
+
+          {/* Page 5 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>5/6</span>
+          </div>
+        </div>
+
+        {/* PAGE 6: Delay Compensation & Official Dangerous Goods Graphical Chart */}
+        <div
+          className="indigo-pdf-page"
+          style={{
+            width: '794px',
+            height: '1123px',
+            padding: '34px 44px',
+            boxSizing: 'border-box',
+            position: 'relative',
+            backgroundColor: '#ffffff'
+          }}
+        >
+          {/* Top metadata */}
+          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
+            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Itinerary</span>
+          </div>
+
+          {/* IndiGo Logo + Date */}
+          <div className="flex justify-between items-center pb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
+              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
+                <circle cx="2" cy="8" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="8" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="14" cy="8" r="1.3" />
+                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
+              </svg>
+            </div>
+            <div className="text-xs font-bold text-slate-900">
+              *Date of booking {bookingDateStr}
+            </div>
+          </div>
+
+          <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed mb-4">
+            <p>demands or requirements, shortages of critical manpower, parts or materials, labour unrest etc. If an IndiGo flight is cancelled, rescheduled or delayed for more than two hours (depending on the length of the journey), a Customer shall have the right to choose a refund; or a credit for future travel on IndiGo; or re-booking onto an alternative IndiGo flight at no additional cost (subject to availability); subject to the requirements under the local laws of the country in which the flight has been cancelled, rescheduled or delayed.</p>
+            <p>• In the special case where a subsequent portion of an IndiGo flight is cancelled while a Customer is already in transit, such a Customer shall have the right to choose to remain at the transit station and to be re-booked onto an alternative IndiGo flight to the final destination at no additional cost subject to availability; or to remain at the transit station and accept a partial refund for the portion of the flight not completed; or to return to the point of origin and receive a refund. Contact our call centre (0) 99 10 38 38 38 or +91 124 6613838 if you have any queries.</p>
+            <p>• Online Group fares - Domestic - 100% of the airfare per person per segment will be levied if changed/cancelled at least 3hrs before the scheduled departure. No-show charges will be levied within 3 hrs. Fare difference, change/cancellation fee apply.</p>
+            <p>• Online Group fares – International - 100% of airfare per person per segment will be levied if changed/cancelled at least 4hrs before the scheduled departure.</p>
+            <p>• Disclaimer: Please note in case of Vande Bharat Flights, 100% of Airline component will be forfeited. Non-Airline taxes will be refunded in full.</p>
+          </div>
+
+          {/* Dangerous Goods and Restricted Articles (Official Graphical Box) */}
+          <div className="border-2 border-rose-600 rounded-xl p-3.5 relative pt-4">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#d9383a] text-white text-[11px] font-black px-4 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <span>🚫 Not allowed!</span>
+            </div>
+
+            <div className="text-center mb-2">
+              <div className="text-xs font-black text-slate-900">
+                Dangerous goods and <span className="text-rose-600">restricted articles</span>
+              </div>
+              <div className="text-[9px] text-slate-500">
+                Please declare dangerous or restricted goods. Carrying them may lead to prosecution.
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-2 text-center text-[8.5px] font-semibold text-slate-700">
+              {/* Restricted Items (9 cols) */}
+              <div className="col-span-9 grid grid-cols-5 gap-2 border-r border-slate-300 pr-2">
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🔥</div>
+                  <span>Flammable substances</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">💥</div>
+                  <span>Explosives</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">☢️</div>
+                  <span>Radioactive materials</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🧪</div>
+                  <span>Corrosive substances</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🛢️</div>
+                  <span>Compressed gases</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🔫</div>
+                  <span>Weapons</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🧴</div>
+                  <span>Peroxides & oxidisers</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">☣️</div>
+                  <span>Bio-hazard materials</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🌶️</div>
+                  <span>Pepper spray</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="text-xl mb-0.5">🔥</div>
+                  <span>Lighters, matches</span>
+                </div>
+              </div>
+
+              {/* Hand Baggage Allowed Items (3 cols) */}
+              <div className="col-span-3 flex flex-col justify-between pl-1">
+                <div className="text-[8.5px] font-bold text-emerald-700 leading-tight">
+                  Items allowed only in the<br/><span className="text-emerald-800 font-black">hand baggage</span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 items-center pt-1">
+                  <div className="flex flex-col items-center">
+                    <div className="text-xl mb-0.5">🔋</div>
+                    <span>Lithium batteries</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="text-xl mb-0.5">⚡</div>
+                    <span>Power banks</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Page 6 Footer */}
+          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+            <span className="truncate max-w-[580px]">
+              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
+            </span>
+            <span>6/6</span>
           </div>
         </div>
       </div>
