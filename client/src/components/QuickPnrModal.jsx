@@ -67,7 +67,7 @@ export default function QuickPnrModal({ isOpen, onClose, onOpenTicket }) {
               <input
                 type="text"
                 autoFocus
-                placeholder="e.g. ASG-839201"
+                placeholder="e.g. Y9WUNS"
                 value={pnrInput}
                 onChange={(e) => setPnrInput(e.target.value.toUpperCase())}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-black text-slate-900 tracking-wider uppercase font-mono focus:bg-white focus:outline-none focus:border-sky-500"

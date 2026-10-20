@@ -38,8 +38,77 @@ const memoryStore = new Map();
 // Vercel Edge Config Live Cloud Sync (Sub-second global replication across all devices)
 const EDGE_CONFIG_ID = 'ecfg_s6kw8sabfbgyu6nearjsjfjk5ktu';
 const EDGE_READ_TOKEN = '4efd4883-b613-4582-9b2a-14d921a60bdb';
-const EDGE_WRITE_TOKEN = Buffer.from('dmNhXzE0RHNtaWhvR0FDeVd0cDFIVTFGUXE1SkhpU0NCVXFLZlZJdmFpak5BN3lNc1JBNm1mM01sRFMw', 'base64').toString('utf8');
+const EDGE_WRITE_TOKEN = Buffer.from('dmNhXzFvbGc2Mmx0RkVmWURpemxZVHRWbFlLVm5RbGpqYW9nZWRmOXRUVWxydEtkWGRtczJUM2RXc3lN', 'base64').toString('utf8');
 const EDGE_TEAM_ID = 'team_MWpwJ9HDUjFkWmBTQM5IGY6b';
+
+// Vercel Blob Persistent Cloud Storage (Never expires, global replication)
+let putBlob = null;
+try {
+  const blobPkg = require('@vercel/blob');
+  putBlob = blobPkg.put;
+} catch (e) {
+  console.warn('@vercel/blob require fallback:', e.message);
+}
+
+const BLOB_READ_WRITE_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_xhZm9lPIvWYVhR3f_Ja14Xn78AHI64jPca957DbRiVExOYL';
+const BLOB_BOOKINGS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/bookings.json';
+
+// Standard 6-character Airline PNR Generator (IndiGo format, e.g. Y9WUNS)
+function generateAirlinePnr() {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const digits = '23456789';
+  const chars = letters + digits;
+  let pnr = '';
+  for (let i = 0; i < 6; i++) {
+    pnr += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  if (!/\d/.test(pnr)) {
+    const pos = Math.floor(Math.random() * 6);
+    pnr = pnr.substring(0, pos) + digits.charAt(Math.floor(Math.random() * digits.length)) + pnr.substring(pos + 1);
+  }
+  if (!/[A-Z]/.test(pnr)) {
+    const pos = Math.floor(Math.random() * 6);
+    pnr = pnr.substring(0, pos) + letters.charAt(Math.floor(Math.random() * letters.length)) + pnr.substring(pos + 1);
+  }
+  return pnr;
+}
+
+// Persistent Central Cloud Bookings (Vercel Blob)
+const getCloudBookings = async () => {
+  try {
+    const res = await fetch(`${BLOB_BOOKINGS_URL}?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        memoryStore.set(BOOKINGS_FILE, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud bookings fetch warning:', err.message);
+  }
+  return readJSON(BOOKINGS_FILE, []);
+};
+
+const saveCloudBookings = async (bookings) => {
+  memoryStore.set(BOOKINGS_FILE, bookings);
+  writeJSON(BOOKINGS_FILE, bookings);
+  if (putBlob) {
+    try {
+      await putBlob('bookings.json', JSON.stringify(bookings), {
+        access: 'public',
+        token: BLOB_READ_WRITE_TOKEN,
+        addRandomSuffix: false,
+        allowOverwrite: true
+      });
+    } catch (err) {
+      console.error('Cloud bookings save error to Blob:', err.message);
+    }
+  }
+};
 
 const getLivePaymentSettings = async (fallback) => {
   try {
@@ -1656,7 +1725,7 @@ app.post(['/api/coupons/apply', '/api/promos/apply'], (req, res) => {
 });
 
 // 10. Book Flight
-app.post('/api/bookings', (req, res) => {
+app.post('/api/bookings', async (req, res) => {
   try {
     const {
       flightId,
@@ -1688,12 +1757,10 @@ app.post('/api/bookings', (req, res) => {
       seat: '12A'
     }];
 
-    const bookings = readJSON(BOOKINGS_FILE);
-    const siteSettings = readJSON(SETTINGS_FILE, {});
-    const prefix = (siteSettings.bookingPrefix || 'GS').trim().toUpperCase();
-    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    const pnr = (req.body.pnr || `ASG-${randomSuffix}`).trim().toUpperCase();
-    const bookingId = req.body.bookingId || `${prefix}${randomSuffix}`;
+    const bookings = await getCloudBookings();
+    const generatedPnr = generateAirlinePnr();
+    const pnr = (req.body.pnr || generatedPnr).trim().toUpperCase();
+    const bookingId = req.body.bookingId || pnr;
 
     // Check if booking was already initialized on Step 3 (Continue to Payment)
     const targetPnr = (req.body.pnr || '').trim().toUpperCase();
@@ -1706,6 +1773,7 @@ app.post('/api/bookings', (req, res) => {
         ...bookings[existingIndex],
         ...req.body,
         pnr: bookings[existingIndex].pnr, // Keep original consistent PNR
+        bookingId: bookings[existingIndex].bookingId || bookings[existingIndex].pnr,
         flightId: flightIdToUse,
         passengers: passengersToUse,
         fare: {
@@ -1720,7 +1788,7 @@ app.post('/api/bookings', (req, res) => {
         status: req.body.status || bookings[existingIndex].status || 'PENDING',
         updatedAt: new Date().toISOString()
       };
-      writeJSON(BOOKINGS_FILE, bookings);
+      await saveCloudBookings(bookings);
       saveLiveBookingToEdge(bookings[existingIndex]).catch(() => {});
 
       return res.status(200).json({
@@ -1775,7 +1843,7 @@ app.post('/api/bookings', (req, res) => {
     };
 
     bookings.unshift(newBooking);
-    writeJSON(BOOKINGS_FILE, bookings);
+    await saveCloudBookings(bookings);
     saveLiveBookingToEdge(newBooking).catch(() => {});
 
     // Auto-register or update customer in users.json
@@ -1826,25 +1894,18 @@ app.post('/api/bookings', (req, res) => {
   }
 });
 
-// 11. Customer Get Bookings (Live merged with Edge Config across all devices)
+// 11. Customer Get Bookings (Authoritative Cloud Persistent Store via Vercel Blob)
 app.get('/api/bookings', async (req, res) => {
-  const { email, phone, pnr } = req.query;
-  const fileBookings = readJSON(BOOKINGS_FILE, []);
-  let edgeBookingsObj = {};
-  try { edgeBookingsObj = await getLiveBookingsFromEdge(); } catch (e) {}
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
-  const bookingMap = new Map();
-  fileBookings.forEach(b => { if (b.pnr) bookingMap.set(b.pnr.toUpperCase(), b); });
-  Object.values(edgeBookingsObj).forEach(b => {
-    if (b && b.pnr) {
-      const existing = bookingMap.get(b.pnr.toUpperCase()) || {};
-      bookingMap.set(b.pnr.toUpperCase(), { ...existing, ...b });
-    }
-  });
-  const bookings = Array.from(bookingMap.values()).sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0));
+  const { email, phone, pnr } = req.query;
+  const bookings = await getCloudBookings();
 
   if (pnr) {
-    const b = bookings.find(item => item.pnr?.toUpperCase() === pnr.toUpperCase());
+    const searchPnr = pnr.trim().toUpperCase();
+    const b = bookings.find(item => item.pnr?.toUpperCase() === searchPnr || item.bookingId?.toUpperCase() === searchPnr);
     return res.json({ success: true, data: b ? [b] : [] });
   }
 
@@ -1861,7 +1922,7 @@ app.get('/api/bookings', async (req, res) => {
   res.json({ success: true, count: bookings.length, data: bookings });
 });
 
-// 12. Single Booking by PNR (Live read from Edge Config first)
+// 12. Single Booking by PNR (Direct from Cloud Store)
 app.get('/api/bookings/:pnr', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -1870,21 +1931,11 @@ app.get('/api/bookings/:pnr', async (req, res) => {
   const { pnr } = req.params;
   const searchPnr = (pnr || '').trim().toUpperCase();
 
-  const bookings = readJSON(BOOKINGS_FILE, []);
-  const fileBooking = bookings.find(b => 
+  const bookings = await getCloudBookings();
+  const booking = bookings.find(b => 
     (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
     (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
   );
-
-  let edgeBooking = null;
-  if (!fileBooking) {
-    try {
-      const edgeObj = await getLiveBookingsFromEdge();
-      edgeBooking = edgeObj[searchPnr];
-    } catch (e) {}
-  }
-
-  const booking = fileBooking || edgeBooking;
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -1894,11 +1945,11 @@ app.get('/api/bookings/:pnr', async (req, res) => {
 });
 
 // 13. Cancel Booking
-app.patch('/api/bookings/:pnr/cancel', (req, res) => {
+app.patch('/api/bookings/:pnr/cancel', async (req, res) => {
   const { pnr } = req.params;
-  const bookings = readJSON(BOOKINGS_FILE);
+  const bookings = await getCloudBookings();
   const settings = readJSON(SETTINGS_FILE, {});
-  const index = bookings.findIndex(b => b.pnr.toUpperCase() === pnr.toUpperCase());
+  const index = bookings.findIndex(b => b.pnr?.toUpperCase() === pnr.toUpperCase() || b.bookingId?.toUpperCase() === pnr.toUpperCase());
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -1915,7 +1966,7 @@ app.patch('/api/bookings/:pnr/cancel', (req, res) => {
     refundStatus: 'Initiated (Credited in 3-5 days)'
   };
 
-  writeJSON(BOOKINGS_FILE, bookings);
+  await saveCloudBookings(bookings);
 
   res.json({
     success: true,
@@ -1926,10 +1977,10 @@ app.patch('/api/bookings/:pnr/cancel', (req, res) => {
 });
 
 // 14. Web Check-In
-app.patch('/api/bookings/:pnr/checkin', (req, res) => {
+app.patch('/api/bookings/:pnr/checkin', async (req, res) => {
   const { pnr } = req.params;
-  const bookings = readJSON(BOOKINGS_FILE);
-  const index = bookings.findIndex(b => b.pnr.toUpperCase() === pnr.toUpperCase());
+  const bookings = await getCloudBookings();
+  const index = bookings.findIndex(b => b.pnr?.toUpperCase() === pnr.toUpperCase() || b.bookingId?.toUpperCase() === pnr.toUpperCase());
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -1942,7 +1993,7 @@ app.patch('/api/bookings/:pnr/checkin', (req, res) => {
     sequence: Math.floor(10 + Math.random() * 80)
   };
 
-  writeJSON(BOOKINGS_FILE, bookings);
+  await saveCloudBookings(bookings);
 
   res.json({
     success: true,
@@ -2408,8 +2459,8 @@ app.post('/api/admin/change-credentials', (req, res) => {
 });
 
 // A1. Admin Dashboard Stats
-app.get('/api/admin/stats', (req, res) => {
-  const bookings = readJSON(BOOKINGS_FILE, []);
+app.get('/api/admin/stats', async (req, res) => {
+  const bookings = await getCloudBookings();
   const flights = readJSON(FLIGHTS_FILE, []);
   const users = readJSON(USERS_FILE, []);
   const hotelBookings = readJSON(HOTEL_BOOKINGS_FILE, []);
@@ -2689,14 +2740,14 @@ app.delete('/api/admin/airports/:code', (req, res) => {
   res.json({ success: true, message: 'Airport deleted' });
 });
 
-// A8. Admin Update Customer Booking Status (CONFIRMED, CANCELLED, REFUNDED - Edge Synced)
+// A8. Admin Update Customer Booking Status (CONFIRMED, CANCELLED, REFUNDED - Cloud Persistent)
 app.patch('/api/admin/bookings/:pnr/status', async (req, res) => {
   const { pnr } = req.params;
   const { status } = req.body;
   const searchPnr = (pnr || '').trim().toUpperCase();
   const normalizedStatus = (status || 'CONFIRMED').toUpperCase();
 
-  const bookings = readJSON(BOOKINGS_FILE, []);
+  const bookings = await getCloudBookings();
   let index = bookings.findIndex(b => 
     (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
     (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
@@ -2706,18 +2757,6 @@ app.patch('/api/admin/bookings/:pnr/status', async (req, res) => {
   if (index !== -1) {
     targetBooking = bookings[index];
   } else {
-    // Check Edge Config for the booking created on phone/other devices
-    try {
-      const edgeObj = await getLiveBookingsFromEdge();
-      if (edgeObj && edgeObj[searchPnr]) {
-        targetBooking = edgeObj[searchPnr];
-        bookings.unshift(targetBooking);
-        index = 0;
-      }
-    } catch (e) {}
-  }
-
-  if (!targetBooking) {
     // If not found yet, create placeholder booking so it can always be approved
     targetBooking = {
       pnr: searchPnr,
@@ -2744,27 +2783,28 @@ app.patch('/api/admin/bookings/:pnr/status', async (req, res) => {
     bookings[index].checkInStatus = 'Cancelled';
   }
   bookings[index].updatedAt = new Date().toISOString();
-  writeJSON(BOOKINGS_FILE, bookings);
+  await saveCloudBookings(bookings);
 
-  // Sync to Edge Config immediately for instant cross-device live verification
+  // Sync to Edge Config backup
   try {
-    await saveLiveBookingToEdge(bookings[index]);
+    saveLiveBookingToEdge(bookings[index]).catch(() => {});
   } catch (e) {}
 
   res.json({ success: true, message: `Booking ${pnr} status updated to ${normalizedStatus}`, booking: bookings[index] });
 });
 
 // Admin Delete Flight Booking
-app.delete('/api/admin/bookings/:pnr', (req, res) => {
+app.delete('/api/admin/bookings/:pnr', async (req, res) => {
   const { pnr } = req.params;
-  const bookings = readJSON(BOOKINGS_FILE);
-  const filtered = bookings.filter(b => b.pnr?.toUpperCase() !== pnr.toUpperCase() && b.bookingId?.toUpperCase() !== pnr.toUpperCase());
+  const searchPnr = (pnr || '').trim().toUpperCase();
+  const bookings = await getCloudBookings();
+  const filtered = bookings.filter(b => b.pnr?.toUpperCase() !== searchPnr && b.bookingId?.toUpperCase() !== searchPnr);
 
   if (filtered.length === bookings.length) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
   }
 
-  writeJSON(BOOKINGS_FILE, filtered);
+  await saveCloudBookings(filtered);
   res.json({ success: true, message: `Booking ${pnr} deleted successfully` });
 });
 

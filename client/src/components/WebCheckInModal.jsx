@@ -78,7 +78,7 @@ export default function WebCheckInModal({ isOpen, onClose }) {
               <label className="block text-xs font-bold text-slate-700 mb-1">PNR / Booking Reference</label>
               <input
                 type="text"
-                placeholder="e.g. ASG-839201"
+                placeholder="e.g. Y9WUNS"
                 value={pnr}
                 onChange={(e) => setPnr(e.target.value.toUpperCase())}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500 uppercase font-mono"

@@ -6,3 +6,5 @@ client/dist
 *.log
 .env
 scratch/
+
+.env*

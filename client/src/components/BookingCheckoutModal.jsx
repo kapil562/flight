@@ -45,6 +45,38 @@ const DEFAULT_DEEP_LINKS = {
   other: 'upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02'
 };
 
+// Standard 6-character Airline PNR Generator (IndiGo format, e.g. Y9WUNS)
+export const generateAirlinePnr = () => {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const digits = '23456789';
+  const chars = letters + digits;
+  let pnr = '';
+  for (let i = 0; i < 6; i++) {
+    pnr += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  if (!/\d/.test(pnr)) {
+    const pos = Math.floor(Math.random() * 6);
+    pnr = pnr.substring(0, pos) + digits.charAt(Math.floor(Math.random() * digits.length)) + pnr.substring(pos + 1);
+  }
+  if (!/[A-Z]/.test(pnr)) {
+    const pos = Math.floor(Math.random() * 6);
+    pnr = pnr.substring(0, pos) + letters.charAt(Math.floor(Math.random() * letters.length)) + pnr.substring(pos + 1);
+  }
+  return pnr;
+};
+
+export const getStoredOrNewPnr = () => {
+  try {
+    const stored = localStorage.getItem('asg_current_pending_pnr');
+    if (stored && /^[A-Z0-9]{6}$/.test(stored.trim().toUpperCase())) {
+      return stored.trim().toUpperCase();
+    }
+  } catch (e) {}
+  const fresh = generateAirlinePnr();
+  try { localStorage.setItem('asg_current_pending_pnr', fresh); } catch (e) {}
+  return fresh;
+};
+
 export default function BookingCheckoutModal({
   flight,
   currentPrice,
@@ -58,11 +90,7 @@ export default function BookingCheckoutModal({
   initialFareTier = 'saver'
 }) {
   const [step, setStep] = useState(1); // 1 = Travellers & Addons, 2 = Seat Selection, 3 = Review & Offers, 4 = Payment Gateway
-  const [createdPnr, setCreatedPnr] = useState(() => {
-    const fresh = `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
-    try { localStorage.setItem('asg_current_pending_pnr', fresh); } catch (e) {}
-    return fresh;
-  });
+  const [createdPnr, setCreatedPnr] = useState(() => getStoredOrNewPnr());
   const [showFareBreakupPopup, setShowFareBreakupPopup] = useState(false);
   const [isStepLoading, setIsStepLoading] = useState(false);
   const [transitionMeta, setTransitionMeta] = useState({ targetStep: 1, fromStep: 1 });
@@ -521,7 +549,7 @@ export default function BookingCheckoutModal({
     const payeeName = paymentSettings?.upi?.name || paymentSettings?.upi?.businessName || brand?.name || 'AirSkyGo';
     const amountInPaise = Math.round(Number(grandTotal || 0) * 100);
     const amountInRupees = Number(grandTotal || 0).toFixed(2);
-    const activePnr = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const activePnr = createdPnr || getStoredOrNewPnr();
     const txnNote = `Flight Booking ${activePnr}`;
     const txnRef = `T${Date.now().toString().slice(-8)}${Math.random().toString(36).substring(2, 6)}`;
 
@@ -611,7 +639,7 @@ export default function BookingCheckoutModal({
     setIsLaunchingApp(true);
 
     // Save lead as VERIFICATION_PENDING in Admin upfront so admin sees the customer attempt immediately
-    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const pnrToUse = createdPnr || getStoredOrNewPnr();
     setCreatedPnr(pnrToUse);
     try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
 
@@ -977,7 +1005,7 @@ export default function BookingCheckoutModal({
                         (paymentOverride?.method || paymentMethod) === 'upiApps';
     const activeVpa = paymentSettings?.upi?.vpa || 'care@airsky';
 
-    const pnrToUse = customPnr || createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const pnrToUse = customPnr || createdPnr || getStoredOrNewPnr();
     const flightIdToUse = flight?.id || flight?.flightId || flight?.flightNumber || 'FL-101';
 
     const safePassengers = (passengers && passengers.length > 0 ? passengers : [{
@@ -1057,7 +1085,7 @@ export default function BookingCheckoutModal({
   // Step 3 Confirmation -> Proceed to Step 4 (Payment Gateway)
   const handleProceedToPayment = async () => {
     // Generate upfront PNR so entry immediately logs in Admin Console as PENDING
-    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const pnrToUse = createdPnr || getStoredOrNewPnr();
     setCreatedPnr(pnrToUse);
     try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
 
@@ -1093,7 +1121,7 @@ export default function BookingCheckoutModal({
 
     const isManualUpi = ['upi', 'upiQr', 'upiApps'].includes(paymentMethod);
     const finalStatus = isManualUpi ? 'VERIFICATION_PENDING' : 'CONFIRMED';
-    const pnrToUse = createdPnr || localStorage.getItem('asg_current_pending_pnr') || `ASG-${Math.floor(100000 + Math.random() * 900000)}`;
+    const pnrToUse = createdPnr || getStoredOrNewPnr();
     setCreatedPnr(pnrToUse);
     try { localStorage.setItem('asg_current_pending_pnr', pnrToUse); } catch (e) {}
 

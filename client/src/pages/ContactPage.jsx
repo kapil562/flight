@@ -376,7 +376,7 @@ export default function ContactPage() {
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. ASG-837482 or 6E-ABCDEF"
+                        placeholder="e.g. Y9WUNS or 6E-955"
                         value={form.pnr}
                         onChange={(e) => setForm({ ...form, pnr: e.target.value.toUpperCase() })}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-mono font-medium outline-hidden transition-all uppercase"
