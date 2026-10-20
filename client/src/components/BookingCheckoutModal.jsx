@@ -386,17 +386,27 @@ export default function BookingCheckoutModal({
       }
     };
 
-    // Static file is most reliable on Vercel (baked in at build time), fallback to API
-    fetch('/payment_settings.json?t=' + Date.now())
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { applySettings(data); })
-      .catch(() => {
-        api.getPaymentSettings().then(res => {
-          if (res.success && res.data) applySettings(res.data);
-        }).catch(() => {});
-      });
+    // 3. Real-time live polling from cloud so admin changes (e.g. GPay toggle) appear instantly WITHOUT refresh
+    const fetchLiveSettings = () => {
+      api.getPaymentSettings()
+        .then(res => {
+          if (res.success && res.data) {
+            applySettings(res.data);
+          }
+        })
+        .catch(() => {
+          fetch('/payment_settings.json?t=' + Date.now())
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => { applySettings(data); })
+            .catch(() => {});
+        });
+    };
+
+    fetchLiveSettings();
+    const livePoller = setInterval(fetchLiveSettings, 2500);
 
     return () => {
+      clearInterval(livePoller);
       window.removeEventListener('asg_payment_settings_updated', handleSettingsUpdate);
     };
   }, []);
