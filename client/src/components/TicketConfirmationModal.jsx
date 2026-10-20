@@ -32,45 +32,45 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-2.5 sm:p-4 py-4 sm:py-8"
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 25 }}
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 25 }}
-        transition={{ type: 'spring', damping: 24, stiffness: 300 }}
-        className="bg-white rounded-3xl w-full max-w-2xl my-auto shadow-2xl border border-slate-200 overflow-hidden"
+        exit={{ opacity: 0, scale: 0.95, y: 15 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-2xl my-auto shadow-2xl border border-slate-200 overflow-hidden"
       >
         
         {/* Celebration Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 text-center relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 sm:p-6 text-center relative overflow-hidden">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
-            <CheckCircle2 className="w-8 h-8 text-white stroke-[2.5]" />
+          <div className="w-11 h-11 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-inner">
+            <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-white stroke-[2.5]" />
           </div>
 
-          <h2 className="text-2xl font-black tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
             {booking.status === 'VERIFICATION_PENDING' ? 'Booking Submitted for Verification!' : 'Booking Confirmed!'}
           </h2>
-          <p className="text-emerald-100 text-xs sm:text-sm mt-1 max-w-md mx-auto">
+          <p className="text-emerald-100 text-[11px] sm:text-xs mt-1 max-w-md mx-auto leading-normal">
             {booking.status === 'VERIFICATION_PENDING'
               ? 'Your UPI payment reference is submitted. Our admin team will verify and approve your booking shortly.'
               : 'Your flight has been ticketed. A confirmation email and SMS have been dispatched.'}
           </p>
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 text-xs font-mono font-bold tracking-wider">
-              <span>PNR:</span>
-              <span className="text-amber-300 text-base">{booking.pnr}</span>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20 text-xs font-mono font-bold tracking-wider">
+              <span className="text-emerald-200">PNR:</span>
+              <span className="text-amber-300 text-sm sm:text-base font-black">{booking.pnr}</span>
             </div>
             {booking.payment?.utrNumber && (
-              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-[11px] font-mono text-white">
+              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 text-[11px] font-mono text-white">
                 <span className="text-emerald-200">UTR:</span>
                 <span className="font-bold">{booking.payment.utrNumber}</span>
               </div>
@@ -79,33 +79,35 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
         </div>
 
         {/* Boarding Pass / Ticket Card */}
-        <div className="p-6 bg-slate-50" ref={ticketRef}>
+        <div className="p-3 sm:p-6 bg-slate-50" ref={ticketRef}>
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative">
             
             {/* Top Ticket Header */}
-            <div className="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="p-3.5 sm:p-5 bg-slate-900 text-white flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 {brand?.logo ? (
                   <img
                     src={brand.logo}
                     alt={brand.name || 'Brand Logo'}
-                    className="h-8 w-auto max-w-[120px] object-contain rounded"
+                    className="h-6 sm:h-8 w-auto max-w-[90px] sm:max-w-[120px] object-contain rounded shrink-0"
                   />
                 ) : (
-                  <Plane className="w-5 h-5 text-sky-400 rotate-45" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-sky-500/20 flex items-center justify-center shrink-0">
+                    <Plane className="w-4 h-4 text-sky-400 rotate-45" />
+                  </div>
                 )}
-                <div>
-                  <h4 className="font-extrabold text-sm sm:text-base leading-none">
+                <div className="min-w-0">
+                  <h4 className="font-extrabold text-xs sm:text-base leading-tight truncate">
                     {brand?.name || 'AIR SKY'} E-Boarding Pass
                   </h4>
-                  <span className="text-[10px] text-slate-400 font-mono">ELECTRONIC TICKET / PASSENGER COUPON</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-mono block truncate">ELECTRONIC TICKET / PASSENGER COUPON</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 text-right">
+              <div className="flex items-center gap-2 text-right shrink-0">
                 <AirlineBadge code={booking.airlineCode || (booking.airline?.toLowerCase().includes('indigo') ? '6E' : booking.airline?.toLowerCase().includes('akasa') ? 'QP' : booking.airline?.toLowerCase().includes('vistara') ? 'UK' : booking.airline?.toLowerCase().includes('spice') ? 'SG' : booking.airline?.toLowerCase().includes('air india') ? 'AI' : booking.airline?.slice(0, 2))} name={booking.airline} size="sm" showDetails={false} />
-                <div>
-                  <div className="text-xs font-bold text-sky-400">{booking.airline}</div>
-                  <div className="text-[11px] font-mono text-slate-400">{booking.flightNumber}</div>
+                <div className="text-right">
+                  <div className="text-[11px] sm:text-xs font-bold text-sky-400 truncate max-w-[90px] sm:max-w-[120px]">{booking.airline}</div>
+                  <div className="text-[10px] sm:text-[11px] font-mono text-slate-400">{booking.flightNumber}</div>
                 </div>
               </div>
             </div>
@@ -197,30 +199,36 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
               </div>
             )}
 
-            {/* Flight Route & Timings (One-Way only) */}
+            {/* Flight Route & Timings (One-Way only - Fully Responsive Horizontal Layout) */}
             {booking.tripType !== 'roundTrip' && !booking.roundTripDetails && booking.tripType !== 'multiCity' && !booking.multiCityLegs && (
-              <div className="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                <div className="sm:col-span-5 text-left">
-                  <span className="text-3xl font-black text-slate-900 font-mono">{booking.from}</span>
-                  <div className="text-xs font-bold text-slate-700">{booking.fromCity}</div>
-                  <div className="text-xs text-slate-400 mt-1 flex items-center gap-1 font-mono">
-                    <Clock className="w-3 h-3 text-sky-600" />
+              <div className="p-4 sm:p-6 flex items-center justify-between gap-2 sm:gap-4">
+                {/* From Airport */}
+                <div className="text-left flex-1 min-w-0">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight block">{booking.from}</span>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-700 truncate">{booking.fromCity}</div>
+                  <div className="text-[10px] sm:text-xs text-slate-400 mt-1 flex items-center gap-1 font-mono">
+                    <Clock className="w-3 h-3 text-sky-600 shrink-0" />
                     <span>Dep: {booking.departureTime}</span>
                   </div>
                 </div>
 
-                <div className="sm:col-span-2 text-center py-2 sm:py-0">
-                  <div className="w-8 h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center mx-auto shadow-xs">
-                    <Plane className="w-4 h-4 rotate-90" />
+                {/* Flight Path Indicator */}
+                <div className="text-center px-1.5 sm:px-4 shrink-0 flex flex-col items-center justify-center">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shadow-xs">
+                    <Plane className="w-3.5 h-3.5 sm:w-4 sm:h-4 rotate-90" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">Non-Stop</span>
+                  <div className="w-12 sm:w-20 h-0.5 bg-slate-200 my-1 relative">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-sky-500"></div>
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Non-Stop</span>
                 </div>
 
-                <div className="sm:col-span-5 text-right">
-                  <span className="text-3xl font-black text-slate-900 font-mono">{booking.to}</span>
-                  <div className="text-xs font-bold text-slate-700">{booking.toCity}</div>
-                  <div className="text-xs text-slate-400 mt-1 flex items-center justify-end gap-1 font-mono">
-                    <Clock className="w-3 h-3 text-sky-600" />
+                {/* To Airport */}
+                <div className="text-right flex-1 min-w-0">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight block">{booking.to}</span>
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-700 truncate">{booking.toCity}</div>
+                  <div className="text-[10px] sm:text-xs text-slate-400 mt-1 flex items-center justify-end gap-1 font-mono">
+                    <Clock className="w-3 h-3 text-sky-600 shrink-0" />
                     <span>Arr: {booking.arrivalTime}</span>
                   </div>
                 </div>
@@ -234,7 +242,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             </div>
 
             {/* Passenger, Class, Date & Seat Metadata Grid */}
-            <div className="p-5 sm:p-6 bg-slate-50/50 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div className="p-3.5 sm:p-5 bg-slate-50/50 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 text-xs">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Passenger(s)</span>
                 <div className="font-extrabold text-slate-900 mt-0.5">
