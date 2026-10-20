@@ -81,6 +81,56 @@ const saveLivePaymentSettings = async (settings) => {
   }
 };
 
+const getLiveBookingsFromEdge = async () => {
+  try {
+    const res = await fetch(`https://edge-config.vercel.com/${EDGE_CONFIG_ID}/items?token=${EDGE_READ_TOKEN}`, {
+      cache: 'no-store'
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data?.live_bookings || {};
+    }
+  } catch (err) {
+    console.warn('Edge config live_bookings read warning on server:', err.message);
+  }
+  return {};
+};
+
+const saveLiveBookingToEdge = async (booking) => {
+  try {
+    const pnr = String(booking?.pnr || '').trim().toUpperCase();
+    if (!pnr) return;
+    const current = await getLiveBookingsFromEdge();
+    const updated = {
+      ...current,
+      [pnr]: {
+        ...(current[pnr] || {}),
+        ...booking,
+        pnr,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    await fetch(`https://api.vercel.com/v1/edge-config/${EDGE_CONFIG_ID}/items?teamId=${EDGE_TEAM_ID}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${EDGE_WRITE_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: [
+          {
+            operation: 'upsert',
+            key: 'live_bookings',
+            value: updated
+          }
+        ]
+      })
+    });
+  } catch (err) {
+    console.error('Edge config live_bookings save error on server:', err.message);
+  }
+};
+
 // Helper to read JSON
 const readJSON = (filePath, fallback = []) => {
   if (memoryStore.has(filePath)) {
@@ -1671,6 +1721,7 @@ app.post('/api/bookings', (req, res) => {
         updatedAt: new Date().toISOString()
       };
       writeJSON(BOOKINGS_FILE, bookings);
+      saveLiveBookingToEdge(bookings[existingIndex]).catch(() => {});
 
       return res.status(200).json({
         success: true,
@@ -1725,6 +1776,7 @@ app.post('/api/bookings', (req, res) => {
 
     bookings.unshift(newBooking);
     writeJSON(BOOKINGS_FILE, bookings);
+    saveLiveBookingToEdge(newBooking).catch(() => {});
 
     // Auto-register or update customer in users.json
     try {
@@ -1774,13 +1826,25 @@ app.post('/api/bookings', (req, res) => {
   }
 });
 
-// 11. Customer Get Bookings
-app.get('/api/bookings', (req, res) => {
+// 11. Customer Get Bookings (Live merged with Edge Config across all devices)
+app.get('/api/bookings', async (req, res) => {
   const { email, phone, pnr } = req.query;
-  const bookings = readJSON(BOOKINGS_FILE);
+  const fileBookings = readJSON(BOOKINGS_FILE, []);
+  let edgeBookingsObj = {};
+  try { edgeBookingsObj = await getLiveBookingsFromEdge(); } catch (e) {}
+
+  const bookingMap = new Map();
+  fileBookings.forEach(b => { if (b.pnr) bookingMap.set(b.pnr.toUpperCase(), b); });
+  Object.values(edgeBookingsObj).forEach(b => {
+    if (b && b.pnr) {
+      const existing = bookingMap.get(b.pnr.toUpperCase()) || {};
+      bookingMap.set(b.pnr.toUpperCase(), { ...existing, ...b });
+    }
+  });
+  const bookings = Array.from(bookingMap.values()).sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0));
 
   if (pnr) {
-    const b = bookings.find(item => item.pnr.toUpperCase() === pnr.toUpperCase());
+    const b = bookings.find(item => item.pnr?.toUpperCase() === pnr.toUpperCase());
     return res.json({ success: true, data: b ? [b] : [] });
   }
 
@@ -1797,19 +1861,28 @@ app.get('/api/bookings', (req, res) => {
   res.json({ success: true, count: bookings.length, data: bookings });
 });
 
-// 12. Single Booking by PNR
-app.get('/api/bookings/:pnr', (req, res) => {
+// 12. Single Booking by PNR (Live read from Edge Config first)
+app.get('/api/bookings/:pnr', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
   const { pnr } = req.params;
-  const bookings = readJSON(BOOKINGS_FILE);
   const searchPnr = (pnr || '').trim().toUpperCase();
-  const booking = bookings.find(b => 
+
+  let edgeBooking = null;
+  try {
+    const edgeObj = await getLiveBookingsFromEdge();
+    edgeBooking = edgeObj[searchPnr];
+  } catch (e) {}
+
+  const bookings = readJSON(BOOKINGS_FILE, []);
+  const fileBooking = bookings.find(b => 
     (b.pnr && b.pnr.trim().toUpperCase() === searchPnr) || 
     (b.bookingId && b.bookingId.trim().toUpperCase() === searchPnr)
   );
+
+  const booking = edgeBooking ? { ...(fileBooking || {}), ...edgeBooking } : fileBooking;
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -2644,6 +2717,7 @@ app.patch('/api/admin/bookings/:pnr/status', (req, res) => {
   }
   bookings[index].updatedAt = new Date().toISOString();
   writeJSON(BOOKINGS_FILE, bookings);
+  saveLiveBookingToEdge(bookings[index]).catch(() => {});
 
   res.json({ success: true, message: `Booking ${pnr} status updated to ${normalizedStatus}`, booking: bookings[index] });
 });

@@ -6,6 +6,7 @@ import {
   Building2, Compass, Train, Globe, Phone, Mail, Calendar, ExternalLink, MessageCircle, Palmtree, ToggleLeft, ToggleRight, Database, QrCode, Palette, Key
 } from 'lucide-react';
 import { api } from '../utils/api';
+import { updateEdgeBookingStatus } from '../utils/edgeConfig';
 import AirlineBadge from './AirlineBadge';
 import AdminPaymentsUpi from './AdminPaymentsUpi';
 import AdminBrandSettings from './AdminBrandSettings';
@@ -143,6 +144,20 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
     loadAdminData();
   }, []);
 
+  // Live polling for real-time bookings feed across all customer devices without manual refresh
+  useEffect(() => {
+    if (activeTab === 'bookings' || activeTab === 'overview') {
+      const interval = setInterval(() => {
+        api.getBookings({}).then(res => {
+          if (res.success && Array.isArray(res.data)) {
+            setBookings(res.data);
+          }
+        }).catch(() => {});
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
+
   // 1. Save Website Settings (CMS)
   const handleSaveSettings = async (e) => {
     e.preventDefault();
@@ -266,9 +281,16 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
     }
   };
 
-  // 9. Update Booking Status
+  // 9. Update Booking Status (Instant live sync across all devices via Vercel Edge Config)
   const handleUpdateBookingStatus = async (pnr, newStatus) => {
     try {
+      // 1. Direct Edge Config update for 0ms cross-device latency
+      updateEdgeBookingStatus(pnr, newStatus).catch(() => {});
+
+      // 2. Local state optimistic update
+      setBookings(prev => prev.map(b => (b.pnr === pnr || b.bookingId === pnr) ? { ...b, status: newStatus } : b));
+
+      // 3. Backend API update
       const res = await api.updateBookingStatus(pnr, newStatus);
       if (res.success) {
         loadAdminData();

