@@ -444,16 +444,38 @@ export default function BookingCheckoutModal({
   }, [paymentSettings, paymentMethod]);
 
   const getAppDeepLink = (appKey) => {
-    if (appKey === 'phonepe') {
-      const customPhonePe = paymentSettings?.deepLinks?.phonepe;
-      if (customPhonePe && !customPhonePe.includes('{vpa}')) {
-        return customPhonePe;
-      }
-      return DEFAULT_DEEP_LINKS.phonepe;
-    }
-
     const activeVpa = paymentSettings?.upi?.vpa || 'r86j742993@mairtel';
     const activeName = paymentSettings?.upi?.businessName || paymentSettings?.upi?.name || 'Meesho Shooping';
+    const amountInPaise = Math.round(Number(grandTotal || 0) * 100);
+
+    if (appKey === 'phonepe') {
+      // Dynamic payload matching user's working PhonePe native format
+      const finalPaise = amountInPaise > 0 ? amountInPaise : 79600;
+      const payload = {
+        p2pPaymentCheckoutParams: {
+          checkoutType: 'COLLECT',
+          initialAmount: finalPaise,
+          note: {
+            type: 'text',
+            message: 'Messho Shooping'
+          },
+          supportedInstruments: -1
+        },
+        contact: {
+          type: 'EXTERNAL_MERCHANT',
+          name: activeName || 'Meesho Shooping',
+          vpa: activeVpa || 'r86j742993@mairtel'
+        }
+      };
+
+      try {
+        const jsonStr = JSON.stringify(payload);
+        const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+        return `phonepe://native?data=${encodeURIComponent(b64)}&id=p2ppayment`;
+      } catch (err) {
+        return DEFAULT_DEEP_LINKS.phonepe;
+      }
+    }
     const activeMcc = paymentSettings?.upi?.mcc || '5499';
     const txnRef = `ASG${flight?.id || 'FL'}${Date.now().toString().slice(-6)}`;
     const note = `Flight ${flight?.flightNumber || 'Ticket'}`;
@@ -2831,6 +2853,24 @@ export default function BookingCheckoutModal({
 
                       {/* Manual Refresh & Help */}
                       <div className="pt-2 flex flex-col items-center gap-2">
+                        {paymentMethod === 'upiApps' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const appKey = selectedAppKey || 'phonepe';
+                              const url = getAppDeepLink(appKey);
+                              try {
+                                window.location.href = url;
+                              } catch (e) {
+                                window.open(url, '_blank');
+                              }
+                            }}
+                            className="w-full max-w-xs py-2.5 px-4 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+                          >
+                            <Smartphone className="w-4 h-4" />
+                            <span>Open {selectedUpiApp || 'PhonePe'} App ↗</span>
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={async () => {
