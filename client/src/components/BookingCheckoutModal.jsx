@@ -391,9 +391,9 @@ export default function BookingCheckoutModal({
             ...(res.data.methods || {}),
             ...(currentLocal?.methods || {})
           },
+          // Server is authoritative for apps toggle — do NOT let localStorage override
           apps: {
-            ...(res.data.apps || {}),
-            ...(currentLocal?.apps || {})
+            ...(res.data.apps || {})
           },
           deepLinks: {
             ...(res.data.deepLinks || {}),

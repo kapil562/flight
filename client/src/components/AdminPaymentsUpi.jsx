@@ -124,9 +124,9 @@ export default function AdminPaymentsUpi() {
             ...(res.data.methods || {}),
             ...(localData?.methods || {})
           },
+          // Server is authoritative for apps toggles
           apps: {
-            ...(res.data.apps || {}),
-            ...(localData?.apps || {})
+            ...(res.data.apps || {})
           },
           deepLinks: {
             ...(res.data.deepLinks || {}),
