@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -53,6 +54,166 @@ try {
 const BLOB_READ_WRITE_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_xhZm9lPIvWYVhR3f_Ja14Xn78AHI64jPca957DbRiVExOYL';
 const BLOB_BOOKINGS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/bookings.json';
 const BLOB_COUPONS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/coupons.json';
+const BLOB_ADMIN_ENC_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/admin_vault.json';
+
+// ================= ENCRYPTED ADMIN SECURITY VAULT & SESSIONS =================
+const ADMIN_STORAGE_KEY = process.env.ADMIN_SECRET_KEY || 'asg_flight_master_secret_key_2026_99x';
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'asg_super_secure_airskygo_2026_master_key_99x';
+
+function encryptAdminData(obj) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', crypto.createHash('sha256').update(ADMIN_STORAGE_KEY).digest(), iv);
+  let enc = cipher.update(JSON.stringify(obj), 'utf8', 'hex');
+  enc += cipher.final('hex');
+  const tag = cipher.getAuthTag().toString('hex');
+  return { iv: iv.toString('hex'), tag, enc };
+}
+
+function decryptAdminData(encrypted) {
+  try {
+    if (!encrypted || !encrypted.iv || !encrypted.tag || !encrypted.enc) return null;
+    const decipher = crypto.createDecipheriv('aes-256-gcm', crypto.createHash('sha256').update(ADMIN_STORAGE_KEY).digest(), Buffer.from(encrypted.iv, 'hex'));
+    decipher.setAuthTag(Buffer.from(encrypted.tag, 'hex'));
+    let dec = decipher.update(encrypted.enc, 'hex', 'utf8');
+    dec += decipher.final('utf8');
+    return JSON.parse(dec);
+  } catch (e) {
+    return null;
+  }
+}
+
+function signAdminToken(payload) {
+  const data = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 })).toString('base64url');
+  const sig = crypto.createHmac('sha256', ADMIN_JWT_SECRET).update(data).digest('base64url');
+  return `${data}.${sig}`;
+}
+
+function verifyAdminToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [data, sig] = parts;
+  const expectedSig = crypto.createHmac('sha256', ADMIN_JWT_SECRET).update(data).digest('base64url');
+  if (sig !== expectedSig) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(data, 'base64url').toString('utf8'));
+    if (payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Brute-force Login Protection (5 attempts lock for 10 minutes)
+const loginAttemptsMap = new Map();
+
+function checkLoginRateLimit(ip) {
+  const now = Date.now();
+  const record = loginAttemptsMap.get(ip);
+  if (!record) return { allowed: true };
+  if (now - record.firstAttempt > 10 * 60 * 1000) {
+    loginAttemptsMap.delete(ip);
+    return { allowed: true };
+  }
+  if (record.attempts >= 5) {
+    const remainingSec = Math.ceil((10 * 60 * 1000 - (now - record.firstAttempt)) / 1000);
+    return {
+      allowed: false,
+      remainingMinutes: Math.ceil(remainingSec / 60),
+      message: `Too many failed login attempts. Security lock active. Please wait ${Math.ceil(remainingSec / 60)} minute(s).`
+    };
+  }
+  return { allowed: true };
+}
+
+function recordFailedLoginAttempt(ip) {
+  const now = Date.now();
+  const record = loginAttemptsMap.get(ip) || { attempts: 0, firstAttempt: now };
+  record.attempts += 1;
+  loginAttemptsMap.set(ip, record);
+}
+
+function clearLoginAttempts(ip) {
+  loginAttemptsMap.delete(ip);
+}
+
+const getLiveAdminCredentials = async () => {
+  if (memoryStore.has('admin_credentials')) {
+    return memoryStore.get('admin_credentials');
+  }
+  try {
+    const res = await fetch(`${BLOB_ADMIN_ENC_URL}?_t=${Date.now()}`, { cache: 'no-store' });
+    if (res.ok) {
+      const encryptedData = await res.json();
+      const decrypted = decryptAdminData(encryptedData);
+      if (decrypted && decrypted.username && decrypted.password) {
+        memoryStore.set('admin_credentials', decrypted);
+        return decrypted;
+      }
+    }
+  } catch (err) {
+    console.warn('Vercel Blob admin read warning:', err.message);
+  }
+  const fallback = readJSON(ADMIN_FILE, {
+    username: 'admin@airskygo.com',
+    password: 'admin123',
+    name: 'Super Administrator',
+    role: 'Master Admin'
+  });
+  memoryStore.set('admin_credentials', fallback);
+  return fallback;
+};
+
+const saveLiveAdminCredentials = async (admin) => {
+  memoryStore.set('admin_credentials', admin);
+  writeJSON(ADMIN_FILE, admin);
+  if (putBlob) {
+    try {
+      const encrypted = encryptAdminData(admin);
+      await putBlob('admin_vault.json', JSON.stringify(encrypted), {
+        access: 'public',
+        addRandomSuffix: false,
+        token: BLOB_READ_WRITE_TOKEN
+      });
+      console.log('Admin credentials synced to encrypted Vercel Blob vault');
+    } catch (err) {
+      console.error('Error saving admin vault to Vercel Blob:', err.message);
+    }
+  }
+};
+
+const requireAdminAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7).trim()
+    : (req.query.admin_token || req.headers['x-admin-token']);
+  
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Admin authentication token required'
+    });
+  }
+
+  const verified = verifyAdminToken(token);
+  if (!verified) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Invalid or expired admin session. Please log in again.'
+    });
+  }
+
+  req.admin = verified;
+  next();
+};
+
+// Global protection on all /api/admin/* routes except /api/admin/login
+app.use('/api/admin', (req, res, next) => {
+  if (req.path === '/login') {
+    return next();
+  }
+  return requireAdminAuth(req, res, next);
+});
 
 // Standard 6-character Airline PNR Generator (IndiGo format, e.g. Y9WUNS)
 function generateAirlinePnr() {
@@ -2440,22 +2601,33 @@ app.patch('/api/admin/visa-applications/:id/status', (req, res) => {
 /* ================= FULL WORKING ADMIN CONTROL APIS ================= */
 
 // A0. Admin Login Authentication
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  const admin = readJSON(ADMIN_FILE, { username: 'admin@airskygo.com', password: 'admin123', name: 'Super Admin' });
-
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'Username/Email and Password are required' });
+app.post('/api/admin/login', async (req, res) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+  const rateLimit = checkLoginRateLimit(ip);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ success: false, message: rateLimit.message });
   }
 
-  const u = username.trim().toLowerCase();
-  const validUser = (u === admin.username.toLowerCase() || u === 'admin' || u === 'admin@airskygo.com');
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: 'Admin ID / Email and Password are required' });
+  }
+
+  const admin = await getLiveAdminCredentials();
+  const u = String(username).trim().toLowerCase();
+  const validUser = (u === String(admin.username || '').trim().toLowerCase());
   const validPass = (password === admin.password);
 
   if (validUser && validPass) {
+    clearLoginAttempts(ip);
+    const token = signAdminToken({
+      username: admin.username,
+      name: admin.name || 'Master Admin',
+      role: admin.role || 'Super Administrator'
+    });
     return res.json({
       success: true,
-      token: `ASG_ADMIN_SESSION_${Date.now()}`,
+      token,
       admin: {
         username: admin.username,
         name: admin.name || 'Master Admin',
@@ -2465,30 +2637,42 @@ app.post('/api/admin/login', (req, res) => {
     });
   }
 
+  recordFailedLoginAttempt(ip);
   return res.status(401).json({
     success: false,
-    message: 'Invalid Admin ID or Password. Default is admin@airskygo.com / admin123'
+    message: 'Invalid Admin ID or Password. Access denied.'
   });
 });
 
 // A0.1 Admin Change Credentials (ID & Password)
-app.post('/api/admin/change-credentials', (req, res) => {
+app.post('/api/admin/change-credentials', async (req, res) => {
   const { currentPassword, newUsername, newPassword, newName } = req.body;
-  const admin = readJSON(ADMIN_FILE, { username: 'admin@airskygo.com', password: 'admin123' });
+  const admin = await getLiveAdminCredentials();
 
   if (currentPassword !== admin.password) {
     return res.status(400).json({ success: false, message: 'Current password does not match' });
   }
 
-  if (newUsername) admin.username = newUsername.trim();
-  if (newPassword) admin.password = newPassword.trim();
-  if (newName) admin.name = newName.trim();
+  if (newPassword && newPassword.trim().length < 8) {
+    return res.status(400).json({ success: false, message: 'New password must be at least 8 characters long for high security' });
+  }
 
-  writeJSON(ADMIN_FILE, admin);
+  if (newUsername && newUsername.trim()) admin.username = newUsername.trim();
+  if (newPassword && newPassword.trim()) admin.password = newPassword.trim();
+  if (newName && newName.trim()) admin.name = newName.trim();
+
+  await saveLiveAdminCredentials(admin);
+
+  const token = signAdminToken({
+    username: admin.username,
+    name: admin.name || 'Master Admin',
+    role: admin.role || 'Super Administrator'
+  });
 
   res.json({
     success: true,
-    message: 'Admin ID & Password updated successfully! Please use new credentials for future logins.',
+    token,
+    message: 'Admin ID & Password updated and encrypted in cloud vault successfully!',
     admin: {
       username: admin.username,
       name: admin.name
@@ -3054,8 +3238,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'AirSkyGo API Server', timestamp: new Date() });
 });
 
-// Full Database Export & Viewer Endpoint (db.json)
-app.get('/api/db', (req, res) => {
+// Full Database Export & Viewer Endpoint (db.json) - Protected by Admin Auth
+app.get('/api/db', requireAdminAuth, (req, res) => {
   const db = syncDBJson() || readJSON(DB_FILE, {});
   res.json({
     success: true,

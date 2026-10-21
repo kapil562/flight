@@ -1,6 +1,27 @@
 // Centralized API client for AirSkyGo
 const API_BASE = '/api';
 
+export const getAdminAuthToken = () => {
+  return localStorage.getItem('asg_admin_token') || '';
+};
+
+export const setAdminAuthToken = (token) => {
+  if (token) {
+    localStorage.setItem('asg_admin_token', token);
+  } else {
+    localStorage.removeItem('asg_admin_token');
+  }
+};
+
+const getAdminHeaders = (extra = {}) => {
+  const token = getAdminAuthToken();
+  const headers = { ...extra };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 export const api = {
   // Live Site Settings (CMS)
   getSettings: async () => {
@@ -11,7 +32,7 @@ export const api = {
   updateSettings: async (settingsData) => {
     const res = await fetch(`${API_BASE}/admin/settings`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(settingsData)
     });
     return res.json();
@@ -26,7 +47,7 @@ export const api = {
   updateBrand: async (brandData) => {
     const res = await fetch(`${API_BASE}/admin/brand`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(brandData)
     });
     return res.json();
@@ -41,7 +62,7 @@ export const api = {
   addAirport: async (airportData) => {
     const res = await fetch(`${API_BASE}/admin/airports`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(airportData)
     });
     return res.json();
@@ -49,7 +70,8 @@ export const api = {
 
   deleteAirport: async (code) => {
     const res = await fetch(`${API_BASE}/admin/airports/${code}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -63,7 +85,7 @@ export const api = {
   addCoupon: async (couponData) => {
     const res = await fetch(`${API_BASE}/admin/coupons`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(couponData)
     });
     return res.json();
@@ -72,7 +94,7 @@ export const api = {
   updateCoupon: async (id, couponData) => {
     const res = await fetch(`${API_BASE}/admin/coupons/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(couponData)
     });
     return res.json();
@@ -80,7 +102,8 @@ export const api = {
 
   deleteCoupon: async (id) => {
     const res = await fetch(`${API_BASE}/admin/coupons/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -135,10 +158,10 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/bookings?${query}&_t=${Date.now()}`, {
       cache: 'no-store',
-      headers: {
+      headers: getAdminHeaders({
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache'
-      }
+      })
     });
     return res.json();
   },
@@ -147,10 +170,10 @@ export const api = {
     const cleanPnr = encodeURIComponent(String(pnr || '').trim());
     const res = await fetch(`${API_BASE}/bookings/${cleanPnr}?_t=${Date.now()}`, {
       cache: 'no-store',
-      headers: {
+      headers: getAdminHeaders({
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache'
-      }
+      })
     });
     return res.json();
   },
@@ -158,7 +181,8 @@ export const api = {
   cancelBooking: async (pnr) => {
     const cleanPnr = encodeURIComponent(String(pnr || '').trim());
     const res = await fetch(`${API_BASE}/bookings/${cleanPnr}/cancel`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -174,7 +198,8 @@ export const api = {
   // Admin APIs
   getAdminStats: async () => {
     const res = await fetch(`${API_BASE}/admin/stats?_t=${Date.now()}`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -182,7 +207,7 @@ export const api = {
   addFlight: async (flightData) => {
     const res = await fetch(`${API_BASE}/admin/flights`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(flightData)
     });
     return res.json();
@@ -191,7 +216,7 @@ export const api = {
   updateFlight: async (id, flightData) => {
     const res = await fetch(`${API_BASE}/admin/flights/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(flightData)
     });
     return res.json();
@@ -199,7 +224,8 @@ export const api = {
 
   deleteFlight: async (id) => {
     const res = await fetch(`${API_BASE}/admin/flights/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -208,7 +234,7 @@ export const api = {
     const cleanPnr = encodeURIComponent(String(pnr || '').trim());
     const res = await fetch(`${API_BASE}/admin/bookings/${cleanPnr}/status?_t=${Date.now()}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status })
     });
     return res.json();
@@ -216,7 +242,8 @@ export const api = {
 
   deleteBooking: async (pnr) => {
     const res = await fetch(`${API_BASE}/admin/bookings/${pnr}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -233,27 +260,27 @@ export const api = {
   adminChangeCredentials: async (credentials) => {
     const res = await fetch(`${API_BASE}/admin/change-credentials`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(credentials)
     });
     return res.json();
   },
 
   getApisConfig: async () => {
-    const res = await fetch(`${API_BASE}/admin/apis`);
+    const res = await fetch(`${API_BASE}/admin/apis`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   updateApisConfig: async (config) => {
     const res = await fetch(`${API_BASE}/admin/apis`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(config)
     });
     return res.json();
   },
-
-
 
   // Moyatri Multi-Services
   getHotels: async (city = '') => {
@@ -277,11 +304,6 @@ export const api = {
     return res.json();
   },
 
-  getBookingByPnr: async (pnr) => {
-    const res = await fetch(`${API_BASE}/bookings/${encodeURIComponent(pnr.trim())}`);
-    return res.json();
-  },
-
   // Customer Management & Real Data
   customerAuth: async (authData) => {
     const res = await fetch(`${API_BASE}/auth/customer-auth`, {
@@ -293,13 +315,16 @@ export const api = {
   },
 
   getCustomers: async () => {
-    const res = await fetch(`${API_BASE}/admin/customers`);
+    const res = await fetch(`${API_BASE}/admin/customers`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   deleteCustomer: async (id) => {
     const res = await fetch(`${API_BASE}/admin/customers/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -315,14 +340,16 @@ export const api = {
   },
 
   getAdminHotelBookings: async () => {
-    const res = await fetch(`${API_BASE}/admin/hotel-bookings`);
+    const res = await fetch(`${API_BASE}/admin/hotel-bookings`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   updateHotelBookingStatus: async (id, status) => {
     const res = await fetch(`${API_BASE}/admin/hotel-bookings/${id}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status })
     });
     return res.json();
@@ -339,14 +366,16 @@ export const api = {
   },
 
   getAdminHolidayInquiries: async () => {
-    const res = await fetch(`${API_BASE}/admin/holiday-inquiries`);
+    const res = await fetch(`${API_BASE}/admin/holiday-inquiries`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   updateHolidayInquiryStatus: async (id, status) => {
     const res = await fetch(`${API_BASE}/admin/holiday-inquiries/${id}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status })
     });
     return res.json();
@@ -354,14 +383,16 @@ export const api = {
 
   // Admin Holiday Packages Catalog
   getAdminHolidays: async () => {
-    const res = await fetch(`${API_BASE}/admin/holidays`);
+    const res = await fetch(`${API_BASE}/admin/holidays`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   addHoliday: async (data) => {
     const res = await fetch(`${API_BASE}/admin/holidays`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data)
     });
     return res.json();
@@ -370,7 +401,7 @@ export const api = {
   updateHoliday: async (id, data) => {
     const res = await fetch(`${API_BASE}/admin/holidays/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data)
     });
     return res.json();
@@ -378,14 +409,16 @@ export const api = {
 
   toggleHolidayStatus: async (id) => {
     const res = await fetch(`${API_BASE}/admin/holidays/${id}/toggle`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
 
   deleteHoliday: async (id) => {
     const res = await fetch(`${API_BASE}/admin/holidays/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAdminHeaders()
     });
     return res.json();
   },
@@ -401,7 +434,9 @@ export const api = {
   },
 
   getAdminTrainBookings: async () => {
-    const res = await fetch(`${API_BASE}/admin/train-bookings`);
+    const res = await fetch(`${API_BASE}/admin/train-bookings`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
@@ -416,14 +451,16 @@ export const api = {
   },
 
   getAdminVisaApplications: async () => {
-    const res = await fetch(`${API_BASE}/admin/visa-applications`);
+    const res = await fetch(`${API_BASE}/admin/visa-applications`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   updateVisaApplicationStatus: async (id, status) => {
     const res = await fetch(`${API_BASE}/admin/visa-applications/${id}/status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status })
     });
     return res.json();
@@ -438,7 +475,7 @@ export const api = {
   updatePaymentSettings: async (settingsData) => {
     const res = await fetch(`${API_BASE}/admin/payment-settings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(settingsData)
     });
     return res.json();
@@ -446,14 +483,16 @@ export const api = {
 
   // Integrated API & Payment Settings (Matches airskyindia.com/admin/settings)
   getApiSettings: async () => {
-    const res = await fetch(`${API_BASE}/admin/api-settings`);
+    const res = await fetch(`${API_BASE}/admin/api-settings`, {
+      headers: getAdminHeaders()
+    });
     return res.json();
   },
 
   updateApiSettings: async (settingsData) => {
     const res = await fetch(`${API_BASE}/admin/api-settings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(settingsData)
     });
     return res.json();
@@ -462,10 +501,9 @@ export const api = {
   testSerpApiKey: async (apiKey) => {
     const res = await fetch(`${API_BASE}/admin/apis/test-serpapi`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ apiKey })
     });
     return res.json();
   }
 };
-
