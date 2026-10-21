@@ -286,6 +286,12 @@ function MainWebsite() {
     setSearchParams(prev => ({ ...prev, date: newDate }));
   };
 
+  // Active Search Coupon from Admin (showOnSearch prioritized)
+  const activeSearchCoupon = coupons.find(c => c.showOnSearch && c.status !== 'Inactive')
+    || coupons.find(c => c.code === 'AIRSKY500' && c.status !== 'Inactive')
+    || coupons.find(c => c.status !== 'Inactive')
+    || null;
+
   // Step 1: User clicks "Book Now" -> Opens Checkout Modal DIRECTLY (Seat option upfront blocked nahi hoga)
   const handleInitiateBooking = (flight, currentPrice, initialFareTier = 'saver', initialCoupon = '') => {
     const totalPax = (searchParams.passengers?.adults || 1) + (searchParams.passengers?.children || 0);
@@ -296,7 +302,7 @@ function MainWebsite() {
       travelClass: searchParams.travelClass,
       selectedSeats: [],
       passengersCount: totalPax,
-      initialCoupon: initialCoupon || 'AIRSKY500',
+      initialCoupon: initialCoupon || activeSearchCoupon?.code || 'AIRSKY500',
       initialFareTier: initialFareTier || 'saver'
     });
   };
@@ -312,7 +318,7 @@ function MainWebsite() {
       travelClass,
       selectedSeats,
       passengersCount,
-      initialCoupon: initialCoupon || 'AIRSKY500',
+      initialCoupon: initialCoupon || activeSearchCoupon?.code || 'AIRSKY500',
       initialFareTier: 'saver'
     });
   };
@@ -454,12 +460,7 @@ function MainWebsite() {
                   onDateChange={handleDateChange}
                   onBookFlight={handleInitiateBooking}
                   brand={brand}
-                  searchCoupon={
-                    coupons.find(c => c.showOnSearch && c.status !== 'Inactive')
-                    || coupons.find(c => c.code === 'AIRSKY500' && c.status !== 'Inactive')
-                    || coupons.find(c => c.status !== 'Inactive')
-                    || null
-                  }
+                  searchCoupon={activeSearchCoupon}
                   allCoupons={coupons}
                 />
               </div>

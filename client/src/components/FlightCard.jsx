@@ -278,18 +278,32 @@ export default function FlightCard({
               {/* Row 3: Price (Left) & Select Action (Right) */}
               <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100">
                 <div>
-                  <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-[11px] line-through text-slate-400 font-semibold">
-                      ₹{originalPrice.toLocaleString('en-IN')}
+                  <div className="flex items-baseline gap-2 leading-none">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
+                      ₹{discountedFlightPrice.toLocaleString('en-IN')}
                     </span>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
-                      Save ₹{totalSavings.toLocaleString('en-IN')}
-                    </span>
+                    {couponDiscountAmount > 0 ? (
+                      <span className="text-xs line-through text-slate-400 font-semibold font-mono">
+                        ₹{currentPrice.toLocaleString('en-IN')}
+                      </span>
+                    ) : (
+                      <span className="text-xs line-through text-slate-400 font-semibold font-mono">
+                        ₹{originalPrice.toLocaleString('en-IN')}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                    ₹{currentPrice.toLocaleString('en-IN')}
-                  </div>
-                  <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
+                  {couponDiscountAmount > 0 ? (
+                    <div className="flex items-center gap-1.5 mt-1 leading-none">
+                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200/90 px-1.5 py-0.5 rounded">
+                        Save ₹{couponDiscountAmount.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500">
+                        with {featuredCoupon}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-slate-400 mt-0.5">per traveller • taxes incl.</div>
+                  )}
                 </div>
 
                 <div>

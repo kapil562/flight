@@ -116,7 +116,7 @@ export default function FlightList({
       }))
     };
 
-    onBookFlight(combinedFlight, totalMultiCityPrice, 'saver', copiedCoupon || 'AIRSKY500');
+    onBookFlight(combinedFlight, totalMultiCityPrice, 'saver', searchCoupon?.code || copiedCoupon || 'AIRSKY500');
   };
 
   // ==========================================
@@ -128,13 +128,33 @@ export default function FlightList({
   const [mobileRoundTab, setMobileRoundTab] = useState('onward'); // 'onward' | 'return'
   const [roundTripViewMode, setRoundTripViewMode] = useState('split'); // 'split' | 'tabs'
 
-
-
   // Calculate total round-trip price
   const totalRoundTripPrice = useMemo(() => {
     if (!isRoundTrip) return 0;
     return (selectedOnwardFlight?.basePrice || 0) + (selectedReturnFlight?.basePrice || 0);
   }, [isRoundTrip, selectedOnwardFlight, selectedReturnFlight]);
+
+  // Dynamic active search coupon discount calculation for combos
+  const isPercentCoupon = searchCoupon?.type === 'percent';
+  const couponDiscountVal = searchCoupon?.discount || (isPercentCoupon ? 35 : 500);
+
+  const roundTripCouponDiscount = useMemo(() => {
+    if (!totalRoundTripPrice || !searchCoupon) return 0;
+    return isPercentCoupon
+      ? Math.round((totalRoundTripPrice * couponDiscountVal) / 100)
+      : Math.min(couponDiscountVal, totalRoundTripPrice);
+  }, [totalRoundTripPrice, searchCoupon, isPercentCoupon, couponDiscountVal]);
+
+  const discountedRoundTripPrice = Math.max(0, totalRoundTripPrice - roundTripCouponDiscount);
+
+  const multiCityCouponDiscount = useMemo(() => {
+    if (!totalMultiCityPrice || !searchCoupon) return 0;
+    return isPercentCoupon
+      ? Math.round((totalMultiCityPrice * couponDiscountVal) / 100)
+      : Math.min(couponDiscountVal, totalMultiCityPrice);
+  }, [totalMultiCityPrice, searchCoupon, isPercentCoupon, couponDiscountVal]);
+
+  const discountedMultiCityPrice = Math.max(0, totalMultiCityPrice - multiCityCouponDiscount);
 
   // Book complete round-trip combo
   const handleBookRoundTripCombo = () => {
@@ -180,7 +200,7 @@ export default function FlightList({
       }
     };
 
-    onBookFlight(combinedFlight, totalRoundTripPrice, 'saver', copiedCoupon || 'AIRSKY500');
+    onBookFlight(combinedFlight, totalRoundTripPrice, 'saver', searchCoupon?.code || copiedCoupon || 'AIRSKY500');
   };
 
   const handleOnwardFlightSelect = (flight) => {
@@ -626,9 +646,16 @@ export default function FlightList({
                       {selectedOnwardFlight && selectedReturnFlight ? 'Total Combo Fare' : 'Combo Fare'}
                     </span>
                     <span className="text-lg sm:text-xl font-black text-amber-300 font-mono leading-none">
-                      {selectedOnwardFlight || selectedReturnFlight
-                        ? `₹${totalRoundTripPrice.toLocaleString('en-IN')}`
-                        : 'Select Flights'}
+                      {selectedOnwardFlight || selectedReturnFlight ? (
+                        roundTripCouponDiscount > 0 ? (
+                          <span className="inline-flex items-baseline gap-1.5 sm:justify-end">
+                            <span>₹{discountedRoundTripPrice.toLocaleString('en-IN')}</span>
+                            <span className="text-xs line-through text-sky-200/60 font-normal">₹{totalRoundTripPrice.toLocaleString('en-IN')}</span>
+                          </span>
+                        ) : (
+                          `₹${totalRoundTripPrice.toLocaleString('en-IN')}`
+                        )
+                      ) : 'Select Flights'}
                     </span>
                   </div>
                   <button
@@ -1036,6 +1063,7 @@ export default function FlightList({
                             flight={flight}
                             travelClass={searchParams.travelClass}
                             brand={brand}
+                            searchCoupon={searchCoupon}
                             isSelectable={true}
                             isSelected={selectedOnwardFlight?.id === flight.id}
                             selectLabel="Select Departure"
@@ -1059,6 +1087,7 @@ export default function FlightList({
                             flight={flight}
                             travelClass={searchParams.travelClass}
                             brand={brand}
+                            searchCoupon={searchCoupon}
                             isSelectable={true}
                             isSelected={selectedReturnFlight?.id === flight.id}
                             selectLabel="Select Return"
@@ -1088,6 +1117,7 @@ export default function FlightList({
                           flight={flight}
                           travelClass={searchParams.travelClass}
                           brand={brand}
+                          searchCoupon={searchCoupon}
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
@@ -1111,6 +1141,7 @@ export default function FlightList({
                           flight={flight}
                           travelClass={searchParams.travelClass}
                           brand={brand}
+                          searchCoupon={searchCoupon}
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
@@ -1164,7 +1195,15 @@ export default function FlightList({
                         All {multiCityLegsData.length} Legs Selected!
                       </h4>
                       <p className="text-xs text-emerald-100 mt-0.5">
-                        Total Combined Fare: <strong className="text-white font-mono text-sm">₹{totalMultiCityPrice.toLocaleString('en-IN')}</strong>
+                        Total Combined Fare: {multiCityCouponDiscount > 0 && searchCoupon ? (
+                          <>
+                            <strong className="text-white font-mono text-sm mr-1.5">₹{discountedMultiCityPrice.toLocaleString('en-IN')}</strong>
+                            <span className="line-through text-emerald-200/70 font-mono text-xs mr-1.5">₹{totalMultiCityPrice.toLocaleString('en-IN')}</span>
+                            <span className="bg-amber-400 text-slate-900 px-1.5 py-0.2 rounded text-[10px] font-black">Save ₹{multiCityCouponDiscount.toLocaleString('en-IN')} with {searchCoupon.code}</span>
+                          </>
+                        ) : (
+                          <strong className="text-white font-mono text-sm">₹{totalMultiCityPrice.toLocaleString('en-IN')}</strong>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -1335,8 +1374,20 @@ export default function FlightList({
                     {selectedOnwardFlight && selectedReturnFlight ? 'Total Combo Fare' : 'Combo Fare'}
                   </div>
                   <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
-                    ₹{totalRoundTripPrice.toLocaleString('en-IN')}
+                    {roundTripCouponDiscount > 0 ? (
+                      <div className="flex items-baseline gap-1.5 sm:justify-end">
+                        <span>₹{discountedRoundTripPrice.toLocaleString('en-IN')}</span>
+                        <span className="text-xs sm:text-sm line-through text-sky-200/60 font-normal">₹{totalRoundTripPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                    ) : (
+                      `₹${totalRoundTripPrice.toLocaleString('en-IN')}`
+                    )}
                   </div>
+                  {roundTripCouponDiscount > 0 && searchCoupon && (
+                    <div className="text-[10px] text-emerald-400 font-bold">
+                      Save ₹{roundTripCouponDiscount.toLocaleString('en-IN')} with {searchCoupon.code}
+                    </div>
+                  )}
                 </div>
 
                 {selectedOnwardFlight && selectedReturnFlight ? (
@@ -1434,8 +1485,20 @@ export default function FlightList({
                     {allLegsSelected ? `All ${multiCityLegsData.length} Legs Fare` : `Selected (${selectedLegsCount}/${multiCityLegsData.length})`}
                   </div>
                   <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono leading-none">
-                    ₹{totalMultiCityPrice.toLocaleString('en-IN')}
+                    {multiCityCouponDiscount > 0 ? (
+                      <div className="flex items-baseline gap-1.5 sm:justify-end">
+                        <span>₹{discountedMultiCityPrice.toLocaleString('en-IN')}</span>
+                        <span className="text-xs sm:text-sm line-through text-sky-200/60 font-normal">₹{totalMultiCityPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                    ) : (
+                      `₹${totalMultiCityPrice.toLocaleString('en-IN')}`
+                    )}
                   </div>
+                  {multiCityCouponDiscount > 0 && searchCoupon && (
+                    <div className="text-[10px] text-emerald-400 font-bold">
+                      Save ₹{multiCityCouponDiscount.toLocaleString('en-IN')} with {searchCoupon.code}
+                    </div>
+                  )}
                 </div>
 
                 {allLegsSelected ? (
