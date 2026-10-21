@@ -133,7 +133,8 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
       setPdfProgress('Saving PDF...');
       const cleanPnr = (booking.pnr || booking.bookingId || 'CONFIRMED').toUpperCase();
-      pdf.save(`IndiGo-Itinerary-${cleanPnr}.pdf`);
+      const safeBrand = (brand?.name || 'AIR-SKY').replace(/\s+/g, '-');
+      pdf.save(`${safeBrand}-Itinerary-${cleanPnr}.pdf`);
     } catch (err) {
       console.error('Error generating official IndiGo PDF:', err);
       window.print();
@@ -183,6 +184,71 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
     seat: '7B',
     meal: 'Standard'
   }];
+
+  const brandName = brand?.name || 'AIR SKY';
+  const brandLogo = brand?.logo || null;
+  const brandColor = brand?.primary_color || '#ff6d01';
+  const brandTextColor = brand?.brand_text_color || '#0B1F3A';
+  const brandDomain = brand?.domain || 'airskyindia.com';
+  const brandPhone = brand?.phone || '+91 72248 28030';
+  const brandEmail = brand?.email || 'care@airskyindia.com';
+
+  const renderPdfHeader = () => (
+    <>
+      {/* Top metadata */}
+      <div className="flex justify-between items-center text-[10.5px] text-slate-700 pb-1 font-sans">
+        <span>
+          {new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+        </span>
+        <span className="font-semibold tracking-wide">Itinerary — {brandName}</span>
+      </div>
+
+      {/* Website Brand Logo & Name + Date */}
+      <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          {brandLogo ? (
+            <img
+              src={brandLogo}
+              alt={brandName}
+              className="h-10 max-h-[40px] w-auto max-w-[200px] object-contain"
+            />
+          ) : (
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-xs"
+                style={{ background: brandColor }}
+              >
+                <Plane className="w-5 h-5 rotate-45 transform" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span
+                  className="text-[28px] font-black tracking-tight leading-none"
+                  style={{ color: brandTextColor }}
+                >
+                  {brandName}
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  E-Ticket
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="text-xs font-bold text-slate-900">
+          *Date of booking {bookingDateStr}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderPdfFooter = (pageStr) => (
+    <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
+      <span className="truncate max-w-[580px]">
+        https://www.{brandDomain.replace(/^https?:\/\//, '').replace(/^www\./, '')}/booking/itinerary?pnr={cleanPnr}&ref=CONFIRMED
+      </span>
+      <span className="font-bold">{pageStr}</span>
+    </div>
+  );
 
   const modalContent = (
     <div
@@ -304,29 +370,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           {/* Dotted border line: PNR & Payment Status */}
           <div className="py-2 border-y border-dotted border-slate-900 flex justify-between items-center text-xs text-slate-900 font-medium">
@@ -356,7 +400,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                 <tr className="text-left font-black text-slate-900">
                   <th className="pb-1 w-1/3">Sector</th>
                   <th className="pb-1 w-1/3">Seat</th>
-                  <th className="pb-1 w-1/3">6E Add-ons</th>
+                  <th className="pb-1 w-1/3">Add-ons</th>
                 </tr>
               </thead>
               <tbody className="text-slate-800 text-xs font-medium">
@@ -427,12 +471,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           </div>
 
           {/* Page 1 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>1/6</span>
-          </div>
+          {renderPdfFooter('1/6')}
         </div>
 
         {/* PAGE 2: Baggage Information, Fare Summary & Contact Details */}
@@ -447,29 +486,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           {/* Baggage Information Box */}
           <div className="border border-slate-900 rounded-xl p-3.5 mb-4">
@@ -548,12 +565,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           </div>
 
           {/* Page 2 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>2/6</span>
-          </div>
+          {renderPdfFooter('2/6')}
         </div>
 
         {/* PAGE 3: Terms & Conditions, Carriage, Free Checked Baggage, Visa Rules */}
@@ -568,43 +580,21 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
-            <p>2. Goods and Services Tax (GST) shall be levied at applicable rates on all air transportation services provided by IndiGo, except in cases specifically exempted under law.</p>
+            <p>2. Goods and Services Tax (GST) shall be levied at applicable rates on all air transportation services provided by the operating carrier, except in cases specifically exempted under law.</p>
             <p>3. This is not a GST invoice. For GST details, please refer the GST invoice which shall be sent to the email address in the name of the First passenger, mentioned in this itinerary. In case of a booking made by a GSTIN holder, the GST invoice shall be sent in the name of the GSTIN holder to the email address mentioned while providing the GSTIN information at the time of reservation.</p>
-            <p>4. Additionally, passengers may download the GST invoice using their PNR number on the IndiGo website www.goindigo.in.</p>
+            <p>4. Additionally, passengers may download the GST invoice using their PNR number on the website {brandDomain}.</p>
             <p>5. GST shall also be applicable on any special services requested by the passenger at applicable rates.</p>
             <p>6. Tax Invoices shall be only in INR, even in cases where the payment is made in a currency other than INR.</p>
             <p>7. Airfare Charges include Base Fare and CUTE Charge.</p>
-            <p>8. PSF/ASF/UDF/ADF are collected on behalf of the Airport Authority of India (AAI)/Other Airport Operators. In case of no-show, you can claim the taxes on www.goindigo.in.</p>
-            <p>9. To know more about DGCA regulations and policies to ensure a seamless and compliant travel experience. Click here</p>
-            <p>10. All Indian and foreign citizens traveling to Nagaland (except citizen of Nagaland) are required to obtain a mandatory Inner Line Permit (ILP) to enter the state. Apply here.</p>
+            <p>8. PSF/ASF/UDF/ADF are collected on behalf of the Airport Authority of India (AAI)/Other Airport Operators. In case of no-show, you can claim the taxes on {brandDomain}.</p>
+            <p>9. To know more about DGCA regulations and policies to ensure a seamless and compliant travel experience.</p>
+            <p>10. All Indian and foreign citizens traveling to Nagaland (except citizen of Nagaland) are required to obtain a mandatory Inner Line Permit (ILP) to enter the state.</p>
 
             <div className="pt-2 font-black text-slate-900 text-xs">Terms & Conditions</div>
-            <p>To see our Condition of Carriage please visit: https://www.goindigo.in/information/conditions-of-carriage.html</p>
+            <p>To see Conditions of Carriage and terms please visit: https://{brandDomain}/terms</p>
 
             <div className="pt-1 font-black text-slate-900 text-xs">Must Read:</div>
             <p>Refer Section-3, Series M Part IV of the Civil Aviation Requirements for information on facilities in cases of denied boarding, cancellations, and delays. Details at DGCA website: Home | Directorate General of Civil Aviation | Government of India (dgca.gov.in)</p>
@@ -617,12 +607,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           </div>
 
           {/* Page 3 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>3/6</span>
-          </div>
+          {renderPdfFooter('3/6')}
         </div>
 
         {/* PAGE 4: Power Bank Restrictions, Fog Advisory, General Guidelines */}
@@ -637,29 +622,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
             <div className="font-black text-slate-900 text-xs">Guidelines for Power Banks & Spare Lithium Batteries:</div>
@@ -668,15 +631,15 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
             <div className="pt-1 font-black text-slate-900 text-xs">Fog Advisory</div>
             <p>Customer satisfaction and hassle free travel are of utmost importance to us. At times, there are circumstances, which are beyond our control like weather related phenomena of fog. This unexpected phenomenon may cause inconvenience to you due to flight delays, rescheduling and cancellations.</p>
-            <p>We appreciate your patience and request for your kind cooperation in these times. We will endeavour to give you proactive information through text messages or emails. However, we would urge you to call our Call Centre or check updates on your flight at 9910383838.</p>
-            <p>Alternatively, to know flight status you can:<br/>- Download mobile app.<br/>- Visit website – www.goindigo.in<br/>- Tweet us @IndiGo6E, follow us on Facebook.<br/>- Send SMS, ST[space]flight number[space]departure date of flight as DDMM. For example: to know the status for 6E-333 for 11th February send &quot;ST 333 1102&quot; to 566772.<br/>- Live chat on website.</p>
+            <p>We appreciate your patience and request for your kind cooperation in these times. We will endeavour to give you proactive information through text messages or emails. However, we would urge you to check updates on your flight via our helpline at {brandPhone}.</p>
+            <p>Alternatively, to know flight status you can:<br/>- Visit our website – {brandDomain}<br/>- Contact 24x7 Customer Support at {brandPhone}.<br/>- Live chat on website.</p>
 
             <div className="pt-1 font-black text-slate-900 text-xs">General:</div>
-            <p>Check-in at www.goIndiGo.in is available. This service is not available for international travel and customers with infants or groups.</p>
+            <p>Web check-in at our website or airline portal is available. This service is not available for international travel and customers with infants or groups.</p>
             <p>Changes/cancellations are permitted more than three (3) hours prior to scheduled departure and (four (4) hours for international sectors) with payment of change/cancellation fee and difference in fare if applicable.</p>
             <p>A security search is compulsory.</p>
-            <p>A valid photo id, in original, is required for each person travelling. For foreign nationals, only passport, in original, will be considered as a valid photo id. For detailed terms and conditions, log on to www.goIndiGo.in</p>
-            <p>Check Your Flight Timings: To know the flight status on the day of departure, contact our 24 X 7 call centre or logon to our website or mobile app (available on iPhone, Windows, Android and Blackberry), or send an sms to 566772.</p>
+            <p>A valid photo id, in original, is required for each person travelling. For foreign nationals, only passport, in original, will be considered as a valid photo id. For detailed terms and conditions, log on to https://{brandDomain}/terms</p>
+            <p>Check Your Flight Timings: To know the flight status on the day of departure, contact our 24 X 7 customer helpline or logon to our website.</p>
             <p>Indian Nationals travelling to and from Kathmandu are required to carry either Passport or Voter’s Id Card only as their valid photo Id, no other photo Id will be considered as valid.</p>
             <p>Airfare Charges include Base Fare, Fuel Charge, CUTE Charge and Agency Commission payable to travel agents (if applicable).</p>
             <p>Passengers going to UAE/ Oman from India on tourist/ employment visas require an &apos;OK TO BOARD&apos; comment in their PNR. Please check with your visa issuing agency.</p>
@@ -684,12 +647,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           </div>
 
           {/* Page 4 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>4/6</span>
-          </div>
+          {renderPdfFooter('4/6')}
         </div>
 
         {/* PAGE 5: Food & Beverage, MacBook Battery Warning, Terminal Info, Delays */}
@@ -704,55 +662,27 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed">
             <p>Hot and cold food and beverages as shown in the Food and Beverage Menu may be purchased on board, subject to their availability. For ATRs and flights below 60 minutes flying time hot food or beverages will not be offered. On select flights below 30 minutes flying time only limited snacks (cookies and nuts) and water will be offered.</p>
-            <p>LED / LCD TVs of more than 99.06 cm in size will be charged. Refer to www.goIndiGo.in.</p>
-            <p>This booking is governed by IndiGo&apos;s fare rules and Conditions of Carriage that are available from Airport Counters, IndiGo Shops or www.goIndiGo.in</p>
+            <p>LED / LCD TVs of more than 99.06 cm in size will be charged as per applicable airline baggage policy.</p>
+            <p>This booking is governed by the operating airline&apos;s fare rules and Conditions of Carriage.</p>
             <p>Flight schedules are subject to change and approval by authorities.</p>
-            <p>IndiGo reserves the right to deny boarding if credit card information is not supplied at check-in.</p>
+            <p>Airlines reserve the right to deny boarding if required travel documentation is not supplied at check-in.</p>
             <p>Hot Food and Beverages shall not be served on short sector flights.</p>
             <p>Damaged, defective or recalled lithium batteries are prohibited from carriage by air. Customers are advised not to carry older generation Apple MacBook Pro laptops with 15 inch screen, purchased between September 2015 and February 2017 in hand baggage as well as in check-in baggage. In case the battery of such laptop is replaced, kindly carry the receipt of replacement provided by Apple, in absence of which carriage of such laptop shall be prohibited. For more information please visit Apple Support website.</p>
 
             <div className="pt-1 font-black text-slate-900 text-xs">Terminal Information</div>
-            <p>International Terminal Information: For international flights, IndiGo will operate from the following terminals airports: New Delhi - Terminal 3, IGIA; Mumbai- International Terminal, CSIA; Dubai- Terminal 1, Dubai International Airport; Bangkok- Suvarnabhumi Airport; Singapore- Terminal 2, Changi Airport; Kathmandu- Tribhuvan International Airport; Muscat- Muscat International Airport. Chennai- International Terminal, Chennai International Airport; Hyderabad- International Terminal, RGIA; Kolkata- Terminal II, Kolkata International Airport; Kochi- International Terminal, Kochi International Airport and Thiruvananthapuram- International Terminal, Thiruvananthapuram.</p>
-            <p>IndiGo flights from Delhi to Singapore will depart from Terminal 3. In case a passenger is arriving into Delhi from a country other than India and is further booked on domestic flights departing from Terminal 1 or 2, he/she must make their own visa arrangements for transit to other airport terminals in Delhi. (i.e. from Terminal 3 to Terminal 1D or Terminal 2).</p>
-            <p>Domestic Terminal Information: Thiruvananthapuram - Effective 01 st Mar 2016, IndiGo operations for flight no. 6E-103 (Pune/Bengaluru to Thiruvananthapuram) and 6E-408 (Thiruvananthapuram to Bengaluru/Pune) will be carried out of the International Terminal (TB-2), Chakkai, Thiruvananthapuram -695024. Chandigarh - New Civil Air Terminal.</p>
+            <p>International Terminal Information: For international flights, operations are carried out from designated International Terminals. Please verify departure terminal at least 24 hours prior to travel.</p>
+            <p>In case a passenger is arriving into Delhi from a country other than India and is further booked on domestic flights departing from Terminal 1 or 2, he/she must make their own visa arrangements for transit to other airport terminals in Delhi.</p>
 
             <div className="pt-1 font-black text-slate-900 text-xs">Flight Delay or Cancellation</div>
-            <p>• At any time after a Booking has been made, we may change our schedules and/or cancel, terminate, divert, postpone, reschedule or delay any flight where we reasonably consider this to be justified by circumstances beyond our control, or for reasons of safety, or for commercial reasons. Circumstances beyond IndiGo&apos;s control can include, without limitation, weather, air traffic control, mechanical failures, acts of terrorism, acts of nature, force majeure, strikes, riots, wars, hostilities, disturbances, governmental regulations, orders.</p>
+            <p>• At any time after a Booking has been made, schedules may change or terminate due to circumstances beyond control, for safety or operational reasons. Circumstances beyond control can include, without limitation, weather, air traffic control, mechanical failures, force majeure, governmental regulations.</p>
           </div>
 
           {/* Page 5 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>5/6</span>
-          </div>
+          {renderPdfFooter('5/6')}
         </div>
 
         {/* PAGE 6: Delay Compensation & Official Dangerous Goods Graphical Chart */}
@@ -767,36 +697,14 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             backgroundColor: '#ffffff'
           }}
         >
-          {/* Top metadata */}
-          <div className="flex justify-between items-center text-[10.5px] text-slate-800 pb-1">
-            <span>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}, {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            <span>Itinerary</span>
-          </div>
-
-          {/* IndiGo Logo + Date */}
-          <div className="flex justify-between items-center pb-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[34px] font-black text-[#001B94] tracking-tight">IndiGo</span>
-              <svg className="w-8 h-5 text-[#001B94]" viewBox="0 0 24 16" fill="currentColor">
-                <circle cx="2" cy="8" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="8" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="14" cy="8" r="1.3" />
-                <path d="M14 8 L22 3 L20 8 L22 13 Z" />
-              </svg>
-            </div>
-            <div className="text-xs font-bold text-slate-900">
-              *Date of booking {bookingDateStr}
-            </div>
-          </div>
+          {renderPdfHeader()}
 
           <div className="text-[10px] text-slate-800 space-y-2 leading-relaxed mb-4">
-            <p>demands or requirements, shortages of critical manpower, parts or materials, labour unrest etc. If an IndiGo flight is cancelled, rescheduled or delayed for more than two hours (depending on the length of the journey), a Customer shall have the right to choose a refund; or a credit for future travel on IndiGo; or re-booking onto an alternative IndiGo flight at no additional cost (subject to availability); subject to the requirements under the local laws of the country in which the flight has been cancelled, rescheduled or delayed.</p>
-            <p>• In the special case where a subsequent portion of an IndiGo flight is cancelled while a Customer is already in transit, such a Customer shall have the right to choose to remain at the transit station and to be re-booked onto an alternative IndiGo flight to the final destination at no additional cost subject to availability; or to remain at the transit station and accept a partial refund for the portion of the flight not completed; or to return to the point of origin and receive a refund. Contact our call centre (0) 99 10 38 38 38 or +91 124 6613838 if you have any queries.</p>
+            <p>demands or requirements, shortages of critical manpower, parts or materials, labour unrest etc. If a flight is cancelled, rescheduled or delayed for more than two hours (depending on the length of the journey), a Customer shall have the right to choose a refund; or a credit for future travel; or re-booking onto an alternative flight at no additional cost (subject to availability); subject to the requirements under the local laws of the country in which the flight has been cancelled, rescheduled or delayed.</p>
+            <p>• In the special case where a subsequent portion of a flight is cancelled while a Customer is already in transit, such a Customer shall have the right to choose to remain at the transit station and to be re-booked onto an alternative flight to the final destination at no additional cost subject to availability; or to remain at the transit station and accept a partial refund for the portion of the flight not completed; or to return to the point of origin and receive a refund. Contact our support helpline at {brandPhone} or {brandEmail} if you have any queries.</p>
             <p>• Online Group fares - Domestic - 100% of the airfare per person per segment will be levied if changed/cancelled at least 3hrs before the scheduled departure. No-show charges will be levied within 3 hrs. Fare difference, change/cancellation fee apply.</p>
             <p>• Online Group fares – International - 100% of airfare per person per segment will be levied if changed/cancelled at least 4hrs before the scheduled departure.</p>
-            <p>• Disclaimer: Please note in case of Vande Bharat Flights, 100% of Airline component will be forfeited. Non-Airline taxes will be refunded in full.</p>
+            <p>• Disclaimer: Please note in case of special flights, airline fare rules and conditions of carriage apply.</p>
           </div>
 
           {/* Dangerous Goods and Restricted Articles (Official Graphical Box) */}
@@ -879,12 +787,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           </div>
 
           {/* Page 6 Footer */}
-          <div className="absolute bottom-5 left-11 right-11 flex justify-between items-center text-[9.5px] text-slate-500 font-mono border-t border-slate-200 pt-1.5">
-            <span className="truncate max-w-[580px]">
-              https://www.goindigo.in/book/itinerary.html?order_id=JFTWEE9C{cleanPnr}&payment_status=INPROCESS&isBookingFlow=1
-            </span>
-            <span>6/6</span>
-          </div>
+          {renderPdfFooter('6/6')}
         </div>
       </div>
 
