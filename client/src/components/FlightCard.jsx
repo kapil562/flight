@@ -84,6 +84,10 @@ export default function FlightCard({
   const totalSavings = originalPrice - currentPrice;
   const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/^[✓✔\s]+|[✓✔\s]+$/g, '').trim();
   const featuredCoupon = flight.featuredCoupon || flight.couponCode || 'AIRSKY500';
+  const isPercentCoupon = flight.couponType === 'percent' || featuredCoupon === 'FLYHIGH';
+  const couponDiscountText = isPercentCoupon 
+    ? `${flight.couponDiscount || 10}% Off` 
+    : `Flat ₹${flight.couponDiscount || 500} Off`;
 
   // Contact details from brand
   const activeBrand = brand || window.__BRAND__ || {};
@@ -438,7 +442,7 @@ export default function FlightCard({
                     title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for Flat ₹500 Off</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText}</span>
                   </div>
                 </div>
 
@@ -587,7 +591,7 @@ export default function FlightCard({
                     title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for Flat ₹500 Off</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText}</span>
                   </div>
                 </div>
               </div>
@@ -868,7 +872,7 @@ export default function FlightCard({
                     <div className="px-2.5 py-1.5 bg-emerald-50/80 border border-emerald-200/80 rounded-lg flex items-center justify-between text-[11px] text-emerald-800">
                       <div className="flex items-center gap-1.5">
                         <Tag className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>Use promo code <strong>AIRSKY500</strong> for flat ₹500 off at checkout</span>
+                        <span>Use promo code <strong>{featuredCoupon}</strong> for {couponDiscountText} at checkout</span>
                       </div>
                       <span className="font-extrabold font-mono text-emerald-700">-₹500</span>
                     </div>

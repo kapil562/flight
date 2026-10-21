@@ -2,10 +2,10 @@
   {
     "id": "CPN-1",
     "code": "AIRSKY500",
-    "type": "flat",
-    "discount": 500,
-    "minAmount": 3000,
-    "description": "Flat ₹500 off on any domestic or international flight",
+    "type": "percent",
+    "discount": 35,
+    "minAmount": 0,
+    "description": "Flat 35% off on any domestic or international flight",
     "status": "Active"
   },
   {

@@ -2515,9 +2515,26 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                     <select
                       value={editingCoupon ? editingCoupon.type : newCoupon.type}
                       onChange={(e) => {
-                        const type = e.target.value;
-                        if (editingCoupon) setEditingCoupon({ ...editingCoupon, type });
-                        else setNewCoupon({ ...newCoupon, type });
+                        const nextType = e.target.value;
+                        if (editingCoupon) {
+                          const curVal = editingCoupon.discount || 0;
+                          const adjustedDiscount = nextType === 'percent' ? (curVal > 100 ? 10 : (curVal || 10)) : (curVal < 50 ? 500 : curVal);
+                          setEditingCoupon({
+                            ...editingCoupon,
+                            type: nextType,
+                            discount: adjustedDiscount,
+                            minAmount: nextType === 'percent' ? 0 : (editingCoupon.minAmount || 3000)
+                          });
+                        } else {
+                          const curVal = newCoupon.discount || 0;
+                          const adjustedDiscount = nextType === 'percent' ? (curVal > 100 ? 10 : (curVal || 10)) : (curVal < 50 ? 500 : curVal);
+                          setNewCoupon({
+                            ...newCoupon,
+                            type: nextType,
+                            discount: adjustedDiscount,
+                            minAmount: nextType === 'percent' ? 0 : 3000
+                          });
+                        }
                       }}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold"
                     >
@@ -2526,35 +2543,33 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                     </select>
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-500 mb-1">Discount Value *</label>
-                    <input
-                      type="number"
-                      value={editingCoupon ? editingCoupon.discount : newCoupon.discount}
-                      onChange={(e) => {
-                        const discount = parseInt(e.target.value) || 0;
-                        if (editingCoupon) setEditingCoupon({ ...editingCoupon, discount });
-                        else setNewCoupon({ ...newCoupon, discount });
-                      }}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
-                      required
-                    />
+                    <label className="block font-bold text-slate-500 mb-1">
+                      {(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? 'Discount Percentage (%) *' : 'Discount Amount (₹) *'}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="1"
+                        max={(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? "100" : undefined}
+                        placeholder={(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? "e.g. 10 (for 10%)" : "e.g. 500"}
+                        value={editingCoupon ? editingCoupon.discount : newCoupon.discount}
+                        onChange={(e) => {
+                          let discount = parseInt(e.target.value) || 0;
+                          if ((editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' && discount > 100) discount = 100;
+                          if (editingCoupon) setEditingCoupon({ ...editingCoupon, discount });
+                          else setNewCoupon({ ...newCoupon, discount });
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold pr-7"
+                        required
+                      />
+                      <span className="absolute right-3 top-2 font-bold text-slate-400 pointer-events-none">
+                        {(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? '%' : '₹'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-500 mb-1">Minimum Booking Amount (₹)</label>
-                    <input
-                      type="number"
-                      value={editingCoupon ? editingCoupon.minAmount : newCoupon.minAmount}
-                      onChange={(e) => {
-                        const minAmount = parseInt(e.target.value) || 0;
-                        if (editingCoupon) setEditingCoupon({ ...editingCoupon, minAmount });
-                        else setNewCoupon({ ...newCoupon, minAmount });
-                      }}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
-                    />
-                  </div>
+                {(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? (
                   <div>
                     <label className="block font-bold text-slate-500 mb-1">Status</label>
                     <select
@@ -2570,13 +2585,45 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                       <option value="Inactive">Inactive (Disabled)</option>
                     </select>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block font-bold text-slate-500 mb-1">Min Order Amount (₹)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 3000"
+                        value={editingCoupon ? editingCoupon.minAmount : newCoupon.minAmount}
+                        onChange={(e) => {
+                          const minAmount = parseInt(e.target.value) || 0;
+                          if (editingCoupon) setEditingCoupon({ ...editingCoupon, minAmount });
+                          else setNewCoupon({ ...newCoupon, minAmount });
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-500 mb-1">Status</label>
+                      <select
+                        value={editingCoupon ? (editingCoupon.status || 'Active') : (newCoupon.status || 'Active')}
+                        onChange={(e) => {
+                          const status = e.target.value;
+                          if (editingCoupon) setEditingCoupon({ ...editingCoupon, status });
+                          else setNewCoupon({ ...newCoupon, status });
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold"
+                      >
+                        <option value="Active">Active (Live)</option>
+                        <option value="Inactive">Inactive (Disabled)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block font-bold text-slate-500 mb-1">Description / Offer Title</label>
                   <input
                     type="text"
-                    placeholder="e.g. Flat ₹500 off on festive flights"
+                    placeholder={(editingCoupon ? editingCoupon.type : newCoupon.type) === 'percent' ? "e.g. 10% instant discount on flights" : "e.g. Flat ₹500 off on festive flights"}
                     value={editingCoupon ? (editingCoupon.description || '') : newCoupon.description}
                     onChange={(e) => {
                       const description = e.target.value;
