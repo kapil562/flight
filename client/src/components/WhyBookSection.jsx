@@ -1,111 +1,121 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ShieldCheck, Zap, Headphones, Award, Sparkles, PlaneTakeoff, CheckCircle2, Lock } from 'lucide-react';
+import { ShieldCheck, Zap, Headphones, Award, Sparkles, PlaneTakeoff, CheckCircle2, Lock, ArrowUpRight } from 'lucide-react';
 
 export default function WhyBookSection() {
-  const perks = [
-    {
-      icon: Zap,
-      color: 'bg-amber-500/10 text-amber-600 border border-amber-500/20',
-      title: 'Fast 30-Sec Reservation',
-      desc: 'Instant 3-step checkout with real-time seat assignment and verified airline PNR generated immediately.'
-    },
-    {
-      icon: ShieldCheck,
-      color: 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20',
-      title: '100% Refund Protection',
-      desc: 'Instant automated refund processing directly to your original payment mode upon ticket cancellation.'
-    },
-    {
-      icon: Award,
-      color: 'bg-sky-500/10 text-sky-600 border border-sky-500/20',
-      title: 'Interactive 3D Aircraft Cabin',
-      desc: 'Pick your preferred seat with live aircraft layouts: window seats, aisle options, or extra legroom.'
-    },
-    {
-      icon: Headphones,
-      color: 'bg-purple-500/10 text-purple-600 border border-purple-500/20',
-      title: '24x7 Priority Travel Desk',
-      desc: 'Dedicated flight support agents for web check-in, baggage additions, and live airport flight updates.'
-    }
-  ];
-
   const stats = [
-    { value: '1.4M+', label: 'Happy Passengers' },
-    { value: '99.8%', label: 'Instant PNR Success' },
-    { value: '40+', label: 'Domestic & Global Hubs' },
-    { value: '₹0', label: 'Hidden Service Fees' }
+    { value: '1.4M+', label: 'Verified Flyers', sub: 'Across 40+ Domestic Hubs' },
+    { value: '99.8%', label: 'Instant PNR Dispatch', sub: 'Direct Airline GDS Sync' },
+    { value: '₹0', label: 'Hidden Service Charges', sub: '100% Transparent Checkout' },
+    { value: '24x7', label: 'Priority Support', sub: 'Dedicated Aviation Agents' }
   ];
 
   return (
-    <section className="bg-gradient-to-b from-white via-slate-50 to-slate-100/70 py-12 sm:py-16 border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
+    <section className="py-16 sm:py-24 bg-white border-t border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         
-        {/* Section Header */}
-        <motion.div 
-          className="text-center max-w-2xl mx-auto"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35 }}
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-black mb-3 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>THE NEXT-GEN AVIATION STANDARD</span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Why Millions of Travellers Choose Us
+        {/* Apple Style Editorial Title */}
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <span className="text-xs font-black uppercase tracking-widest text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200/80">
+            THE AVIATION STANDARD
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Designed for seamless travel. Built for trust.
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
-            Direct airline GDS connectivity with real-time price monitoring, instant PNRs, and zero booking friction.
+          <p className="text-sm sm:text-base text-slate-500 font-medium">
+            Every booking is backed by direct airline GDS telemetry, instant digital boarding passes, and zero hidden markups.
           </p>
-        </motion.div>
-
-        {/* Feature Bento Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {perks.map((p, idx) => {
-            const Icon = p.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: idx * 0.08 }}
-                whileHover={{ y: -5 }}
-                className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-xs hover:shadow-xl hover:border-sky-300 transition-all space-y-3 cursor-pointer group"
-              >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.color} group-hover:scale-105 transition-transform`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <h3 className="font-black text-slate-900 text-base group-hover:text-sky-600 transition-colors">{p.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{p.desc}</p>
-              </motion.div>
-            );
-          })}
         </div>
 
-        {/* Live Statistics Banner */}
-        <motion.div 
-          className="bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 rounded-3xl p-6 sm:p-8 text-white shadow-2xl border border-slate-800"
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center divide-y sm:divide-y-0 sm:divide-x divide-slate-800">
-            {stats.map((s, i) => (
-              <div key={i} className="pt-4 sm:pt-0">
-                <div className="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono bg-gradient-to-r from-sky-400 to-amber-300 bg-clip-text text-transparent">
+        {/* Apple-Style Bento Grid (3-Card Layout) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* Bento Card 1: Speed & Instant PNR */}
+          <motion.div 
+            whileHover={{ y: -6 }}
+            className="rounded-3xl p-8 bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:shadow-xl hover:border-slate-300 transition-all duration-300"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-6">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">
+                Fastest 30-Sec Reservation
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Streamlined 3-step checkout with live seat assignment, passenger pre-filling, and instant SMS + email delivery of your airline PNR.
+              </p>
+            </div>
+            <div className="mt-8 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-black text-slate-900">
+              <span>Instant GDS Sync</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </motion.div>
+
+          {/* Bento Card 2: 100% Refund Protection */}
+          <motion.div 
+            whileHover={{ y: -6 }}
+            className="rounded-3xl p-8 bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white flex flex-col justify-between shadow-xl hover:shadow-2xl transition-all duration-300"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-6 border border-emerald-500/30">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-2">
+                100% Refund Guarantee
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Automated cancellation processing directly to your original payment method with complete transparency on airline fare rules.
+              </p>
+            </div>
+            <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-black text-emerald-400">
+              <span>Zero Processing Friction</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </motion.div>
+
+          {/* Bento Card 3: Interactive Aircraft Cabin */}
+          <motion.div 
+            whileHover={{ y: -6 }}
+            className="rounded-3xl p-8 bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:shadow-xl hover:border-slate-300 transition-all duration-300"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 flex items-center justify-center mb-6">
+                <Award className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">
+                Live 3D Aircraft Cabin Map
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Choose window seats, aisle options, or extra legroom with authentic aircraft layouts matching Airbus A320, A321 and Boeing 737 cabins.
+              </p>
+            </div>
+            <div className="mt-8 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-black text-slate-900">
+              <span>Seat Matrix Preview</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400" />
+            </div>
+          </motion.div>
+
+        </div>
+
+        {/* Luxury Apple-Style Statistics Strip */}
+        <div className="rounded-3xl bg-slate-50 border border-slate-200/80 p-8 sm:p-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80">
+            {stats.map((s, idx) => (
+              <div key={idx} className={`${idx !== 0 ? 'pt-6 sm:pt-0 sm:pl-8' : ''}`}>
+                <div className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-mono">
                   {s.value}
                 </div>
-                <div className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wider">
+                <div className="text-xs sm:text-sm font-black text-slate-800 mt-1 uppercase tracking-wider">
                   {s.label}
+                </div>
+                <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+                  {s.sub}
                 </div>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
       </div>
     </section>

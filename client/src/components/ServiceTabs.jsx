@@ -55,11 +55,11 @@ export default function ServiceTabs({
   }, []);
 
   const allServices = [
-    { id: 'flights', label: 'Flights', icon: Plane, tag: 'Lowest Fare' },
-    { id: 'hotels', label: 'Hotels', icon: Building2, tag: null },
-    { id: 'holidays', label: 'Holidays', icon: Palmtree, tag: 'Packages' },
+    { id: 'flights', label: 'Flights', icon: Plane, tag: null },
+    { id: 'hotels', label: 'Stays & Hotels', icon: Building2, tag: null },
+    { id: 'holidays', label: 'Holiday Packages', icon: Palmtree, tag: null },
     { id: 'trains', label: 'Trains', icon: Train, tag: null },
-    { id: 'visa', label: 'Visa Desk', icon: Globe2, tag: 'Fast' },
+    { id: 'visa', label: 'Visa Desk', icon: Globe2, tag: null },
     { id: 'checkin', label: 'Web Check-In', icon: CheckSquare, tag: null, action: onOpenWebCheckIn },
     { id: 'pnr', label: 'Check PNR', icon: Search, tag: null, action: onOpenQuickPnr }
   ];
@@ -69,43 +69,36 @@ export default function ServiceTabs({
   if (visibleServices.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 -mb-2 sm:-mb-4 relative z-20">
-      <div className="bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-1.5 shadow-[0_12px_32px_rgba(15,23,42,0.08)] border border-slate-200/90 flex items-center justify-between gap-1 sm:gap-2 overflow-x-auto scrollbar-none w-full">
-        {visibleServices.map((srv) => {
-          const Icon = srv.icon;
-          const isActive = activeService === srv.id;
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2 sm:pt-4">
+      <div className="flex items-center justify-center">
+        <div className="bg-slate-200/60 backdrop-blur-xl rounded-full p-1 border border-slate-300/40 shadow-inner flex items-center gap-1 overflow-x-auto scrollbar-none max-w-full">
+          {visibleServices.map((srv) => {
+            const Icon = srv.icon;
+            const isActive = activeService === srv.id;
 
-          return (
-            <button
-              key={srv.id}
-              type="button"
-              onClick={() => {
-                if (srv.action) {
-                  srv.action();
-                } else {
-                  onSelectService(srv.id);
-                }
-              }}
-              className={`flex-1 min-w-max flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
-                isActive
-                  ? 'bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 scale-[1.01]'
-                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 active:scale-98'
-              }`}
-            >
-              <div className={`p-1 rounded-lg ${isActive ? 'bg-white/20' : 'bg-slate-100 text-sky-600'}`}>
-                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              </div>
-              <span className="tracking-tight">{srv.label}</span>
-              {srv.tag && (
-                <span className={`text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
-                  isActive ? 'bg-amber-400 text-slate-950' : 'bg-amber-100 text-amber-800'
-                }`}>
-                  {srv.tag}
-                </span>
-              )}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={srv.id}
+                type="button"
+                onClick={() => {
+                  if (srv.action) {
+                    srv.action();
+                  } else {
+                    onSelectService(srv.id);
+                  }
+                }}
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
+                  isActive
+                    ? 'bg-white text-slate-900 shadow-sm shadow-slate-400/20 scale-[1.02]'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-sky-600' : 'text-slate-500'}`} />
+                <span className="tracking-tight">{srv.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
