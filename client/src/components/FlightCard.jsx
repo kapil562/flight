@@ -91,8 +91,8 @@ export default function FlightCard({
   isSelectable = false,
   isSelected = false,
   compact = false,
-  selectLabel = 'Select Flight',
-  selectedLabel = 'Selected',
+  selectLabel = 'Book Flight',
+  selectedLabel = 'Book Flight',
   onSelect = null
 }) {
   const [showDetails, setShowDetails] = useState(false);
@@ -300,8 +300,11 @@ export default function FlightCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (onSelect) onSelect(flight);
-                  else if (onBookFlight) onBookFlight(flight, currentPrice, 'saver', featuredCoupon);
+                  if (isSelectable && onSelect) {
+                    onSelect(flight);
+                  } else if (onBookFlight) {
+                    onBookFlight(flight, currentPrice, 'saver', featuredCoupon);
+                  }
                 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

@@ -5264,7 +5264,7 @@
     "updatedAt": "2026-10-20T21:07:51.592Z"
   },
   "settings": {
-    "theme": "sunset",
+    "theme": "sky",
     "siteName": "AIR SKY GO",
     "siteTagline": "Premium Luxury Travel",
     "supportEmail": "care@airskyindia.com",
@@ -5354,6 +5354,16 @@
       "phone": "+91 72248 28030",
       "whatsapp": "+918077680310",
       "address": "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075",
+      "updatedAt": "2026-10-21T16:51:14.617Z",
+      "enabledServices": {
+        "flights": true,
+        "hotels": true,
+        "holidays": true,
+        "trains": false,
+        "visa": false,
+        "checkin": false,
+        "pnr": true
+      },
       "footer": {
         "description": "Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.",
         "copyright": "© 2026 AIR SKY. All rights reserved.",
@@ -5367,15 +5377,7 @@
         "domesticRoutes": "DEL-BOM: Delhi to Mumbai Flights, DEL-BLR: Delhi to Bengaluru Flights, BOM-GOI: Mumbai to Goa Flights, DEL-GOI: Delhi to Goa Flights",
         "intlRoutes": "DEL-DXB: Delhi to Dubai Flights, BLR-DEL: Bengaluru to Delhi Flights, BOM-DEL: Mumbai to Delhi Flights, DEL-HYD: Delhi to Hyderabad Flights"
       },
-      "enabledServices": {
-        "flights": true,
-        "hotels": true,
-        "holidays": true,
-        "trains": false,
-        "visa": false,
-        "checkin": false,
-        "pnr": true
-      }
+      "about": {}
     },
     "bookingPrefix": "AS",
     "legalName": "Air Sky Travels Private Limited",

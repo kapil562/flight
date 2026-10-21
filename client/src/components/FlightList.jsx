@@ -1159,19 +1159,17 @@ export default function FlightList({
                           travelClass={searchParams.travelClass}
                           brand={brand}
                           searchCoupon={searchCoupon}
-                          isSelectable={isMultiCity}
+                          isSelectable={Boolean(isMultiCity)}
                           isSelected={isSelectedForThisLeg}
-                          selectLabel={`Select for Leg ${activeLegIndex + 1}`}
-                          selectedLabel={isSelectedForThisLeg && allLegsSelected ? `Book All ${multiCityLegsData.length} Flights` : `Leg ${activeLegIndex + 1} Chosen`}
-                          onSelect={() => {
-                            if (isMultiCity) {
-                              if (isSelectedForThisLeg && allLegsSelected) {
-                                handleBookMultiCityCombo();
-                              } else {
-                                handleMultiCityPick(flight);
-                              }
+                          selectLabel={isMultiCity ? `Select for Leg ${activeLegIndex + 1}` : 'Book Flight'}
+                          selectedLabel={isMultiCity ? (isSelectedForThisLeg && allLegsSelected ? `Book All ${multiCityLegsData.length} Flights` : `Leg ${activeLegIndex + 1} Chosen`) : 'Book Flight'}
+                          onSelect={isMultiCity ? () => {
+                            if (isSelectedForThisLeg && allLegsSelected) {
+                              handleBookMultiCityCombo();
+                            } else {
+                              handleMultiCityPick(flight);
                             }
-                          }}
+                          } : null}
                           onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
                             const couponToUse = initialCoupon || copiedCoupon || 'AIRSKY500';
                             if (isMultiCity) {
