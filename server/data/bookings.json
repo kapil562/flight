@@ -43,10 +43,10 @@
       "mealsCost": 0,
       "taxes": 1210,
       "discount": 4021,
-      "total": 9168,
+      "total": 7468,
       "tierUpgrade": 0,
       "fareTier": "saver",
-      "baggageCost": 1700,
+      "baggageCost": 0,
       "insurance": 199,
       "flexiCost": 0,
       "promoCode": "AIRSKY35"
@@ -69,7 +69,7 @@
     "airlineCode": "6E",
     "gst": null,
     "fareTier": "saver",
-    "updatedAt": "2026-10-21T18:59:43.266Z"
+    "updatedAt": "2026-10-21T19:01:11.319Z"
   },
   {
     "pnr": "F3L4QP",
