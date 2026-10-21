@@ -3697,46 +3697,46 @@ export default function BookingCheckoutModal({
 
         {/* Persistent Sticky Bottom Bar / Toolbar (as shown in user's reference) - Hidden on Step 4 */}
         {step < 4 && (
-          <div className="bg-white border-t border-slate-200 px-3.5 py-2.5 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 relative">
+          <div className="bg-white border-t border-slate-200 px-3 py-2 sm:px-6 sm:py-3.5 flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-30 relative">
           
           {/* Left Side: Live Price + (i) Info icon + Travellers Count + Savings */}
-          <div className="flex items-center gap-2 min-w-0">
-            <div>
-              <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
-                  ₹{grandTotal.toLocaleString('en-IN')}
-                </span>
-                
-                {/* (i) Info circular button matching MakeMyTrip / Cleartrip */}
-                <button
-                  type="button"
-                  onClick={() => setShowFareBreakupPopup(!showFareBreakupPopup)}
-                  className="w-5 h-5 rounded-full border border-slate-300 text-slate-500 hover:text-sky-600 hover:border-sky-500 flex items-center justify-center transition-colors cursor-pointer bg-slate-50 hover:bg-sky-50 shrink-0"
-                  title="Click to view full fare breakup"
-                >
-                  <Info className="w-3.5 h-3.5" />
-                </button>
+          <div className="flex flex-col justify-center min-w-0 pr-2">
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className="text-lg sm:text-2xl font-black text-slate-900 font-mono tracking-tight whitespace-nowrap">
+                ₹{grandTotal.toLocaleString('en-IN')}
+              </span>
+              
+              {/* (i) Info circular button */}
+              <button
+                type="button"
+                onClick={() => setShowFareBreakupPopup(!showFareBreakupPopup)}
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-slate-300 text-slate-500 hover:text-sky-600 hover:border-sky-500 flex items-center justify-center transition-colors cursor-pointer bg-slate-50 hover:bg-sky-50 shrink-0"
+                title="Click to view full fare breakup"
+              >
+                <Info className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </button>
+            </div>
 
-                {discountAmount > 0 && (
-                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 leading-none shrink-0 whitespace-nowrap">
+            <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-1 whitespace-nowrap">
+              <span>{passengers.length} Pax</span>
+              {discountAmount > 0 && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-emerald-600 font-black normal-case">
                     Saved ₹{discountAmount.toLocaleString('en-IN')}
                   </span>
-                )}
-              </div>
-
-              <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1">
-                FOR {passengers.length} TRAVELLER{passengers.length > 1 ? 'S' : ''}
-              </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Side: Primary Orange CONTINUE button */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-2">
+          {/* Right Side: Primary Orange CONTINUE button + Compact Back button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {step > 1 && (
               <button
                 type="button"
                 onClick={() => transitionToStep(step - 1)}
-                className="h-10 sm:h-12 px-2.5 sm:px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center justify-center cursor-pointer transition-colors shadow-xs"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
                 title="Back to previous step"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -3752,24 +3752,35 @@ export default function BookingCheckoutModal({
                 else handleFinalBooking();
               }}
               disabled={isProcessing || isLaunchingApp || (step === 4 && isTimerExpired)}
-              className="h-10 sm:h-12 px-4 sm:px-8 rounded-xl bg-[#FF5A00] hover:bg-[#E04F00] active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50"
+              className="h-9 sm:h-11 px-4 sm:px-7 rounded-xl bg-[#FF5A00] hover:bg-[#E04F00] active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-md hover:shadow-orange-500/25 transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 disabled:opacity-50"
             >
-              <span className="whitespace-nowrap">
-                {isProcessing || isLaunchingApp
-                  ? 'PROCESSING...'
-                  : step === 1
-                  ? 'CONTINUE TO SEATS'
-                  : step === 2
-                  ? 'CONTINUE TO REVIEW'
-                  : step === 3
-                  ? 'CONTINUE TO PAYMENT'
-                  : isTimerExpired
-                  ? 'WINDOW EXPIRED'
-                  : paymentMethod === 'upiApps'
-                  ? `PAY ₹${grandTotal.toLocaleString('en-IN')} VIA ${String(selectedUpiApp || 'PHONEPE').toUpperCase()}`
-                  : paymentMethod === 'upiQr'
-                  ? 'I HAVE PAID'
-                  : `PAY ₹${grandTotal.toLocaleString('en-IN')}`}
+              <span>
+                {isProcessing || isLaunchingApp ? (
+                  'Processing...'
+                ) : step === 1 ? (
+                  <>
+                    <span className="sm:hidden">Continue</span>
+                    <span className="hidden sm:inline">Continue to Seats</span>
+                  </>
+                ) : step === 2 ? (
+                  <>
+                    <span className="sm:hidden">Continue</span>
+                    <span className="hidden sm:inline">Continue to Review</span>
+                  </>
+                ) : step === 3 ? (
+                  <>
+                    <span className="sm:hidden">Pay Now</span>
+                    <span className="hidden sm:inline">Continue to Payment</span>
+                  </>
+                ) : isTimerExpired ? (
+                  'Window Expired'
+                ) : paymentMethod === 'upiApps' ? (
+                  `PAY VIA ${String(selectedUpiApp || 'PHONEPE').toUpperCase()}`
+                ) : paymentMethod === 'upiQr' ? (
+                  'I Have Paid'
+                ) : (
+                  `Pay ₹${grandTotal.toLocaleString('en-IN')}`
+                )}
               </span>
               {!isProcessing && !isLaunchingApp && <ArrowRight className="w-3.5 h-3.5 shrink-0" />}
             </button>
