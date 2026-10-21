@@ -864,7 +864,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={isLoggingIn || lockoutSeconds > 0}
-              className="w-full py-3.5 bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-sky-600/30 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+              className="w-full py-3.5 bg-white hover:bg-slate-100 text-slate-950 font-black text-sm rounded-2xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
             >
               {isLoggingIn ? (
                 <>

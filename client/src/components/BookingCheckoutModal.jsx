@@ -1440,15 +1440,15 @@ export default function BookingCheckoutModal({
               {step === 1 && (
                 <div className="space-y-5 animate-fadeIn">
 
-                  {/* Round Trip Flights Itinerary Banner */}
+                  {/* Round Trip Flights Itinerary Banner (Apple Obsidian Luxury) */}
                   {flight.isRoundTrip && (
-                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                    <div className="bg-slate-950 text-white p-4 sm:p-5 rounded-3xl border border-white/10 shadow-lg space-y-3">
                       <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
-                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
-                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                        <span className="font-extrabold flex items-center gap-1.5 text-slate-200">
+                          <Plane className="w-4 h-4 rotate-45 text-amber-300" />
                           <span>Round Trip Flights (2 Confirmed Legs)</span>
                         </span>
-                        <span className="font-mono text-amber-300 font-bold">
+                        <span className="font-mono text-white font-bold">
                           Combined Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -1559,20 +1559,20 @@ export default function BookingCheckoutModal({
 
                   {/* Multi-City Flights Itinerary Banner */}
                   {flight.isMultiCity && flight.multiCityLegs && (
-                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                    <div className="bg-slate-950 text-white p-4 sm:p-5 rounded-3xl border border-white/10 shadow-lg space-y-3">
                       <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
-                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
-                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                        <span className="font-extrabold flex items-center gap-1.5 text-slate-200">
+                          <Plane className="w-4 h-4 rotate-45 text-white" />
                           <span>Multi-City Flights ({flight.multiCityLegs.length} Confirmed Legs)</span>
                         </span>
-                        <span className="font-mono text-amber-300 font-bold">
+                        <span className="font-mono text-emerald-400 font-bold">
                           Combined Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
                         {flight.multiCityLegs.map((leg, i) => (
-                          <div key={i} className="bg-white/10 rounded-xl p-2.5 border border-white/15 space-y-1.5">
-                            <div className="flex items-center justify-between text-[10px] text-sky-200 uppercase font-black">
+                          <div key={i} className="bg-white/10 rounded-2xl p-2.5 border border-white/10 space-y-1.5">
+                            <div className="flex items-center justify-between text-[10px] text-slate-300 uppercase font-black">
                               <span>Leg {i + 1}</span>
                               <span className="font-mono">{leg.date}</span>
                             </div>
@@ -1580,21 +1580,21 @@ export default function BookingCheckoutModal({
                             <div className="flex items-center justify-between gap-1 py-0.5">
                               <div className="text-left">
                                 <div className="font-black text-xs text-white">{leg.from}</div>
-                                <div className="text-[10px] font-mono text-sky-300 font-bold">{leg.departureTime}</div>
+                                <div className="text-[10px] font-mono text-slate-300 font-bold">{leg.departureTime}</div>
                               </div>
 
                               <div className="text-center px-1 flex-1 max-w-[100px]">
                                 <div className="relative flex items-center justify-center my-0.5">
-                                  <div className="w-full h-0.5 bg-sky-400/50"></div>
-                                  <div className="absolute w-1 h-1 rounded-full bg-sky-400 -left-0.5"></div>
+                                  <div className="w-full h-0.5 bg-white/20"></div>
+                                  <div className="absolute w-1 h-1 rounded-full bg-white -left-0.5"></div>
                                   {leg.stops > 0 && (
                                     <div className="absolute w-1.5 h-1.5 rounded-full bg-amber-400 border border-slate-950 z-10" />
                                   )}
-                                  <div className="absolute w-1 h-1 rounded-full bg-indigo-400 -right-0.5"></div>
+                                  <div className="absolute w-1 h-1 rounded-full bg-white -right-0.5"></div>
                                 </div>
                                 <div className="text-[8px] font-bold truncate">
                                   {leg.stops === 0 || !leg.stops ? (
-                                    <span className="text-emerald-300">Non-Stop</span>
+                                    <span className="text-emerald-400">Non-Stop</span>
                                   ) : (
                                     <span className="text-amber-300">
                                       {leg.stops} Stop {leg.layoverAirport ? `via ${leg.layoverAirport}` : ''}
@@ -1605,11 +1605,11 @@ export default function BookingCheckoutModal({
 
                               <div className="text-right">
                                 <div className="font-black text-xs text-white">{leg.to}</div>
-                                <div className="text-[10px] font-mono text-sky-300 font-bold">{leg.arrivalTime}</div>
+                                <div className="text-[10px] font-mono text-slate-300 font-bold">{leg.arrivalTime}</div>
                               </div>
                             </div>
 
-                            <div className="text-[9px] text-sky-200 flex items-center justify-between pt-1 border-t border-white/10">
+                            <div className="text-[9px] text-slate-300 flex items-center justify-between pt-1 border-t border-white/10">
                               <span className="truncate">{leg.airline}</span>
                               <span className="font-mono font-bold">{leg.flightNumber}</span>
                             </div>
@@ -1621,13 +1621,13 @@ export default function BookingCheckoutModal({
 
                   {/* Single Flight Itinerary Banner (One-Way) */}
                   {!flight.isRoundTrip && !flight.isMultiCity && (
-                    <div className="bg-gradient-to-r from-sky-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-800/50 shadow-md space-y-3">
+                    <div className="bg-slate-950 text-white p-4 sm:p-5 rounded-3xl border border-white/10 shadow-lg space-y-3">
                       <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10">
-                        <span className="font-extrabold flex items-center gap-1.5 text-sky-300">
-                          <Plane className="w-4 h-4 rotate-45 text-sky-400" />
+                        <span className="font-extrabold flex items-center gap-1.5 text-slate-200">
+                          <Plane className="w-4 h-4 rotate-45 text-white" />
                           <span>Flight Itinerary ({flight.airline} • {flight.flightNumber})</span>
                         </span>
-                        <span className="font-mono text-amber-300 font-bold">
+                        <span className="font-mono text-emerald-400 font-bold">
                           Fare: ₹{flight.basePrice?.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -1986,7 +1986,7 @@ export default function BookingCheckoutModal({
                               : 'border-slate-200 bg-white hover:bg-slate-50'
                           }`}
                         >
-                          <span className="absolute -top-2 right-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full shadow-xs">
+                          <span className="absolute -top-2 right-2 bg-amber-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
                             VIP Luxury
                           </span>
                           <div className="flex items-center justify-between">
@@ -2169,7 +2169,7 @@ export default function BookingCheckoutModal({
 
                   {/* Active Flexibility Tier Benefit Live Notice */}
                   {selectedFareTier === 'super' ? (
-                    <div className="p-3 sm:p-3.5 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent border border-amber-300 rounded-2xl flex items-center justify-between gap-3">
+                    <div className="p-3.5 sm:p-4 bg-amber-50/80 border border-amber-300 rounded-2xl flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
                         <Sparkles className="w-5 h-5 text-amber-600 shrink-0" />
                         <div>
@@ -2186,19 +2186,19 @@ export default function BookingCheckoutModal({
                       </span>
                     </div>
                   ) : selectedFareTier === 'flexi' ? (
-                    <div className="p-3 sm:p-3.5 bg-gradient-to-r from-sky-500/15 via-sky-500/10 to-transparent border border-sky-300 rounded-2xl flex items-center justify-between gap-3">
+                    <div className="p-3.5 sm:p-4 bg-slate-100 border border-slate-300 rounded-2xl flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5">
-                        <Zap className="w-5 h-5 text-sky-600 shrink-0" />
+                        <Zap className="w-5 h-5 text-slate-800 shrink-0" />
                         <div>
-                          <span className="text-xs font-black uppercase tracking-wider text-sky-900 block">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
                             Flexi Plus Plan Benefits Active
                           </span>
-                          <span className="text-[11px] text-sky-800">
+                          <span className="text-[11px] text-slate-700">
                             ⚡ <strong>Free Standard Seat Selection</strong> (Window, Aisle & Middle are ₹0). Complimentary Snack / Sandwich Meal is also <strong>FREE (₹0)</strong>!
                           </span>
                         </div>
                       </div>
-                      <span className="hidden sm:inline-block px-2.5 py-1 bg-sky-600 text-white font-black text-[10px] uppercase rounded-full shrink-0 shadow-xs">
+                      <span className="hidden sm:inline-block px-2.5 py-1 bg-slate-900 text-white font-black text-[10px] uppercase rounded-full shrink-0 shadow-xs">
                         Flexi Plus Active
                       </span>
                     </div>
@@ -2320,21 +2320,21 @@ export default function BookingCheckoutModal({
                   className="space-y-4 sm:space-y-5 animate-fadeIn"
                 >
                   {/* Top Header Banner */}
-                  <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-blue-700 rounded-2xl p-4 sm:p-5 text-white shadow-md flex items-center justify-between">
+                  <div className="bg-slate-950 rounded-3xl p-5 sm:p-6 text-white border border-white/10 shadow-lg flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-sky-200 uppercase tracking-wider mb-1">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                         <ShieldCheck className="w-4 h-4 text-emerald-400" />
                         <span>Step 3 of 4: Booking Overview & Confirmation</span>
                       </div>
                       <h3 className="text-base sm:text-xl font-black text-white tracking-tight">
                         Review Your Selection & Offers
                       </h3>
-                      <p className="text-xs text-sky-100 mt-0.5">
+                      <p className="text-xs text-slate-300 mt-0.5">
                         Please verify flight details, travellers, assigned seats, and promo discounts before payment.
                       </p>
                     </div>
-                    <div className="hidden sm:flex flex-col items-end shrink-0 pl-4 border-l border-white/20">
-                      <span className="text-[11px] text-sky-200 uppercase tracking-wider font-bold">Total Payable</span>
+                    <div className="hidden sm:flex flex-col items-end shrink-0 pl-4 border-l border-white/10">
+                      <span className="text-[11px] text-slate-400 uppercase tracking-wider font-bold">Total Payable</span>
                       <span className="text-2xl font-black text-white font-mono">₹{grandTotal.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
@@ -2386,12 +2386,12 @@ export default function BookingCheckoutModal({
                               {flight.onwardFlight?.duration || flight.duration || '2h 15m'}
                             </span>
                             <div className="relative flex items-center justify-center my-1">
-                              <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                              <div className="w-full h-0.5 bg-slate-300"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -left-0.5"></div>
                               {flight.onwardFlight?.stops > 0 && (
                                 <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                               )}
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -right-0.5"></div>
                             </div>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
                               flight.onwardFlight?.stops === 0 || !flight.onwardFlight?.stops
@@ -2462,12 +2462,12 @@ export default function BookingCheckoutModal({
                               {flight.returnFlight?.duration || '2h 15m'}
                             </span>
                             <div className="relative flex items-center justify-center my-1">
-                              <div className="w-full h-0.5 bg-gradient-to-r from-indigo-400 via-indigo-500 to-purple-500"></div>
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -left-0.5"></div>
+                              <div className="w-full h-0.5 bg-slate-300"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -left-0.5"></div>
                               {flight.returnFlight?.stops > 0 && (
                                 <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                               )}
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-purple-500 -right-0.5"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -right-0.5"></div>
                             </div>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
                               flight.returnFlight?.stops === 0 || !flight.returnFlight?.stops
@@ -2536,12 +2536,12 @@ export default function BookingCheckoutModal({
                                 {leg.duration || '2h 15m'}
                               </span>
                               <div className="relative flex items-center justify-center my-1">
-                                <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
-                                <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                                <div className="w-full h-0.5 bg-slate-300"></div>
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -left-0.5"></div>
                                 {leg.stops > 0 && (
                                   <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                                 )}
-                                <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                                <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -right-0.5"></div>
                               </div>
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
                                 leg.stops === 0 || !leg.stops
@@ -2613,12 +2613,12 @@ export default function BookingCheckoutModal({
                               {flight.duration || '2h 15m'}
                             </span>
                             <div className="relative flex items-center justify-center my-1">
-                              <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                              <div className="w-full h-0.5 bg-slate-300"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -left-0.5"></div>
                               {flight.stops > 0 && (
                                 <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
                               )}
-                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-slate-700 -right-0.5"></div>
                             </div>
                             <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-block ${
                               flight.stops === 0 
@@ -2872,7 +2872,7 @@ export default function BookingCheckoutModal({
                   className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs space-y-2.5 animate-fadeIn"
                 >
                   {/* Flight Details Strip */}
-                  <div className="flex items-center justify-between p-2 sm:p-2.5 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white rounded-xl shadow-xs">
+                  <div className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-950 text-white rounded-2xl border border-white/10 shadow-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <AirlineBadge code={flight.airlineCode} name={flight.airline} size="xs" showDetails={false} />
                       <div className="min-w-0">
@@ -2884,13 +2884,13 @@ export default function BookingCheckoutModal({
 
                   {/* LIVE PAYMENT VERIFICATION SCREEN (While Admin Verifies & Ticks Approve) */}
                   {isVerifyingPayment ? (
-                    <div className="py-6 px-4 bg-gradient-to-b from-slate-50 to-white rounded-2xl border-2 border-sky-400 shadow-lg text-center space-y-4 animate-fadeIn">
+                    <div className="py-6 px-4 bg-white rounded-3xl border border-slate-200 shadow-xl text-center space-y-4 animate-fadeIn">
                       {/* Radar / Pulsing animation */}
                       <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-                        <div className="absolute inset-0 rounded-full bg-sky-400/20 animate-ping" />
-                        <div className="absolute inset-2 rounded-full bg-sky-500/30 animate-pulse" />
-                        <div className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-sky-600 to-blue-600 text-white flex items-center justify-center shadow-md">
-                          <RefreshCw className="w-7 h-7 animate-spin" />
+                        <div className="absolute inset-0 rounded-full bg-slate-900/10 animate-ping" />
+                        <div className="absolute inset-2 rounded-full bg-slate-900/15 animate-pulse" />
+                        <div className="relative w-14 h-14 rounded-full bg-slate-950 text-white flex items-center justify-center shadow-md border border-white/10">
+                          <RefreshCw className="w-7 h-7 animate-spin text-white" />
                         </div>
                       </div>
 
@@ -2939,7 +2939,7 @@ export default function BookingCheckoutModal({
                               const appName = selectedUpiApp || 'PhonePe';
                               handleLaunchUpiApp(appKey, appName);
                             }}
-                            className="w-full max-w-xs py-2.5 px-4 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+                            className="w-full max-w-xs py-3 px-4 bg-slate-900 hover:bg-black active:scale-95 text-white font-extrabold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all border border-slate-800"
                           >
                             <Smartphone className="w-4 h-4" />
                             <span>Open {selectedUpiApp || 'PhonePe'} App ↗</span>
@@ -2983,7 +2983,7 @@ export default function BookingCheckoutModal({
                     <>
 
                   {/* 5-Minute Session Timer Strip */}
-                  <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-medium">
+                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs font-medium">
                     <div className="flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                       <span className="text-[11px] font-semibold text-slate-700">Complete payment within:</span>
@@ -3043,7 +3043,7 @@ export default function BookingCheckoutModal({
                             }`}
                           >
                             {tab.badge && (
-                              <span className="absolute -top-2 right-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs border border-white">
+                              <span className="absolute -top-2 right-2.5 bg-slate-900 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs border border-white">
                                 {tab.badge}
                               </span>
                             )}
@@ -3333,7 +3333,7 @@ export default function BookingCheckoutModal({
                       type="button"
                       disabled={isProcessing || isTimerExpired}
                       onClick={handleFinalBooking}
-                      className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
+                      className="w-full py-3 sm:py-3.5 rounded-2xl bg-slate-900 hover:bg-black active:scale-[0.98] text-white font-black text-xs uppercase tracking-wide shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
                     >
                       {isProcessing ? (
                         <>
@@ -3463,7 +3463,7 @@ export default function BookingCheckoutModal({
                     type="button"
                     disabled={isProcessing}
                     onClick={handleFinalBooking}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                    className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-black active:scale-[0.98] text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                   >
                     {isProcessing ? (
                       <>

@@ -384,7 +384,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         </div>
 
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-          Where do you want to <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">fly next?</span>
+          Where do you want to <span className="text-slate-900 underline decoration-amber-400 decoration-wavy decoration-2">fly next?</span>
         </h1>
         
         <p className="text-sm sm:text-lg text-slate-500 mt-3 font-medium max-w-xl mx-auto leading-relaxed">
@@ -847,13 +847,13 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                   )}
                 </AnimatePresence>
 
-                {/* Large Circular Search Button (Airbnb / Apple Style) */}
+                {/* Large Circular Search Button (Apple / Airbnb Luxury Obsidian Style) */}
                 <motion.button
                   type="button"
                   onClick={handleSearchSubmit}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-sky-600/35 cursor-pointer shrink-0"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 hover:bg-black text-white flex items-center justify-center shadow-xl shadow-slate-900/25 cursor-pointer shrink-0 transition-colors"
                   title="Search Flights"
                 >
                   <Search className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />

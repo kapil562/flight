@@ -64,12 +64,12 @@ export default function WebCheckInModal({ isOpen, onClose }) {
                   onClick={() => setSelectedAirline(a.code)}
                   className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer ${
                     selectedAirline === a.code
-                      ? 'border-sky-500 bg-sky-50 text-sky-800 font-black shadow-xs ring-1 ring-sky-500'
+                      ? 'border-slate-900 bg-slate-900 text-white font-black shadow-xs'
                       : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   <div className="text-xs font-black">{a.code}</div>
-                  <div className="text-[10px] text-slate-500 truncate mt-0.5">{a.name}</div>
+                  <div className={`text-[10px] truncate mt-0.5 ${selectedAirline === a.code ? 'text-slate-300' : 'text-slate-500'}`}>{a.name}</div>
                 </button>
               ))}
             </div>
@@ -111,7 +111,7 @@ export default function WebCheckInModal({ isOpen, onClose }) {
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Proceed to Official Airline Check-In</span>
             <ExternalLink className="w-4 h-4" />

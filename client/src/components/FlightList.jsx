@@ -376,7 +376,7 @@ export default function FlightList({
               onClick={() => setSelectedStops(s.id)}
               className={`py-2 px-2 text-xs font-black rounded-xl border text-center transition-all cursor-pointer ${
                 selectedStops === s.id
-                  ? 'bg-sky-600 text-white border-sky-600 shadow-md shadow-sky-600/20'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                   : 'border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
             >
@@ -405,15 +405,15 @@ export default function FlightList({
                 onClick={() => setSelectedTimeSlot(isAct ? 'all' : slot.id)}
                 className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                   isAct
-                    ? 'bg-sky-50 border-sky-500 text-sky-900 ring-1 ring-sky-500'
+                    ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
                     : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className={`w-3.5 h-3.5 ${isAct ? 'text-sky-600' : 'text-slate-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isAct ? 'text-amber-300' : 'text-slate-400'}`} />
                   <span className="text-xs font-black">{slot.label}</span>
                 </div>
-                <div className="text-[10px] text-slate-400">{slot.time}</div>
+                <div className={`text-[10px] ${isAct ? 'text-slate-300' : 'text-slate-400'}`}>{slot.time}</div>
               </button>
             );
           })}
@@ -433,7 +433,7 @@ export default function FlightList({
           step={250}
           value={maxPrice}
           onChange={(e) => setMaxPrice(parseInt(e.target.value))}
-          className="w-full accent-sky-600 cursor-pointer"
+          className="w-full accent-slate-900 cursor-pointer"
         />
         <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono font-bold">
           <span>₹{(minAvailablePrice || 2500).toLocaleString('en-IN')}</span>
@@ -571,22 +571,22 @@ export default function FlightList({
         {/* Right Flights List Column */}
         <main className="lg:col-span-9 w-full">
           
-          {/* ROUND TRIP BANNER */}
+          {/* ROUND TRIP BANNER (Apple Obsidian Luxury) */}
           {isRoundTrip && !loading && (
-            <div className="bg-gradient-to-r from-slate-950 via-sky-950 to-blue-950 text-white rounded-3xl p-4 sm:p-6 shadow-2xl mb-6 border border-slate-800">
+            <div className="bg-slate-950 text-white rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl mb-6 border border-white/10">
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-white/10">
                 <div className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-2xl bg-sky-500 text-white flex items-center justify-center font-black shadow-lg shadow-sky-500/30 shrink-0">
-                    <Plane className="w-5 h-5 rotate-45" />
+                  <span className="w-10 h-10 rounded-2xl bg-white/10 text-white flex items-center justify-center font-black border border-white/15 shrink-0">
+                    <Plane className="w-5 h-5 rotate-45 text-amber-300" />
                   </span>
                   <div>
                     <h3 className="font-black text-white text-base sm:text-lg flex items-center gap-2">
                       <span>Round Trip Combo Selection</span>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-400 text-slate-950 uppercase tracking-wide">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/90 text-white uppercase tracking-wider">
                         2 Flights Included
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-300 mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       Select 1 departure flight and 1 return flight below to book both together at guaranteed combined fare
                     </p>
                   </div>
@@ -595,15 +595,15 @@ export default function FlightList({
                 {/* Combo Fare Pill */}
                 <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3 sm:px-4 sm:py-2 rounded-2xl border border-white/15">
                   <div className="flex items-center justify-between sm:block text-left sm:text-right">
-                    <span className="text-[10px] text-sky-200 font-bold uppercase tracking-wider block leading-none sm:mb-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block leading-none sm:mb-1">
                       {selectedOnwardFlight && selectedReturnFlight ? 'Total Combo Fare' : 'Combo Fare'}
                     </span>
-                    <span className="text-lg sm:text-xl font-black text-amber-300 font-mono leading-none">
+                    <span className="text-lg sm:text-xl font-black text-white font-mono leading-none">
                       {selectedOnwardFlight || selectedReturnFlight ? (
                         roundTripCouponDiscount > 0 ? (
                           <span className="inline-flex items-baseline gap-1.5 sm:justify-end">
                             <span>₹{discountedRoundTripPrice.toLocaleString('en-IN')}</span>
-                            <span className="text-xs line-through text-sky-200/60 font-normal">₹{totalRoundTripPrice.toLocaleString('en-IN')}</span>
+                            <span className="text-xs line-through text-slate-400 font-normal">₹{totalRoundTripPrice.toLocaleString('en-IN')}</span>
                           </span>
                         ) : (
                           `₹${totalRoundTripPrice.toLocaleString('en-IN')}`
@@ -615,9 +615,9 @@ export default function FlightList({
                     type="button"
                     onClick={handleBookRoundTripCombo}
                     disabled={!selectedOnwardFlight || !selectedReturnFlight}
-                    className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full sm:w-auto px-5 py-2.5 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98]"
                   >
-                    <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                    <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                     <span>
                       {!selectedOnwardFlight && !selectedReturnFlight 
                         ? 'Select Flights to Book' 
