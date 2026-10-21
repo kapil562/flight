@@ -168,30 +168,36 @@ export default function CustomDatePicker({
           role="button"
           tabIndex={0}
           aria-label={`Select ${label} date`}
-          className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer select-none group w-full text-left"
+          className="p-3 sm:px-4 sm:py-3 rounded-2xl lg:rounded-full bg-slate-50/70 lg:bg-transparent border border-slate-200/80 lg:border-0 hover:bg-slate-100/90 active:scale-[0.99] transition-all cursor-pointer select-none group w-full text-left flex items-center gap-3"
         >
-          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
-            {label}
-          </span>
+          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 group-hover:bg-amber-100 transition-colors">
+            <CalendarIcon className="w-4 h-4" />
+          </div>
 
-          {value ? (
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-sm sm:text-base font-black text-slate-900 truncate">
-                {formattedDay} {formattedMonthYear}
-              </span>
-              <span className="text-[10px] sm:text-xs font-bold text-slate-500 capitalize shrink-0">
-                • {formattedWeekday.slice(0, 3)}
-              </span>
-            </div>
-          ) : (
-            <div className="text-sm sm:text-base font-black text-slate-400 mt-0.5">
-              Select Date
-            </div>
-          )}
+          <div className="min-w-0 flex-1">
+            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+              {label}
+            </span>
 
-          <span className="text-[10px] text-slate-400 truncate block mt-0.5">
-            {subText || (label.toLowerCase().includes('return') ? 'Aane ki ticket' : 'Departure date')}
-          </span>
+            {value ? (
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-sm sm:text-base font-black text-slate-900 truncate">
+                  {formattedDay} {formattedMonthYear}
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold text-slate-500 capitalize shrink-0">
+                  • {formattedWeekday.slice(0, 3)}
+                </span>
+              </div>
+            ) : (
+              <div className="text-sm sm:text-base font-black text-slate-400 mt-0.5">
+                Select Date
+              </div>
+            )}
+
+            <span className="text-[10px] text-slate-400 truncate block mt-0.5">
+              {subText || (label.toLowerCase().includes('return') ? 'Aane ki ticket' : 'Departure date')}
+            </span>
+          </div>
         </div>
       ) : (
         /* Legacy Boxed Mode (for multi-city forms if needed) */

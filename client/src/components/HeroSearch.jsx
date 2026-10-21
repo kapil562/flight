@@ -127,8 +127,8 @@ const filterAndSortAirports = (airportList, searchQuery) => {
 
 export default function HeroSearch({ airports, onSearch, searchParams, settings = {}, brand = null, loading = false }) {
   const [tripType, setTripType] = useState(searchParams?.tripType || 'oneWay'); // 'oneWay' | 'roundTrip' | 'multiCity'
-  const [fromCode, setFromCode] = useState(searchParams?.from || 'DEL');
-  const [toCode, setToCode] = useState(searchParams?.to || 'BOM');
+  const [fromCode, setFromCode] = useState(searchParams?.from || '');
+  const [toCode, setToCode] = useState(searchParams?.to || '');
   const [departureDate, setDepartureDate] = useState(searchParams?.date || getTodayDateString(1));
   const [returnDate, setReturnDate] = useState('');
   const [travelClass, setTravelClass] = useState(searchParams?.travelClass || 'economy');
@@ -209,9 +209,9 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const resolveAirport = (code, placeholderCity = 'Select City', placeholderName = 'Airport') => {
+  const resolveAirport = (code, placeholderCity = 'Select Departure City', placeholderName = 'Tap to select airport') => {
     if (!code || !code.trim()) {
-      return { isEmpty: true, code: '--', city: placeholderCity, name: placeholderName };
+      return { isEmpty: true, code: '', city: placeholderCity, name: placeholderName };
     }
     const clean = code.trim().toUpperCase();
     const found = airports.find(a => 
@@ -232,8 +232,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
     };
   };
 
-  const fromAirport = resolveAirport(fromCode, 'New Delhi', 'Indira Gandhi Intl');
-  const toAirport = resolveAirport(toCode, 'Mumbai', 'Chhatrapati Shivaji Intl');
+  const fromAirport = resolveAirport(fromCode, 'Select Departure City', 'Tap to select origin airport');
+  const toAirport = resolveAirport(toCode, 'Select Destination City', 'Tap to select destination airport');
 
   const handleSelectFrom = (val) => {
     const matched = airports.find(a => 
@@ -341,8 +341,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
       return;
     }
 
-    if (!fromCode || !toCode) {
-      alert('Please select both Origin and Destination airports!');
+    if (!fromCode) {
+      alert('Please select your Departure (Where from?) city!');
+      setShowFromDrop(true);
+      return;
+    }
+
+    if (!toCode) {
+      alert('Please select your Destination (Where to?) city!');
+      setShowToDrop(true);
       return;
     }
 
@@ -690,25 +697,36 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
           </div>
         ) : (
           /* Standard Unified Pill Bar (One Way / Round Trip) */
-          <div className="bg-white/95 backdrop-blur-2xl rounded-3xl lg:rounded-full p-2 sm:p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.1)] border border-slate-200/90 transition-all hover:shadow-[0_28px_80px_rgba(15,23,42,0.14)]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center relative gap-1.5 lg:gap-0">
+          <div className="bg-white/95 backdrop-blur-2xl rounded-3xl lg:rounded-full p-2.5 sm:p-3 lg:p-2 shadow-[0_24px_70px_rgba(15,23,42,0.1)] border border-slate-200/90 transition-all hover:shadow-[0_28px_80px_rgba(15,23,42,0.14)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center relative gap-2 lg:gap-0">
               
               {/* SECTION 1: ORIGIN (FROM) */}
               <div className="flex-1 min-w-0 relative" ref={fromRef}>
                 <div
                   onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
-                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl lg:rounded-full bg-slate-50/70 lg:bg-transparent border border-slate-200/80 lg:border-0 hover:bg-slate-100/90 active:scale-[0.99] transition-all cursor-pointer group flex items-center gap-3"
                 >
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where From?</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-sm sm:text-base font-black text-slate-900 truncate">
-                      {fromAirport.city}
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-mono font-black text-sky-700 bg-sky-50 border border-sky-200/80 px-1.5 py-0.5 rounded-md shrink-0">
-                      {fromAirport.code}
-                    </span>
+                  <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 border border-sky-100 group-hover:bg-sky-100 transition-colors">
+                    <PlaneTakeoff className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-slate-400 truncate block mt-0.5">{fromAirport.name}</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where From? (Origin)</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-sm sm:text-base font-black truncate ${fromAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {fromAirport.city}
+                      </span>
+                      {fromAirport.code ? (
+                        <span className="text-[10px] sm:text-xs font-mono font-black text-sky-700 bg-sky-50 border border-sky-200/80 px-1.5 py-0.5 rounded-md shrink-0">
+                          {fromAirport.code}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-sky-600 bg-sky-50 border border-dashed border-sky-300 px-1.5 py-0.5 rounded-md shrink-0">
+                          + Choose
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400 truncate block mt-0.5">{fromAirport.name}</span>
+                  </div>
                 </div>
 
                 {/* From Dropdown */}
@@ -768,16 +786,16 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               </div>
 
               {/* Mobile Centered Swap Button with Tactile Spring Animation */}
-              <div className="flex lg:hidden justify-center -my-2 z-10">
+              <div className="flex lg:hidden justify-center -my-2.5 z-10">
                 <motion.button
                   type="button"
                   onClick={handleSwapAirports}
                   whileTap={{ scale: 0.85, rotate: 270 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                  className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-xs active:bg-sky-50 active:text-sky-600 cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-white border border-slate-300 shadow-sm flex items-center justify-center text-slate-700 active:bg-sky-50 active:text-sky-600 cursor-pointer"
                   title="Swap Origin and Destination"
                 >
-                  <ArrowLeftRight className="w-3 h-3 rotate-90" />
+                  <ArrowLeftRight className="w-3.5 h-3.5 rotate-90" />
                 </motion.button>
               </div>
 
@@ -785,18 +803,29 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               <div className="flex-1 min-w-0 relative" ref={toRef}>
                 <div
                   onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
-                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl lg:rounded-full bg-slate-50/70 lg:bg-transparent border border-slate-200/80 lg:border-0 hover:bg-slate-100/90 active:scale-[0.99] transition-all cursor-pointer group flex items-center gap-3"
                 >
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where To?</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-sm sm:text-base font-black text-slate-900 truncate">
-                      {toAirport.city}
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-mono font-black text-blue-700 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded-md shrink-0">
-                      {toAirport.code}
-                    </span>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 group-hover:bg-blue-100 transition-colors">
+                    <PlaneLanding className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-slate-400 truncate block mt-0.5">{toAirport.name}</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where To? (Destination)</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-sm sm:text-base font-black truncate ${toAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {toAirport.city}
+                      </span>
+                      {toAirport.code ? (
+                        <span className="text-[10px] sm:text-xs font-mono font-black text-blue-700 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded-md shrink-0">
+                          {toAirport.code}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-dashed border-blue-300 px-1.5 py-0.5 rounded-md shrink-0">
+                          + Choose
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400 truncate block mt-0.5">{toAirport.name}</span>
+                  </div>
                 </div>
 
                 {/* To Dropdown */}
@@ -894,15 +923,20 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               <div className="flex-1 min-w-0 relative" ref={paxRef}>
                 <div
                   onClick={() => setShowPaxModal(!showPaxModal)}
-                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer relative group"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl lg:rounded-full bg-slate-50/70 lg:bg-transparent border border-slate-200/80 lg:border-0 hover:bg-slate-100/90 active:scale-[0.99] transition-all cursor-pointer relative group flex items-center gap-3"
                 >
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Who's Flying?</span>
-                  <div className="text-sm sm:text-base font-black text-slate-900 truncate mt-0.5">
-                    {totalPassengers} {totalPassengers > 1 ? 'Guests' : 'Guest'}
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 border border-slate-200 group-hover:bg-slate-200 transition-colors">
+                    <Users className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] text-sky-700 capitalize font-bold block truncate">
-                    {travelClass}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Who's Flying?</span>
+                    <div className="text-sm sm:text-base font-black text-slate-900 truncate mt-0.5">
+                      {totalPassengers} {totalPassengers > 1 ? 'Guests' : 'Guest'}
+                    </div>
+                    <span className="text-[10px] text-sky-700 capitalize font-bold block truncate">
+                      {travelClass}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Pax Modal */}
@@ -970,8 +1004,8 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </AnimatePresence>
               </div>
 
-              {/* SECTION 5: LARGE CIRCULAR SEARCH BUTTON */}
-              <div className="p-1 shrink-0 flex items-center justify-center">
+              {/* SECTION 5: DESKTOP CIRCULAR SEARCH BUTTON */}
+              <div className="hidden lg:flex p-1 shrink-0 items-center justify-center">
                 <motion.button
                   type="button"
                   onClick={handleSearchSubmit}
@@ -985,6 +1019,20 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </motion.button>
               </div>
 
+            </div>
+
+            {/* Mobile Prominent Full-Width Search Flights CTA */}
+            <div className="block lg:hidden mt-2.5">
+              <motion.button
+                type="button"
+                onClick={handleSearchSubmit}
+                whileTap={{ scale: 0.97 }}
+                className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-slate-900/25 cursor-pointer transition-all"
+              >
+                <Search className="w-4.5 h-4.5 stroke-[2.5]" />
+                <span>Search Flights</span>
+                <ArrowRight className="w-4 h-4 text-sky-400" />
+              </motion.button>
             </div>
           </div>
         )}
