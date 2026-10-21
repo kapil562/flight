@@ -2569,12 +2569,12 @@
         "phone": "9876543210"
       },
       "fare": {
-        "basePrice": 6828,
+        "basePrice": 6722,
         "seatCost": 0,
         "mealsCost": 0,
-        "taxes": 819,
+        "taxes": 807,
         "discount": 0,
-        "total": 7846,
+        "total": 7728,
         "tierUpgrade": 0,
         "fareTier": "saver",
         "baggageCost": 0,
@@ -2586,21 +2586,21 @@
         "method": "upiApps",
         "transactionId": "TXN_1792530486595",
         "utrNumber": "",
-        "status": "VERIFICATION_PENDING",
-        "paidAt": "2026-10-20T21:08:09.787Z",
+        "status": "PAID",
+        "paidAt": "2026-10-21T13:00:31.932Z",
         "paidToVpa": null,
         "vpa": "paytm.s2zbyoe@pty",
         "selectedApp": "PhonePe",
         "bank": null,
         "cardLast4": null
       },
-      "checkInStatus": "Payment Pending",
-      "status": "VERIFICATION_PENDING",
+      "checkInStatus": "Eligible",
+      "status": "CONFIRMED",
       "createdAt": "2026-10-20T21:08:06.595Z",
       "airlineCode": "IX",
       "gst": null,
       "fareTier": "saver",
-      "updatedAt": "2026-10-20T21:08:09.787Z"
+      "updatedAt": "2026-10-21T13:00:37.082Z"
     },
     {
       "pnr": "ASG-320426",
@@ -2811,12 +2811,12 @@
         "cardLast4": null
       },
       "checkInStatus": "Eligible",
-      "status": "VERIFICATION_PENDING",
+      "status": "CONFIRMED",
       "createdAt": "2026-10-20T16:29:54.015Z",
       "airlineCode": "AI",
       "gst": null,
       "fareTier": "saver",
-      "updatedAt": "2026-10-20T17:05:05.364Z"
+      "updatedAt": "2026-10-21T13:00:54.557Z"
     },
     {
       "pnr": "ASG-598624",

@@ -114,7 +114,7 @@ export default function FlightList({
       }))
     };
 
-    onBookFlight(combinedFlight, totalMultiCityPrice, 'saver');
+    onBookFlight(combinedFlight, totalMultiCityPrice, 'saver', copiedCoupon || 'AIRSKY500');
   };
 
   // ==========================================
@@ -178,7 +178,7 @@ export default function FlightList({
       }
     };
 
-    onBookFlight(combinedFlight, totalRoundTripPrice, 'saver');
+    onBookFlight(combinedFlight, totalRoundTripPrice, 'saver', copiedCoupon || 'AIRSKY500');
   };
 
   const handleOnwardFlightSelect = (flight) => {
@@ -1224,7 +1224,7 @@ export default function FlightList({
                             }
                           }}
                           onBookFlight={(f, currentPrice, selectedFareTier, initialCoupon) => {
-                            const couponToUse = initialCoupon || copiedCoupon || '';
+                            const couponToUse = initialCoupon || copiedCoupon || 'AIRSKY500';
                             if (isMultiCity) {
                               if (isSelectedForThisLeg && allLegsSelected) {
                                 handleBookMultiCityCombo();

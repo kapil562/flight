@@ -52,6 +52,7 @@ try {
 
 const BLOB_READ_WRITE_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_xhZm9lPIvWYVhR3f_Ja14Xn78AHI64jPca957DbRiVExOYL';
 const BLOB_BOOKINGS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/bookings.json';
+const BLOB_COUPONS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/coupons.json';
 
 // Standard 6-character Airline PNR Generator (IndiGo format, e.g. Y9WUNS)
 function generateAirlinePnr() {
@@ -106,6 +107,43 @@ const saveCloudBookings = async (bookings) => {
       });
     } catch (err) {
       console.error('Cloud bookings save error to Blob:', err.message);
+    }
+  }
+};
+
+// Persistent Central Cloud Coupons (Vercel Blob)
+const getCloudCoupons = async () => {
+  try {
+    const res = await fetch(`${BLOB_COUPONS_URL}?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        memoryStore.set(COUPONS_FILE, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud coupons fetch warning:', err.message);
+  }
+  return readJSON(COUPONS_FILE, []);
+};
+
+const saveCloudCoupons = async (coupons) => {
+  memoryStore.set(COUPONS_FILE, coupons);
+  writeJSON(COUPONS_FILE, coupons);
+  if (putBlob) {
+    try {
+      await putBlob('coupons.json', JSON.stringify(coupons), {
+        access: 'public',
+        token: BLOB_READ_WRITE_TOKEN,
+        addRandomSuffix: false,
+        allowOverwrite: true
+      });
+    } catch (err) {
+      console.error('Cloud coupons save error to Blob:', err.message);
     }
   }
 };
@@ -1347,8 +1385,8 @@ app.get('/api/airports', (req, res) => {
 });
 
 // 3. Coupons / Promo Offers List (supports AirSkyIndia promo paths)
-app.get(['/api/coupons', '/api/promos/active', '/api/promos/suggestions'], (req, res) => {
-  const coupons = readJSON(COUPONS_FILE);
+app.get(['/api/coupons', '/api/promos/active', '/api/promos/suggestions'], async (req, res) => {
+  const coupons = await getCloudCoupons();
   res.json({ success: true, count: coupons.length, data: coupons, promos: coupons });
 });
 
@@ -1684,14 +1722,14 @@ app.get('/api/flights/status/search', (req, res) => {
 });
 
 // 9. Coupon / Promo Application (Dynamic check against coupons.json)
-app.post(['/api/coupons/apply', '/api/promos/apply'], (req, res) => {
+app.post(['/api/coupons/apply', '/api/promos/apply'], async (req, res) => {
   const code = req.body.code || req.body.promo_code || req.body.coupon;
   const amount = Number(req.body.amount || req.body.fare || 0);
   if (!code) {
     return res.status(400).json({ success: false, message: 'Coupon code required' });
   }
 
-  const coupons = readJSON(COUPONS_FILE);
+  const coupons = await getCloudCoupons();
   const coupon = coupons.find(c => c.code.toUpperCase() === code.trim().toUpperCase() && c.status === 'Active');
 
   if (!coupon) {
@@ -2663,51 +2701,62 @@ app.delete('/api/admin/flights/:id', (req, res) => {
 });
 
 // A6. Admin Coupons CRUD
-app.post('/api/admin/coupons', (req, res) => {
-  const { code, type = 'flat', discount, minAmount = 0, description } = req.body;
+app.post('/api/admin/coupons', async (req, res) => {
+  const { code, type = 'flat', discount, minAmount = 0, description, status = 'Active', maxDiscount } = req.body;
   if (!code || !discount) {
     return res.status(400).json({ success: false, message: 'Coupon code and discount are required' });
   }
 
-  const coupons = readJSON(COUPONS_FILE);
+  const coupons = await getCloudCoupons();
   const newCoupon = {
     id: `CPN-${Date.now().toString().slice(-4)}`,
     code: code.trim().toUpperCase(),
     type,
     discount: parseInt(discount),
+    maxDiscount: maxDiscount ? parseInt(maxDiscount) : undefined,
     minAmount: parseInt(minAmount) || 0,
     description: description || `${type === 'percent' ? discount + '%' : '₹' + discount} off`,
-    status: 'Active'
+    status: status || 'Active'
   };
 
   coupons.unshift(newCoupon);
-  writeJSON(COUPONS_FILE, coupons);
+  await saveCloudCoupons(coupons);
 
   res.status(201).json({ success: true, message: 'Coupon created successfully', coupon: newCoupon });
 });
 
-app.put('/api/admin/coupons/:id', (req, res) => {
+app.put('/api/admin/coupons/:id', async (req, res) => {
   const { id } = req.params;
-  const coupons = readJSON(COUPONS_FILE);
+  const coupons = await getCloudCoupons();
   const index = coupons.findIndex(c => c.id === id);
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: 'Coupon not found' });
   }
 
-  coupons[index] = { ...coupons[index], ...req.body };
-  writeJSON(COUPONS_FILE, coupons);
+  coupons[index] = {
+    ...coupons[index],
+    ...req.body,
+    code: req.body.code ? req.body.code.trim().toUpperCase() : coupons[index].code,
+    type: req.body.type || coupons[index].type,
+    discount: req.body.discount !== undefined ? parseInt(req.body.discount) : coupons[index].discount,
+    maxDiscount: req.body.maxDiscount !== undefined ? parseInt(req.body.maxDiscount) : coupons[index].maxDiscount,
+    minAmount: req.body.minAmount !== undefined ? parseInt(req.body.minAmount) : coupons[index].minAmount,
+    description: req.body.description !== undefined ? req.body.description : coupons[index].description,
+    status: req.body.status || coupons[index].status || 'Active'
+  };
+  await saveCloudCoupons(coupons);
 
-  res.json({ success: true, message: 'Coupon updated', coupon: coupons[index] });
+  res.json({ success: true, message: 'Coupon updated successfully', coupon: coupons[index] });
 });
 
-app.delete('/api/admin/coupons/:id', (req, res) => {
+app.delete('/api/admin/coupons/:id', async (req, res) => {
   const { id } = req.params;
-  let coupons = readJSON(COUPONS_FILE);
+  let coupons = await getCloudCoupons();
   coupons = coupons.filter(c => c.id !== id);
-  writeJSON(COUPONS_FILE, coupons);
+  await saveCloudCoupons(coupons);
 
-  res.json({ success: true, message: 'Coupon deleted' });
+  res.json({ success: true, message: 'Coupon deleted successfully' });
 });
 
 // A7. Admin Airports Management

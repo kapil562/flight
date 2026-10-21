@@ -49,6 +49,7 @@ export default function AdminPage() {
   const [showAddFlightModal, setShowAddFlightModal] = useState(false);
   const [editingFlight, setEditingFlight] = useState(null);
   const [showAddCouponModal, setShowAddCouponModal] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState(null);
   const [showAddAirportModal, setShowAddAirportModal] = useState(false);
   const [showHolidayModal, setShowHolidayModal] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState(null);
@@ -374,20 +375,44 @@ export default function AdminPage() {
     }
   };
 
-  // 6. Add Coupon
-  const handleAddCouponSubmit = async (e) => {
+  // 6. Add / Edit Coupon
+  const handleStartEditCoupon = (coupon) => {
+    setEditingCoupon({ ...coupon });
+    setShowAddCouponModal(true);
+  };
+
+  const handleSaveCouponSubmit = async (e) => {
     e.preventDefault();
-    if (!newCoupon.code || !newCoupon.discount) return;
+    const dataToSave = editingCoupon || newCoupon;
+    if (!dataToSave.code || !dataToSave.discount) {
+      alert('Please enter both Coupon Code and Discount Value');
+      return;
+    }
+
     try {
-      const res = await api.addCoupon(newCoupon);
-      if (res.success) {
-        triggerAlert(`Coupon ${newCoupon.code} created!`);
-        setShowAddCouponModal(false);
-        setNewCoupon({ code: '', type: 'flat', discount: 500, minAmount: 3000, description: '' });
-        loadDashboardData();
+      if (editingCoupon && editingCoupon.id) {
+        const res = await api.updateCoupon(editingCoupon.id, editingCoupon);
+        if (res.success) {
+          triggerAlert(`Coupon ${editingCoupon.code} updated successfully!`);
+          setShowAddCouponModal(false);
+          setEditingCoupon(null);
+          loadDashboardData();
+        } else {
+          alert(res.message || 'Error updating coupon');
+        }
+      } else {
+        const res = await api.addCoupon(newCoupon);
+        if (res.success) {
+          triggerAlert(`Coupon ${newCoupon.code} created!`);
+          setShowAddCouponModal(false);
+          setNewCoupon({ code: '', type: 'flat', discount: 500, minAmount: 3000, description: '', status: 'Active' });
+          loadDashboardData();
+        } else {
+          alert(res.message || 'Error creating coupon');
+        }
       }
     } catch (err) {
-      alert('Error creating coupon');
+      alert('Error saving coupon');
     }
   };
 
@@ -1762,7 +1787,10 @@ export default function AdminPage() {
                 <p className="text-xs text-slate-500">Manage instant promo codes for checkout discount.</p>
               </div>
               <button
-                onClick={() => setShowAddCouponModal(true)}
+                onClick={() => {
+                  setEditingCoupon(null);
+                  setShowAddCouponModal(true);
+                }}
                 className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -1773,12 +1801,22 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {coupons.map(c => (
                 <div key={c.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs relative space-y-2">
-                  <button
-                    onClick={() => handleDeleteCoupon(c.id)}
-                    className="absolute top-3 right-3 text-slate-400 hover:text-rose-600 p-1"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                    <button
+                      onClick={() => handleStartEditCoupon(c)}
+                      className="text-slate-400 hover:text-sky-600 p-1.5 rounded-lg hover:bg-sky-50 transition-colors cursor-pointer"
+                      title="Edit Coupon"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCoupon(c.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Delete Coupon"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <div className="inline-block px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-300 rounded-lg text-xs font-mono font-black tracking-wider">
                     {c.code}
                   </div>
@@ -1789,8 +1827,10 @@ export default function AdminPage() {
                   <div className="text-[11px] text-slate-400 font-mono">
                     Min amount: ₹{c.minAmount || 0}
                   </div>
-                  <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                    {c.status}
+                  <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${
+                    c.status === 'Inactive' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    {c.status || 'Active'}
                   </span>
                 </div>
               ))}
@@ -2842,26 +2882,44 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* MODAL: ADD COUPON */}
+      {/* MODAL: ADD / EDIT COUPON */}
       {showAddCouponModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
           <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-200 animate-fadeIn">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <h4 className="font-extrabold text-slate-900 text-base">Create Discount Coupon</h4>
-              <button onClick={() => setShowAddCouponModal(false)} className="p-1 rounded-lg text-slate-400 hover:text-slate-700">
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-base">
+                  {editingCoupon ? 'Edit Discount Coupon' : 'Create Discount Coupon'}
+                </h4>
+                {editingCoupon && (
+                  <span className="text-[10px] text-sky-600 font-mono font-bold">ID: {editingCoupon.id}</span>
+                )}
+              </div>
+              <button 
+                onClick={() => {
+                  setShowAddCouponModal(false);
+                  setEditingCoupon(null);
+                }} 
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleAddCouponSubmit} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveCouponSubmit} className="space-y-3 text-xs">
               <div>
                 <label className="block font-bold text-slate-500 mb-1">Coupon Code *</label>
                 <input
                   type="text"
                   placeholder="e.g. FLYMORE"
-                  value={newCoupon.code}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                  value={editingCoupon ? editingCoupon.code : newCoupon.code}
+                  onChange={(e) => {
+                    const code = e.target.value.toUpperCase();
+                    if (editingCoupon) setEditingCoupon({ ...editingCoupon, code });
+                    else setNewCoupon({ ...newCoupon, code });
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold uppercase"
+                  required
                 />
               </div>
 
@@ -2869,8 +2927,12 @@ export default function AdminPage() {
                 <div>
                   <label className="block font-bold text-slate-500 mb-1">Type</label>
                   <select
-                    value={newCoupon.type}
-                    onChange={(e) => setNewCoupon({ ...newCoupon, type: e.target.value })}
+                    value={editingCoupon ? editingCoupon.type : newCoupon.type}
+                    onChange={(e) => {
+                      const type = e.target.value;
+                      if (editingCoupon) setEditingCoupon({ ...editingCoupon, type });
+                      else setNewCoupon({ ...newCoupon, type });
+                    }}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold"
                   >
                     <option value="flat">Flat Amount (₹)</option>
@@ -2881,40 +2943,82 @@ export default function AdminPage() {
                   <label className="block font-bold text-slate-500 mb-1">Discount Value *</label>
                   <input
                     type="number"
-                    value={newCoupon.discount}
-                    onChange={(e) => setNewCoupon({ ...newCoupon, discount: parseInt(e.target.value) })}
+                    value={editingCoupon ? editingCoupon.discount : newCoupon.discount}
+                    onChange={(e) => {
+                      const discount = parseInt(e.target.value) || 0;
+                      if (editingCoupon) setEditingCoupon({ ...editingCoupon, discount });
+                      else setNewCoupon({ ...newCoupon, discount });
+                    }}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                    required
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block font-bold text-slate-500 mb-1">Min Amount (₹)</label>
-                <input
-                  type="number"
-                  value={newCoupon.minAmount}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, minAmount: parseInt(e.target.value) })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-500 mb-1">Min Amount (₹)</label>
+                  <input
+                    type="number"
+                    value={editingCoupon ? editingCoupon.minAmount : newCoupon.minAmount}
+                    onChange={(e) => {
+                      const minAmount = parseInt(e.target.value) || 0;
+                      if (editingCoupon) setEditingCoupon({ ...editingCoupon, minAmount });
+                      else setNewCoupon({ ...newCoupon, minAmount });
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-500 mb-1">Status</label>
+                  <select
+                    value={editingCoupon ? (editingCoupon.status || 'Active') : (newCoupon.status || 'Active')}
+                    onChange={(e) => {
+                      const status = e.target.value;
+                      if (editingCoupon) setEditingCoupon({ ...editingCoupon, status });
+                      else setNewCoupon({ ...newCoupon, status });
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold"
+                  >
+                    <option value="Active">Active (Live)</option>
+                    <option value="Inactive">Inactive (Disabled)</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="block font-bold text-slate-500 mb-1">Description</label>
                 <input
                   type="text"
-                  placeholder="e.g. ₹500 off"
-                  value={newCoupon.description}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, description: e.target.value })}
+                  placeholder="e.g. ₹500 off on flights"
+                  value={editingCoupon ? (editingCoupon.description || '') : newCoupon.description}
+                  onChange={(e) => {
+                    const description = e.target.value;
+                    if (editingCoupon) setEditingCoupon({ ...editingCoupon, description });
+                    else setNewCoupon({ ...newCoupon, description });
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium"
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full mt-4 py-3 bg-sky-600 hover:bg-sky-500 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer"
-              >
-                Create Coupon
-              </button>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddCouponModal(false);
+                    setEditingCoupon(null);
+                  }}
+                  className="w-1/3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-extrabold rounded-xl text-xs shadow-md transition-colors cursor-pointer"
+                >
+                  {editingCoupon ? 'Save & Update Coupon' : 'Create Coupon'}
+                </button>
+              </div>
             </form>
           </div>
         </div>

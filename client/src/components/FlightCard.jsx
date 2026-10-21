@@ -83,6 +83,7 @@ export default function FlightCard({
   const originalPrice = Math.round(currentPrice * 1.18);
   const totalSavings = originalPrice - currentPrice;
   const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/^[✓✔\s]+|[✓✔\s]+$/g, '').trim();
+  const featuredCoupon = flight.featuredCoupon || flight.couponCode || 'AIRSKY500';
 
   // Contact details from brand
   const activeBrand = brand || window.__BRAND__ || {};
@@ -274,7 +275,7 @@ export default function FlightCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (onSelect) onSelect(flight);
-                      else if (onBookFlight) onBookFlight(flight, currentPrice);
+                      else if (onBookFlight) onBookFlight(flight, currentPrice, 'saver', featuredCoupon);
                     }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -422,22 +423,22 @@ export default function FlightCard({
                   </div>
 
                   <motion.button
-                    onClick={() => onBookFlight(flight, currentPrice)}
+                    onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-2"
-                    title="Instant Online Seat & Passenger Booking"
+                    title={`Instant Online Booking with ${featuredCoupon} applied`}
                   >
                     Book Now
                   </motion.button>
 
                   <div 
-                    onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
+                    onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
-                    title="Click to apply AIRSKY500 on this flight"
+                    title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for Flat ₹500 Off</span>
                   </div>
                 </div>
 
@@ -567,11 +568,11 @@ export default function FlightCard({
 
                   <div>
                     <motion.button
-                      onClick={() => onBookFlight(flight, currentPrice)}
+                      onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                      title="Instant Online Seat & Passenger Booking"
+                      title={`Instant Online Booking with ${featuredCoupon} applied`}
                     >
                       Book Now
                     </motion.button>
@@ -581,12 +582,12 @@ export default function FlightCard({
                 {/* Row 4: Coupon Chip */}
                 <div className="mt-2.5">
                   <div 
-                    onClick={() => onBookFlight(flight, currentPrice, 'saver', 'AIRSKY500')}
+                    onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
-                    title="Click to apply AIRSKY500 on this flight"
+                    title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>AIRSKY500</strong> for Flat ₹500 Off</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for Flat ₹500 Off</span>
                   </div>
                 </div>
               </div>
@@ -962,7 +963,7 @@ export default function FlightCard({
             onClose={() => setShowHoldModal(false)}
             onBookNow={() => {
               setShowHoldModal(false);
-              onBookFlight(flight, currentPrice, 'saver');
+              onBookFlight(flight, currentPrice, 'saver', featuredCoupon);
             }}
           />
         )}

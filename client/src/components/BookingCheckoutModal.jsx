@@ -721,10 +721,12 @@ export default function BookingCheckoutModal({
     }
   };
 
-  // Auto-apply initial coupon if passed
+  // Auto-apply initial coupon if passed (from flight search card or default promo)
   useEffect(() => {
-    if (initialCoupon) {
-      handleApplyPromo(initialCoupon);
+    const codeToApply = initialCoupon || 'AIRSKY500';
+    if (codeToApply) {
+      setCouponCode(codeToApply);
+      handleApplyPromo(codeToApply);
     }
   }, [initialCoupon]);
 
@@ -970,17 +972,55 @@ export default function BookingCheckoutModal({
 
     try {
       const res = await api.applyCoupon(code, subTotalBeforeDiscount);
-      if (res.success) {
+      if (res && res.success && res.discount > 0) {
         setDiscountAmount(res.discount);
         setCouponMsg(res.message || `Promo ${code} applied successfully!`);
         setCouponCode(code);
       } else {
-        setCouponError(res.message || 'Invalid or inactive promo code');
-        setDiscountAmount(0);
+        // Fallback: Check local/availableCoupons
+        const knownCoupons = [
+          { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 2000, description: 'Flat ₹500 off on any flight' },
+          { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500' },
+          { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount' },
+          { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight' }
+        ];
+        const allList = [...(availableCoupons || []), ...knownCoupons];
+        const matched = allList.find(c => c.code.toUpperCase() === code && c.status !== 'Inactive');
+        if (matched) {
+          const discount = matched.type === 'percent'
+            ? Math.round((subTotalBeforeDiscount * matched.discount) / 100)
+            : matched.discount;
+          setDiscountAmount(discount);
+          setCouponMsg(`Promo ${code} applied successfully! (₹${discount.toLocaleString('en-IN')} off)`);
+          setCouponCode(code);
+          setCouponError('');
+        } else {
+          setCouponError(res?.message || 'Invalid or inactive promo code');
+          setDiscountAmount(0);
+        }
       }
     } catch (err) {
-      setCouponError('Could not apply promo code. Please verify and try again.');
-      setDiscountAmount(0);
+      // Local fallback in case network error
+      const knownCoupons = [
+        { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 2000, description: 'Flat ₹500 off on any flight' },
+        { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500' },
+        { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount' },
+        { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight' }
+      ];
+      const allList = [...(availableCoupons || []), ...knownCoupons];
+      const matched = allList.find(c => c.code.toUpperCase() === code && c.status !== 'Inactive');
+      if (matched) {
+        const discount = matched.type === 'percent'
+          ? Math.round((subTotalBeforeDiscount * matched.discount) / 100)
+          : matched.discount;
+        setDiscountAmount(discount);
+        setCouponMsg(`Promo ${code} applied successfully! (₹${discount.toLocaleString('en-IN')} off)`);
+        setCouponCode(code);
+        setCouponError('');
+      } else {
+        setCouponError('Could not apply promo code. Please verify and try again.');
+        setDiscountAmount(0);
+      }
     } finally {
       setApplyingCoupon(false);
     }
@@ -2824,16 +2864,16 @@ export default function BookingCheckoutModal({
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {(availableCoupons.length > 0 ? availableCoupons : [
-                          { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 3000, description: 'Flat ₹500 off on any flight' },
-                          { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500' },
-                          { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount' },
-                          { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight' }
-                        ]).map(c => {
+                          { code: 'AIRSKY500', type: 'flat', discount: 500, minAmount: 3000, description: 'Flat ₹500 off on any flight', status: 'Active' },
+                          { code: 'FLYHIGH', type: 'percent', discount: 10, maxDiscount: 1500, minAmount: 4000, description: '10% instant discount up to ₹1,500', status: 'Active' },
+                          { code: 'IXIGO50', type: 'flat', discount: 750, minAmount: 5000, description: 'Special ₹750 Super Saver discount', status: 'Active' },
+                          { code: 'FIRSTFLY', type: 'flat', discount: 1000, minAmount: 6000, description: 'Welcome ₹1,000 off on first flight', status: 'Active' }
+                        ]).filter(c => c.status !== 'Inactive').map(c => {
                           const isApplied = couponCode.toUpperCase() === c.code.toUpperCase() && discountAmount > 0;
                           return (
                             <div
                               key={c.code}
-                              onClick={() => !isApplied && handleApplyPromo(c.code)}
+                              onClick={() => isApplied ? handleRemovePromo() : handleApplyPromo(c.code)}
                               className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-2 ${
                                 isApplied
                                   ? 'bg-emerald-50/80 border-emerald-400 ring-2 ring-emerald-500/20'
@@ -2856,9 +2896,13 @@ export default function BookingCheckoutModal({
 
                               <button
                                 type="button"
-                                className={`text-xs font-black px-3 py-1 rounded-lg shrink-0 ${
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  isApplied ? handleRemovePromo() : handleApplyPromo(c.code);
+                                }}
+                                className={`text-xs font-black px-3 py-1 rounded-lg shrink-0 cursor-pointer ${
                                   isApplied
-                                    ? 'bg-emerald-600 text-white'
+                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                                     : 'bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200'
                                 }`}
                               >

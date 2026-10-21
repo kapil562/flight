@@ -290,7 +290,7 @@ function MainWebsite() {
       travelClass: searchParams.travelClass,
       selectedSeats: [],
       passengersCount: totalPax,
-      initialCoupon: initialCoupon || '',
+      initialCoupon: initialCoupon || 'AIRSKY500',
       initialFareTier: initialFareTier || 'saver'
     });
   };
@@ -306,7 +306,8 @@ function MainWebsite() {
       travelClass,
       selectedSeats,
       passengersCount,
-      initialCoupon: initialCoupon || ''
+      initialCoupon: initialCoupon || 'AIRSKY500',
+      initialFareTier: 'saver'
     });
   };
 
