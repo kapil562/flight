@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeftRight, Calendar, Users, Search, Plane, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight, Compass, Sparkles } from 'lucide-react';
+import { ArrowLeftRight, Calendar, Users, Search, Plane, PlaneTakeoff, PlaneLanding, Check, ChevronDown, Plus, Trash2, ArrowRight, Compass, Sparkles, ShieldCheck, Zap, Info, Clock } from 'lucide-react';
 import CustomDatePicker from './CustomDatePicker';
 
 const getTodayDateString = (offsetDays = 0) => {
@@ -92,10 +92,6 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   const [legSearch, setLegSearch] = useState('');
   const multiCityRef = useRef(null);
 
-  const setQuickDate = (offsetDays) => {
-    setDepartureDate(getTodayDateString(offsetDays));
-  };
-
   const handleTripTypeChange = (type) => {
     setTripType(type);
     if (type === 'roundTrip' && (!returnDate || returnDate < departureDate)) {
@@ -173,7 +169,6 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
     );
     if (found) return { ...found, isEmpty: false };
 
-    // Capitalize first letter properly for display
     const formattedCity = clean.length === 3 
       ? clean 
       : clean.charAt(0) + clean.slice(1).toLowerCase();
@@ -335,77 +330,120 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   ];
 
   const heroSettings = {
-    badgeText: settings.hero?.badgeText || 'Super Fast Real-Time Aviation Search',
-    title: settings.hero?.title || 'Fly Anywhere with',
+    badgeText: settings.hero?.badgeText || 'Verified Real-Time Airline Inventory',
+    title: settings.hero?.title || 'Book Worldwide Flights at Guaranteed Lowest Fares',
     brandHighlight: brand?.name || settings.hero?.brandHighlight || 'AIR SKY',
-    subtitle: brand?.tagline || settings.hero?.subtitle || 'Ixigo & Cleartrip style live airfares, lowest fare trend, instant seat map & verified PNR tickets.'
+    subtitle: brand?.tagline || settings.hero?.subtitle || 'Zero convenience fee, live GDS airfares, instant 3D seat mapping & verified digital PNR.'
   };
 
   return (
-    <div className="py-3 sm:py-8 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+    <div className="py-2 sm:py-6 max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       
-      {/* Search Header Banner */}
-      <div className="bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-2xl sm:rounded-3xl p-3 sm:p-8 lg:p-10 text-white shadow-2xl relative mb-6 sm:mb-8">
-        {/* Background ambient lighting */}
-        <div className="absolute inset-0 opacity-25 pointer-events-none overflow-hidden rounded-2xl sm:rounded-3xl">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+      {/* Search Header Banner Container */}
+      <div className="relative rounded-3xl p-4 sm:p-8 lg:p-10 text-white shadow-2xl overflow-hidden bg-gradient-to-br from-slate-950 via-sky-950 to-blue-950 border border-slate-800/80 mb-6 sm:mb-8">
+        
+        {/* Ambient Glow & Vector Lines Backdrop */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-35">
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-sky-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl" />
+          <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="flightGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#flightGrid)" />
+          </svg>
         </div>
 
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] sm:text-xs font-bold text-sky-200 mb-2 sm:mb-3">
+        {/* Top Header Information & Trust Badge */}
+        <div className="relative z-10 max-w-3xl mb-4 sm:mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] sm:text-xs font-black text-sky-200 mb-2.5 sm:mb-3 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            {heroSettings.badgeText || 'Verified Flight Deals • Best Guaranteed Rates'}
+            <span>{heroSettings.badgeText}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
           </div>
-          <h2 className="text-xl sm:text-4xl font-black tracking-tight mb-1 sm:mb-2 leading-tight">
-            Book Worldwide Flights at Guaranteed Lowest Fares
-          </h2>
-          <p className="text-[11px] sm:text-sm text-slate-300 line-clamp-2 sm:line-clamp-none">
-            {heroSettings.subtitle || 'Real-time live airline fares with instant seat map & verified PNR tickets with zero convenience fee.'}
+          
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+            {heroSettings.title}
+          </h1>
+          
+          <p className="text-xs sm:text-sm text-slate-300 mt-1.5 sm:mt-2 font-medium max-w-2xl leading-relaxed">
+            {heroSettings.subtitle}
           </p>
+
+          {/* Micro Trust Pills */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 sm:mt-4 text-[11px] sm:text-xs font-semibold text-slate-300">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>100% GDS Verified</span>
+            </div>
+            <span className="text-slate-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-amber-400" />
+              <span>Instant PNR Dispatch</span>
+            </div>
+            <span className="text-slate-600">•</span>
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-sky-400" />
+              <span>24x7 Airport Helpdesk</span>
+            </div>
+          </div>
         </div>
 
-        {/* Search Input Box */}
-        <div className="relative z-30 mt-3 sm:mt-6 bg-white text-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-xl border border-slate-100">
+        {/* Main Search Cockpit Box */}
+        <div className="relative z-30 bg-white text-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 lg:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-slate-100">
           
-          {/* Top Options Row: Trip Type & Class */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-4 mb-2.5 sm:mb-4 border-b border-slate-100">
-            {/* Trip Type Selector */}
-            <div className="inline-flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl gap-0.5 sm:gap-1 shrink-0">
+          {/* Top Control Bar: Trip Type & Cabin Class */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 sm:pb-4 mb-3 sm:mb-4 border-b border-slate-100">
+            
+            {/* Segmented Trip Type Pill */}
+            <div className="inline-flex items-center bg-slate-100/90 p-1 rounded-2xl gap-1 shrink-0 border border-slate-200/80">
               <button
                 type="button"
                 onClick={() => handleTripTypeChange('oneWay')}
-                className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  tripType === 'oneWay' ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3.5 sm:px-5 py-1.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                  tripType === 'oneWay'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
                 One Way
               </button>
+              
               <button
                 type="button"
                 onClick={() => handleTripTypeChange('roundTrip')}
-                className={`px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  tripType === 'roundTrip' ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3.5 sm:px-5 py-1.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+                  tripType === 'roundTrip'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
                 Round Trip
               </button>
+
               <button
                 type="button"
                 onClick={() => handleTripTypeChange('multiCity')}
-                className={`px-2 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap ${
-                  tripType === 'multiCity' ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  tripType === 'multiCity'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
                 <span>Multi City</span>
-                <span className="text-[8px] px-1 py-0.2 bg-amber-400 text-slate-900 rounded font-black uppercase">New</span>
+                <span className="text-[9px] px-1.5 py-0.2 bg-amber-400 text-slate-950 rounded-full font-black uppercase">
+                  NEW
+                </span>
               </button>
             </div>
 
-            {/* Travel Class Selector - Always fully visible on both mobile and desktop */}
-            <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm shrink-0">
-              <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider shrink-0">Class:</span>
-              <div className="inline-flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl gap-0.5 sm:gap-1">
+            {/* Travel Class Selector */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm shrink-0">
+              <span className="text-slate-400 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider">Cabin:</span>
+              <div className="inline-flex items-center bg-slate-100/90 p-1 rounded-xl gap-1 border border-slate-200/80">
                 {[
                   { id: 'economy', label: 'Economy' },
                   { id: 'premiumEconomy', label: 'Prem. Eco', desktopLabel: 'Premium Economy' },
@@ -415,10 +453,10 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                     key={cls.id}
                     type="button"
                     onClick={() => setTravelClass(cls.id)}
-                    className={`px-2 sm:px-3 py-1 rounded-lg font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap text-[10px] sm:text-xs ${
+                    className={`px-2.5 sm:px-3 py-1 rounded-lg font-black transition-all cursor-pointer shrink-0 whitespace-nowrap text-[11px] sm:text-xs ${
                       travelClass === cls.id
                         ? 'bg-sky-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
                     }`}
                   >
                     <span className="sm:hidden">{cls.label}</span>
@@ -429,12 +467,14 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             </div>
           </div>
 
-          {/* Conditional Input: Multi-City Legs Builder vs Standard Grid */}
+          {/* Conditional Multi-City Itinerary Builder vs Standard Grid */}
           {tripType === 'multiCity' ? (
             <div className="space-y-3.5" ref={multiCityRef}>
-              <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-                <span className="font-bold text-slate-700">Multi-City Itinerary Legs ({legs.length} Flights)</span>
-                <span className="text-sky-600 font-semibold">Automatic origin linking enabled</span>
+              <div className="flex items-center justify-between text-xs px-1">
+                <span className="font-black text-slate-800 text-sm">Multi-City Itinerary ({legs.length} Flights Connected)</span>
+                <span className="text-sky-600 font-bold bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200 text-[11px]">
+                  Automatic Route Chaining Active
+                </span>
               </div>
 
               {legs.map((leg, idx) => {
@@ -444,14 +484,14 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 const isToOpen = activeLegDrop?.index === idx && activeLegDrop?.field === 'to';
 
                 return (
-                  <div key={idx} className="bg-slate-50/80 border border-slate-200 hover:border-sky-300 rounded-2xl p-3 sm:p-4 transition-all relative">
+                  <div key={idx} className="bg-slate-50/90 border border-slate-200 hover:border-sky-300 rounded-2xl p-3 sm:p-4 transition-all relative shadow-xs">
                     <div className="flex items-center justify-between mb-2.5">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-lg bg-sky-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
                           {idx + 1}
                         </span>
-                        <span className="font-extrabold text-xs sm:text-sm text-slate-900">
-                          Flight {idx + 1}
+                        <span className="font-black text-xs sm:text-sm text-slate-900">
+                          Flight Leg {idx + 1}
                         </span>
                         <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
                           ({legFromAirport.isEmpty ? 'Origin' : legFromAirport.city} ➔ {legToAirport.isEmpty ? 'Destination' : legToAirport.city})
@@ -502,58 +542,47 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               initial={{ opacity: 0, y: -6, scale: 0.98 }}
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                              transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] md:w-[390px] max-w-[420px] max-h-72 flex flex-col p-2"
+                              className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] max-h-76 flex flex-col p-2"
                             >
-                              <div className="p-2 border-b border-slate-100">
-                                <input
-                                  type="text"
-                                  autoFocus
-                                  placeholder="Search city, airport or code..."
-                                  value={legSearch}
-                                  onChange={(e) => setLegSearch(e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-sky-500"
-                                />
-                              </div>
-                              <div className="overflow-y-auto max-h-52 p-1">
-                                {filterAndSortAirports(airports, legSearch)
-                                  .map(airport => (
-                                    <div
-                                      key={airport.code}
-                                      onClick={() => {
-                                        handleUpdateLeg(idx, 'from', airport.code);
-                                        setActiveLegDrop(null);
-                                        setLegSearch('');
-                                      }}
-                                      className={`flex items-center justify-between p-2 rounded-xl hover:bg-sky-50 cursor-pointer text-xs ${
-                                        leg.from === airport.code ? 'bg-sky-50 font-bold' : ''
-                                      }`}
-                                    >
-                                      <div className="min-w-0 pr-2">
-                                        <div className="font-bold text-slate-900 truncate">{airport.city} ({airport.code})</div>
-                                        <div className="text-[10px] text-slate-500 truncate max-w-[200px]">{airport.name}</div>
-                                      </div>
-                                      <span className="font-mono font-bold text-sky-600 px-1.5 py-0.5 bg-sky-100 rounded text-[10px]">
-                                        {airport.code}
-                                      </span>
+                              <input
+                                type="text"
+                                autoFocus
+                                placeholder="Search city or airport..."
+                                value={legSearch}
+                                onChange={(e) => setLegSearch(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-sky-500"
+                              />
+                              <div className="overflow-y-auto max-h-56 p-1 mt-1 space-y-1">
+                                {filterAndSortAirports(airports, legSearch).map(a => (
+                                  <div
+                                    key={a.code}
+                                    onClick={() => {
+                                      handleUpdateLeg(idx, 'from', a.code);
+                                      setActiveLegDrop(null);
+                                    }}
+                                    className="p-2 rounded-xl hover:bg-sky-50 cursor-pointer flex items-center justify-between text-xs"
+                                  >
+                                    <div>
+                                      <span className="font-bold text-slate-800">{a.city}</span>
+                                      <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{a.name}</p>
                                     </div>
-                                  ))}
+                                    <span className="font-mono font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded">{a.code}</span>
+                                  </div>
+                                ))}
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
 
-                      {/* Swap Button */}
-                      <div className="hidden md:flex justify-center -mx-3 z-10 md:col-span-1">
+                      {/* Swap button between multi-city leg */}
+                      <div className="hidden md:flex justify-center -mx-2 z-10">
                         <button
                           type="button"
                           onClick={() => handleSwapLegAirports(idx)}
-                          className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-sky-600 cursor-pointer hover:rotate-180 transition-transform"
-                          title="Swap Route"
+                          className="w-7 h-7 rounded-full bg-white border border-slate-200 shadow-xs flex items-center justify-center text-slate-600 hover:text-sky-600 cursor-pointer"
                         >
-                          <ArrowLeftRight className="w-3.5 h-3.5" />
+                          <ArrowLeftRight className="w-3 h-3" />
                         </button>
                       </div>
 
@@ -564,7 +593,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                             setActiveLegDrop(isToOpen ? null : { index: idx, field: 'to' });
                             setLegSearch('');
                           }}
-                          className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border bg-white hover:border-blue-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between ${
+                          className={`cursor-pointer p-2.5 sm:p-3 rounded-xl border bg-white hover:border-sky-500 transition-colors shadow-xs h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between ${
                             legToAirport.isEmpty ? 'border-dashed border-slate-300' : 'border-slate-200'
                           }`}
                         >
@@ -588,56 +617,46 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                               initial={{ opacity: 0, y: -6, scale: 0.98 }}
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                              transition={{ duration: 0.15 }}
-                              className="absolute top-full left-0 mt-1 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] md:w-[390px] max-w-[420px] max-h-72 flex flex-col p-2"
+                              className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[360px] max-h-76 flex flex-col p-2"
                             >
-                              <div className="p-2 border-b border-slate-100">
-                                <input
-                                  type="text"
-                                  autoFocus
-                                  placeholder="Search destination city or code..."
-                                  value={legSearch}
-                                  onChange={(e) => setLegSearch(e.target.value)}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500"
-                                />
-                              </div>
-                              <div className="overflow-y-auto max-h-52 p-1">
-                                {filterAndSortAirports(airports, legSearch)
-                                  .map(airport => (
-                                    <div
-                                      key={airport.code}
-                                      onClick={() => {
-                                        handleUpdateLeg(idx, 'to', airport.code);
-                                        setActiveLegDrop(null);
-                                        setLegSearch('');
-                                      }}
-                                      className={`flex items-center justify-between p-2 rounded-xl hover:bg-sky-50 cursor-pointer text-xs ${
-                                        leg.to === airport.code ? 'bg-sky-50 font-bold' : ''
-                                      }`}
-                                    >
-                                      <div className="min-w-0 pr-2">
-                                        <div className="font-bold text-slate-900 truncate">{airport.city} ({airport.code})</div>
-                                        <div className="text-[10px] text-slate-500 truncate max-w-[200px]">{airport.name}</div>
-                                      </div>
-                                      <span className="font-mono font-bold text-blue-600 px-1.5 py-0.5 bg-blue-100 rounded text-[10px]">
-                                        {airport.code}
-                                      </span>
+                              <input
+                                type="text"
+                                autoFocus
+                                placeholder="Search city or airport..."
+                                value={legSearch}
+                                onChange={(e) => setLegSearch(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-blue-500"
+                              />
+                              <div className="overflow-y-auto max-h-56 p-1 mt-1 space-y-1">
+                                {filterAndSortAirports(airports, legSearch).map(a => (
+                                  <div
+                                    key={a.code}
+                                    onClick={() => {
+                                      handleUpdateLeg(idx, 'to', a.code);
+                                      setActiveLegDrop(null);
+                                    }}
+                                    className="p-2 rounded-xl hover:bg-sky-50 cursor-pointer flex items-center justify-between text-xs"
+                                  >
+                                    <div>
+                                      <span className="font-bold text-slate-800">{a.city}</span>
+                                      <p className="text-[10px] text-slate-400 truncate max-w-[200px]">{a.name}</p>
                                     </div>
-                                  ))}
+                                    <span className="font-mono font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded">{a.code}</span>
+                                  </div>
+                                ))}
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
 
-                      {/* Departure Date */}
+                      {/* Leg Date */}
                       <div className="col-span-2 md:col-span-3">
                         <CustomDatePicker
-                          label="Departure Date"
+                          label={`Departure (Flight ${idx + 1})`}
                           value={leg.date}
+                          onChange={(d) => handleUpdateLeg(idx, 'date', d)}
                           minDate={idx === 0 ? getTodayDateString() : (legs[idx - 1]?.date || getTodayDateString())}
-                          onChange={(date) => handleUpdateLeg(idx, 'date', date)}
                           from={leg.from}
                           to={leg.to}
                         />
@@ -647,560 +666,448 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 );
               })}
 
-              {/* Multi-City Controls Row */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                {legs.length < 5 ? (
-                  <button
-                    type="button"
-                    onClick={handleAddLeg}
-                    className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4 stroke-[2.5]" />
-                    <span>+ Add Another Flight / City</span>
-                  </button>
-                ) : (
-                  <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                    Maximum 5 flight legs reached
-                  </span>
-                )}
-
-                {/* Travellers Selector inside Multi-City */}
-                <div className="relative" ref={paxRef}>
-                  <button
-                    type="button"
-                    onClick={() => setShowPaxModal(!showPaxModal)}
-                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-xs flex items-center gap-2 cursor-pointer transition-colors border border-slate-200 shadow-xs"
-                  >
-                    <Users className="w-4 h-4 text-sky-600" />
-                    <span>{totalPassengers} {totalPassengers > 1 ? 'Passengers' : 'Passenger'}</span>
-                    <span className="text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded capitalize font-bold">
-                      {travelClass === 'premiumEconomy' ? 'Prem. Eco' : travelClass}
-                    </span>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
-
-                  {/* Passengers Dropdown Modal for Multi City */}
-                  <AnimatePresence>
-                    {showPaxModal && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                        transition={{ duration: 0.18 }}
-                        className="absolute right-0 bottom-full mb-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 text-slate-800"
-                      >
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Travellers (Passengers)</h4>
-                        
-                        {/* Adults */}
-                        <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                          <div>
-                            <div className="font-bold text-sm">Adults</div>
-                            <div className="text-xs text-slate-500">12+ years</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >-</button>
-                            <span className="w-5 text-center font-bold">{passengers.adults}</span>
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, adults: Math.min(9, p.adults + 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >+</button>
-                          </div>
-                        </div>
-
-                        {/* Children */}
-                        <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                          <div>
-                            <div className="font-bold text-sm">Children</div>
-                            <div className="text-xs text-slate-500">2 - 12 years</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >-</button>
-                            <span className="w-5 text-center font-bold">{passengers.children}</span>
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, children: Math.min(6, p.children + 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >+</button>
-                          </div>
-                        </div>
-
-                        {/* Infants */}
-                        <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                          <div>
-                            <div className="font-bold text-sm">Infants</div>
-                            <div className="text-xs text-slate-500">Below 2 yrs</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, infants: Math.max(0, p.infants - 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >-</button>
-                            <span className="w-5 text-center font-bold">{passengers.infants}</span>
-                            <button
-                              type="button"
-                              onClick={() => setPassengers(p => ({ ...p, infants: Math.min(4, p.infants + 1) }))}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                            >+</button>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setShowPaxModal(false)}
-                          className="w-full mt-3 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                        >
-                          Done
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
+              {/* Add flight leg button */}
+              {legs.length < 5 && (
+                <button
+                  type="button"
+                  onClick={handleAddLeg}
+                  className="w-full py-2.5 border-2 border-dashed border-sky-300 hover:border-sky-500 rounded-2xl bg-sky-50/50 hover:bg-sky-50 text-sky-700 font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Add Another City / Flight Leg ({legs.length}/5)</span>
+                </button>
+              )}
             </div>
           ) : (
-            /* Input Grid (One Way / Round Trip) */
-            <div className="grid grid-cols-2 md:grid-cols-12 gap-2 sm:gap-3 relative items-center">
-            
-            {/* Origin Airport */}
-            <div className="col-span-2 md:col-span-3 relative" ref={fromRef}>
-              <div
-                onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
-                className={`cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors bg-slate-50/50 hover:bg-white ${
-                  fromAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-sky-500' : 'border-slate-200 hover:border-sky-500'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-                  <PlaneTakeoff className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600" />
-                  <span>From (Origin)</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="min-w-0 pr-2">
-                    <h3 className={`text-sm sm:text-lg font-extrabold leading-none truncate ${fromAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{fromAirport.city}</h3>
-                    <p className={`text-[10px] sm:text-xs truncate max-w-[150px] sm:max-w-[170px] mt-0.5 ${fromAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{fromAirport.name}</p>
+            /* Standard Grid: Origin, Destination, Departure Date, Return Date, Travellers */
+            <div className="grid grid-cols-2 md:grid-cols-12 gap-2 sm:gap-3 relative items-stretch">
+              
+              {/* Origin Airport Tile */}
+              <div className="col-span-2 md:col-span-3 relative" ref={fromRef}>
+                <div
+                  onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
+                  className={`cursor-pointer p-3 sm:p-4 rounded-2xl border transition-all bg-slate-50/60 hover:bg-white h-full min-h-[82px] sm:min-h-[92px] flex flex-col justify-between group ${
+                    fromAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-sky-500' : 'border-slate-200 hover:border-sky-500 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">
+                    <PlaneTakeoff className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform" />
+                    <span>FROM (ORIGIN)</span>
                   </div>
-                  <span className={`text-lg sm:text-2xl font-black font-mono shrink-0 ${fromAirport.isEmpty ? 'text-slate-300' : 'text-sky-600'}`}>{fromAirport.code}</span>
+
+                  <div className="flex items-baseline justify-between mt-1">
+                    <div className="min-w-0 pr-2">
+                      <h3 className={`text-base sm:text-xl font-black leading-tight truncate ${fromAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {fromAirport.city}
+                      </h3>
+                      <p className={`text-[10px] sm:text-xs truncate max-w-[140px] sm:max-w-[170px] mt-0.5 ${fromAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>
+                        {fromAirport.name}
+                      </p>
+                    </div>
+                    <span className={`text-xl sm:text-2xl font-black font-mono shrink-0 tracking-tight ${fromAirport.isEmpty ? 'text-slate-300' : 'text-sky-600'}`}>
+                      {fromAirport.code}
+                    </span>
+                  </div>
+                </div>
+
+                {/* From Airport Selection Dropdown */}
+                <AnimatePresence>
+                  {showFromDrop && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.16 }}
+                      className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2rem)] sm:w-[390px] md:w-[420px] max-h-84 flex flex-col p-2.5 overflow-hidden"
+                    >
+                      <div className="pb-2 border-b border-slate-100">
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Type city, airport or code (e.g. DEL, BOM, Goa)..."
+                          value={searchFrom}
+                          onChange={(e) => setSearchFrom(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-sky-500"
+                        />
+                      </div>
+
+                      <div className="overflow-y-auto max-h-64 p-1 space-y-1">
+                        {!searchFrom && (
+                          <div className="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Popular Origin Hubs
+                          </div>
+                        )}
+                        {filterAndSortAirports(airports, searchFrom).map((airport, idx) => {
+                          const isPop = POPULAR_HUBS.includes(airport.code);
+                          return (
+                            <div
+                              key={airport.code}
+                              onClick={() => handleSelectFrom(airport.code)}
+                              className={`flex items-center justify-between p-2.5 rounded-xl hover:bg-sky-50 cursor-pointer transition-colors ${
+                                fromCode === airport.code ? 'bg-sky-50 font-black' : ''
+                              }`}
+                            >
+                              <div className="min-w-0 pr-2">
+                                <div className="text-xs sm:text-sm font-black text-slate-900 truncate flex items-center gap-1.5">
+                                  <span>{airport.city}</span>
+                                  <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                                  {isPop && !searchFrom && idx < 6 && (
+                                    <span className="text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
+                                      Popular
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
+                                  {airport.name}{airport.state ? `, ${airport.state}` : ''}
+                                </div>
+                              </div>
+                              <span className="text-xs font-mono font-black text-sky-600 px-2.5 py-1 bg-sky-100 rounded-lg shrink-0">
+                                {airport.code}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Desktop Floating 3D Swap Button */}
+                <div className="hidden md:flex absolute -right-4.5 top-1/2 -translate-y-1/2 z-20">
+                  <motion.button
+                    type="button"
+                    onClick={handleSwapAirports}
+                    whileHover={{ scale: 1.15, rotate: 180 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 22 }}
+                    className="w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 hover:border-sky-400 transition-colors cursor-pointer"
+                    title="Swap Origin and Destination"
+                  >
+                    <ArrowLeftRight className="w-3.5 h-3.5" />
+                  </motion.button>
                 </div>
               </div>
 
-              {/* From Dropdown */}
-              <AnimatePresence>
-                {showFromDrop && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[380px] md:w-[420px] max-w-[440px] max-h-84 flex flex-col p-2"
-                  >
-                    <div className="p-2 border-b border-slate-100">
-                      <input
-                        type="text"
-                        autoFocus
-                        placeholder="Type city, airport or code (e.g. DEL, BOM, Goa)..."
-                        value={searchFrom}
-                        onChange={(e) => setSearchFrom(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-sky-500"
-                      />
-                    </div>
-                    <div className="overflow-y-auto max-h-64 p-1">
-                      {!searchFrom && (
-                        <div className="px-2.5 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-amber-500" /> Popular Origin Hubs
-                        </div>
-                      )}
-                      {filterAndSortAirports(airports, searchFrom).map((airport, idx) => {
-                        const isPop = POPULAR_HUBS.includes(airport.code);
-                        return (
-                          <div
-                            key={airport.code}
-                            onClick={() => handleSelectFrom(airport.code)}
-                            className={`flex items-center justify-between p-2.5 rounded-xl hover:bg-sky-50 cursor-pointer transition-colors ${
-                              fromCode === airport.code ? 'bg-sky-50 font-bold' : ''
-                            }`}
-                          >
-                            <div className="min-w-0 pr-2">
-                              <div className="text-sm font-bold text-slate-900 truncate flex items-center gap-1.5">
-                                <span>{airport.city}</span>
-                                <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
-                                {isPop && !searchFrom && idx < 6 && (
-                                  <span className="text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
-                                    Popular
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-xs text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
-                                {airport.name}{airport.state ? `, ${airport.state}` : ''}
-                              </div>
-                            </div>
-                            <span className="text-xs font-mono font-bold text-sky-600 px-2 py-0.5 bg-sky-100 rounded-md shrink-0">
-                              {airport.code}
-                            </span>
-                          </div>
-                        );
-                      })}
-                      {searchFrom.trim().length >= 2 && !airports.some(a => a.code.toLowerCase() === searchFrom.toLowerCase() || a.city.toLowerCase() === searchFrom.toLowerCase()) && (
-                        <div
-                          onClick={() => handleSelectFrom(searchFrom)}
-                          className="p-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 cursor-pointer text-sky-700 text-xs font-bold flex items-center justify-between mt-1 border border-sky-200"
-                        >
-                          <span>✈️ Fly from "{searchFrom.toUpperCase()}" (Custom Route)</span>
-                          <span className="font-mono bg-sky-600 text-white px-2 py-0.5 rounded text-[10px]">Select</span>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Desktop Floating Swap Button between Origin & Destination */}
-              <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-20">
+              {/* Mobile Centered Swap Button */}
+              <div className="flex md:hidden justify-center -my-2.5 z-10 col-span-2">
                 <motion.button
                   type="button"
                   onClick={handleSwapAirports}
-                  whileHover={{ scale: 1.15, rotate: 180 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={{ scale: 0.9, rotate: 180 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 hover:border-sky-400 transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-sky-600 transition-colors cursor-pointer"
                   title="Swap Origin and Destination"
                 >
-                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                  <ArrowLeftRight className="w-3.5 h-3.5 rotate-90" />
                 </motion.button>
               </div>
-            </div>
 
-            {/* Mobile Swap Button */}
-            <div className="flex md:hidden justify-center -my-2.5 z-10 col-span-2">
-              <motion.button
-                type="button"
-                onClick={handleSwapAirports}
-                whileTap={{ scale: 0.9, rotate: 180 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-sky-600 transition-colors cursor-pointer"
-                title="Swap Origin and Destination"
-              >
-                <ArrowLeftRight className="w-3 h-3 rotate-90" />
-              </motion.button>
-            </div>
-
-            {/* Destination Airport */}
-            <div className="col-span-2 md:col-span-3 relative" ref={toRef}>
-              <div
-                onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
-                className={`cursor-pointer p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-colors bg-slate-50/50 hover:bg-white ${
-                  toAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-blue-500' : 'border-slate-200 hover:border-blue-500'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-                  <PlaneLanding className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
-                  <span>To (Destination)</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <div className="min-w-0 pr-2">
-                    <h3 className={`text-sm sm:text-lg font-extrabold leading-none truncate ${toAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>{toAirport.city}</h3>
-                    <p className={`text-[10px] sm:text-xs truncate max-w-[150px] sm:max-w-[170px] mt-0.5 ${toAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>{toAirport.name}</p>
+              {/* Destination Airport Tile */}
+              <div className="col-span-2 md:col-span-3 relative" ref={toRef}>
+                <div
+                  onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
+                  className={`cursor-pointer p-3 sm:p-4 rounded-2xl border transition-all bg-slate-50/60 hover:bg-white h-full min-h-[82px] sm:min-h-[92px] flex flex-col justify-between group ${
+                    toAirport.isEmpty ? 'border-dashed border-slate-300 hover:border-blue-500' : 'border-slate-200 hover:border-blue-500 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">
+                    <PlaneLanding className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                    <span>TO (DESTINATION)</span>
                   </div>
-                  <span className={`text-lg sm:text-2xl font-black font-mono shrink-0 ${toAirport.isEmpty ? 'text-slate-300' : 'text-blue-600'}`}>{toAirport.code}</span>
+
+                  <div className="flex items-baseline justify-between mt-1">
+                    <div className="min-w-0 pr-2">
+                      <h3 className={`text-base sm:text-xl font-black leading-tight truncate ${toAirport.isEmpty ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {toAirport.city}
+                      </h3>
+                      <p className={`text-[10px] sm:text-xs truncate max-w-[140px] sm:max-w-[170px] mt-0.5 ${toAirport.isEmpty ? 'text-slate-400 italic' : 'text-slate-500'}`}>
+                        {toAirport.name}
+                      </p>
+                    </div>
+                    <span className={`text-xl sm:text-2xl font-black font-mono shrink-0 tracking-tight ${toAirport.isEmpty ? 'text-slate-300' : 'text-blue-600'}`}>
+                      {toAirport.code}
+                    </span>
+                  </div>
                 </div>
+
+                {/* To Airport Selection Dropdown */}
+                <AnimatePresence>
+                  {showToDrop && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.16 }}
+                      className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2rem)] sm:w-[390px] md:w-[420px] max-h-84 flex flex-col p-2.5 overflow-hidden"
+                    >
+                      <div className="pb-2 border-b border-slate-100">
+                        <input
+                          type="text"
+                          autoFocus
+                          placeholder="Type destination city, airport or code..."
+                          value={searchTo}
+                          onChange={(e) => setSearchTo(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div className="overflow-y-auto max-h-64 p-1 space-y-1">
+                        {!searchTo && (
+                          <div className="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Popular Destination Hubs
+                          </div>
+                        )}
+                        {filterAndSortAirports(airports, searchTo).map((airport, idx) => {
+                          const isPop = POPULAR_HUBS.includes(airport.code);
+                          return (
+                            <div
+                              key={airport.code}
+                              onClick={() => handleSelectTo(airport.code)}
+                              className={`flex items-center justify-between p-2.5 rounded-xl hover:bg-sky-50 cursor-pointer transition-colors ${
+                                toCode === airport.code ? 'bg-sky-50 font-black' : ''
+                              }`}
+                            >
+                              <div className="min-w-0 pr-2">
+                                <div className="text-xs sm:text-sm font-black text-slate-900 truncate flex items-center gap-1.5">
+                                  <span>{airport.city}</span>
+                                  <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
+                                  {isPop && !searchTo && idx < 6 && (
+                                    <span className="text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
+                                      Popular
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
+                                  {airport.name}{airport.state ? `, ${airport.state}` : ''}
+                                </div>
+                              </div>
+                              <span className="text-xs font-mono font-black text-blue-600 px-2.5 py-1 bg-blue-100 rounded-lg shrink-0">
+                                {airport.code}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              {/* To Dropdown */}
-              <AnimatePresence>
-                {showToDrop && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 w-[calc(100vw-2.5rem)] sm:w-[380px] md:w-[420px] max-w-[440px] max-h-84 flex flex-col p-2"
-                  >
-                    <div className="p-2 border-b border-slate-100">
-                      <input
-                        type="text"
-                        autoFocus
-                        placeholder="Type destination city, airport or code..."
-                        value={searchTo}
-                        onChange={(e) => setSearchTo(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-500"
-                      />
-                    </div>
-                    <div className="overflow-y-auto max-h-64 p-1">
-                      {!searchTo && (
-                        <div className="px-2.5 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-amber-500" /> Popular Destination Hubs
-                        </div>
-                      )}
-                      {filterAndSortAirports(airports, searchTo).map((airport, idx) => {
-                        const isPop = POPULAR_HUBS.includes(airport.code);
-                        return (
-                          <div
-                            key={airport.code}
-                            onClick={() => handleSelectTo(airport.code)}
-                            className={`flex items-center justify-between p-2.5 rounded-xl hover:bg-sky-50 cursor-pointer transition-colors ${
-                              toCode === airport.code ? 'bg-sky-50 font-bold' : ''
-                            }`}
-                          >
-                            <div className="min-w-0 pr-2">
-                              <div className="text-sm font-bold text-slate-900 truncate flex items-center gap-1.5">
-                                <span>{airport.city}</span>
-                                <span className="text-xs font-semibold text-slate-500 font-mono">({airport.code})</span>
-                                {isPop && !searchTo && idx < 6 && (
-                                  <span className="text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded-full">
-                                    Popular
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-xs text-slate-500 truncate max-w-[260px] sm:max-w-[320px]">
-                                {airport.name}{airport.state ? `, ${airport.state}` : ''}
-                              </div>
-                            </div>
-                            <span className="text-xs font-mono font-bold text-blue-600 px-2 py-0.5 bg-blue-100 rounded-md shrink-0">
-                              {airport.code}
-                            </span>
-                          </div>
-                        );
-                      })}
-                      {searchTo.trim().length >= 2 && !airports.some(a => a.code.toLowerCase() === searchTo.toLowerCase() || a.city.toLowerCase() === searchTo.toLowerCase()) && (
-                        <div
-                          onClick={() => handleSelectTo(searchTo)}
-                          className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 cursor-pointer text-blue-700 text-xs font-bold flex items-center justify-between mt-1 border border-blue-200"
-                        >
-                          <span>✈️ Fly to "{searchTo.toUpperCase()}" (Custom Route)</span>
-                          <span className="font-mono bg-blue-600 text-white px-2 py-0.5 rounded text-[10px]">Select</span>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Departure Date */}
-            <div className={tripType === 'roundTrip' ? 'col-span-1 md:col-span-2' : 'col-span-1 md:col-span-3'}>
-              <CustomDatePicker
-                label="Departure"
-                value={departureDate}
-                onChange={(date) => {
-                  setDepartureDate(date);
-                  if (returnDate && returnDate < date) {
-                    setReturnDate(date);
-                  }
-                }}
-                minDate={getTodayDateString()}
-                from={fromCode}
-                to={toCode}
-              />
-            </div>
-
-            {/* Return Date */}
-            {tripType === 'roundTrip' && (
-              <div className="col-span-1 md:col-span-2">
+              {/* Departure Date Tile */}
+              <div className={tripType === 'roundTrip' ? 'col-span-1 md:col-span-2' : 'col-span-1 md:col-span-3'}>
                 <CustomDatePicker
-                  label="Return"
-                  value={returnDate}
-                  onChange={(date) => setReturnDate(date)}
-                  minDate={departureDate || getTodayDateString()}
-                  subText="Return Savings"
-                  from={toCode}
-                  to={fromCode}
-                  align="right"
+                  label="Departure Date"
+                  value={departureDate}
+                  onChange={(date) => {
+                    setDepartureDate(date);
+                    if (returnDate && returnDate < date) {
+                      setReturnDate(date);
+                    }
+                  }}
+                  minDate={getTodayDateString()}
+                  from={fromCode}
+                  to={toCode}
                 />
               </div>
-            )}
 
-            {/* Travellers Modal Trigger */}
-            <div className={tripType === 'roundTrip' ? 'col-span-2 md:col-span-2' : 'col-span-1 md:col-span-3'} ref={paxRef}>
-              <div
-                onClick={() => setShowPaxModal(!showPaxModal)}
-                className="cursor-pointer p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-colors bg-slate-50/50 hover:bg-white h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between"
-              >
-                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-                  <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 shrink-0" />
-                  <span className="truncate">Travellers</span>
+              {/* Return Date Tile */}
+              {tripType === 'roundTrip' ? (
+                <div className="col-span-1 md:col-span-2">
+                  <CustomDatePicker
+                    label="Return Date"
+                    value={returnDate}
+                    onChange={(date) => setReturnDate(date)}
+                    minDate={departureDate || getTodayDateString()}
+                    subText="Return Savings"
+                    from={toCode}
+                    to={fromCode}
+                    align="right"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-slate-900 text-sm sm:text-xl truncate">
-                    {totalPassengers} {totalPassengers > 1 ? 'Passengers' : 'Passenger'}
+              ) : (
+                /* One-Way: Click to add Return Trip fast button */
+                <div 
+                  onClick={() => handleTripTypeChange('roundTrip')}
+                  className="hidden md:flex col-span-1 md:col-span-1 p-2 rounded-2xl border border-dashed border-slate-300 hover:border-sky-400 bg-slate-50/50 hover:bg-sky-50/50 cursor-pointer flex-col justify-center items-center text-center transition-all group"
+                  title="Click to add Return Journey and save up to 25%"
+                >
+                  <Plus className="w-4 h-4 text-sky-600 group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-bold text-slate-600 group-hover:text-sky-700 leading-tight mt-0.5">
+                    + Add Return
                   </span>
-                  <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+                  <span className="text-[8px] font-black text-emerald-600 uppercase tracking-wider">Save 25%</span>
                 </div>
-                <div className="text-[10px] sm:text-xs font-semibold text-sky-700 capitalize truncate mt-0.5">
-                  {travelClass === 'premiumEconomy' ? 'Premium Economy' : travelClass}
+              )}
+
+              {/* Travellers & Cabin Class Tile */}
+              <div className={tripType === 'roundTrip' ? 'col-span-2 md:col-span-2' : 'col-span-1 md:col-span-2'} ref={paxRef}>
+                <div
+                  onClick={() => setShowPaxModal(!showPaxModal)}
+                  className="cursor-pointer p-3 sm:p-4 rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/60 hover:bg-white h-full min-h-[82px] sm:min-h-[92px] flex flex-col justify-between hover:shadow-md group"
+                >
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">
+                    <Users className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform" />
+                    <span className="truncate">TRAVELLERS</span>
+                  </div>
+
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="font-black text-slate-900 text-base sm:text-xl truncate">
+                      {totalPassengers} {totalPassengers > 1 ? 'Guests' : 'Guest'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 ml-1 transition-transform ${showPaxModal ? 'rotate-180' : ''}`} />
+                  </div>
+
+                  <div className="text-[10px] sm:text-xs font-bold text-sky-700 capitalize truncate mt-0.5">
+                    {travelClass === 'premiumEconomy' ? 'Prem. Economy' : travelClass}
+                  </div>
                 </div>
+
+                {/* Travellers Popover Modal */}
+                <AnimatePresence>
+                  {showPaxModal && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                      transition={{ duration: 0.16 }}
+                      className="absolute right-0 mt-2 w-76 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 text-slate-800"
+                    >
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Select Travellers</span>
+                        <span className="text-xs font-bold text-sky-600">{totalPassengers} Total</span>
+                      </div>
+                      
+                      {/* Adults */}
+                      <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div>
+                          <div className="font-extrabold text-xs sm:text-sm text-slate-900">Adults</div>
+                          <div className="text-[10px] text-slate-500">Age 12+ years</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >-</button>
+                          <span className="w-5 text-center font-black text-xs sm:text-sm">{passengers.adults}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, adults: Math.min(9, p.adults + 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >+</button>
+                        </div>
+                      </div>
+
+                      {/* Children */}
+                      <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div>
+                          <div className="font-extrabold text-xs sm:text-sm text-slate-900">Children</div>
+                          <div className="text-[10px] text-slate-500">Age 2 - 12 years</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >-</button>
+                          <span className="w-5 text-center font-black text-xs sm:text-sm">{passengers.children}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, children: Math.min(6, p.children + 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >+</button>
+                        </div>
+                      </div>
+
+                      {/* Infants */}
+                      <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div>
+                          <div className="font-extrabold text-xs sm:text-sm text-slate-900">Infants</div>
+                          <div className="text-[10px] text-slate-500">Under 2 years (on lap)</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, infants: Math.max(0, p.infants - 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >-</button>
+                          <span className="w-5 text-center font-black text-xs sm:text-sm">{passengers.infants}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, infants: Math.min(4, p.infants + 1) }))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black hover:bg-slate-200 flex items-center justify-center cursor-pointer active:scale-95"
+                          >+</button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowPaxModal(false)}
+                        className="w-full mt-3 py-2.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black rounded-xl text-xs shadow-md transition-all cursor-pointer"
+                      >
+                        Apply Travellers
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              {/* Passengers Dropdown Modal */}
-              <AnimatePresence>
-                {showPaxModal && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 z-50 text-slate-800"
-                  >
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Travellers (Passengers)</h4>
-                    
-                    {/* Adults */}
-                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                      <div>
-                        <div className="font-bold text-sm">Adults</div>
-                        <div className="text-xs text-slate-500">12+ years</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >-</button>
-                        <span className="w-5 text-center font-bold">{passengers.adults}</span>
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, adults: Math.min(9, p.adults + 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >+</button>
-                      </div>
-                    </div>
-
-                    {/* Children */}
-                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                      <div>
-                        <div className="font-bold text-sm">Children</div>
-                        <div className="text-xs text-slate-500">2 - 12 years</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >-</button>
-                        <span className="w-5 text-center font-bold">{passengers.children}</span>
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, children: Math.min(6, p.children + 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >+</button>
-                      </div>
-                    </div>
-
-                    {/* Infants */}
-                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                      <div>
-                        <div className="font-bold text-sm">Infants</div>
-                        <div className="text-xs text-slate-500">Below 2 yrs</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, infants: Math.max(0, p.infants - 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >-</button>
-                        <span className="w-5 text-center font-bold">{passengers.infants}</span>
-                        <button
-                          type="button"
-                          onClick={() => setPassengers(p => ({ ...p, infants: Math.min(4, p.infants + 1) }))}
-                          className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 flex items-center justify-center cursor-pointer"
-                        >+</button>
-                      </div>
-                    </div>
-
-                    {/* Cabin Class Selection inside Travellers dropdown */}
-                    <div className="pt-2.5 pb-1 border-t border-slate-100">
-                      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cabin Class</div>
-                      <div className="grid grid-cols-3 gap-1">
-                        {[
-                          { id: 'economy', label: 'Economy' },
-                          { id: 'premiumEconomy', label: 'Prem. Eco' },
-                          { id: 'business', label: 'Business' }
-                        ].map((cls) => (
-                          <button
-                            key={cls.id}
-                            type="button"
-                            onClick={() => setTravelClass(cls.id)}
-                            className={`py-1.5 px-1 rounded-lg text-center text-[10px] font-bold border transition-all cursor-pointer ${
-                              travelClass === cls.id
-                                ? 'bg-sky-600 border-sky-600 text-white shadow-xs'
-                                : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                            }`}
-                          >
-                            {cls.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowPaxModal(false)}
-                      className="w-full mt-3 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                    >
-                      Apply
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
+          )}
 
-          </div>
-        )}
-
-          {/* Bottom Row: Special Fares & Search CTA */}
-          <div className="mt-2.5 sm:mt-5 pt-2 sm:pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
+          {/* Bottom Bar: Special Fares & High-Converting Search CTA */}
+          <div className="mt-3.5 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
             
-            {/* Special Fare Chips - Responsive scroll on mobile */}
-            <div className="flex items-center gap-1.5 text-xs overflow-x-auto max-w-full pb-0.5 sm:pb-0 scrollbar-none">
-              <span className="font-semibold text-slate-400 shrink-0 text-[10px] sm:text-xs">Special:</span>
+            {/* Special Fare Benefits Bar */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+              <span className="font-extrabold text-slate-400 shrink-0 text-[10px] sm:text-xs uppercase tracking-wider">
+                Special Fare:
+              </span>
               {[
-                { id: 'regular', label: 'Regular' },
-                { id: 'student', label: 'Student' },
-                { id: 'senior', label: 'Senior Citizen' },
-                { id: 'armed', label: 'Armed Forces' }
+                { id: 'regular', label: 'Regular', hint: 'Standard Fares' },
+                { id: 'student', label: 'Student', hint: 'Extra 10kg Baggage' },
+                { id: 'senior', label: 'Senior Citizen', hint: 'Flat ₹600 OFF' },
+                { id: 'armed', label: 'Armed Forces', hint: 'Govt. Concession' }
               ].map(f => (
                 <button
                   key={f.id}
                   type="button"
                   onClick={() => setSpecialFare(f.id)}
-                  className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full font-semibold border transition-all cursor-pointer shrink-0 whitespace-nowrap text-[10px] sm:text-xs ${
+                  className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer shrink-0 whitespace-nowrap text-left ${
                     specialFare === f.id
-                      ? 'bg-amber-50 text-amber-800 border-amber-300 font-bold shadow-xs'
+                      ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-xs ring-1 ring-amber-300'
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  {f.label}
+                  <div className="text-[11px] font-black leading-none">{f.label}</div>
+                  <div className="text-[9px] text-slate-500 mt-0.5">{f.hint}</div>
                 </button>
               ))}
             </div>
 
-            {/* Big Search CTA Button */}
+            {/* Glowing Search Flights Action Button */}
             <motion.button
               type="button"
               onClick={handleSearchSubmit}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto h-11 sm:h-auto px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-sky-600/30 hover:shadow-sky-600/50 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              className="w-full lg:w-auto px-8 sm:px-10 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-sm sm:text-base shadow-xl shadow-sky-600/35 hover:shadow-sky-600/50 transition-all flex items-center justify-center gap-2.5 cursor-pointer shrink-0 group relative overflow-hidden"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-              <span>{tripType === 'multiCity' ? `SEARCH ${legs.length} FLIGHTS` : 'SEARCH FLIGHTS'}</span>
+              <Plane className="w-5 h-5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+              <span>{tripType === 'multiCity' ? `SEARCH ${legs.length} MULTI-CITY FLIGHTS` : 'SEARCH FLIGHTS'}</span>
+              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
             </motion.button>
+
           </div>
 
         </div>
 
-        {/* Quick Destinations / Popular Routes */}
-        <div className="relative z-10 mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {/* Quick Route Shortcuts below the Cockpit */}
+        <div className="relative z-10 mt-3.5 sm:mt-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <span className="text-xs font-bold text-sky-200 shrink-0 flex items-center gap-1">
-            <Compass className="w-3.5 h-3.5" /> Popular:
+            <Compass className="w-3.5 h-3.5 text-amber-400" /> Popular Flights:
           </span>
           {quickRoutes.map(qr => (
             <button
@@ -1211,7 +1118,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 setToCode(qr.to);
                 onSearch({ from: qr.from, to: qr.to, date: departureDate, tripType: 'oneWay', travelClass, passengers, specialFare });
               }}
-              className="px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer backdrop-blur-md border bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer backdrop-blur-md border bg-white/10 hover:bg-white/20 text-white border-white/20 active:scale-95"
             >
               {qr.label}
             </button>

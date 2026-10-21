@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart, ArrowUpRight, HelpCircle, FileText } from 'lucide-react';
+import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart, ArrowUpRight, HelpCircle, FileText, Phone, Mail, MapPin, Lock } from 'lucide-react';
 
 export default function Footer({ onSelectRoute, brand: propBrand = null, settings: propSettings = {} }) {
   const [brand, setBrand] = useState(() => {
@@ -77,24 +77,24 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
     ? brand.footer.partnerAirlines.split(',').map(s => s.trim()).filter(Boolean)
     : ['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'];
 
-  const footerDesc = brand?.footer?.description || brand?.tagline || propSettings?.siteTagline || 'Premium Luxury Travel platform delivering fastest bookings, interactive seat pickers, and live fare radar.';
-  const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || propSettings?.siteName || 'AIR SKY Go'}. All rights reserved.`;
+  const footerDesc = brand?.footer?.description || brand?.tagline || propSettings?.siteTagline || 'Next-generation aviation portal delivering real-time airfares, verified GDS tickets, interactive seat maps, and 24x7 passenger support.';
+  const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || propSettings?.siteName || 'AIR SKY'}. All rights reserved.`;
   const addressText = brand?.address || propSettings?.address || 'Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075';
   const phoneText = brand?.phone || propSettings?.supportPhone || '+91 72248 28030';
   const emailText = brand?.email || propSettings?.supportEmail || 'care@airskyindia.com';
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-14 pb-10 border-t border-slate-800">
+    <footer className="bg-slate-950 text-slate-300 pt-12 sm:pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Value Propositions / Why AirSkyGo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12 border-b border-slate-800">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center flex-shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pb-10 border-b border-slate-800">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">
+              <h4 className="font-black text-white text-sm mb-1">
                 {brand?.footer?.card1Title || 'Real-Time Live Inventory'}
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -103,12 +103,12 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">
+              <h4 className="font-black text-white text-sm mb-1">
                 {brand?.footer?.card2Title || 'Instant PNR & Digital Tickets'}
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -117,12 +117,12 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
               <Headphones className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-extrabold text-white text-sm mb-1">
+              <h4 className="font-black text-white text-sm mb-1">
                 {brand?.footer?.card3Title || '24x7 Aviation Support'}
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -132,7 +132,7 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
           </div>
         </div>
 
-        {/* Links Grid (5 Columns) */}
+        {/* Links Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 py-10 border-b border-slate-800 text-xs">
           
           {/* Brand Info */}
@@ -148,12 +148,12 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
                 <>
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
-                    style={{ background: brand?.primary_color || '#ff6d01' }}
+                    style={{ background: brand?.primary_color || '#0284c7' }}
                   >
                     <Plane className="w-4 h-4 rotate-45" />
                   </div>
-                  <span className="text-xl font-extrabold text-white tracking-tight">
-                    {brand?.name || propSettings?.siteName || 'AIR SKY Go'}
+                  <span className="text-xl font-black text-white tracking-tight">
+                    {brand?.name || propSettings?.siteName || 'AIR SKY'}
                   </span>
                 </>
               )}
@@ -162,87 +162,69 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
               {footerDesc}
             </p>
             {addressText && (
-              <p className="text-[11px] text-slate-400 leading-relaxed mb-2 flex items-start gap-1">
-                <span className="shrink-0">📍</span>
+              <p className="text-[11px] text-slate-400 leading-relaxed mb-2 flex items-start gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5" />
                 <span>{addressText}</span>
               </p>
             )}
-            <div className="space-y-1 text-[11px] text-slate-400 mb-3">
+            <div className="space-y-1.5 text-[11px] text-slate-400 mb-3">
               {phoneText && (
-                <div className="flex items-center gap-1">
-                  <span>📞 Phone:</span>
+                <div className="flex items-center gap-1.5">
+                  <Phone className="w-3 h-3 text-amber-400 shrink-0" />
                   <a href={`tel:${phoneText.replace(/\s+/g, '')}`} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {phoneText}
                   </a>
                 </div>
               )}
               {emailText && (
-                <div className="flex items-center gap-1">
-                  <span>✉️ Email:</span>
+                <div className="flex items-center gap-1.5">
+                  <Mail className="w-3 h-3 text-sky-400 shrink-0" />
                   <a href={`mailto:${emailText}`} className="text-slate-300 font-bold hover:text-white transition-colors">
                     {emailText}
                   </a>
                 </div>
               )}
             </div>
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-slate-500 font-medium">
               {copyrightText}
             </div>
           </div>
 
-          {/* Company & Support Links (Terms & Conditions, About Us, Contact) */}
+          {/* Company & Support Links */}
           <div>
-            <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs flex items-center gap-1.5">
-              <span>Company & Support</span>
+            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">
+              Company & Support
             </h5>
-            <ul className="space-y-2">
+            <ul className="space-y-2 font-medium">
               <li>
-                <Link
-                  to="/about"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
-                  <span>About Us</span>
+                <Link to="/about" className="text-slate-400 hover:text-sky-400 transition-colors">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/contact"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
+                <Link to="/contact" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1">
                   <span>Contact Us & Help</span>
                   <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">24x7</span>
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
-                  <span>Terms & Conditions</span>
+                <Link to="/terms" className="text-slate-400 hover:text-sky-400 transition-colors">
+                  Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms#cancellation"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
-                  <span>Cancellation & Refund Policy</span>
+                <Link to="/terms#cancellation" className="text-slate-400 hover:text-sky-400 transition-colors">
+                  Cancellation & Refund Policy
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms#passport"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
-                  <span>Passport & Visa Rules</span>
+                <Link to="/terms#passport" className="text-slate-400 hover:text-sky-400 transition-colors">
+                  Passport & Visa Guidelines
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms#liability"
-                  className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1"
-                >
-                  <span>Privacy Policy & Grievance</span>
+                <Link to="/terms#liability" className="text-slate-400 hover:text-sky-400 transition-colors">
+                  Privacy Policy & Grievance
                 </Link>
               </li>
             </ul>
@@ -250,13 +232,13 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
 
           {/* Popular Routes */}
           <div>
-            <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">Top Flight Routes</h5>
-            <ul className="space-y-2">
+            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Top Flight Routes</h5>
+            <ul className="space-y-2 font-medium">
               {domesticRoutes.map(r => (
                 <li key={r.label}>
                   <button
                     onClick={() => onSelectRoute(r.from, r.to)}
-                    className="text-slate-400 hover:text-sky-400 transition-colors text-left"
+                    className="text-slate-400 hover:text-sky-400 transition-colors text-left cursor-pointer"
                   >
                     {r.label}
                   </button>
@@ -267,13 +249,13 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
 
           {/* More Routes */}
           <div>
-            <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">International & Metro</h5>
-            <ul className="space-y-2">
+            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Metro & International</h5>
+            <ul className="space-y-2 font-medium">
               {intlRoutes.map(r => (
                 <li key={r.label}>
                   <button
                     onClick={() => onSelectRoute(r.from, r.to)}
-                    className="text-slate-400 hover:text-sky-400 transition-colors text-left"
+                    className="text-slate-400 hover:text-sky-400 transition-colors text-left cursor-pointer"
                   >
                     {r.label}
                   </button>
@@ -284,13 +266,23 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
 
           {/* Partner Airlines */}
           <div>
-            <h5 className="font-bold text-white uppercase tracking-wider mb-3 text-xs">Airlines Partners</h5>
+            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Airline Partners</h5>
             <div className="flex flex-wrap gap-1.5">
               {partnerAirlinesList.map(a => (
-                <span key={a} className="px-2 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700/60 font-semibold text-[10px]">
+                <span key={a} className="px-2.5 py-1 bg-slate-900 rounded-xl text-slate-300 border border-slate-800 font-bold text-[10px]">
                   {a}
                 </span>
               ))}
+            </div>
+            
+            <div className="mt-4 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div className="flex items-center gap-1.5 text-[10px] font-black text-amber-400 uppercase tracking-wider mb-1">
+                <Lock className="w-3 h-3" />
+                <span>PCI-DSS Compliant</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-tight">
+                All credit/debit card & UPI transactions are processed through end-to-end 256-bit bank encrypted gateways.
+              </p>
             </div>
           </div>
 
