@@ -611,7 +611,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2 relative">
               
               {/* SECTION 1: ORIGIN (FROM) */}
-              <div className="sm:col-span-3 relative" ref={fromRef}>
+              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-3' : 'sm:col-span-3'} relative`} ref={fromRef}>
                 <div
                   onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
                   className="p-3 sm:px-5 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
@@ -695,7 +695,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               </div>
 
               {/* SECTION 2: DESTINATION (TO) */}
-              <div className="sm:col-span-3 relative" ref={toRef}>
+              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-3' : 'sm:col-span-3'} relative`} ref={toRef}>
                 <div
                   onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
                   className="p-3 sm:px-5 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
@@ -753,14 +753,21 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </AnimatePresence>
               </div>
 
-              {/* SECTION 3: DATES (DEPARTURE & RETURN) */}
-              <div className="sm:col-span-3">
+              {/* SECTION 3A: DEPARTURE DATE (JAANA) */}
+              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-2' : 'sm:col-span-3'}`}>
                 <CustomDatePicker
-                  label="Departure Date"
+                  label={tripType === 'roundTrip' ? "Departure" : "Departure Date"}
                   value={departureDate}
                   onChange={(d) => {
                     setDepartureDate(d);
-                    if (returnDate && returnDate < d) setReturnDate(d);
+                    if (returnDate && returnDate < d) {
+                      const parts = d.split('-').map(Number);
+                      const ret = new Date(parts[0], parts[1] - 1, parts[2] + 3);
+                      const y = ret.getFullYear();
+                      const m = String(ret.getMonth() + 1).padStart(2, '0');
+                      const day = String(ret.getDate()).padStart(2, '0');
+                      setReturnDate(`${y}-${m}-${day}`);
+                    }
                   }}
                   minDate={getTodayDateString()}
                   from={fromCode}
@@ -768,8 +775,24 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 />
               </div>
 
+              {/* SECTION 3B: RETURN DATE (AANA - AANE KI TICKET) */}
+              {tripType === 'roundTrip' && (
+                <div className="sm:col-span-6 lg:col-span-2">
+                  <CustomDatePicker
+                    label="Return Date"
+                    subText="Aane ki ticket"
+                    value={returnDate || getTodayDateString(3)}
+                    onChange={(d) => setReturnDate(d)}
+                    minDate={departureDate || getTodayDateString()}
+                    from={toCode}
+                    to={fromCode}
+                    align="right"
+                  />
+                </div>
+              )}
+
               {/* SECTION 4: TRAVELLERS & SEARCH ACTION */}
-              <div className="sm:col-span-3 flex items-center gap-2" ref={paxRef}>
+              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-12 lg:col-span-2' : 'sm:col-span-3'} flex items-center gap-2`} ref={paxRef}>
                 <div
                   onClick={() => setShowPaxModal(!showPaxModal)}
                   className="flex-1 p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer relative"

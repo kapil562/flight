@@ -43,19 +43,33 @@
       "mealsCost": 0,
       "taxes": 1210,
       "discount": 4021,
-      "total": 7468
+      "total": 9168,
+      "tierUpgrade": 0,
+      "fareTier": "saver",
+      "baggageCost": 1700,
+      "insurance": 199,
+      "flexiCost": 0,
+      "promoCode": "AIRSKY35"
     },
     "payment": {
       "method": "upiApps",
       "transactionId": "TXN_1792607639751",
-      "utrNumber": null,
+      "utrNumber": "",
       "status": "PENDING",
       "paidAt": null,
-      "paidToVpa": null
+      "paidToVpa": null,
+      "vpa": "paytm.s2zbyoe@pty",
+      "selectedApp": "PhonePe",
+      "bank": null,
+      "cardLast4": null
     },
     "checkInStatus": "Payment Pending",
     "status": "PENDING",
-    "createdAt": "2026-10-21T18:33:59.751Z"
+    "createdAt": "2026-10-21T18:33:59.751Z",
+    "airlineCode": "6E",
+    "gst": null,
+    "fareTier": "saver",
+    "updatedAt": "2026-10-21T18:59:43.266Z"
   },
   {
     "pnr": "F3L4QP",
