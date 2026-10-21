@@ -6,7 +6,8 @@
     "discount": 35,
     "minAmount": 0,
     "description": "Flat 35% off on any domestic or international flight",
-    "status": "Active"
+    "status": "Active",
+    "showOnSearch": true
   },
   {
     "id": "CPN-2",

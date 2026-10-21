@@ -68,6 +68,7 @@ export default function FlightCard({
   travelClass = 'economy', 
   onBookFlight, 
   brand = null,
+  searchCoupon = null,
   isSelectable = false,
   isSelected = false,
   compact = false,
@@ -83,11 +84,29 @@ export default function FlightCard({
   const originalPrice = Math.round(currentPrice * 1.18);
   const totalSavings = originalPrice - currentPrice;
   const cleanSelectedLabel = String(selectedLabel || 'Selected').replace(/^[✓✔\s]+|[✓✔\s]+$/g, '').trim();
-  const featuredCoupon = flight.featuredCoupon || flight.couponCode || 'AIRSKY500';
-  const isPercentCoupon = flight.couponType === 'percent' || featuredCoupon === 'FLYHIGH';
+
+  // Dynamic Search Coupon from Admin
+  const activeCoupon = searchCoupon || {
+    code: 'AIRSKY500',
+    type: 'percent',
+    discount: 35,
+    description: 'Flat 35% off on any domestic or international flight'
+  };
+
+  const featuredCoupon = activeCoupon.code || 'AIRSKY500';
+  const isPercentCoupon = activeCoupon.type === 'percent';
+  const couponDiscountValue = activeCoupon.discount || (isPercentCoupon ? 35 : 500);
+
+  // Exact discount calculation on this flight's currentPrice
+  const couponDiscountAmount = isPercentCoupon
+    ? Math.round((currentPrice * couponDiscountValue) / 100)
+    : Math.min(couponDiscountValue, currentPrice);
+
+  const discountedFlightPrice = Math.max(0, currentPrice - couponDiscountAmount);
+
   const couponDiscountText = isPercentCoupon 
-    ? `${flight.couponDiscount || 10}% Off` 
-    : `Flat ₹${flight.couponDiscount || 500} Off`;
+    ? `${couponDiscountValue}% Off` 
+    : `Flat ₹${couponDiscountValue} Off`;
 
   // Contact details from brand
   const activeBrand = brand || window.__BRAND__ || {};
@@ -420,8 +439,16 @@ export default function FlightCard({
                         Save ₹{totalSavings.toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                      ₹{currentPrice.toLocaleString('en-IN')}
+                    <div className="flex items-baseline justify-end gap-2">
+                      <span className="text-xs text-slate-400 font-bold line-through">
+                        ₹{currentPrice.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight font-mono">
+                        ₹{discountedFlightPrice.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-emerald-600 font-bold">
+                      Includes {couponDiscountText} discount ({featuredCoupon})
                     </div>
                     <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
                   </div>
@@ -442,7 +469,7 @@ export default function FlightCard({
                     title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText}</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText} (Save ₹{couponDiscountAmount.toLocaleString('en-IN')})</span>
                   </div>
                 </div>
 
@@ -556,16 +583,16 @@ export default function FlightCard({
                 {/* Row 3: Price & Book Now Row */}
                 <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100">
                   <div>
-                    <div className="flex items-center gap-1.5 leading-none">
+                    <div className="flex items-baseline gap-1.5 leading-none">
                       <span className="text-[11px] line-through text-slate-400 font-semibold">
-                        ₹{originalPrice.toLocaleString('en-IN')}
+                        ₹{currentPrice.toLocaleString('en-IN')}
                       </span>
-                      <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold">
-                        Save ₹{totalSavings.toLocaleString('en-IN')}
+                      <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
+                        ₹{discountedFlightPrice.toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                      ₹{currentPrice.toLocaleString('en-IN')}
+                    <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                      Save ₹{couponDiscountAmount.toLocaleString('en-IN')} with {featuredCoupon}
                     </div>
                     <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
                   </div>
@@ -591,7 +618,7 @@ export default function FlightCard({
                     title={`Click to book with ${featuredCoupon} applied`}
                   >
                     <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText}</span>
+                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText} (Save ₹{couponDiscountAmount.toLocaleString('en-IN')})</span>
                   </div>
                 </div>
               </div>

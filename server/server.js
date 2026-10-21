@@ -2702,21 +2702,25 @@ app.delete('/api/admin/flights/:id', (req, res) => {
 
 // A6. Admin Coupons CRUD
 app.post('/api/admin/coupons', async (req, res) => {
-  const { code, type = 'flat', discount, minAmount = 0, description, status = 'Active', maxDiscount } = req.body;
+  const { code, type = 'flat', discount, minAmount = 0, description, status = 'Active', maxDiscount, showOnSearch = false } = req.body;
   if (!code || !discount) {
     return res.status(400).json({ success: false, message: 'Coupon code and discount are required' });
   }
 
   const coupons = await getCloudCoupons();
+  if (showOnSearch) {
+    coupons.forEach(c => { c.showOnSearch = false; });
+  }
   const newCoupon = {
     id: `CPN-${Date.now().toString().slice(-4)}`,
     code: code.trim().toUpperCase(),
     type,
     discount: parseInt(discount),
     maxDiscount: maxDiscount ? parseInt(maxDiscount) : undefined,
-    minAmount: parseInt(minAmount) || 0,
+    minAmount: type === 'percent' ? 0 : (parseInt(minAmount) || 0),
     description: description || `${type === 'percent' ? discount + '%' : '₹' + discount} off`,
-    status: status || 'Active'
+    status: status || 'Active',
+    showOnSearch: Boolean(showOnSearch)
   };
 
   coupons.unshift(newCoupon);
@@ -2734,6 +2738,10 @@ app.put('/api/admin/coupons/:id', async (req, res) => {
     return res.status(404).json({ success: false, message: 'Coupon not found' });
   }
 
+  if (req.body.showOnSearch) {
+    coupons.forEach(c => { c.showOnSearch = false; });
+  }
+
   coupons[index] = {
     ...coupons[index],
     ...req.body,
@@ -2741,9 +2749,10 @@ app.put('/api/admin/coupons/:id', async (req, res) => {
     type: req.body.type || coupons[index].type,
     discount: req.body.discount !== undefined ? parseInt(req.body.discount) : coupons[index].discount,
     maxDiscount: req.body.maxDiscount !== undefined ? parseInt(req.body.maxDiscount) : coupons[index].maxDiscount,
-    minAmount: req.body.minAmount !== undefined ? parseInt(req.body.minAmount) : coupons[index].minAmount,
+    minAmount: (req.body.type || coupons[index].type) === 'percent' ? 0 : (req.body.minAmount !== undefined ? parseInt(req.body.minAmount) : coupons[index].minAmount),
     description: req.body.description !== undefined ? req.body.description : coupons[index].description,
-    status: req.body.status || coupons[index].status || 'Active'
+    status: req.body.status || coupons[index].status || 'Active',
+    showOnSearch: req.body.showOnSearch !== undefined ? Boolean(req.body.showOnSearch) : (coupons[index].showOnSearch || false)
   };
   await saveCloudCoupons(coupons);
 

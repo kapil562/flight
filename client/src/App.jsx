@@ -82,6 +82,7 @@ function MainWebsite() {
   const [ticketModalBooking, setTicketModalBooking] = useState(null);
   const [myBookingsOpen, setMyBookingsOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [coupons, setCoupons] = useState([]);
   const [brand, setBrand] = useState(() => {
     try {
       const saved = localStorage.getItem('asg_brand');
@@ -94,11 +95,16 @@ function MainWebsite() {
   // Load site settings, airports & brand identity initially
   const loadInitialData = async () => {
     try {
-      const [settingsRes, airportsRes, brandRes] = await Promise.all([
+      const [settingsRes, airportsRes, brandRes, couponsRes] = await Promise.all([
         api.getSettings(),
         api.getAirports(),
-        api.getBrand().catch(() => ({ success: false }))
+        api.getBrand().catch(() => ({ success: false })),
+        api.getCoupons().catch(() => ({ success: false }))
       ]);
+
+      if (couponsRes && couponsRes.success && Array.isArray(couponsRes.data)) {
+        setCoupons(couponsRes.data);
+      }
 
       if (settingsRes.success && settingsRes.data) {
         setSettings(settingsRes.data);
@@ -448,6 +454,13 @@ function MainWebsite() {
                   onDateChange={handleDateChange}
                   onBookFlight={handleInitiateBooking}
                   brand={brand}
+                  searchCoupon={
+                    coupons.find(c => c.showOnSearch && c.status !== 'Inactive')
+                    || coupons.find(c => c.code === 'AIRSKY500' && c.status !== 'Inactive')
+                    || coupons.find(c => c.status !== 'Inactive')
+                    || null
+                  }
+                  allCoupons={coupons}
                 />
               </div>
             )}

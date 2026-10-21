@@ -1282,11 +1282,22 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                     <div className="text-[11px] text-slate-400 font-mono">
                       Min amount: ₹{c.minAmount || 0}
                     </div>
-                    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${
-                      c.status === 'Inactive' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
-                    }`}>
-                      {c.status || 'Active'}
-                    </span>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded ${
+                        c.status === 'Inactive' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {c.status || 'Active'}
+                      </span>
+                      {c.showOnSearch ? (
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800 border border-sky-300">
+                          ✈️ Flight Search Display
+                        </span>
+                      ) : (
+                        <span className="inline-block text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                          Reviews Only
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2618,6 +2629,51 @@ export default function AdminPanel({ airports = [], onClose, onFlightsUpdated, o
                     </div>
                   </div>
                 )}
+
+                <div>
+                  <label className="block font-bold text-slate-500 mb-1">Coupon Placement (Kahan Dikhana Hai?)</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editingCoupon) setEditingCoupon({ ...editingCoupon, showOnSearch: true });
+                        else setNewCoupon({ ...newCoupon, showOnSearch: true });
+                      }}
+                      className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        (editingCoupon ? editingCoupon.showOnSearch : newCoupon.showOnSearch)
+                          ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-500/20 text-sky-900 font-bold'
+                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="text-xs flex items-center gap-1 font-extrabold text-sky-700">
+                        <span>✈️ Flight Search Card</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-tight">
+                        Search flight cards par discount dikhega & auto-apply hoga
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editingCoupon) setEditingCoupon({ ...editingCoupon, showOnSearch: false });
+                        else setNewCoupon({ ...newCoupon, showOnSearch: false });
+                      }}
+                      className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                        !(editingCoupon ? editingCoupon.showOnSearch : newCoupon.showOnSearch)
+                          ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-500/20 text-sky-900 font-bold'
+                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="text-xs flex items-center gap-1 font-extrabold text-slate-800">
+                        <span>📋 Reviews Page Only</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-tight">
+                        Checkout / review page par available offers me dikhega
+                      </div>
+                    </button>
+                  </div>
+                </div>
 
                 <div>
                   <label className="block font-bold text-slate-500 mb-1">Description / Offer Title</label>

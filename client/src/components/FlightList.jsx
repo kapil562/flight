@@ -14,7 +14,9 @@ export default function FlightList({
   airports = [], 
   onDateChange, 
   onBookFlight, 
-  brand = null 
+  brand = null,
+  searchCoupon = null,
+  allCoupons = []
 }) {
   const [selectedStops, setSelectedStops] = useState('all'); // 'all', '0', '1'
   const [selectedAirlines, setSelectedAirlines] = useState([]);
@@ -960,6 +962,7 @@ export default function FlightList({
                           flight={flight}
                           travelClass={searchParams.travelClass}
                           brand={brand}
+                          searchCoupon={searchCoupon}
                           isSelectable={true}
                           isSelected={selectedOnwardFlight?.id === flight.id}
                           selectLabel="Select Departure"
@@ -1005,6 +1008,7 @@ export default function FlightList({
                           flight={flight}
                           travelClass={searchParams.travelClass}
                           brand={brand}
+                          searchCoupon={searchCoupon}
                           isSelectable={true}
                           isSelected={selectedReturnFlight?.id === flight.id}
                           selectLabel="Select Return"
@@ -1210,6 +1214,7 @@ export default function FlightList({
                           flight={flight}
                           travelClass={searchParams.travelClass}
                           brand={brand}
+                          searchCoupon={searchCoupon}
                           isSelectable={isMultiCity}
                           isSelected={isSelectedForThisLeg}
                           selectLabel={`Select for Leg ${activeLegIndex + 1}`}
