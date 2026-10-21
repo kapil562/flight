@@ -46,12 +46,39 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
     if (isGeneratingPDF) return;
     setIsGeneratingPDF(true);
     setPdfProgress('Preparing document...');
+    let host = null;
     try {
-      const pageElements = document.querySelectorAll('.indigo-pdf-page');
+      const container = indigoPdfRef.current || document.getElementById('indigo-pdf-render-container');
+      const pageElements = container
+        ? container.querySelectorAll('.indigo-pdf-page')
+        : document.querySelectorAll('.indigo-pdf-page');
+
       if (!pageElements || pageElements.length === 0) {
         window.print();
         return;
       }
+
+      // Create a dedicated clean host directly on document.body at (0, 0)
+      // Placed behind the modal (z-index: 40) so it is part of browser's live layout tree
+      // with positive coordinates (no negative offset bugs in html2canvas)
+      host = document.createElement('div');
+      host.id = 'pdf-capture-staging-host';
+      host.style.position = 'fixed';
+      host.style.top = '0px';
+      host.style.left = '0px';
+      host.style.width = '794px';
+      host.style.height = '1123px';
+      host.style.zIndex = '40';
+      host.style.backgroundColor = '#ffffff';
+      host.style.overflow = 'hidden';
+      host.style.margin = '0';
+      host.style.padding = '0';
+      host.style.pointerEvents = 'none';
+      host.style.visibility = 'visible';
+      host.style.display = 'block';
+      host.style.boxSizing = 'border-box';
+      host.style.fontFamily = "'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+      document.body.appendChild(host);
 
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -62,10 +89,28 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
 
       for (let i = 0; i < pageElements.length; i++) {
         setPdfProgress(`Rendering Page ${i + 1} of ${pageElements.length}...`);
-        if (i > 0) pdf.addPage('a4', 'portrait');
-        const el = pageElements[i];
 
-        const canvas = await html2canvas(el, {
+        // Mount cloned page inside staging host
+        host.innerHTML = '';
+        const pageClone = pageElements[i].cloneNode(true);
+        pageClone.style.display = 'block';
+        pageClone.style.visibility = 'visible';
+        pageClone.style.position = 'static';
+        pageClone.style.width = '794px';
+        pageClone.style.height = '1123px';
+        pageClone.style.minHeight = '1123px';
+        pageClone.style.maxHeight = '1123px';
+        pageClone.style.margin = '0';
+        pageClone.style.padding = '34px 44px';
+        pageClone.style.boxSizing = 'border-box';
+        pageClone.style.backgroundColor = '#ffffff';
+        pageClone.style.overflow = 'hidden';
+        host.appendChild(pageClone);
+
+        // Allow micro-task / frame paint
+        await new Promise((resolve) => setTimeout(resolve, 80));
+
+        const canvas = await html2canvas(host, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
@@ -73,34 +118,16 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
           logging: false,
           scrollX: 0,
           scrollY: 0,
+          x: 0,
+          y: 0,
+          width: 794,
+          height: 1123,
           windowWidth: 794,
           windowHeight: 1123,
-          onclone: (clonedDoc) => {
-            const container = clonedDoc.getElementById('indigo-pdf-render-container');
-            if (container) {
-              container.style.position = 'static';
-              container.style.left = '0';
-              container.style.top = '0';
-              container.style.margin = '0';
-              container.style.padding = '0';
-              container.style.display = 'block';
-              container.style.visibility = 'visible';
-            }
-            const pages = clonedDoc.querySelectorAll('.indigo-pdf-page');
-            pages.forEach((p, pIdx) => {
-              if (pIdx === i) {
-                p.style.display = 'block';
-                p.style.position = 'static';
-                p.style.visibility = 'visible';
-                p.style.margin = '0';
-              } else {
-                p.style.display = 'none';
-              }
-            });
-          }
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgData = canvas.toDataURL('image/jpeg', 0.96);
+        if (i > 0) pdf.addPage('a4', 'portrait');
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       }
 
@@ -111,6 +138,9 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       console.error('Error generating official IndiGo PDF:', err);
       window.print();
     } finally {
+      if (host && host.parentNode) {
+        host.parentNode.removeChild(host);
+      }
       setIsGeneratingPDF(false);
       setPdfProgress('');
     }
@@ -159,7 +189,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       id="ticket-modal-portal"
       className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-2.5 sm:p-4 py-4 sm:py-8"
     >
-      {/* Print stylesheet to enforce strictly 1-page printout of IndiGo official ticket */}
+      {/* Print stylesheet to enforce authentic 6-page printout of IndiGo official ticket */}
       <style>{`
         @media print {
           #root,
@@ -175,8 +205,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             padding: 0 !important;
             height: auto !important;
             min-height: 0 !important;
-            max-height: 100% !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -190,7 +219,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             min-height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            background: transparent !important;
+            background: #ffffff !important;
             overflow: visible !important;
           }
 
@@ -202,25 +231,45 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             overflow: hidden !important;
           }
 
-          #indigo-official-pdf-ticket {
+          #indigo-pdf-render-container {
             display: block !important;
             position: static !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            max-width: 760px !important;
+            width: 794px !important;
+            max-width: 794px !important;
             margin: 0 auto !important;
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
             visibility: visible !important;
+            pointer-events: auto !important;
+          }
+
+          .indigo-pdf-page {
+            display: block !important;
+            visibility: visible !important;
+            position: relative !important;
+            width: 794px !important;
+            min-height: 1123px !important;
+            max-height: 1123px !important;
+            height: 1123px !important;
+            margin: 0 auto !important;
+            padding: 34px 44px !important;
+            box-sizing: border-box !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            background: #ffffff !important;
+          }
+
+          .indigo-pdf-page:last-child {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
           }
 
           @page {
             size: A4 portrait;
-            margin: 8mm;
+            margin: 0mm;
           }
         }
       `}</style>
@@ -230,11 +279,14 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       {/* ======================================================== */}
       <div
         id="indigo-pdf-render-container"
+        ref={indigoPdfRef}
         style={{
-          position: 'absolute',
-          left: '-9999px',
+          position: 'fixed',
+          left: '-99999px',
           top: 0,
           width: '794px',
+          pointerEvents: 'none',
+          visibility: 'hidden',
           background: '#ffffff',
           color: '#111827',
           fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
