@@ -151,20 +151,31 @@ function MainWebsite() {
 
   // Synchronize dynamic brand styling & CSS root variables across whole application
   useEffect(() => {
-    if (brand) {
-      applyGlobalTheme(brand);
-      if (brand.name) {
-        document.title = `${brand.name} - ${brand.tagline || 'Premium Luxury Travel'}`;
-      }
-      window.__BRAND__ = brand;
-    }
-  }, [brand]);
+    const namedThemes = {
+      sky: { primary_color: '#0284c7', hover_color: '#0369a1', light_color: '#f0f9ff', dark_color: '#0f172a' },
+      emerald: { primary_color: '#059669', hover_color: '#047857', light_color: '#ecfdf5', dark_color: '#042f2e' },
+      sunset: { primary_color: '#ea580c', hover_color: '#c2410c', light_color: '#fff7ed', dark_color: '#431407' },
+      purple: { primary_color: '#7c3aed', hover_color: '#6d28d9', light_color: '#f5f3ff', dark_color: '#2e1065' },
+      gold: { primary_color: '#d97706', hover_color: '#b45309', light_color: '#fffbeb', dark_color: '#451a03' }
+    };
 
-  // Synchronize dynamic theme fallback
-  useEffect(() => {
     const activeTheme = settings?.theme || localStorage.getItem('asg_theme') || 'sky';
     document.documentElement.setAttribute('data-theme', activeTheme);
-  }, [settings?.theme]);
+
+    const themePreset = namedThemes[activeTheme];
+    const themeToApply = {
+      ...(themePreset || {}),
+      ...(brand || {})
+    };
+
+    if (brand?.name) {
+      document.title = `${brand.name} - ${brand.tagline || 'Premium Luxury Travel'}`;
+    }
+    applyGlobalTheme(themeToApply);
+    if (brand) {
+      window.__BRAND__ = brand;
+    }
+  }, [brand, settings?.theme]);
 
   // Fetch flights when searchParams change (handles One Way, Round Trip & Multi-City)
   const executeFlightSearch = async (params) => {

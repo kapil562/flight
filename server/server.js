@@ -2789,6 +2789,24 @@ app.get('/api/admin/stats', async (req, res) => {
 app.put('/api/admin/settings', async (req, res) => {
   const currentSettings = await getLiveSettings();
   const updatedSettings = { ...currentSettings, ...req.body };
+
+  const themeColorsMap = {
+    sky: { primary_color: '#0284c7', hover_color: '#0369a1', light_color: '#f0f9ff', dark_color: '#0f172a' },
+    emerald: { primary_color: '#059669', hover_color: '#047857', light_color: '#ecfdf5', dark_color: '#042f2e' },
+    sunset: { primary_color: '#ea580c', hover_color: '#c2410c', light_color: '#fff7ed', dark_color: '#431407' },
+    purple: { primary_color: '#7c3aed', hover_color: '#6d28d9', light_color: '#f5f3ff', dark_color: '#2e1065' },
+    gold: { primary_color: '#d97706', hover_color: '#b45309', light_color: '#fffbeb', dark_color: '#451a03' }
+  };
+
+  if (req.body.theme && themeColorsMap[req.body.theme]) {
+    try {
+      const curBrand = await getLiveBrand();
+      const updatedBrand = { ...curBrand, ...themeColorsMap[req.body.theme] };
+      await saveLiveBrand(updatedBrand);
+      updatedSettings.brand = updatedBrand;
+    } catch (e) {}
+  }
+
   await saveLiveSettings(updatedSettings);
 
   res.json({

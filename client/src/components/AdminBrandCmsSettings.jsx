@@ -330,6 +330,10 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
         tagline_color: preset.tagline
       };
       applyGlobalTheme(updated);
+      try {
+        localStorage.setItem('asg_brand', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('asg_brand_updated', { detail: updated }));
+      } catch (e) {}
       return updated;
     });
   };

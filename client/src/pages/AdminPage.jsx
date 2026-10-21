@@ -336,21 +336,31 @@ export default function AdminPage() {
     const themeObj = COLOR_THEMES.find(t => t.id === themeId);
 
     if (themeObj && themeObj.colors) {
-      applyGlobalTheme({
+      const brandPayload = {
         primary_color: themeObj.colors[0],
         hover_color: themeObj.colors[1],
         light_color: themeObj.colors[2],
         dark_color: themeObj.colors[3]
-      });
-    }
+      };
+      applyGlobalTheme(brandPayload);
+      try {
+        const existingBrand = JSON.parse(localStorage.getItem('asg_brand') || '{}');
+        localStorage.setItem('asg_brand', JSON.stringify({ ...existingBrand, ...brandPayload }));
+        localStorage.setItem('asg_settings', JSON.stringify(updatedForm));
+        window.dispatchEvent(new CustomEvent('asg_brand_updated', { detail: { ...existingBrand, ...brandPayload } }));
+      } catch (e) {}
 
-    // 3. Persist to server backend immediately
-    try {
-      await api.updateSettings(updatedForm);
-      triggerAlert(`Website color theme switched to "${themeObj?.name || themeId}" live! 1-Click update applied.`);
-    } catch (err) {
-      console.error('Error auto-saving theme', err);
-      triggerAlert(`Theme applied locally to "${themeObj?.name || themeId}"`);
+      // 3. Persist to server backend immediately (both settings and brand)
+      try {
+        await Promise.all([
+          api.updateSettings(updatedForm),
+          api.updateBrand(brandPayload)
+        ]);
+        triggerAlert(`Website color theme switched to "${themeObj?.name || themeId}" live! 1-Click update applied.`);
+      } catch (err) {
+        console.error('Error auto-saving theme', err);
+        triggerAlert(`Theme applied locally to "${themeObj?.name || themeId}"`);
+      }
     }
   };
 
