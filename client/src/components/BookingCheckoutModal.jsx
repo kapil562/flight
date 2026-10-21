@@ -3009,19 +3009,21 @@ export default function BookingCheckoutModal({
 
                   {/* Header */}
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                        <Lock className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
                       <span className="font-extrabold text-slate-900 text-xs sm:text-sm">Select Payment Method</span>
                     </div>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                      256-Bit SSL Encrypted
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>256-Bit SSL</span>
                     </span>
                   </div>
 
                   {/* Payment Method Selector Tabs - Dynamically loaded from Admin settings */}
                   {paymentTabs.length > 0 ? (
-                    <div className={`grid gap-1.5 ${
+                    <div className={`grid gap-2 ${
                       paymentTabs.length === 1 ? 'grid-cols-1' :
                       paymentTabs.length === 2 ? 'grid-cols-2' :
                       paymentTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
@@ -3034,19 +3036,19 @@ export default function BookingCheckoutModal({
                             key={tab.id}
                             type="button"
                             onClick={() => handleSelectPaymentMethod(tab.id)}
-                            className={`p-2 rounded-xl border text-center transition-all cursor-pointer relative ${
+                            className={`py-3 px-3 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col items-center justify-center gap-1.5 ${
                               isSelected
-                                ? 'bg-sky-50 border-sky-500 text-sky-900 shadow-xs font-bold'
-                                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                                ? 'bg-sky-50/90 border-sky-500 text-sky-950 shadow-xs ring-1 ring-sky-400/30 font-bold'
+                                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50/60'
                             }`}
                           >
                             {tab.badge && (
-                              <span className="absolute -top-1.5 right-1 bg-emerald-600 text-white text-[7px] font-black px-1 rounded-full uppercase tracking-wider shadow-xs">
+                              <span className="absolute -top-2 right-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs border border-white">
                                 {tab.badge}
                               </span>
                             )}
-                            <Icon className="w-3.5 h-3.5 mx-auto mb-0.5 text-sky-600" />
-                            <div className="text-[11px] font-extrabold truncate">{tab.label}</div>
+                            <Icon className={`w-5 h-5 mx-auto ${isSelected ? 'text-sky-600' : 'text-slate-500'}`} />
+                            <div className="text-xs font-black tracking-tight truncate">{tab.label}</div>
                           </button>
                         );
                       })}
@@ -3068,10 +3070,10 @@ export default function BookingCheckoutModal({
                     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
 
                     return (
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      <div className="p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200">
                         <div className="flex flex-row items-center justify-center gap-3.5 text-left">
                           {/* QR Box */}
-                          <div className="p-1.5 bg-white rounded-xl shadow-xs border border-slate-200 text-center shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center relative overflow-hidden">
+                          <div className="p-1.5 bg-white rounded-2xl shadow-xs border border-slate-200 text-center shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center relative overflow-hidden">
                             {qrLoading ? (
                               <div className="flex flex-col items-center justify-center w-full h-full p-1 bg-slate-50/90 relative rounded-lg">
                                 {/* Animated Scanning Beam */}
@@ -3134,23 +3136,23 @@ export default function BookingCheckoutModal({
 
                   {/* 2. UPI Apps Content */}
                   {isUpiAppsEnabled && paymentMethod === 'upiApps' && (
-                    <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-extrabold text-slate-800 text-[11px] sm:text-xs">Tap an App to Pay Directly</p>
-                          <p className="text-[9px] sm:text-[10px] text-slate-500">Instant UPI redirect or continue with the Pay button below</p>
+                    <div className="p-3 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-3">
+                      <div className="flex items-center justify-between pb-0.5">
+                        <div className="min-w-0 pr-2">
+                          <p className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">Tap an App to Pay Directly</p>
+                          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Instant UPI redirect or continue with the Pay button</p>
                         </div>
                         {selectedUpiApp && (
-                          <span className="text-[10px] font-black bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full border border-sky-200 flex items-center gap-1">
-                            <Check className="w-2.5 h-2.5 text-sky-600" />
-                            {selectedUpiApp}
+                          <span className="text-[10px] font-black bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full border border-sky-200 flex items-center gap-1 shrink-0 whitespace-nowrap shadow-2xs">
+                            <Check className="w-2.5 h-2.5 text-sky-600 shrink-0" />
+                            <span>{selectedUpiApp}</span>
                           </span>
                         )}
                       </div>
 
                       {/* App Buttons Grid */}
                       {visibleUpiApps.length > 0 ? (
-                        <div className={`grid gap-1.5 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+                        <div className={`grid gap-2 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
                           {visibleUpiApps.map(app => {
                             const isSelected = (selectedUpiApp === app.name) || (selectedAppKey === app.key);
                             const isCurrentLaunching = isLaunchingApp && selectedAppKey === app.key;
@@ -3159,13 +3161,13 @@ export default function BookingCheckoutModal({
                                 key={app.key}
                                 type="button"
                                 onClick={() => handleLaunchUpiApp(app.key, app.name)}
-                                className={`p-2 rounded-xl border flex items-center gap-2 transition-all text-left cursor-pointer active:scale-[0.98] relative ${
+                                className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-left cursor-pointer active:scale-[0.98] relative flex items-center gap-2.5 sm:gap-3 ${
                                   isSelected
-                                    ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-400 shadow-sm'
-                                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                                    ? 'bg-sky-50/90 border-sky-500 ring-2 ring-sky-400/40 shadow-xs'
+                                    : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
                                 }`}
                               >
-                                <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1 overflow-hidden">
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1.5 overflow-hidden">
                                   {app.iconUrl ? (
                                     <img
                                       src={app.iconUrl}
@@ -3173,23 +3175,27 @@ export default function BookingCheckoutModal({
                                       className="w-full h-full object-contain"
                                     />
                                   ) : (
-                                    <Smartphone className="w-4 h-4 text-slate-700" />
+                                    <Smartphone className="w-5 h-5 text-slate-700" />
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <div className="text-[11px] font-extrabold text-slate-900 truncate flex items-center justify-between">
-                                    <span>{app.name}</span>
-                                    {isCurrentLaunching ? (
-                                      <RefreshCw className="w-3 h-3 text-sky-600 animate-spin" />
-                                    ) : isSelected ? (
-                                      <span className="w-3.5 h-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center">
-                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                                      </span>
-                                    ) : null}
+                                  <div className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                                    {app.name}
                                   </div>
-                                  <div className={`text-[9px] font-bold flex items-center gap-0.5 ${isSelected ? 'text-sky-700 font-extrabold' : 'text-slate-400'}`}>
-                                    <span>{isCurrentLaunching ? 'Opening...' : isSelected ? 'Selected' : 'Pay Now'}</span>
+                                  <div className={`text-[10px] font-bold truncate ${isSelected ? 'text-sky-700' : 'text-slate-400'}`}>
+                                    {isCurrentLaunching ? 'Opening...' : isSelected ? 'Selected' : 'Pay Now'}
                                   </div>
+                                </div>
+                                <div className="shrink-0 ml-auto">
+                                  {isCurrentLaunching ? (
+                                    <RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" />
+                                  ) : isSelected ? (
+                                    <span className="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                    </span>
+                                  ) : (
+                                    <span className="w-4 h-4 rounded-full border-2 border-slate-200 bg-white block" />
+                                  )}
                                 </div>
                               </button>
                             );
@@ -3246,9 +3252,9 @@ export default function BookingCheckoutModal({
                         </div>
                       )}
 
-                      <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] text-slate-400">
-                        <Lock className="w-3 h-3 text-slate-400" />
-                        <span>All UPI apps • Secured by 256-bit UPI Encryption</span>
+                      <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] sm:text-[11px] text-slate-500 font-medium">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Secured by 256-Bit NPCI / UPI Encryption</span>
                       </div>
                     </div>
                   )}
