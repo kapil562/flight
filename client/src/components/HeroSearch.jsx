@@ -462,7 +462,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         </motion.div>
 
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-          Where do you want to <span className="text-slate-900 underline decoration-amber-400 decoration-wavy decoration-2">fly next?</span>
+          Where do you want to fly next?
         </h1>
         
         <p className="text-sm sm:text-lg text-slate-500 mt-3 font-medium max-w-xl mx-auto leading-relaxed">
