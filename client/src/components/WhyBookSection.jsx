@@ -59,8 +59,11 @@ export default function WhyBookSection() {
           
           {/* Bento Card 1 (Wide 7 Cols): Live Boarding Pass & PNR Dispatch */}
           <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.05 }}
             whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
             className="lg:col-span-7 bg-slate-950 text-white rounded-3xl p-7 sm:p-10 border border-white/10 shadow-2xl flex flex-col justify-between relative overflow-hidden group"
           >
             {/* Subtle Plane Watermark in Background */}
@@ -72,8 +75,11 @@ export default function WhyBookSection() {
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/10 space-y-3 mb-8">
               <div className="flex items-center justify-between text-xs pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-black text-white font-mono uppercase tracking-wider">GDS Telemetry Active</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                  </span>
+                  <span className="font-black text-white font-mono uppercase tracking-wider text-[11px]">GDS Telemetry Active</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-black border border-emerald-500/30">
                   PNR VERIFIED
@@ -88,8 +94,14 @@ export default function WhyBookSection() {
 
                 <div className="flex flex-col items-center px-3">
                   <span className="text-[10px] text-slate-400 font-mono font-bold mb-1">Direct Flight</span>
-                  <div className="w-20 sm:w-28 h-0.5 bg-white/20 relative flex items-center justify-center">
-                    <Plane className="w-3.5 h-3.5 rotate-45 text-white absolute" />
+                  <div className="w-24 sm:w-36 h-0.5 bg-white/20 relative flex items-center justify-center overflow-visible">
+                    <motion.div
+                      animate={{ x: [-36, 36] }}
+                      transition={{ repeat: Infinity, repeatType: "reverse", duration: 3.2, ease: "easeInOut" }}
+                      className="absolute"
+                    >
+                      <Plane className="w-4 h-4 rotate-45 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.7)]" />
+                    </motion.div>
                   </div>
                   <span className="text-[10px] text-emerald-400 font-mono font-bold mt-1">2h 15m</span>
                 </div>
@@ -117,8 +129,11 @@ export default function WhyBookSection() {
 
           {/* Bento Card 2 (5 Cols): 100% Refund Vault */}
           <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.12 }}
             whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
             className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
           >
             <div>
@@ -149,8 +164,11 @@ export default function WhyBookSection() {
 
           {/* Bento Card 3 (5 Cols): Zero Hidden Markups */}
           <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.18 }}
             whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
             className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
           >
             <div>
@@ -179,8 +197,11 @@ export default function WhyBookSection() {
 
           {/* Bento Card 4 (Wide 7 Cols): 24x7 WhatsApp & Phone Concierge Desk */}
           <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.24 }}
             whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
             className="lg:col-span-7 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
           >
             <div className="space-y-2 max-w-md">
@@ -198,30 +219,48 @@ export default function WhyBookSection() {
             </div>
 
             <div className="flex flex-col gap-2.5 w-full sm:w-auto shrink-0">
-              <a
+              <motion.a
                 href="https://wa.me/918077680310?text=Hi%2C%20I%20need%20help%20with%20flight%20booking"
                 target="_blank"
                 rel="noreferrer"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                animate={{
+                  boxShadow: [
+                    "0 4px 14px 0 rgba(16, 185, 129, 0.25)",
+                    "0 4px 22px 4px rgba(16, 185, 129, 0.45)",
+                    "0 4px 14px 0 rgba(16, 185, 129, 0.25)"
+                  ]
+                }}
+                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
                 className="px-5 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>WhatsApp Desk</span>
-              </a>
+              </motion.a>
 
-              <a
+              <motion.a
                 href="tel:+917224828030"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 className="px-5 py-3 rounded-full bg-slate-900 hover:bg-black text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
                 <span>+91 72248 28030</span>
-              </a>
+              </motion.a>
             </div>
           </motion.div>
 
         </div>
 
-        {/* Minimalist Trust Metrics Bar */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-10 shadow-xs">
+        {/* Minimalist Trust Metrics Bar with Viewport Reveal */}
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6 }}
+          className="rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-10 shadow-xs"
+        >
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
             {metrics.map((m, idx) => (
               <div key={idx} className={`${idx !== 0 ? 'pt-4 sm:pt-0 sm:pl-8' : ''}`}>
@@ -237,7 +276,7 @@ export default function WhyBookSection() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </section>

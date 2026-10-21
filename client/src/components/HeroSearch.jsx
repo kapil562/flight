@@ -368,20 +368,83 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
   return (
     <div className="relative pt-4 sm:pt-8 pb-12 sm:pb-16 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       
-      {/* Background Ambient Glow (Apple Minimalist Aurora) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 pointer-events-none -z-10 overflow-hidden opacity-60">
-        <div className="absolute top-10 left-1/4 w-80 h-80 bg-gradient-to-tr from-sky-200/50 to-blue-300/40 rounded-full blur-3xl" />
-        <div className="absolute top-16 right-1/4 w-96 h-96 bg-gradient-to-br from-amber-100/60 to-rose-200/40 rounded-full blur-3xl" />
+      {/* Background Ambient Glow (Apple Minimalist Aurora with Organic Motion) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 pointer-events-none -z-10 overflow-hidden opacity-75">
+        <motion.div 
+          animate={{ 
+            x: [0, 28, -16, 0], 
+            y: [0, -18, 14, 0],
+            scale: [1, 1.12, 0.96, 1] 
+          }}
+          transition={{ repeat: Infinity, duration: 16, ease: "easeInOut" }}
+          className="absolute top-8 left-1/4 w-88 h-88 bg-gradient-to-tr from-sky-300/40 via-blue-200/30 to-indigo-300/30 rounded-full blur-3xl" 
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -25, 18, 0], 
+            y: [0, 18, -14, 0],
+            scale: [1, 1.15, 0.92, 1] 
+          }}
+          transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
+          className="absolute top-14 right-1/4 w-96 h-96 bg-gradient-to-br from-amber-200/40 via-rose-200/30 to-purple-200/25 rounded-full blur-3xl" 
+        />
+        
+        {/* Subtle Gliding Jet Arc Micro-Animation */}
+        <div className="absolute top-6 left-0 right-0 h-24 hidden md:block opacity-35 overflow-hidden">
+          <svg className="w-full h-full" viewBox="0 0 1000 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path 
+              d="M 50 70 Q 500 10 950 70" 
+              stroke="url(#flightGradHero)" 
+              strokeWidth="1.5" 
+              strokeDasharray="6 6" 
+            />
+            <defs>
+              <linearGradient id="flightGradHero" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0284c7" stopOpacity="0" />
+                <stop offset="50%" stopColor="#0284c7" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <motion.div
+            animate={{
+              x: ['5%', '92%'],
+              y: [40, 6, 40],
+              rotate: [18, 0, -18]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 18,
+              ease: "easeInOut"
+            }}
+            className="absolute top-0 left-0 text-sky-600 pointer-events-none drop-shadow-sm"
+          >
+            <Plane className="w-4 h-4 fill-sky-600/30" />
+          </motion.div>
+        </div>
       </div>
 
       {/* Hero Editorial Header */}
-      <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/80 shadow-xs mb-4">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+      <motion.div 
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center max-w-3xl mx-auto mb-6 sm:mb-10"
+      >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-xs mb-4"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
           <span className="text-xs font-black text-slate-800 tracking-tight">Direct Airline GDS Inventory</span>
           <span className="text-slate-300">•</span>
           <span className="text-xs font-bold text-sky-600">Zero Convenience Fee</span>
-        </div>
+        </motion.div>
 
         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
           Where do you want to <span className="text-slate-900 underline decoration-amber-400 decoration-wavy decoration-2">fly next?</span>
@@ -390,10 +453,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
         <p className="text-sm sm:text-lg text-slate-500 mt-3 font-medium max-w-xl mx-auto leading-relaxed">
           Search real-time airfares across 150+ airlines with instant digital PNRs and verified transparent rates.
         </p>
-      </div>
+      </motion.div>
 
       {/* AIRBNB-STYLE UNIFIED FLOATING SEARCH POD */}
-      <div className="relative z-30 max-w-5xl mx-auto">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-30 max-w-5xl mx-auto"
+      >
         
         {/* Top Floating Segmented Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 px-2 sm:px-4">
@@ -870,16 +938,18 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                   )}
                 </AnimatePresence>
 
-                {/* Large Circular Search Button (Apple / Airbnb Luxury Obsidian Style) */}
+                {/* Large Circular Search Button (Apple / Airbnb Luxury Obsidian Style with Micro-Glow) */}
                 <motion.button
                   type="button"
                   onClick={handleSearchSubmit}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 hover:bg-black text-white flex items-center justify-center shadow-xl shadow-slate-900/25 cursor-pointer shrink-0 transition-colors"
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.94 }}
+                  className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 hover:bg-black text-white flex items-center justify-center shadow-xl shadow-slate-900/30 cursor-pointer shrink-0 transition-all group overflow-hidden"
                   title="Search Flights"
                 >
-                  <Search className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                  {/* Subtle Shimmer Sheen on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-sky-400/0 via-sky-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Search className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] relative z-10 group-hover:rotate-6 transition-transform duration-300" />
                 </motion.button>
               </div>
 
@@ -896,25 +966,33 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             { id: 'senior', label: 'Senior Citizen (Flat ₹600 OFF)' },
             { id: 'armed', label: 'Armed Forces' }
           ].map(f => (
-            <button
+            <motion.button
               key={f.id}
               type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setSpecialFare(f.id)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap ${
                 specialFare === f.id
-                  ? 'bg-amber-100/80 text-amber-900 border border-amber-300 font-black shadow-xs'
+                  ? 'bg-amber-100/90 text-amber-900 border border-amber-300 font-black shadow-xs'
                   : 'bg-white/80 border border-slate-200 text-slate-600 hover:bg-slate-100'
               }`}
             >
               {f.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
-      </div>
+      </motion.div>
 
       {/* CURATED DESTINATION COLLECTIONS (AIRBNB EXPLORE GETAWAYS STYLE) */}
-      <div className="mt-14 sm:mt-20">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6 }}
+        className="mt-14 sm:mt-20"
+      >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
           <div>
             <div className="flex items-center gap-1.5 text-xs font-black text-sky-600 uppercase tracking-wider mb-1">
@@ -937,9 +1015,13 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
 
         {/* Destination Cards Carousel Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
-          {CURATED_DESTINATIONS.map((dest) => (
+          {CURATED_DESTINATIONS.map((dest, idx) => (
             <motion.div
               key={dest.code}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.06 }}
               whileHover={{ y: -6, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleQuickDestinationSelect(dest.code)}
@@ -972,7 +1054,7 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
             </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
     </div>
   );

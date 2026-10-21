@@ -460,6 +460,15 @@ function MainWebsite() {
                 />
               </div>
             )}
+
+            {/* Exclusive Flight Offers & Promos on Home Page */}
+            {!hasSearched && (
+              <OffersSection
+                onApplyPromo={(promo) => {
+                  setActiveSearchCoupon(promo);
+                }}
+              />
+            )}
           </>
         )}
 

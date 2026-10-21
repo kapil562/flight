@@ -87,14 +87,21 @@ export default function ServiceTabs({
                     onSelectService(srv.id);
                   }
                 }}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-colors duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
                   isActive
-                    ? 'bg-slate-950 text-white shadow-md'
+                    ? 'text-white'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                <span className="tracking-tight">{srv.label}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeServiceTabPill"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                    className="absolute inset-0 bg-slate-950 rounded-full shadow-md -z-0"
+                  />
+                )}
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 relative z-10 transition-colors ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                <span className="tracking-tight relative z-10">{srv.label}</span>
               </button>
             );
           })}

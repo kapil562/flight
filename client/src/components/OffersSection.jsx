@@ -51,7 +51,13 @@ export default function OffersSection({ onApplyPromo }) {
 
   return (
     <section id="offers-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3"
+      >
         <div>
           <span className="text-xs font-black uppercase tracking-widest text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80">
             PROMOTIONS & VOUCHERS
@@ -67,13 +73,17 @@ export default function OffersSection({ onApplyPromo }) {
         <div className="text-xs font-bold text-slate-500 bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200/80 self-start sm:self-auto">
           Updated Today • 100% Verified
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {offers.map((offer, index) => (
           <motion.div
             key={offer.id}
-            whileHover={{ y: -5 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: index * 0.08 }}
+            whileHover={{ y: -6, scale: 1.01 }}
             className="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
           >
             <div>
