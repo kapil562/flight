@@ -20,6 +20,7 @@ import {
 import confetti from 'canvas-confetti';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import airportsData from '../data/airports.json';
 
 export default function TicketConfirmationModal({ booking, onClose, onOpenMyBookings, brand = null }) {
   const modalTicketRef = useRef(null);
@@ -150,40 +151,98 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
   if (!booking) return null;
 
   const fare = booking.fare || {};
-  const basePrice = Number(fare.basePrice || 4495);
-  const taxes = Number(fare.taxes || 1455);
+  const basePrice = Number(fare.basePrice || booking.currentPrice || 4495);
+  const taxes = Number(fare.taxes || 0);
+  const seatCost = Number(fare.seatCost || 0);
+  const mealsCost = Number(fare.mealsCost || 0);
+  const baggageCost = Number(fare.baggageCost || 0);
+  const insurance = Number(fare.insurance || 0);
   const discount = Number(fare.discount || 0);
-  const total = Number(fare.total || (basePrice + taxes - discount));
-  const contactEmail = booking.contact?.email || 'customer@gmail.com';
-  const contactPhone = booking.contact?.phone || '9876543210';
-  const cleanPnr = (booking.pnr || booking.bookingId || 'Y9WUNS').toUpperCase();
+  const total = Number(fare.total || booking.totalAmount || (basePrice + taxes + seatCost + mealsCost + baggageCost + insurance - discount));
+
+  const rawContactEmail = booking.contact?.email || booking.customerEmail || booking.email || 'customer@gmail.com';
+  const rawContactPhone = booking.contact?.phone || booking.customerPhone || booking.phone || '9876543210';
+  const contactEmail = rawContactEmail;
+  const contactPhone = String(rawContactPhone).replace(/^\+?91-?/, '').trim();
+  const cleanPnr = (booking.pnr || booking.bookingId || 'CONFIRMED').toUpperCase();
   const bookingDateStr = booking.createdAt 
     ? `${new Date(booking.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(booking.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`
-    : '20 Oct 2026 16:39';
+    : `${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
-  const fromCode = booking.from || 'DEL';
-  const toCode = booking.to || 'BOM';
-  const fromCityName = booking.fromCity || (booking.from ? `${booking.from} Airport` : 'Delhi Airport');
-  const toCityName = booking.toCity || (booking.to ? `${booking.to} Airport` : 'Mumbai Airport');
-  const airline = booking.airline || 'IndiGo';
-  const flightNo = booking.flightNumber || '6E 955';
+  const fromCode = (booking.from || 'DEL').toUpperCase();
+  const toCode = (booking.to || 'BOM').toUpperCase();
+
+  const fromAirportObj = airportsData.find(a => a.code === fromCode);
+  const toAirportObj = airportsData.find(a => a.code === toCode);
+
+  const fromCityName = booking.fromCity || fromAirportObj?.city || 'Delhi';
+  const toCityName = booking.toCity || toAirportObj?.city || 'Mumbai';
+  const fromAirportName = booking.fromAirport || fromAirportObj?.name || `${fromCityName} International Airport`;
+  const toAirportName = booking.toAirport || toAirportObj?.name || `${toCityName} International Airport`;
+
+  const airline = booking.airline || 'Air India Express';
+  const flightNo = booking.flightNumber || 'IX-1235';
+  const aircraft = booking.aircraft || 'Boeing 737 / Airbus A320';
   const depTime = booking.departureTime || '20:20';
   const arrTime = booking.arrivalTime || '22:20';
   const depDate = booking.departureDate || new Date().toISOString().split('T')[0];
+
+  const durationStr = booking.duration || (
+    booking.departureTime && booking.arrivalTime ? (() => {
+      try {
+        const [dh, dm] = booking.departureTime.split(':').map(Number);
+        const [ah, am] = booking.arrivalTime.split(':').map(Number);
+        let mins = (ah * 60 + am) - (dh * 60 + dm);
+        if (mins < 0) mins += 24 * 60;
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return `${h}h ${m}m`;
+      } catch { return '~2h 0m'; }
+    })() : '~2h 0m'
+  );
 
   // Airline specific theme color
   const airlineName = booking.airline || 'IndiGo';
   const isIndiGo = airlineName.toLowerCase().includes('indigo');
   const airlinePrimaryColor = isIndiGo ? '#002B7F' : airlineName.toLowerCase().includes('air india') ? '#E21836' : airlineName.toLowerCase().includes('spice') ? '#ED1C24' : airlineName.toLowerCase().includes('akasa') ? '#FF5900' : '#002B7F';
 
-  const passengersList = (booking.passengers && booking.passengers.length > 0) ? booking.passengers : [{
+  const rawPassengers = (booking.passengers && booking.passengers.length > 0) ? booking.passengers : [{
     title: 'Mr',
     firstName: booking.contact?.name || 'Customer',
     lastName: 'Traveller',
     gender: 'Male',
-    seat: '7B',
+    seat: '12A',
     meal: 'Standard'
   }];
+
+  const passengersList = rawPassengers.map((p, idx) => {
+    const seatVal = p.seat || (booking.seats && booking.seats[idx]) || `${12 + idx}A`;
+    const lastChar = seatVal.slice(-1).toUpperCase();
+    const seatType = ['A', 'F'].includes(lastChar) ? 'Window' : ['B', 'E'].includes(lastChar) ? 'Middle' : 'Aisle';
+    
+    // Real dynamic Add-ons list
+    const addons = [];
+    if (p.meal && p.meal !== 'Standard' && p.meal !== 'None') {
+      addons.push(p.meal);
+    }
+    if (baggageCost > 0 || booking.baggage) {
+      addons.push('Extra Baggage');
+    }
+    if (insurance > 0 || booking.insurance) {
+      addons.push('Travel Insurance');
+    }
+    if (booking.fareTier && booking.fareTier !== 'saver') {
+      addons.push(booking.fareTier === 'flexi' ? 'Flexi Plus' : booking.fareTier.toUpperCase());
+    }
+    const addonsText = addons.length > 0 ? addons.join(' • ') : 'Standard (Cabin + 15KG Check-in)';
+
+    return {
+      ...p,
+      seat: seatVal,
+      seatType,
+      addonsText
+    };
+  });
 
   const brandName = brand?.name || 'AIR SKY';
   const brandLogo = brand?.logo || null;
@@ -380,56 +439,61 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             </div>
             <div>
               <span className="font-bold">Payment Status </span>
-              <span className="font-bold ml-6">
-                {(booking.payment?.status || booking.status) === 'CONFIRMED' ? 'Confirmed' : 'Pending'}
+              <span className="font-black ml-6 text-emerald-800 uppercase tracking-wide">
+                Confirmed (Paid)
               </span>
             </div>
           </div>
 
           {/* Passenger Information */}
           <h3 className="text-base font-black text-slate-900 mt-4 mb-2">
-            Passenger Information
+            Passenger Information ({passengersList.length} Traveller{passengersList.length > 1 ? 's' : ''})
           </h3>
 
-          <div className="border border-slate-900 rounded-xl p-3.5 mb-4">
-            <div className="text-sm font-black text-slate-900 mb-2">
-              {passengersList[0]?.title || 'Mr'} {passengersList[0]?.firstName || 'Ashu'} {passengersList[0]?.lastName || 'Sharma'} <span className="font-normal text-slate-700 text-xs ml-1">{passengersList[0]?.type || 'Adult'} | {passengersList[0]?.gender || 'Male'} |</span>
-            </div>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-left font-black text-slate-900">
-                  <th className="pb-1 w-1/3">Sector</th>
-                  <th className="pb-1 w-1/3">Seat</th>
-                  <th className="pb-1 w-1/3">Add-ons</th>
-                </tr>
-              </thead>
-              <tbody className="text-slate-800 text-xs font-medium">
-                <tr>
-                  <td>{booking.from || 'DEL'}-{booking.to || 'NMI'}</td>
-                  <td>{passengersList[0]?.seat || '7B'}(Middle)</td>
-                  <td>Lite</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="border border-slate-900 rounded-xl p-3.5 mb-3.5 divide-y divide-slate-200">
+            {passengersList.map((pax, pIdx) => (
+              <div key={pIdx} className={pIdx > 0 ? 'pt-2.5 mt-2.5' : ''}>
+                <div className="text-xs font-black text-slate-900 mb-1 flex items-center justify-between">
+                  <span>
+                    {pax.title || 'Mr'} {pax.firstName} {pax.lastName} <span className="font-normal text-slate-600 text-[11px] ml-1">({pax.type || 'Adult'} | {pax.gender || 'Male'})</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-500 font-medium">Pax {pIdx + 1} of {passengersList.length}</span>
+                </div>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-left font-bold text-slate-600 text-[11px]">
+                      <th className="pb-0.5 w-1/4">Sector</th>
+                      <th className="pb-0.5 w-1/4">Seat Assigned</th>
+                      <th className="pb-0.5 w-1/2">Selected Add-ons & Benefits</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-slate-800 text-xs font-medium">
+                    <tr>
+                      <td className="font-semibold">{fromCode}-{toCode}</td>
+                      <td className="font-mono font-bold text-slate-900">{pax.seat} <span className="font-sans font-normal text-slate-600 text-[11px]">({pax.seatType})</span></td>
+                      <td className="text-emerald-800 font-medium text-[11px]">{pax.addonsText}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
 
           {/* Flight Card with Barcode */}
-          <div className="border border-slate-900 rounded-xl p-4 mb-3">
-            <div className="flex justify-between items-center text-xs pb-3 border-b border-slate-200">
+          <div className="border border-slate-900 rounded-xl p-3.5 mb-3">
+            <div className="flex justify-between items-center text-xs pb-2.5 border-b border-slate-200">
               <div className="flex items-center gap-1.5 font-bold text-slate-900 text-[11px]">
-                <svg className="w-3.5 h-3.5 text-slate-700 rotate-45" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                </svg>
-                <span>• {booking.flightNumber || '6E 955'} ({booking.aircraft || 'A320'}) • {booking.departureDate || '21 Oct 2026'} • Check-in/Bag Drop Closes: 60 mins before departure</span>
+                <Plane className="w-3.5 h-3.5 text-slate-700 rotate-45" />
+                <span>• {flightNo} ({aircraft}) • {depDate} • Check-in/Bag Drop Closes: 60 mins before departure</span>
               </div>
-              <div className="text-[#0284c7] font-medium text-[11px] bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                Lite | {booking.travelClass || 'Economy'}
+              <div className="text-[#0284c7] font-bold text-[11px] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 uppercase">
+                {booking.fareTier ? booking.fareTier.toUpperCase() : 'STANDARD'} | {booking.travelClass || 'Economy'}
               </div>
             </div>
 
             {/* Authentic High-Density Boarding Barcode */}
-            <div className="my-3 py-1 bg-white flex items-center justify-center">
-              <svg className="w-full h-16" viewBox="0 0 650 70" preserveAspectRatio="none">
+            <div className="my-2.5 py-1 bg-white flex items-center justify-center">
+              <svg className="w-full h-14" viewBox="0 0 650 70" preserveAspectRatio="none">
                 <rect x="0" y="0" width="8" height="70" fill="#000" />
                 <rect x="12" y="0" width="4" height="70" fill="#000" />
                 <rect x="20" y="0" width="6" height="70" fill="#000" />
@@ -449,19 +513,18 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             {/* Flight Route Details */}
             <div className="grid grid-cols-12 gap-2 items-center pt-2 text-slate-900">
               <div className="col-span-5">
-                <div className="text-lg font-black">{booking.fromCity || 'Delhi'}</div>
-                <div className="text-xs text-slate-700 leading-tight">{booking.from || 'DEL'} - {booking.fromAirport || 'Indira Gandhi International Airport'}</div>
-                <div className="text-xs text-slate-600">(Terminal 1)</div>
-                <div className="text-sm font-black mt-2">{booking.departureTime || '20:20'} hrs, {booking.departureDate || '21 Oct 2026'}</div>
+                <div className="text-base font-black">{fromCityName}</div>
+                <div className="text-[11px] text-slate-700 leading-tight">{fromCode} - {fromAirportName}</div>
+                <div className="text-xs font-black mt-1.5 text-slate-900">{depTime} hrs, {depDate}</div>
               </div>
-              <div className="col-span-2 text-center text-xs text-slate-700 font-medium">
-                <div>—— Travel Time ~2h 0m ——</div>
+              <div className="col-span-2 text-center text-xs text-slate-600 font-semibold">
+                <div>—— {durationStr} ——</div>
+                <div className="text-[10px] text-emerald-700 font-bold mt-0.5">Direct Non-Stop</div>
               </div>
               <div className="col-span-5 text-right">
-                <div className="text-lg font-black">{booking.toCity || 'Navi Mumbai'}</div>
-                <div className="text-xs text-slate-700 leading-tight">{booking.to || 'NMI'} - {booking.toAirport || 'Navi Mumbai Airport'}</div>
-                <div className="text-xs text-slate-600">&nbsp;</div>
-                <div className="text-sm font-black mt-2">{booking.arrivalTime || '22:20'} hrs, {booking.departureDate || '21 Oct 2026'}</div>
+                <div className="text-base font-black">{toCityName}</div>
+                <div className="text-[11px] text-slate-700 leading-tight">{toCode} - {toAirportName}</div>
+                <div className="text-xs font-black mt-1.5 text-slate-900">{arrTime} hrs, {depDate}</div>
               </div>
             </div>
           </div>
@@ -496,23 +559,26 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                 <tr className="text-left font-bold text-slate-900">
                   <th className="pb-1 w-16">S.No</th>
                   <th className="pb-1 w-36">Sector</th>
-                  <th className="pb-1">Adult</th>
+                  <th className="pb-1">Adult Allowance</th>
                 </tr>
               </thead>
               <tbody className="text-slate-800 text-xs">
                 <tr>
                   <td>1</td>
-                  <td>{booking.from || 'DEL'} - {booking.to || 'NMI'}</td>
-                  <td>Check-in: 0KG, Cabin: Up to 7KG</td>
+                  <td className="font-bold">{fromCode} - {toCode}</td>
+                  <td className="font-semibold text-slate-900">
+                    {baggageCost > 0 
+                      ? 'Check-in: 30 KG (2 Pcs), Cabin: 7 KG (1 Handbag)' 
+                      : 'Check-in: 15 KG (1 Pc), Cabin: 7 KG (1 Handbag)'}
+                  </td>
                 </tr>
               </tbody>
             </table>
 
             <div className="text-[10px] text-slate-700 space-y-2 leading-relaxed">
-              <p><strong>Check-in Cabin:</strong> One hand bag up to 7 KG and 115 CM (L+W+H), shall be allowed per customer. For contactless travel we recommend to place it under the seat in front, on board.</p>
-              <p>• <strong>Disclaimer (for Lite Fare):</strong> Lite Fare includes 7 kg cabin baggage only (to be placed preferably under the seat) with no check-in bag allowed. If your cabin bag does not fit within the permitted size or exceeds the weight limit, it will be refused at the boarding gate or placed in the aircraft hold subject to a fee.</p>
-              <p>• <strong>Check-in Baggage:</strong> Lite Fare does not include a check-in bag. Any check-in bag presented at the airport/boarding gate will be subject to charges as per the applicable Lite Fare baggage policy. Passengers may purchase check-in baggage separately after booking, via Manage Booking, web check-in, or at the airport at applicable rates.</p>
-              <p>• <strong>Cabin Baggage:</strong> Only one cabin bag up to 7 kg is permitted per customer, subject to regulatory size and weight limits.</p>
+              <p>• <strong>Cabin Baggage:</strong> One hand bag up to 7 KG and 115 CM (L+W+H) is allowed per customer. For convenience, place it in the overhead locker or under the seat in front.</p>
+              <p>• <strong>Check-in Baggage:</strong> Standard allowance of 15 KG per passenger (1 piece) is included in your ticket. Excess or additional baggage can be added anytime via Manage Booking.</p>
+              <p>• <strong>Infant Baggage:</strong> 1 piece of cabin baggage up to 7 KG plus a fully collapsible baby stroller is permitted per infant.</p>
             </div>
           </div>
 
@@ -521,19 +587,56 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             {/* Left: Flight summary */}
             <div className="border border-slate-900 rounded-xl overflow-hidden">
               <div className="bg-slate-50 px-3.5 py-1.5 font-black text-xs text-slate-900 border-b border-slate-300">
-                Flight summary
+                Fare Summary & Payment
               </div>
               <div className="p-3 text-xs space-y-1.5 text-slate-800">
-                <div className="flex justify-between"><span>AirFare Charge</span><span>₹{basePrice.toLocaleString('en-IN')}</span></div>
-                <div className="flex justify-between"><span>Seat fee</span><span>₹{fare.seatCost ? Number(fare.seatCost).toLocaleString('en-IN') : '578'}</span></div>
-                <div className="flex justify-between"><span>Fuel Charge</span><span>₹900</span></div>
-                <div className="flex justify-between"><span>Aviation Security Fee</span><span>₹236</span></div>
-                <div className="flex justify-between"><span>User Development fee</span><span>₹152</span></div>
-                <div className="flex justify-between"><span>Arrival User Development Fee</span><span>₹319</span></div>
-                <div className="flex justify-between"><span>GST for Delhi</span><span>₹270</span></div>
+                <div className="flex justify-between">
+                  <span>Base Airfare ({passengersList.length} Pax)</span>
+                  <span className="font-mono">₹{basePrice.toLocaleString('en-IN')}</span>
+                </div>
+                {taxes > 0 && (
+                  <div className="flex justify-between text-slate-600 text-[11px]">
+                    <span>Taxes & Airport Surcharges</span>
+                    <span className="font-mono">₹{taxes.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {seatCost > 0 && (
+                  <div className="flex justify-between text-slate-600 text-[11px]">
+                    <span>Seat Selection</span>
+                    <span className="font-mono">₹{seatCost.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {mealsCost > 0 && (
+                  <div className="flex justify-between text-slate-600 text-[11px]">
+                    <span>Meals & Refreshments</span>
+                    <span className="font-mono">₹{mealsCost.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {baggageCost > 0 && (
+                  <div className="flex justify-between text-slate-600 text-[11px]">
+                    <span>Extra Baggage</span>
+                    <span className="font-mono">₹{baggageCost.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {insurance > 0 && (
+                  <div className="flex justify-between text-slate-600 text-[11px]">
+                    <span>Travel Insurance</span>
+                    <span className="font-mono">₹{insurance.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                {discount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-bold text-[11px]">
+                    <span>Coupon Discount ({fare.promoCode || 'OFFER'})</span>
+                    <span className="font-mono">-₹{discount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
                 <div className="pt-2 mt-2 border-t border-slate-900 flex justify-between font-black text-sm text-slate-900">
-                  <span>Total fare</span>
-                  <span>₹{total.toLocaleString('en-IN')}</span>
+                  <span>Total Amount Paid</span>
+                  <span className="font-mono text-base font-black text-emerald-700">₹{total.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1 text-[10px] text-slate-500 font-medium">
+                  <span>Payment Status</span>
+                  <span className="text-emerald-700 font-extrabold uppercase">Confirmed (Paid)</span>
                 </div>
               </div>
             </div>
@@ -546,14 +649,21 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
                 </div>
                 <div className="p-3 text-xs space-y-2 text-slate-800">
                   <div>
-                    <span className="font-semibold text-slate-600 block">Number:</span>
-                    <span className="font-mono font-bold">+91-{contactPhone}</span>
+                    <span className="font-semibold text-slate-600 block text-[11px]">Primary Traveler:</span>
+                    <span className="font-bold text-slate-900">{passengersList[0]?.firstName} {passengersList[0]?.lastName}</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-slate-600 block">E - mail:</span>
-                    <span className="font-mono font-bold">{contactEmail}</span>
+                    <span className="font-semibold text-slate-600 block text-[11px]">Phone Number:</span>
+                    <span className="font-mono font-bold text-slate-900">+91-{contactPhone}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-600 block text-[11px]">Email Address:</span>
+                    <span className="font-mono font-bold text-slate-900">{contactEmail}</span>
                   </div>
                 </div>
+              </div>
+              <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-[10px] text-slate-500 leading-tight">
+                All booking and flight schedule notifications will be dispatched to this contact info.
               </div>
             </div>
           </div>
