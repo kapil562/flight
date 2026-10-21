@@ -89,11 +89,11 @@ export default function ServiceTabs({
                 }}
                 className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
                   isActive
-                    ? 'bg-white text-slate-900 shadow-sm shadow-slate-400/20 scale-[1.02]'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                    ? 'bg-slate-950 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-sky-600' : 'text-slate-500'}`} />
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                 <span className="tracking-tight">{srv.label}</span>
               </button>
             );

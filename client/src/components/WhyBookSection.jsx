@@ -16,7 +16,7 @@ export default function WhyBookSection() {
         
         {/* Apple Style Editorial Title */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-black uppercase tracking-widest text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200/80">
+          <span className="text-xs font-black uppercase tracking-widest text-slate-900 bg-slate-100 px-3.5 py-1 rounded-full border border-slate-200">
             THE AVIATION STANDARD
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -55,7 +55,7 @@ export default function WhyBookSection() {
           {/* Bento Card 2: 100% Refund Protection */}
           <motion.div 
             whileHover={{ y: -6 }}
-            className="rounded-3xl p-8 bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white flex flex-col justify-between shadow-xl hover:shadow-2xl transition-all duration-300"
+            className="rounded-3xl p-8 bg-slate-950 text-white flex flex-col justify-between shadow-2xl border border-white/10 hover:shadow-2xl transition-all duration-300"
           >
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-6 border border-emerald-500/30">
@@ -80,7 +80,7 @@ export default function WhyBookSection() {
             className="rounded-3xl p-8 bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:shadow-xl hover:border-slate-300 transition-all duration-300"
           >
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-6 shadow-md">
                 <Award className="w-6 h-6" />
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">

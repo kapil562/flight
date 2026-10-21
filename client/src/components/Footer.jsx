@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plane, ShieldCheck, Headphones, Zap, CreditCard, Heart, ArrowUpRight, HelpCircle, FileText, Phone, Mail, MapPin, Lock } from 'lucide-react';
+import { 
+  Plane, 
+  ShieldCheck, 
+  Headphones, 
+  Zap, 
+  CreditCard, 
+  Heart, 
+  ArrowUpRight, 
+  HelpCircle, 
+  FileText, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Lock,
+  MessageCircle,
+  ExternalLink,
+  CheckCircle2,
+  Globe2
+} from 'lucide-react';
 
 export default function Footer({ onSelectRoute, brand: propBrand = null, settings: propSettings = {} }) {
   const [brand, setBrand] = useState(() => {
@@ -38,17 +56,17 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
   }, []);
 
   const defaultDomestic = [
-    { from: 'DEL', to: 'BOM', label: 'Delhi to Mumbai Flights' },
-    { from: 'DEL', to: 'BLR', label: 'Delhi to Bengaluru Flights' },
-    { from: 'BOM', to: 'GOI', label: 'Mumbai to Goa Flights' },
-    { from: 'DEL', to: 'GOI', label: 'Delhi to Goa Flights' }
+    { from: 'DEL', to: 'BOM', label: 'Delhi to Mumbai' },
+    { from: 'DEL', to: 'BLR', label: 'Delhi to Bengaluru' },
+    { from: 'BOM', to: 'GOI', label: 'Mumbai to Goa' },
+    { from: 'DEL', to: 'GOI', label: 'Delhi to Goa' }
   ];
 
   const defaultIntl = [
-    { from: 'DEL', to: 'DXB', label: 'Delhi to Dubai Flights' },
-    { from: 'BLR', to: 'DEL', label: 'Bengaluru to Delhi Flights' },
-    { from: 'BOM', to: 'DEL', label: 'Mumbai to Delhi Flights' },
-    { from: 'DEL', to: 'HYD', label: 'Delhi to Hyderabad Flights' }
+    { from: 'DEL', to: 'DXB', label: 'Delhi to Dubai' },
+    { from: 'BLR', to: 'DEL', label: 'Bengaluru to Delhi' },
+    { from: 'BOM', to: 'DEL', label: 'Mumbai to Delhi' },
+    { from: 'DEL', to: 'HYD', label: 'Delhi to Hyderabad' }
   ];
 
   const domesticRoutes = brand?.footer?.domesticRoutes
@@ -77,228 +95,198 @@ export default function Footer({ onSelectRoute, brand: propBrand = null, setting
     ? brand.footer.partnerAirlines.split(',').map(s => s.trim()).filter(Boolean)
     : ['IndiGo', 'Air India', 'Vistara', 'Akasa Air', 'SpiceJet', 'Emirates', 'Singapore Airlines'];
 
-  const footerDesc = brand?.footer?.description || brand?.tagline || propSettings?.siteTagline || 'Next-generation aviation portal delivering real-time airfares, verified GDS tickets, interactive seat maps, and 24x7 passenger support.';
+  const footerDesc = brand?.footer?.description || brand?.tagline || propSettings?.siteTagline || 'Direct GDS inventory, verified airline PNR issuance, and 24x7 luxury travel concierge.';
   const copyrightText = brand?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name || propSettings?.siteName || 'AIR SKY'}. All rights reserved.`;
   const addressText = brand?.address || propSettings?.address || 'Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075';
   const phoneText = brand?.phone || propSettings?.supportPhone || '+91 72248 28030';
   const emailText = brand?.email || propSettings?.supportEmail || 'care@airskyindia.com';
+  const whatsappNum = (brand?.whatsapp || '918077680310').replace(/\D/g, '');
 
   return (
-    <footer className="bg-slate-950 text-slate-300 pt-12 sm:pt-16 pb-12 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-slate-950 text-slate-300 pt-16 sm:pt-20 pb-12 border-t border-slate-900 mt-16 sm:mt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         
-        {/* Value Propositions / Why AirSkyGo */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pb-10 border-b border-slate-800">
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
-              <Zap className="w-5 h-5" />
+        {/* Top Editorial Banner Pod */}
+        <div className="bg-slate-900/60 rounded-3xl p-6 sm:p-10 border border-white/10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-2xl backdrop-blur-md">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-black uppercase tracking-widest text-emerald-400">
+                Direct Airline Inventory & GDS Sync
+              </span>
             </div>
-            <div>
-              <h4 className="font-black text-white text-sm mb-1">
-                {brand?.footer?.card1Title || 'Real-Time Live Inventory'}
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {brand?.footer?.card1Desc || 'Direct GDS integration ensures 100% accurate seat availability and instant verified airfares.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-black text-white text-sm mb-1">
-                {brand?.footer?.card2Title || 'Instant PNR & Digital Tickets'}
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {brand?.footer?.card2Desc || 'Guaranteed immediate airline PNR generation with downloadable boarding pass and SMS updates.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
-              <Headphones className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-black text-white text-sm mb-1">
-                {brand?.footer?.card3Title || '24x7 Aviation Support'}
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {brand?.footer?.card3Desc || 'Hassle-free web check-in support and instant automated cancellations with swift refund processing.'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Links Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 py-10 border-b border-slate-800 text-xs">
-          
-          {/* Brand Info */}
-          <div className="sm:col-span-2 md:col-span-1 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-3">
-              {brand?.logo ? (
-                <img
-                  src={brand.logo}
-                  alt={brand.name || 'Brand Logo'}
-                  className="h-8 sm:h-9 w-auto max-w-[150px] object-contain brightness-105"
-                />
-              ) : (
-                <>
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
-                    style={{ background: brand?.primary_color || '#0284c7' }}
-                  >
-                    <Plane className="w-4 h-4 rotate-45" />
-                  </div>
-                  <span className="text-xl font-black text-white tracking-tight">
-                    {brand?.name || propSettings?.siteName || 'AIR SKY'}
-                  </span>
-                </>
-              )}
-            </div>
-            <p className="text-slate-400 leading-relaxed mb-3">
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Curating First-Class Travel & Instant Verified Bookings
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               {footerDesc}
             </p>
-            {addressText && (
-              <p className="text-[11px] text-slate-400 leading-relaxed mb-2 flex items-start gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5" />
-                <span>{addressText}</span>
-              </p>
-            )}
-            <div className="space-y-1.5 text-[11px] text-slate-400 mb-3">
-              {phoneText && (
-                <div className="flex items-center gap-1.5">
-                  <Phone className="w-3 h-3 text-amber-400 shrink-0" />
-                  <a href={`tel:${phoneText.replace(/\s+/g, '')}`} className="text-slate-300 font-bold hover:text-white transition-colors">
-                    {phoneText}
-                  </a>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <a
+              href={`https://wa.me/${whatsappNum}?text=Hi%2C%20I%20need%20assistance%20with%20flight%20booking.`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 sm:flex-initial px-5 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer"
+            >
+              <MessageCircle className="w-4 h-4 fill-slate-950 text-emerald-500" />
+              <span>WhatsApp Concierge</span>
+            </a>
+
+            <a
+              href={`tel:${phoneText.replace(/\s+/g, '')}`}
+              className="flex-1 sm:flex-initial px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-black text-xs border border-white/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Phone className="w-4 h-4 text-slate-300" />
+              <span>{phoneText}</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs">
+          
+          {/* Bento Pod 1: Brand & Corporate HQ */}
+          <div className="bg-slate-900/40 rounded-3xl p-6 border border-white/5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-white text-slate-950 flex items-center justify-center font-black shadow-md">
+                  <Plane className="w-4 h-4 rotate-45" />
                 </div>
-              )}
-              {emailText && (
-                <div className="flex items-center gap-1.5">
-                  <Mail className="w-3 h-3 text-sky-400 shrink-0" />
-                  <a href={`mailto:${emailText}`} className="text-slate-300 font-bold hover:text-white transition-colors">
-                    {emailText}
-                  </a>
+                <div>
+                  <h4 className="text-base font-black text-white leading-none">
+                    {brand?.name || propSettings?.siteName || 'AIR SKY'}
+                  </h4>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">
+                    Aviation Portal
+                  </span>
                 </div>
-              )}
-            </div>
-            <div className="text-[11px] text-slate-500 font-medium">
-              {copyrightText}
-            </div>
-          </div>
-
-          {/* Company & Support Links */}
-          <div>
-            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">
-              Company & Support
-            </h5>
-            <ul className="space-y-2 font-medium">
-              <li>
-                <Link to="/about" className="text-slate-400 hover:text-sky-400 transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-1">
-                  <span>Contact Us & Help</span>
-                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1 py-0.2 rounded font-bold">24x7</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-slate-400 hover:text-sky-400 transition-colors">
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms#cancellation" className="text-slate-400 hover:text-sky-400 transition-colors">
-                  Cancellation & Refund Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms#passport" className="text-slate-400 hover:text-sky-400 transition-colors">
-                  Passport & Visa Guidelines
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms#liability" className="text-slate-400 hover:text-sky-400 transition-colors">
-                  Privacy Policy & Grievance
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Popular Routes */}
-          <div>
-            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Top Flight Routes</h5>
-            <ul className="space-y-2 font-medium">
-              {domesticRoutes.map(r => (
-                <li key={r.label}>
-                  <button
-                    onClick={() => onSelectRoute(r.from, r.to)}
-                    className="text-slate-400 hover:text-sky-400 transition-colors text-left cursor-pointer"
-                  >
-                    {r.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* More Routes */}
-          <div>
-            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Metro & International</h5>
-            <ul className="space-y-2 font-medium">
-              {intlRoutes.map(r => (
-                <li key={r.label}>
-                  <button
-                    onClick={() => onSelectRoute(r.from, r.to)}
-                    className="text-slate-400 hover:text-sky-400 transition-colors text-left cursor-pointer"
-                  >
-                    {r.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Partner Airlines */}
-          <div>
-            <h5 className="font-black text-white uppercase tracking-wider mb-3 text-xs">Airline Partners</h5>
-            <div className="flex flex-wrap gap-1.5">
-              {partnerAirlinesList.map(a => (
-                <span key={a} className="px-2.5 py-1 bg-slate-900 rounded-xl text-slate-300 border border-slate-800 font-bold text-[10px]">
-                  {a}
-                </span>
-              ))}
-            </div>
-            
-            <div className="mt-4 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-              <div className="flex items-center gap-1.5 text-[10px] font-black text-amber-400 uppercase tracking-wider mb-1">
-                <Lock className="w-3 h-3" />
-                <span>PCI-DSS Compliant</span>
               </div>
-              <p className="text-[10px] text-slate-400 leading-tight">
-                All credit/debit card & UPI transactions are processed through end-to-end 256-bit bank encrypted gateways.
+
+              <p className="text-slate-400 leading-relaxed text-xs">
+                Empowering travellers with real-time airline fares, verified instant PNR generation, and seamless web check-in.
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-white/5 space-y-2 text-[11px] text-slate-400">
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>{addressText}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                <a href={`mailto:${emailText}`} className="text-slate-300 hover:text-white transition-colors">
+                  {emailText}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bento Pod 2: Top Domestic Routes */}
+          <div className="bg-slate-900/40 rounded-3xl p-6 border border-white/5 space-y-4">
+            <h5 className="font-black text-white uppercase tracking-wider text-xs flex items-center gap-2">
+              <Plane className="w-4 h-4 text-slate-400" />
+              <span>Popular Flight Corridors</span>
+            </h5>
+
+            <div className="space-y-2">
+              {domesticRoutes.map(r => (
+                <button
+                  key={r.label}
+                  onClick={() => onSelectRoute(r.from, r.to)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all text-left cursor-pointer group border border-white/5"
+                >
+                  <span className="font-bold text-xs">{r.label}</span>
+                  <div className="flex items-center gap-1 text-[11px] font-mono text-slate-400 group-hover:text-emerald-400 font-bold">
+                    <span>{r.from} ➔ {r.to}</span>
+                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Bento Pod 3: Company & Passenger Charter */}
+          <div className="bg-slate-900/40 rounded-3xl p-6 border border-white/5 space-y-4">
+            <h5 className="font-black text-white uppercase tracking-wider text-xs flex items-center gap-2">
+              <FileText className="w-4 h-4 text-slate-400" />
+              <span>Passenger Charter</span>
+            </h5>
+
+            <ul className="space-y-2.5 font-bold">
+              <li>
+                <Link to="/about" className="text-slate-400 hover:text-white transition-colors flex items-center justify-between">
+                  <span>About Our Airline Network</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-600" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-slate-400 hover:text-white transition-colors flex items-center justify-between">
+                  <span>24x7 Helpdesk & Concierge</span>
+                  <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-black">ACTIVE</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-slate-400 hover:text-white transition-colors flex items-center justify-between">
+                  <span>Terms & Passenger Conditions</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-600" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms#cancellation" className="text-slate-400 hover:text-white transition-colors flex items-center justify-between">
+                  <span>Instant Refund & Cancellation</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-600" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms#passport" className="text-slate-400 hover:text-white transition-colors flex items-center justify-between">
+                  <span>Passport & Visa Protocols</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-600" />
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Bento Pod 4: Airline Partners & Security */}
+          <div className="bg-slate-900/40 rounded-3xl p-6 border border-white/5 space-y-4 flex flex-col justify-between">
+            <div className="space-y-3">
+              <h5 className="font-black text-white uppercase tracking-wider text-xs flex items-center gap-2">
+                <Globe2 className="w-4 h-4 text-slate-400" />
+                <span>Partner Airlines</span>
+              </h5>
+
+              <div className="flex flex-wrap gap-1.5">
+                {partnerAirlinesList.map(a => (
+                  <span key={a} className="px-3 py-1 bg-white/5 rounded-full text-slate-300 border border-white/5 font-black text-[10px]">
+                    {a}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-slate-950 border border-white/10 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-400 uppercase tracking-wider">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Bank Encrypted Checkout</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                256-bit SSL encryption for UPI, RuPay, Visa, Mastercard, and net-banking transactions.
               </p>
             </div>
           </div>
 
         </div>
 
-        {/* Security & Payment Badges */}
-        <div className="pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+        {/* Bottom Bar: Copyright & Operational Status */}
+        <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-slate-400" />
-            <span>Secure 256-bit SSL Gateway • UPI, RuPay, Visa, Mastercard, NetBanking</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>All Aviation & GDS Inventory Systems Fully Operational</span>
           </div>
 
-          <div className="flex items-center gap-1 text-[11px]">
-            <span>Crafted with</span>
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span>for seamless aviation travel</span>
+          <div>
+            {copyrightText}
           </div>
         </div>
 

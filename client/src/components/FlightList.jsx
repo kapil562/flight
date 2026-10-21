@@ -424,7 +424,7 @@ export default function FlightList({
       <div className="border-b border-slate-100 pb-5">
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Maximum Price</h4>
-          <span className="text-sm font-black text-sky-600 font-mono">₹{maxPrice.toLocaleString('en-IN')}</span>
+          <span className="text-sm font-black text-slate-950 font-mono">₹{maxPrice.toLocaleString('en-IN')}</span>
         </div>
         <input
           type="range"
@@ -433,7 +433,7 @@ export default function FlightList({
           step={250}
           value={maxPrice}
           onChange={(e) => setMaxPrice(parseInt(e.target.value))}
-          className="w-full accent-slate-900 cursor-pointer"
+          className="w-full accent-slate-950 cursor-pointer"
         />
         <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono font-bold">
           <span>₹{(minAvailablePrice || 2500).toLocaleString('en-IN')}</span>
@@ -458,7 +458,7 @@ export default function FlightList({
                     type="checkbox"
                     checked={isChecked}
                     onChange={() => {}}
-                    className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 rounded-sm"
+                    className="w-4 h-4 rounded text-slate-950 focus:ring-slate-950 accent-slate-950 rounded-sm cursor-pointer"
                   />
                   <AirlineBadge code={airline.code} name={airline.name} size="sm" showDetails={false} />
                   <span className="font-bold text-slate-800 truncate">{airline.name}</span>
@@ -489,12 +489,12 @@ export default function FlightList({
         <button
           type="button"
           onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-600 text-white font-black text-xs shrink-0 shadow-md shadow-sky-600/20 cursor-pointer"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-950 text-white font-black text-xs shrink-0 shadow-md cursor-pointer"
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span>Filters</span>
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-white text-sky-700 text-[10px] flex items-center justify-center font-black">
+            <span className="w-4 h-4 rounded-full bg-white text-slate-950 text-[10px] flex items-center justify-center font-black">
               {activeFilterCount}
             </span>
           )}
@@ -505,7 +505,7 @@ export default function FlightList({
           onClick={() => setSelectedStops(selectedStops === '0' ? 'all' : '0')}
           className={`px-3 py-2 rounded-xl text-xs font-black shrink-0 border transition-all cursor-pointer ${
             selectedStops === '0'
-              ? 'bg-sky-50 border-sky-500 text-sky-700 font-black'
+              ? 'bg-slate-950 border-slate-950 text-white font-black'
               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
           }`}
         >
@@ -517,7 +517,7 @@ export default function FlightList({
           onClick={() => setSortBy('cheapest')}
           className={`px-3 py-2 rounded-xl text-xs font-black shrink-0 border transition-all cursor-pointer ${
             sortBy === 'cheapest'
-              ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+              ? 'bg-slate-950 border-slate-950 text-white'
               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
           }`}
         >
@@ -529,7 +529,7 @@ export default function FlightList({
           onClick={() => setSelectedTimeSlot(selectedTimeSlot === 'morning' ? 'all' : 'morning')}
           className={`px-3 py-2 rounded-xl text-xs font-black shrink-0 border transition-all cursor-pointer ${
             selectedTimeSlot === 'morning'
-              ? 'bg-sky-50 border-sky-500 text-sky-700'
+              ? 'bg-slate-950 border-slate-950 text-white'
               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
           }`}
         >
@@ -541,13 +541,13 @@ export default function FlightList({
         
         {/* Left Sidebar Filter Column (Visible on Desktop) */}
         <aside className="hidden lg:block lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-[0_4px_24px_rgba(15,23,42,0.04)] sticky top-24">
+          <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sticky top-28">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-2 font-black text-slate-900 text-sm">
-                <SlidersHorizontal className="w-4 h-4 text-sky-600" />
-                <span>Filter Flights</span>
+              <div className="flex items-center gap-2 font-black text-slate-950 text-sm">
+                <SlidersHorizontal className="w-4 h-4 text-slate-950" />
+                <span>Filter Studio</span>
                 {activeFilterCount > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-sky-600 text-white text-[10px] flex items-center justify-center font-black">
+                  <span className="w-5 h-5 rounded-full bg-slate-950 text-white text-[10px] flex items-center justify-center font-black">
                     {activeFilterCount}
                   </span>
                 )}
@@ -555,7 +555,7 @@ export default function FlightList({
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-slate-500 hover:text-slate-950 flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -850,12 +850,12 @@ export default function FlightList({
               </div>
 
               {/* Sorting Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl text-xs font-black overflow-x-auto scrollbar-none border border-slate-200/80">
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl text-xs font-black overflow-x-auto scrollbar-none border border-slate-200">
                 <button
                   type="button"
                   onClick={() => setSortBy('cheapest')}
-                  className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
-                    sortBy === 'cheapest' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'cheapest' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
                   }`}
                 >
                   Cheapest
@@ -863,8 +863,8 @@ export default function FlightList({
                 <button
                   type="button"
                   onClick={() => setSortBy('fastest')}
-                  className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
-                    sortBy === 'fastest' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'fastest' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
                   }`}
                 >
                   Fastest
@@ -872,8 +872,8 @@ export default function FlightList({
                 <button
                   type="button"
                   onClick={() => setSortBy('earliest')}
-                  className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
-                    sortBy === 'earliest' ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  className={`px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
+                    sortBy === 'earliest' ? 'bg-slate-950 text-white shadow-sm' : 'text-slate-600 hover:text-slate-950'
                   }`}
                 >
                   Earliest
@@ -900,14 +900,14 @@ export default function FlightList({
                   
                   {/* Left Column: Departure Flights */}
                   <div className="space-y-3.5">
-                    <div className="bg-sky-50/80 border border-sky-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                    <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] font-black uppercase text-sky-700 tracking-wider block">
+                        <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider block">
                           Departure Flight
                         </span>
                         <h4 className="font-black text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
                           <span>{roundTripData.from}</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-sky-600" />
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
                           <span>{roundTripData.to}</span>
                         </h4>
                         <p className="text-[11px] text-slate-500 font-medium">
@@ -916,7 +916,7 @@ export default function FlightList({
                       </div>
 
                       {selectedOnwardFlight && (
-                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-sky-100 shadow-xs">
+                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
                           <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
                           <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
                             ₹{selectedOnwardFlight.basePrice?.toLocaleString('en-IN')}
@@ -946,14 +946,14 @@ export default function FlightList({
 
                   {/* Right Column: Return Flights */}
                   <div className="space-y-3.5">
-                    <div className="bg-indigo-50/80 border border-indigo-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                    <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] font-black uppercase text-indigo-700 tracking-wider block">
+                        <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider block">
                           Return Flight
                         </span>
                         <h4 className="font-black text-slate-900 text-sm sm:text-base flex items-center gap-1.5">
                           <span>{roundTripData.to}</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
                           <span>{roundTripData.from}</span>
                         </h4>
                         <p className="text-[11px] text-slate-500 font-medium">
@@ -962,7 +962,7 @@ export default function FlightList({
                       </div>
 
                       {selectedReturnFlight && (
-                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-indigo-100 shadow-xs">
+                        <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
                           <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">Selected Fare</span>
                           <span className="font-mono font-black text-emerald-600 text-xs sm:text-sm">
                             ₹{selectedReturnFlight.basePrice?.toLocaleString('en-IN')}
@@ -1100,8 +1100,8 @@ export default function FlightList({
             </div>
           ) : processedFlights.length === 0 ? (
             <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center shadow-xs">
-              <div className="w-16 h-16 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <RotateCcw className="w-8 h-8" />
+              <div className="w-16 h-16 bg-slate-100 text-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                <RotateCcw className="w-7 h-7" />
               </div>
               <h3 className="text-xl font-black text-slate-900 mb-1">
                 {flights.length === 0 ? 'No Live Flights Found' : 'No Flights Match Your Filter'}
@@ -1115,7 +1115,7 @@ export default function FlightList({
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="px-6 py-2.5 bg-sky-600 text-white font-black rounded-xl text-xs sm:text-sm shadow-md hover:bg-sky-500 transition-colors cursor-pointer"
+                  className="px-6 py-3 bg-slate-950 hover:bg-black text-white font-black rounded-2xl text-xs sm:text-sm shadow-md transition-all cursor-pointer"
                 >
                   Reset All Filters
                 </button>
@@ -1302,7 +1302,7 @@ export default function FlightList({
                       setMobileRoundTab('return');
                       if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
                     }}
-                    className="flex-1 sm:flex-none px-5 sm:px-7 py-3 bg-sky-500 hover:bg-sky-400 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    className="flex-1 sm:flex-none px-5 sm:px-7 py-3 bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm rounded-2xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                   >
                     <span>Choose Return Flight</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1314,7 +1314,7 @@ export default function FlightList({
                       setMobileRoundTab('onward');
                       if (roundTripViewMode !== 'tabs') setRoundTripViewMode('tabs');
                     }}
-                    className="flex-1 sm:flex-none px-5 sm:px-7 py-3 bg-sky-500 hover:bg-sky-400 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    className="flex-1 sm:flex-none px-5 sm:px-7 py-3 bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm rounded-2xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                   >
                     <span>Choose Departure Flight</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1341,10 +1341,10 @@ export default function FlightList({
             >
               <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-sky-600" />
-                  <h3 className="font-black text-slate-900 text-base">Filter Flights</h3>
+                  <SlidersHorizontal className="w-4 h-4 text-slate-950" />
+                  <h3 className="font-black text-slate-900 text-base">Filter Studio</h3>
                   {activeFilterCount > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-sky-600 text-white text-xs flex items-center justify-center font-bold">
+                    <span className="w-5 h-5 rounded-full bg-slate-950 text-white text-xs flex items-center justify-center font-bold">
                       {activeFilterCount}
                     </span>
                   )}
@@ -1373,7 +1373,7 @@ export default function FlightList({
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="flex-1 py-3 rounded-2xl bg-sky-600 text-white font-black text-xs shadow-md shadow-sky-600/30 cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-3 rounded-2xl bg-slate-950 text-white font-black text-xs shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Check className="w-4 h-4" />
                   <span>Show {processedFlights.length} Flights</span>
