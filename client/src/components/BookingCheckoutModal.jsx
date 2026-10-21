@@ -2788,13 +2788,7 @@ export default function BookingCheckoutModal({
                       )}
                     </div>
 
-                    {/* Success / Error alerts */}
-                    {couponMsg && (
-                      <div className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-xl flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>{couponMsg}</span>
-                      </div>
-                    )}
+                    {/* Error alert */}
                     {couponError && (
                       <div className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-xl flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
