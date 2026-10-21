@@ -2787,31 +2787,6 @@ export default function BookingCheckoutModal({
                       </span>
                     </div>
 
-                    {/* If coupon is currently applied */}
-                    {discountAmount > 0 && (
-                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-300 rounded-xl flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">🎉</span>
-                          <div>
-                            <div className="font-extrabold text-emerald-900 text-xs sm:text-sm flex items-center gap-1.5">
-                              <span>Coupon Applied: <strong className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700">{couponCode}</strong></span>
-                              <span className="text-emerald-700 font-black">(-₹{discountAmount.toLocaleString('en-IN')})</span>
-                            </div>
-                            <p className="text-[11px] text-emerald-700">
-                              You saved ₹{discountAmount.toLocaleString('en-IN')} on this booking!
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleRemovePromo}
-                          className="px-3 py-1.5 bg-white text-rose-600 hover:bg-rose-50 font-bold text-xs rounded-lg border border-rose-200 transition-colors cursor-pointer shadow-2xs shrink-0"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-
                     {/* Coupon input field */}
                     <div className="flex items-center gap-2">
                       <input
