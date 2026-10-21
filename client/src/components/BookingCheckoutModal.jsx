@@ -3067,13 +3067,13 @@ export default function BookingCheckoutModal({
                     const txnRef = `ASG${flight.id || 'FL'}${Date.now().toString().slice(-6)}`;
                     const note = `Flight ${flight.flightNumber || 'Ticket'}`;
                     const upiPayload = `upi://pay?pa=${encodeURIComponent(activeVpa)}&pn=${encodeURIComponent(activeName)}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent(note)}&mc=${encodeURIComponent(activeMcc)}&tr=${encodeURIComponent(txnRef)}`;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(upiPayload)}`;
 
                     return (
                       <div className="p-3.5 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200">
                         <div className="flex flex-row items-center justify-center gap-3.5 text-left">
                           {/* QR Box */}
-                          <div className="p-1.5 bg-white rounded-2xl shadow-xs border border-slate-200 text-center shrink-0 w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center relative overflow-hidden">
+                          <div className="p-2 bg-white rounded-2xl shadow-xs border border-slate-200 text-center shrink-0 w-32 h-32 sm:w-36 sm:h-36 flex flex-col items-center justify-center relative overflow-hidden">
                             {qrLoading ? (
                               <div className="flex flex-col items-center justify-center w-full h-full p-1 bg-slate-50/90 relative rounded-lg">
                                 {/* Animated Scanning Beam */}
@@ -3083,10 +3083,10 @@ export default function BookingCheckoutModal({
                                   transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
                                 />
                                 <div className="relative">
-                                  <QrCode className="w-8 h-8 text-sky-600 animate-pulse" />
-                                  <RefreshCw className="w-3.5 h-3.5 text-emerald-600 animate-spin absolute -bottom-1 -right-1" />
+                                  <QrCode className="w-10 h-10 text-sky-600 animate-pulse" />
+                                  <RefreshCw className="w-4 h-4 text-emerald-600 animate-spin absolute -bottom-1 -right-1" />
                                 </div>
-                                <span className="text-[7.5px] font-black text-slate-600 mt-1 uppercase tracking-tight text-center leading-tight">
+                                <span className="text-[8px] font-black text-slate-600 mt-1.5 uppercase tracking-tight text-center leading-tight">
                                   Generating QR...
                                 </span>
                               </div>
