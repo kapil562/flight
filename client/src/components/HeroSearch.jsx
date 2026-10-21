@@ -22,9 +22,11 @@ const POPULAR_HUBS = [
   'VNS', 'GAU', 'DXB', 'BKK', 'SIN', 'LHR'
 ];
 
-// Airbnb-Style Curated Destinations with Live Visual Assets
+// Airbnb-Style Curated Destinations with Live Visual Assets and Explicit Origin-to-Destination Routes
 const CURATED_DESTINATIONS = [
   {
+    fromCode: 'DEL',
+    fromCity: 'Delhi',
     code: 'GOI',
     city: 'Goa',
     title: 'Sun, Sand & Palm Beaches',
@@ -33,6 +35,8 @@ const CURATED_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80'
   },
   {
+    fromCode: 'BOM',
+    fromCity: 'Mumbai',
     code: 'DXB',
     city: 'Dubai',
     title: 'Luxury Skylines & Safari',
@@ -41,6 +45,8 @@ const CURATED_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=600&q=80'
   },
   {
+    fromCode: 'DEL',
+    fromCity: 'Delhi',
     code: 'SXR',
     city: 'Srinagar',
     title: 'Kashmir Paradise & Dal Lake',
@@ -49,6 +55,8 @@ const CURATED_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=600&q=80'
   },
   {
+    fromCode: 'CCU',
+    fromCity: 'Kolkata',
     code: 'BKK',
     city: 'Bangkok',
     title: 'Vibrant Temples & Nightlife',
@@ -57,6 +65,8 @@ const CURATED_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=600&q=80'
   },
   {
+    fromCode: 'DEL',
+    fromCity: 'Delhi',
     code: 'BOM',
     city: 'Mumbai',
     title: 'City of Dreams & Marine Drive',
@@ -65,6 +75,8 @@ const CURATED_DESTINATIONS = [
     image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80'
   },
   {
+    fromCode: 'DEL',
+    fromCity: 'Delhi',
     code: 'BLR',
     city: 'Bengaluru',
     title: 'Silicon Valley of India',
@@ -351,13 +363,16 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
     });
   };
 
-  const handleQuickDestinationSelect = (destCode) => {
-    setToCode(destCode);
+  const handleQuickDestinationSelect = (dest) => {
+    const origin = dest.fromCode || fromCode || 'DEL';
+    const target = dest.code;
+    setFromCode(origin);
+    setToCode(target);
     onSearch({
       tripType: 'oneWay',
-      from: fromCode || 'DEL',
-      to: destCode,
-      date: departureDate,
+      from: origin,
+      to: target,
+      date: departureDate || getTodayDateString(1),
       returnDate: null,
       travelClass,
       passengers,
@@ -1024,31 +1039,62 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
               transition={{ duration: 0.45, delay: idx * 0.06 }}
               whileHover={{ y: -6, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => handleQuickDestinationSelect(dest.code)}
+              onClick={() => handleQuickDestinationSelect(dest)}
               className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-sky-300 transition-all cursor-pointer flex flex-col"
             >
+              {/* Destination Image & Route Badges */}
               <div className="relative aspect-4/3 w-full overflow-hidden bg-slate-100">
                 <img
                   src={dest.image}
                   alt={dest.city}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[9px] font-black uppercase text-slate-900 tracking-wider">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                
+                {/* Category Tag */}
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/95 backdrop-blur-md text-[9px] font-black uppercase text-slate-900 tracking-wider shadow-xs">
                   {dest.tag}
                 </span>
-                <span className="absolute bottom-2 left-2 text-white font-black text-sm tracking-tight drop-shadow-sm">
-                  {dest.city}
+
+                {/* Explicit Airport Route Pill (e.g. DEL ➔ GOI) */}
+                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/85 backdrop-blur-md text-[9px] font-mono font-black text-amber-300 border border-white/20 tracking-wider shadow-xs">
+                  {dest.fromCode} ➔ {dest.code}
                 </span>
+
+                {/* City & From Info on Image */}
+                <div className="absolute bottom-2 left-2.5 right-2">
+                  <div className="text-white font-black text-sm sm:text-base tracking-tight drop-shadow-sm leading-tight">
+                    {dest.city}
+                  </div>
+                  <div className="text-[10px] text-amber-200 font-bold drop-shadow-xs flex items-center gap-1 mt-0.5">
+                    <span>From {dest.fromCity} ({dest.fromCode})</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-3 flex items-center justify-between bg-white flex-1">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">Starting from</span>
-                  <span className="text-sm font-black text-slate-900 font-mono mt-0.5 block">{dest.price}</span>
+              {/* Bottom Details Box */}
+              <div className="p-3 bg-white flex flex-col justify-between flex-1 gap-2">
+                {/* Explicit Search Route (e.g. Delhi ➔ Goa) */}
+                <div className="flex items-center justify-between text-xs pb-1.5 border-b border-slate-100">
+                  <div className="flex items-center gap-1 font-black text-slate-800 text-[11px] truncate">
+                    <span className="text-slate-500 font-medium truncate">{dest.fromCity}</span>
+                    <ArrowRight className="w-3 h-3 text-sky-600 shrink-0 stroke-[2.5]" />
+                    <span className="text-slate-900 font-black truncate">{dest.city}</span>
+                  </div>
+                  <span className="font-mono text-[9px] font-black text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200/60 shrink-0">
+                    Direct
+                  </span>
                 </div>
-                <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-sky-600 group-hover:text-white transition-colors flex items-center justify-center text-slate-600 shrink-0">
-                  <ArrowRight className="w-3.5 h-3.5" />
+
+                {/* Price & Search Arrow */}
+                <div className="flex items-center justify-between pt-0.5">
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block leading-none">Starting from</span>
+                    <span className="text-sm font-black text-slate-900 font-mono mt-0.5 block">{dest.price}</span>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-sky-600 group-hover:text-white transition-colors flex items-center justify-center text-slate-600 shrink-0 shadow-2xs">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
               </div>
             </motion.div>
