@@ -46,7 +46,8 @@ export default function CustomDatePicker({
   to = 'BOM',
   compact = false,
   align = 'left',
-  className = ''
+  className = '',
+  variant = 'capsule'
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -161,122 +162,79 @@ export default function CustomDatePicker({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {/* Trigger Box */}
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        role="button"
-        tabIndex={0}
-        aria-label={`Select ${label} date`}
-        className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/50 hover:bg-white h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between cursor-pointer select-none group focus:outline-hidden focus:ring-2 focus:ring-sky-500"
-      >
-        <div className="flex items-center text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
-          <div className="flex items-center gap-1.5 truncate">
-            <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="truncate">{label}</span>
-          </div>
-        </div>
+      {variant === 'capsule' ? (
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          role="button"
+          tabIndex={0}
+          aria-label={`Select ${label} date`}
+          className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer select-none group w-full text-left"
+        >
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+            {label}
+          </span>
 
-        {value ? (
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-sm sm:text-2xl font-black text-slate-900 leading-none">
-              {formattedDay}
-            </span>
-            <div className="flex flex-col">
-              <span className="text-xs sm:text-sm font-extrabold text-slate-800 leading-tight">
-                {formattedMonthYear}
+          {value ? (
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-sm sm:text-base font-black text-slate-900 truncate">
+                {formattedDay} {formattedMonthYear}
               </span>
-              <span className="text-[10px] sm:text-xs font-medium text-slate-500 capitalize leading-none">
-                {formattedWeekday}
+              <span className="text-[10px] sm:text-xs font-bold text-slate-500 capitalize shrink-0">
+                • {formattedWeekday.slice(0, 3)}
               </span>
             </div>
-          </div>
-        ) : (
-          <div className="py-0.5">
-            <div className="text-xs sm:text-sm font-extrabold text-slate-400">
+          ) : (
+            <div className="text-sm sm:text-base font-black text-slate-400 mt-0.5">
               Select Date
             </div>
-            <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium truncate">
-              {subText || 'Add date for discounts'}
+          )}
+
+          <span className="text-[10px] text-slate-400 truncate block mt-0.5">
+            {subText || (label.toLowerCase().includes('return') ? 'Aane ki ticket' : 'Departure date')}
+          </span>
+        </div>
+      ) : (
+        /* Legacy Boxed Mode (for multi-city forms if needed) */
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          role="button"
+          tabIndex={0}
+          aria-label={`Select ${label} date`}
+          className="p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-slate-200 hover:border-sky-500 transition-all bg-slate-50/50 hover:bg-white h-full min-h-[76px] sm:min-h-[84px] flex flex-col justify-between cursor-pointer select-none group focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+        >
+          <div className="flex items-center text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">
+            <div className="flex items-center gap-1.5 truncate">
+              <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="truncate">{label}</span>
             </div>
           </div>
-        )}
 
-        {/* Quick Select Buttons */}
-        <div className="flex items-center gap-1 mt-1 sm:mt-1.5">
-          {label === 'Return' || (minDate && minDate > getTodayString()) ? (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(minDate || getTodayString(3));
-                }}
-                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                +0D
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const base = parseYMD(minDate || value) || new Date();
-                  const d = new Date(base);
-                  d.setDate(d.getDate() + 3);
-                  onChange(formatYMD(d));
-                }}
-                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                +3D
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const base = parseYMD(minDate || value) || new Date();
-                  const d = new Date(base);
-                  d.setDate(d.getDate() + 7);
-                  onChange(formatYMD(d));
-                }}
-                className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                +7D
-              </button>
-            </>
+          {value ? (
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-sm sm:text-2xl font-black text-slate-900 leading-none">
+                {formattedDay}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-xs sm:text-sm font-extrabold text-slate-800 leading-tight">
+                  {formattedMonthYear}
+                </span>
+                <span className="text-[10px] sm:text-xs font-medium text-slate-500 capitalize leading-none">
+                  {formattedWeekday}
+                </span>
+              </div>
+            </div>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(getTodayString(0));
-                }}
-                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                Today
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(getTodayString(1));
-                }}
-                className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                Tomorrow
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange(getTodayString(7));
-                }}
-                className="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 hover:bg-sky-50 hover:text-sky-600 text-slate-600 transition-colors"
-              >
-                +7D
-              </button>
-            </>
+            <div className="py-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-slate-400">
+                Select Date
+              </div>
+              <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium truncate">
+                {subText || 'Add date for discounts'}
+              </div>
+            </div>
           )}
         </div>
-      </div>
+      )}
 
       {/* Modern Airline-Grade Calendar Popover */}
       <AnimatePresence>

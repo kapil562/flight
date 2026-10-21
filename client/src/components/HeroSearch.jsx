@@ -690,21 +690,21 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
           </div>
         ) : (
           /* Standard Unified Pill Bar (One Way / Round Trip) */
-          <div className="bg-white/95 backdrop-blur-2xl rounded-3xl sm:rounded-full p-2.5 sm:p-3 shadow-[0_24px_70px_rgba(15,23,42,0.1)] border border-slate-200/90 transition-all hover:shadow-[0_28px_80px_rgba(15,23,42,0.14)]">
-            <div className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2 relative">
+          <div className="bg-white/95 backdrop-blur-2xl rounded-3xl lg:rounded-full p-2 sm:p-2.5 shadow-[0_24px_70px_rgba(15,23,42,0.1)] border border-slate-200/90 transition-all hover:shadow-[0_28px_80px_rgba(15,23,42,0.14)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center relative gap-1.5 lg:gap-0">
               
               {/* SECTION 1: ORIGIN (FROM) */}
-              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-3' : 'sm:col-span-3'} relative`} ref={fromRef}>
+              <div className="flex-1 min-w-0 relative" ref={fromRef}>
                 <div
                   onClick={() => { setShowFromDrop(!showFromDrop); setShowToDrop(false); }}
-                  className="p-3 sm:px-5 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
                 >
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where From?</span>
-                  <div className="flex items-baseline justify-between mt-0.5">
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-sm sm:text-base font-black text-slate-900 truncate">
                       {fromAirport.city}
                     </span>
-                    <span className="text-xs sm:text-sm font-mono font-black text-sky-600 ml-1">
+                    <span className="text-[10px] sm:text-xs font-mono font-black text-sky-700 bg-sky-50 border border-sky-200/80 px-1.5 py-0.5 rounded-md shrink-0">
                       {fromAirport.code}
                     </span>
                   </div>
@@ -750,45 +750,46 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
 
-                {/* Floating 3D Swap Button */}
-                <div className="hidden sm:flex absolute -right-3.5 top-1/2 -translate-y-1/2 z-20">
-                  <motion.button
-                    type="button"
-                    onClick={handleSwapAirports}
-                    whileHover={{ scale: 1.15, rotate: 180 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: 'spring', stiffness: 350, damping: 20 }}
-                    className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 cursor-pointer"
-                  >
-                    <ArrowLeftRight className="w-3.5 h-3.5" />
-                  </motion.button>
-                </div>
+              {/* Desktop Swap Button between Origin & Destination */}
+              <div className="hidden lg:flex items-center justify-center -mx-3.5 z-20 shrink-0">
+                <motion.button
+                  type="button"
+                  onClick={handleSwapAirports}
+                  whileHover={{ scale: 1.15, rotate: 180 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                  className="w-7 h-7 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-sky-600 cursor-pointer"
+                  title="Swap Origin and Destination"
+                >
+                  <ArrowLeftRight className="w-3.5 h-3.5" />
+                </motion.button>
               </div>
 
               {/* Mobile Centered Swap Button */}
-              <div className="flex sm:hidden justify-center -my-2 z-10">
+              <div className="flex lg:hidden justify-center -my-2 z-10">
                 <button
                   type="button"
                   onClick={handleSwapAirports}
-                  className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600"
+                  className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-xs"
                 >
                   <ArrowLeftRight className="w-3 h-3 rotate-90" />
                 </button>
               </div>
 
               {/* SECTION 2: DESTINATION (TO) */}
-              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-3' : 'sm:col-span-3'} relative`} ref={toRef}>
+              <div className="flex-1 min-w-0 relative" ref={toRef}>
                 <div
                   onClick={() => { setShowToDrop(!showToDrop); setShowFromDrop(false); }}
-                  className="p-3 sm:px-5 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer group"
                 >
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Where To?</span>
-                  <div className="flex items-baseline justify-between mt-0.5">
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-sm sm:text-base font-black text-slate-900 truncate">
                       {toAirport.city}
                     </span>
-                    <span className="text-xs sm:text-sm font-mono font-black text-blue-600 ml-1">
+                    <span className="text-[10px] sm:text-xs font-mono font-black text-blue-700 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded-md shrink-0">
                       {toAirport.code}
                     </span>
                   </div>
@@ -836,10 +837,15 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </AnimatePresence>
               </div>
 
+              {/* Subtle Vertical Divider */}
+              <div className="hidden lg:block w-px h-8 bg-slate-200/80 mx-1 shrink-0" />
+
               {/* SECTION 3A: DEPARTURE DATE (JAANA) */}
-              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-6 lg:col-span-2' : 'sm:col-span-3'}`}>
+              <div className="flex-1 min-w-0">
                 <CustomDatePicker
+                  variant="capsule"
                   label={tripType === 'roundTrip' ? "Departure" : "Departure Date"}
+                  subText="Jaane ki date"
                   value={departureDate}
                   onChange={(d) => {
                     setDepartureDate(d);
@@ -860,25 +866,32 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
 
               {/* SECTION 3B: RETURN DATE (AANA - AANE KI TICKET) */}
               {tripType === 'roundTrip' && (
-                <div className="sm:col-span-6 lg:col-span-2">
-                  <CustomDatePicker
-                    label="Return Date"
-                    subText="Aane ki ticket"
-                    value={returnDate || getTodayDateString(3)}
-                    onChange={(d) => setReturnDate(d)}
-                    minDate={departureDate || getTodayDateString()}
-                    from={toCode}
-                    to={fromCode}
-                    align="right"
-                  />
-                </div>
+                <>
+                  <div className="hidden lg:block w-px h-8 bg-slate-200/80 mx-1 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <CustomDatePicker
+                      variant="capsule"
+                      label="Return Date"
+                      subText="Aane ki ticket"
+                      value={returnDate || getTodayDateString(3)}
+                      onChange={(d) => setReturnDate(d)}
+                      minDate={departureDate || getTodayDateString()}
+                      from={toCode}
+                      to={fromCode}
+                      align="right"
+                    />
+                  </div>
+                </>
               )}
 
-              {/* SECTION 4: TRAVELLERS & SEARCH ACTION */}
-              <div className={`${tripType === 'roundTrip' ? 'sm:col-span-12 lg:col-span-2' : 'sm:col-span-3'} flex items-center gap-2`} ref={paxRef}>
+              {/* Subtle Vertical Divider */}
+              <div className="hidden lg:block w-px h-8 bg-slate-200/80 mx-1 shrink-0" />
+
+              {/* SECTION 4: TRAVELLERS */}
+              <div className="flex-1 min-w-0 relative" ref={paxRef}>
                 <div
                   onClick={() => setShowPaxModal(!showPaxModal)}
-                  className="flex-1 p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer relative"
+                  className="p-3 sm:px-4 sm:py-3 rounded-2xl sm:rounded-full hover:bg-slate-100/80 transition-all cursor-pointer relative group"
                 >
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Who's Flying?</span>
                   <div className="text-sm sm:text-base font-black text-slate-900 truncate mt-0.5">
@@ -952,17 +965,18 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
 
-                {/* Large Circular Search Button (Apple / Airbnb Luxury Obsidian Style with Micro-Glow) */}
+              {/* SECTION 5: LARGE CIRCULAR SEARCH BUTTON */}
+              <div className="p-1 shrink-0 flex items-center justify-center">
                 <motion.button
                   type="button"
                   onClick={handleSearchSubmit}
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.94 }}
-                  className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 hover:bg-black text-white flex items-center justify-center shadow-xl shadow-slate-900/30 cursor-pointer shrink-0 transition-all group overflow-hidden"
+                  className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-slate-900 hover:bg-black text-white flex items-center justify-center shadow-xl shadow-slate-900/30 cursor-pointer shrink-0 transition-all group overflow-hidden"
                   title="Search Flights"
                 >
-                  {/* Subtle Shimmer Sheen on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-sky-400/0 via-sky-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <Search className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5] relative z-10 group-hover:rotate-6 transition-transform duration-300" />
                 </motion.button>
