@@ -64,7 +64,8 @@ export default function WhyBookSection() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: 0.05 }}
             whileHover={{ y: -4 }}
-            className="lg:col-span-7 bg-slate-950 text-white rounded-3xl p-7 sm:p-10 border border-white/10 shadow-2xl flex flex-col justify-between relative overflow-hidden group"
+            whileTap={{ scale: 0.98 }}
+            className="lg:col-span-7 bg-slate-950 text-white rounded-3xl p-7 sm:p-10 border border-white/10 shadow-2xl flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           >
             {/* Subtle Plane Watermark in Background */}
             <div className="absolute -right-8 -bottom-8 opacity-5 pointer-events-none">
@@ -134,7 +135,8 @@ export default function WhyBookSection() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: 0.12 }}
             whileHover={{ y: -4 }}
-            className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
+            whileTap={{ scale: 0.98 }}
+            className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between cursor-pointer"
           >
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mb-6 shadow-xs">
@@ -169,7 +171,8 @@ export default function WhyBookSection() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: 0.18 }}
             whileHover={{ y: -4 }}
-            className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
+            whileTap={{ scale: 0.98 }}
+            className="lg:col-span-5 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between cursor-pointer"
           >
             <div>
               <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-900 border border-slate-200 flex items-center justify-center mb-6 shadow-xs">
@@ -202,7 +205,8 @@ export default function WhyBookSection() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: 0.24 }}
             whileHover={{ y: -4 }}
-            className="lg:col-span-7 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+            whileTap={{ scale: 0.98 }}
+            className="lg:col-span-7 bg-white rounded-3xl p-7 sm:p-10 border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.04)] hover:shadow-xl hover:border-slate-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 cursor-pointer"
           >
             <div className="space-y-2 max-w-md">
               <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shadow-xs">

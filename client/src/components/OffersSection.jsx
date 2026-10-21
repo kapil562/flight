@@ -84,7 +84,8 @@ export default function OffersSection({ onApplyPromo }) {
             viewport={{ once: true }}
             transition={{ duration: 0.45, delay: index * 0.08 }}
             whileHover={{ y: -6, scale: 1.01 }}
-            className="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between"
+            whileTap={{ scale: 0.98 }}
+            className="rounded-3xl p-6 bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between cursor-pointer"
           >
             <div>
               <div className="flex items-center justify-between mb-4">

@@ -87,7 +87,7 @@ export default function ServiceTabs({
                     onSelectService(srv.id);
                   }
                 }}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-colors duration-200 whitespace-nowrap cursor-pointer shrink-0 relative ${
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full font-black text-xs sm:text-sm transition-all duration-200 whitespace-nowrap cursor-pointer shrink-0 relative active:scale-95 ${
                   isActive
                     ? 'text-white'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'

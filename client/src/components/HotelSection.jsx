@@ -345,7 +345,9 @@ export default function HotelSection() {
               key={hotel.id}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.985 }}
+              className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
             >
               <div>
                 {/* Image & Badges */}

@@ -404,37 +404,37 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
           className="absolute top-14 right-1/4 w-96 h-96 bg-gradient-to-br from-amber-200/40 via-rose-200/30 to-purple-200/25 rounded-full blur-3xl" 
         />
         
-        {/* Subtle Gliding Jet Arc Micro-Animation */}
-        <div className="absolute top-6 left-0 right-0 h-24 hidden md:block opacity-35 overflow-hidden">
-          <svg className="w-full h-full" viewBox="0 0 1000 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Responsive Gliding Jet Arc Micro-Animation across Mobile, Tablet, Desktop */}
+        <div className="absolute top-2 sm:top-6 left-0 right-0 h-16 sm:h-24 opacity-35 sm:opacity-45 overflow-hidden pointer-events-none">
+          <svg className="w-full h-full" viewBox="0 0 1000 80" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <path 
-              d="M 50 70 Q 500 10 950 70" 
+              d="M 20 65 Q 500 12 980 65" 
               stroke="url(#flightGradHero)" 
-              strokeWidth="1.5" 
+              strokeWidth="2" 
               strokeDasharray="6 6" 
             />
             <defs>
               <linearGradient id="flightGradHero" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#0284c7" stopOpacity="0" />
-                <stop offset="50%" stopColor="#0284c7" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#0284c7" stopOpacity="0.85" />
                 <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
               </linearGradient>
             </defs>
           </svg>
           <motion.div
             animate={{
-              x: ['5%', '92%'],
-              y: [40, 6, 40],
+              x: ['3%', '94%'],
+              y: [36, 6, 36],
               rotate: [18, 0, -18]
             }}
             transition={{
               repeat: Infinity,
-              duration: 18,
+              duration: 16,
               ease: "easeInOut"
             }}
-            className="absolute top-0 left-0 text-sky-600 pointer-events-none drop-shadow-sm"
+            className="absolute top-0 left-0 text-sky-600 pointer-events-none drop-shadow-xs will-change-transform"
           >
-            <Plane className="w-4 h-4 fill-sky-600/30" />
+            <Plane className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-sky-600/30" />
           </motion.div>
         </div>
       </div>
@@ -767,15 +767,18 @@ export default function HeroSearch({ airports, onSearch, searchParams, settings 
                 </motion.button>
               </div>
 
-              {/* Mobile Centered Swap Button */}
+              {/* Mobile Centered Swap Button with Tactile Spring Animation */}
               <div className="flex lg:hidden justify-center -my-2 z-10">
-                <button
+                <motion.button
                   type="button"
                   onClick={handleSwapAirports}
-                  className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-xs"
+                  whileTap={{ scale: 0.85, rotate: 270 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                  className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-xs active:bg-sky-50 active:text-sky-600 cursor-pointer"
+                  title="Swap Origin and Destination"
                 >
                   <ArrowLeftRight className="w-3 h-3 rotate-90" />
-                </button>
+                </motion.button>
               </div>
 
               {/* SECTION 2: DESTINATION (TO) */}

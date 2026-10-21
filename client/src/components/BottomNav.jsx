@@ -68,10 +68,12 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
         const isActive = activeService === item.id;
 
         return (
-          <button
+          <motion.button
             key={item.id}
             onClick={item.action}
-            className={`flex-1 flex flex-col items-center justify-center py-1 relative text-center cursor-pointer transition-all active:scale-90 ${
+            whileTap={{ scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 450, damping: 20 }}
+            className={`flex-1 flex flex-col items-center justify-center py-1 relative text-center cursor-pointer transition-colors ${
               isActive ? 'text-slate-900 font-black' : 'text-slate-400 font-bold'
             }`}
           >
@@ -95,9 +97,13 @@ export default function BottomNav({ activeService, onSelectService, onOpenMyBook
             </span>
 
             {isActive && (
-              <div className="w-1 h-1 rounded-full bg-slate-900 mt-0.5" />
+              <motion.div 
+                layoutId="bottomNavDot"
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="w-1.5 h-1.5 rounded-full bg-slate-900 mt-0.5" 
+              />
             )}
-          </button>
+          </motion.button>
         );
       })}
     </nav>

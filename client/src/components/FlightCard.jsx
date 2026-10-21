@@ -233,7 +233,7 @@ export default function FlightCard({
                 <div className="relative flex items-center justify-center my-1">
                   <div className="w-full h-0.5 bg-slate-300 rounded-full" />
                   <div className="absolute w-2 h-2 rounded-full bg-slate-900 -left-0.5" />
-                  <div className="absolute w-6 h-6 rounded-full bg-slate-950 text-white flex items-center justify-center shadow-xs">
+                  <div className="absolute w-6 h-6 rounded-full bg-slate-950 text-white flex items-center justify-center shadow-xs group-hover:translate-x-2 transition-transform duration-300">
                     <Plane className="w-3 h-3 rotate-45 text-white" />
                   </div>
                   <div className="absolute w-2 h-2 rounded-full bg-slate-900 -right-0.5" />
@@ -307,7 +307,7 @@ export default function FlightCard({
                   }
                 }}
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.95 }}
                 className={`w-full sm:w-auto lg:w-full py-3 px-6 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   isSelected
                     ? 'bg-slate-950 text-white ring-2 ring-slate-950'
