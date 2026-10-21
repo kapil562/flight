@@ -25,6 +25,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
   const modalTicketRef = useRef(null);
   const indigoPdfRef = useRef(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState('');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   // Trigger celebration confetti upon mount
@@ -44,6 +45,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
   const handleDownloadPDF = async () => {
     if (isGeneratingPDF) return;
     setIsGeneratingPDF(true);
+    setPdfProgress('Preparing document...');
     try {
       const pageElements = document.querySelectorAll('.indigo-pdf-page');
       if (!pageElements || pageElements.length === 0) {
@@ -59,20 +61,50 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       });
 
       for (let i = 0; i < pageElements.length; i++) {
+        setPdfProgress(`Rendering Page ${i + 1} of ${pageElements.length}...`);
         if (i > 0) pdf.addPage('a4', 'portrait');
         const el = pageElements[i];
+
         const canvas = await html2canvas(el, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
           logging: false,
-          windowWidth: 794
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 794,
+          windowHeight: 1123,
+          onclone: (clonedDoc) => {
+            const container = clonedDoc.getElementById('indigo-pdf-render-container');
+            if (container) {
+              container.style.position = 'static';
+              container.style.left = '0';
+              container.style.top = '0';
+              container.style.margin = '0';
+              container.style.padding = '0';
+              container.style.display = 'block';
+              container.style.visibility = 'visible';
+            }
+            const pages = clonedDoc.querySelectorAll('.indigo-pdf-page');
+            pages.forEach((p, pIdx) => {
+              if (pIdx === i) {
+                p.style.display = 'block';
+                p.style.position = 'static';
+                p.style.visibility = 'visible';
+                p.style.margin = '0';
+              } else {
+                p.style.display = 'none';
+              }
+            });
+          }
         });
+
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       }
 
+      setPdfProgress('Saving PDF...');
       const cleanPnr = (booking.pnr || booking.bookingId || 'CONFIRMED').toUpperCase();
       pdf.save(`IndiGo-Itinerary-${cleanPnr}.pdf`);
     } catch (err) {
@@ -80,6 +112,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       window.print();
     } finally {
       setIsGeneratingPDF(false);
+      setPdfProgress('');
     }
   };
 
@@ -196,6 +229,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
       {/* 1. OFF-SCREEN INDIGO OFFICIAL 6-PAGE ITINERARY FOR PDF   */}
       {/* ======================================================== */}
       <div
+        id="indigo-pdf-render-container"
         style={{
           position: 'absolute',
           left: '-9999px',
@@ -1018,7 +1052,7 @@ export default function TicketConfirmationModal({ booking, onClose, onOpenMyBook
             {isGeneratingPDF ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Generating PDF...</span>
+                <span>{pdfProgress || 'Generating PDF...'}</span>
               </>
             ) : (
               <>
