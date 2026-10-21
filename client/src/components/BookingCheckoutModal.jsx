@@ -3586,100 +3586,96 @@ export default function BookingCheckoutModal({
                 <div className="space-y-2 text-xs text-slate-600">
                   {flight?.isRoundTrip ? (
                     <>
-                      <div className="flex justify-between text-slate-700">
-                        <span>Flight 1 (Jana): {flight.onwardFlight?.from || flight.from} ➔ {flight.onwardFlight?.to || flight.to}</span>
-                        <span className="font-bold font-mono">₹{((flight.onwardFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      <div className="flex justify-between items-center gap-2 text-slate-700">
+                        <span className="truncate">Flight 1 (Onward): {flight.onwardFlight?.from || flight.from} ➔ {flight.onwardFlight?.to || flight.to}</span>
+                        <span className="font-bold font-mono shrink-0 whitespace-nowrap">₹{((flight.onwardFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
                       </div>
-                      <div className="flex justify-between text-slate-700">
-                        <span>Flight 2 (Aana): {flight.returnFlight?.from || flight.to} ➔ {flight.returnFlight?.to || flight.from}</span>
-                        <span className="font-bold font-mono">₹{((flight.returnFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      <div className="flex justify-between items-center gap-2 text-slate-700">
+                        <span className="truncate">Flight 2 (Return): {flight.returnFlight?.from || flight.to} ➔ {flight.returnFlight?.to || flight.from}</span>
+                        <span className="font-bold font-mono shrink-0 whitespace-nowrap">₹{((flight.returnFlight?.basePrice || Math.round(standardBaseFare / 2 / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
                       </div>
                     </>
                   ) : flight?.isMultiCity && flight.multiCityLegs ? (
                     flight.multiCityLegs.map((leg, i) => (
-                      <div key={i} className="flex justify-between text-slate-700">
-                        <span>Leg {i + 1}: {leg.from} ➔ {leg.to} ({leg.airline})</span>
-                        <span className="font-bold font-mono">₹{((leg.price || Math.round(standardBaseFare / flight.multiCityLegs.length / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
+                      <div key={i} className="flex justify-between items-center gap-2 text-slate-700">
+                        <span className="truncate">Leg {i + 1}: {leg.from} ➔ {leg.to}</span>
+                        <span className="font-bold font-mono shrink-0 whitespace-nowrap">₹{((leg.price || Math.round(standardBaseFare / flight.multiCityLegs.length / passengers.length)) * passengers.length).toLocaleString('en-IN')}</span>
                       </div>
                     ))
                   ) : (
-                    <div className="flex justify-between">
-                      <span>Base Fare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
-                      <span className="font-bold font-mono">₹{standardBaseFare.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">Base Fare ({passengers.length} Pax)</span>
+                      <span className="font-bold font-mono shrink-0 whitespace-nowrap">₹{standardBaseFare.toLocaleString('en-IN')}</span>
                     </div>
                   )}
 
                   {selectedFareTier !== 'saver' && (
-                    <div className="flex justify-between">
-                      <span>{selectedFareTier === 'super' ? `${brand?.name || 'AirSky'} VIP Upgrade` : 'Flexi Plus Upgrade'}</span>
-                      <span className="font-bold font-mono text-sky-700">+₹{tierUpgradeTotal.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">{selectedFareTier === 'super' ? `${brand?.name || 'AirSky'} VIP Upgrade` : 'Flexi Plus Upgrade'}</span>
+                      <span className="font-bold font-mono text-sky-700 shrink-0 whitespace-nowrap">+₹{tierUpgradeTotal.toLocaleString('en-IN')}</span>
                     </div>
                   )}
 
                   {totalSeatFee > 0 ? (
-                    <div className="flex justify-between">
-                      <span>Seat Selection ({passengers.filter(p => p.seatPrice > 0).length} Paid)</span>
-                      <span className="font-bold font-mono text-sky-700">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">Seat Selection ({passengers.filter(p => p.seatPrice > 0).length} Pax)</span>
+                      <span className="font-bold font-mono text-sky-700 shrink-0 whitespace-nowrap">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
                     </div>
                   ) : passengers.some(p => p.seat) && (
-                    <div className="flex justify-between text-emerald-700 font-medium">
-                      <span>Seat Selection ({passengers.filter(p => p.seat).length} Selected)</span>
-                      <span className="font-bold font-mono">
-                        {selectedFareTier === 'super' ? 'FREE (VIP Plan)' : selectedFareTier === 'flexi' ? 'FREE (Flexi Plus)' : 'FREE'}
-                      </span>
+                    <div className="flex justify-between items-center gap-2 text-emerald-700 font-semibold">
+                      <span className="truncate">Seat Selection ({passengers.filter(p => p.seat).length} Pax)</span>
+                      <span className="font-bold font-mono shrink-0 whitespace-nowrap">FREE</span>
                     </div>
                   )}
 
                   {totalMealsFee > 0 ? (
-                    <div className="flex justify-between">
-                      <span>Meals & In-Flight Food</span>
-                      <span className="font-bold font-mono text-sky-700">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">Meals & In-Flight Dining</span>
+                      <span className="font-bold font-mono text-sky-700 shrink-0 whitespace-nowrap">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
                     </div>
                   ) : passengers.some(p => p.meal && p.meal !== 'No Meal') && (
-                    <div className="flex justify-between text-emerald-700 font-medium">
-                      <span>Meals & In-Flight Food</span>
-                      <span className="font-bold font-mono">
-                        {selectedFareTier === 'super' ? 'FREE (VIP Gourmet)' : 'FREE (Plan Benefit)'}
-                      </span>
+                    <div className="flex justify-between items-center gap-2 text-emerald-700 font-semibold">
+                      <span className="truncate">In-Flight Meals</span>
+                      <span className="font-bold font-mono shrink-0 whitespace-nowrap">FREE</span>
                     </div>
                   )}
 
                   {baggageFee > 0 && (
-                    <div className="flex justify-between">
-                      <span>Extra Baggage ({extraBaggageKg}kg)</span>
-                      <span className="font-bold font-mono text-sky-700">+₹{baggageFee.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">Extra Baggage ({extraBaggageKg}kg)</span>
+                      <span className="font-bold font-mono text-sky-700 shrink-0 whitespace-nowrap">+₹{baggageFee.toLocaleString('en-IN')}</span>
                     </div>
                   )}
 
                   {insuranceFee > 0 && (
-                    <div className="flex justify-between">
-                      <span>Travel Insurance ({passengers.length} Pax)</span>
-                      <span className="font-bold font-mono text-emerald-700">+₹{insuranceFee.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="truncate">Travel Insurance ({passengers.length} Pax)</span>
+                      <span className="font-bold font-mono text-emerald-700 shrink-0 whitespace-nowrap">+₹{insuranceFee.toLocaleString('en-IN')}</span>
                     </div>
                   )}
 
-                  <div className="flex justify-between">
-                    <span>Taxes & Fees (incl. GST)</span>
-                    <span className="font-bold font-mono">+₹{taxes.toLocaleString('en-IN')}</span>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="truncate">Taxes & Fees (incl. GST)</span>
+                    <span className="font-bold font-mono shrink-0 whitespace-nowrap">+₹{taxes.toLocaleString('en-IN')}</span>
                   </div>
 
                   {discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald-700 font-extrabold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
-                      <span className="flex items-center gap-1">
-                        <Tag className="w-3.5 h-3.5" />
-                        <span>Promo Discount ({couponCode})</span>
+                    <div className="flex justify-between items-center gap-2 text-emerald-700 font-extrabold bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200">
+                      <span className="flex items-center gap-1 min-w-0">
+                        <Tag className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">Promo ({couponCode})</span>
                       </span>
-                      <span className="font-mono">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                      <span className="font-mono font-black shrink-0 whitespace-nowrap ml-2">-₹{discountAmount.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-baseline justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-slate-500 uppercase">Total Payable Fare</div>
-                    <div className="text-[10px] text-slate-400">{passengers.length} Traveller{passengers.length > 1 ? 's' : ''} • Taxes included</div>
+                <div className="pt-3 border-t border-slate-100 flex items-baseline justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Payable Fare</div>
+                    <div className="text-[10px] text-slate-400 truncate">{passengers.length} Traveller{passengers.length > 1 ? 's' : ''} • Taxes included</div>
                   </div>
-                  <div className="text-2xl font-black text-slate-900 font-mono">
+                  <div className="text-2xl font-black text-slate-900 font-mono shrink-0 whitespace-nowrap">
                     ₹{grandTotal.toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -3856,9 +3852,9 @@ export default function BookingCheckoutModal({
                   </div>
 
                   {discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald-700 font-extrabold bg-emerald-50 p-1.5 rounded-lg border border-emerald-200">
-                      <span>Promo Discount ({couponCode})</span>
-                      <span className="font-mono">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center gap-2 text-emerald-700 font-extrabold bg-emerald-50 px-2 py-1.5 rounded-lg border border-emerald-200">
+                      <span className="truncate">Promo ({couponCode})</span>
+                      <span className="font-mono font-black shrink-0 whitespace-nowrap ml-2">-₹{discountAmount.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                 </div>
