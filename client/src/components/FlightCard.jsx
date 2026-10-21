@@ -414,12 +414,12 @@ export default function FlightCard({
                       {flight.arrivalTime}
                     </div>
                     <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center justify-end gap-1.5">
+                      <span>{flight.to}</span>
                       {flight.terminal?.to && (
                         <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                           {formatTerminal(flight.terminal.to)}
                         </span>
                       )}
-                      <span>{flight.to}</span>
                     </div>
                     <div className="text-xs text-slate-500 truncate mt-0.5" title={flight.toCity}>
                       {getDisplayCity(flight.to, flight.toCity)}
@@ -432,23 +432,19 @@ export default function FlightCard({
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col items-end justify-center gap-2 pl-4 border-l border-slate-100">
                   <div className="text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      <span className="text-xs line-through text-slate-400 font-semibold">
-                        ₹{originalPrice.toLocaleString('en-IN')}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                        Save ₹{totalSavings.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <div className="flex items-baseline justify-end gap-2">
-                      <span className="text-xs text-slate-400 font-bold line-through">
+                      <span className="text-xs line-through text-slate-400 font-semibold font-mono">
                         ₹{currentPrice.toLocaleString('en-IN')}
                       </span>
+                      {couponDiscountAmount > 0 && (
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                          Save ₹{couponDiscountAmount.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline justify-end gap-2 mt-0.5">
                       <span className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight font-mono">
                         ₹{discountedFlightPrice.toLocaleString('en-IN')}
                       </span>
-                    </div>
-                    <div className="text-[10px] text-emerald-600 font-bold">
-                      Includes {couponDiscountText} discount ({featuredCoupon})
                     </div>
                     <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
                   </div>
@@ -457,20 +453,27 @@ export default function FlightCard({
                     onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 active:scale-95 text-white font-extrabold text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
                     title={`Instant Online Booking with ${featuredCoupon} applied`}
                   >
                     Book Now
                   </motion.button>
 
-                  <div 
-                    onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg cursor-pointer transition-colors"
-                    title={`Click to book with ${featuredCoupon} applied`}
-                  >
-                    <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText} (Save ₹{couponDiscountAmount.toLocaleString('en-IN')})</span>
-                  </div>
+                  {couponDiscountAmount > 0 && (
+                    <div 
+                      onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
+                      className="w-full flex items-center justify-between text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                      title={`Click to book with ${featuredCoupon} applied`}
+                    >
+                      <span className="truncate">
+                        <Tag className="w-3 h-3 text-emerald-600 inline mr-1" />
+                        Use <strong>{featuredCoupon}</strong> ({couponDiscountText})
+                      </span>
+                      <span className="shrink-0 font-mono text-[10px] ml-1">
+                        -₹{couponDiscountAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -567,12 +570,12 @@ export default function FlightCard({
                       {flight.arrivalTime}
                     </div>
                     <div className="text-xs font-black text-slate-800 mt-1 flex items-center justify-end gap-1">
+                      <span>{flight.to}</span>
                       {flight.terminal?.to && (
                         <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
                           {formatTerminal(flight.terminal.to)}
                         </span>
                       )}
-                      <span>{flight.to}</span>
                     </div>
                     <div className="text-[11px] text-slate-500 truncate" title={flight.toCity}>
                       {getDisplayCity(flight.to, flight.toCity)}
@@ -582,27 +585,24 @@ export default function FlightCard({
 
                 {/* Row 3: Price & Book Now Row */}
                 <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-100">
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-baseline gap-1.5 leading-none">
-                      <span className="text-[11px] line-through text-slate-400 font-semibold">
+                      <span className="text-xs line-through text-slate-400 font-semibold font-mono">
                         ₹{currentPrice.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
+                      <span className="text-2xl font-black text-slate-900 tracking-tight font-mono">
                         ₹{discountedFlightPrice.toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                      Save ₹{couponDiscountAmount.toLocaleString('en-IN')} with {featuredCoupon}
-                    </div>
-                    <div className="text-[10px] text-slate-400">per traveller • taxes incl.</div>
+                    <div className="text-[10px] text-slate-400 font-medium mt-1">per traveller • taxes incl.</div>
                   </div>
 
-                  <div>
+                  <div className="flex-shrink-0">
                     <motion.button
                       onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-black text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 active:scale-95 text-white font-black text-sm shadow-md shadow-sky-600/25 transition-all cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5"
                       title={`Instant Online Booking with ${featuredCoupon} applied`}
                     >
                       Book Now
@@ -610,52 +610,66 @@ export default function FlightCard({
                   </div>
                 </div>
 
-                {/* Row 4: Coupon Chip */}
-                <div className="mt-2.5">
-                  <div 
-                    onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
-                    title={`Click to book with ${featuredCoupon} applied`}
-                  >
-                    <Tag className="w-3 h-3 text-emerald-600" />
-                    <span>Use <strong>{featuredCoupon}</strong> for {couponDiscountText} (Save ₹{couponDiscountAmount.toLocaleString('en-IN')})</span>
+                {/* Row 4: Coupon Chip Strip */}
+                {couponDiscountAmount > 0 && (
+                  <div className="mt-2.5">
+                    <div 
+                      onClick={() => onBookFlight(flight, currentPrice, 'saver', featuredCoupon)}
+                      className="flex items-center justify-between bg-gradient-to-r from-emerald-50 via-teal-50/60 to-emerald-50 border border-emerald-200/90 rounded-lg px-2.5 py-1.5 cursor-pointer hover:border-emerald-300 transition-all text-[11px]"
+                      title={`Click to book with ${featuredCoupon} applied`}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-800 min-w-0 truncate">
+                        <Tag className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                        <span className="bg-emerald-600 text-white font-mono font-black text-[10px] px-1.5 py-0.5 rounded tracking-wide uppercase">
+                          {featuredCoupon}
+                        </span>
+                        <span className="text-emerald-700 font-medium truncate">applied ({couponDiscountText})</span>
+                      </div>
+                      <span className="font-black text-emerald-700 whitespace-nowrap ml-2">
+                        Save ₹{couponDiscountAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
 
           {/* Badges / Add-ons row */}
-          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div className="flex flex-wrap items-center gap-3 text-slate-500">
-              <div className="flex items-center gap-1.5 font-medium">
-                <Luggage className="w-3.5 h-3.5 text-slate-400" />
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-slate-500">
+              <div className="flex items-center gap-1 font-medium text-[11px]">
+                <Luggage className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                 <span>{flight.baggage}</span>
               </div>
+              <span className="text-slate-300">•</span>
               {flight.mealIncluded ? (
-                <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
-                  <Utensils className="w-3.5 h-3.5" />
-                  <span>Free In-Flight Meal</span>
+                <div className="flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+                  <Utensils className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>Free Meal</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Utensils className="w-3.5 h-3.5" />
-                  <span>Meals Available for purchase</span>
+                <div className="flex items-center gap-1 text-slate-400 text-[11px]">
+                  <Utensils className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>Paid Meal</span>
                 </div>
               )}
               {flight.seatsAvailable < 40 && (
-                <span className="text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-md">
-                  Only {flight.seatsAvailable} seats left!
-                </span>
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded text-[10px]">
+                    {flight.seatsAvailable} left
+                  </span>
+                </>
               )}
             </div>
 
             {/* Collapsible toggle */}
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sky-600 hover:text-sky-700 font-bold flex items-center gap-1 text-xs cursor-pointer"
+              className="text-sky-600 hover:text-sky-700 font-bold flex items-center gap-0.5 text-xs cursor-pointer flex-shrink-0"
             >
-              <span>{showDetails ? 'Hide Details' : 'Flight Details'}</span>
+              <span>{showDetails ? 'Hide' : 'Details'}</span>
               {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
