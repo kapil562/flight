@@ -3137,22 +3137,14 @@ export default function BookingCheckoutModal({
                   {/* 2. UPI Apps Content */}
                   {isUpiAppsEnabled && paymentMethod === 'upiApps' && (
                     <div className="p-3 sm:p-4 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-3">
-                      <div className="flex items-center justify-between pb-0.5">
-                        <div className="min-w-0 pr-2">
-                          <p className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">Tap an App to Pay Directly</p>
-                          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Instant UPI redirect or continue with the Pay button</p>
-                        </div>
-                        {selectedUpiApp && (
-                          <span className="text-[10px] font-black bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full border border-sky-200 flex items-center gap-1 shrink-0 whitespace-nowrap shadow-2xs">
-                            <Check className="w-2.5 h-2.5 text-sky-600 shrink-0" />
-                            <span>{selectedUpiApp}</span>
-                          </span>
-                        )}
+                      <div className="pb-0.5">
+                        <p className="font-extrabold text-slate-900 text-xs sm:text-sm">Tap an App to Pay Directly</p>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500">Instant UPI redirect or continue with the Pay button below</p>
                       </div>
 
-                      {/* App Buttons Grid */}
+                      {/* App Buttons List */}
                       {visibleUpiApps.length > 0 ? (
-                        <div className={`grid gap-2 ${visibleUpiApps.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+                        <div className="flex flex-col gap-2">
                           {visibleUpiApps.map(app => {
                             const isSelected = (selectedUpiApp === app.name) || (selectedAppKey === app.key);
                             const isCurrentLaunching = isLaunchingApp && selectedAppKey === app.key;
@@ -3161,13 +3153,13 @@ export default function BookingCheckoutModal({
                                 key={app.key}
                                 type="button"
                                 onClick={() => handleLaunchUpiApp(app.key, app.name)}
-                                className={`p-2.5 sm:p-3 rounded-2xl border transition-all text-left cursor-pointer active:scale-[0.98] relative flex items-center gap-2.5 sm:gap-3 ${
+                                className={`w-full p-2.5 sm:p-3 rounded-2xl border transition-all text-left cursor-pointer active:scale-[0.98] relative flex items-center gap-3 ${
                                   isSelected
                                     ? 'bg-sky-50/90 border-sky-500 ring-2 ring-sky-400/40 shadow-xs'
                                     : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
                                 }`}
                               >
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1.5 overflow-hidden">
+                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-xs p-1.5 overflow-hidden">
                                   {app.iconUrl ? (
                                     <img
                                       src={app.iconUrl}
@@ -3179,22 +3171,22 @@ export default function BookingCheckoutModal({
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <div className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                                  <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
                                     {app.name}
                                   </div>
-                                  <div className={`text-[10px] font-bold truncate ${isSelected ? 'text-sky-700' : 'text-slate-400'}`}>
-                                    {isCurrentLaunching ? 'Opening...' : isSelected ? 'Selected' : 'Pay Now'}
+                                  <div className={`text-[10px] sm:text-xs font-semibold leading-tight mt-0.5 ${isSelected ? 'text-sky-700 font-bold' : 'text-slate-400'}`}>
+                                    {isCurrentLaunching ? 'Opening app...' : isSelected ? 'Selected • Instant Pay' : 'Tap to pay via ' + app.name}
                                   </div>
                                 </div>
                                 <div className="shrink-0 ml-auto">
                                   {isCurrentLaunching ? (
-                                    <RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" />
+                                    <RefreshCw className="w-4 h-4 text-sky-600 animate-spin" />
                                   ) : isSelected ? (
-                                    <span className="w-4 h-4 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-xs">
-                                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                    <span className="w-5 h-5 rounded-full bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                                      <Check className="w-3 h-3 stroke-[3]" />
                                     </span>
                                   ) : (
-                                    <span className="w-4 h-4 rounded-full border-2 border-slate-200 bg-white block" />
+                                    <span className="w-5 h-5 rounded-full border-2 border-slate-300 bg-white block" />
                                   )}
                                 </div>
                               </button>
