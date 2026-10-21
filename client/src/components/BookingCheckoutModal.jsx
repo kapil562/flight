@@ -2750,8 +2750,8 @@ export default function BookingCheckoutModal({
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">
-                          Apply Promo Code
+                        <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">
+                          Offers & Promo Code
                         </h4>
                       </div>
                       <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
@@ -2760,19 +2760,19 @@ export default function BookingCheckoutModal({
                     </div>
 
                     {/* Coupon input field */}
-                    <div className="flex items-center gap-2">
+                    <div className="relative flex items-center w-full">
                       <input
                         type="text"
                         placeholder="Enter promo code (e.g. AIRSKY35)"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-sky-500 outline-none"
+                        className="w-full min-w-0 bg-slate-50 border border-slate-200 rounded-xl pl-3.5 pr-24 py-2.5 text-xs sm:text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-sky-500 outline-none transition-all"
                       />
                       {discountAmount > 0 ? (
                         <button
                           type="button"
                           onClick={handleRemovePromo}
-                          className="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition-colors cursor-pointer border border-rose-200 shrink-0 whitespace-nowrap"
+                          className="absolute right-1.5 px-3.5 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-lg text-xs transition-colors cursor-pointer border border-rose-200 shrink-0 shadow-2xs"
                         >
                           Remove
                         </button>
@@ -2781,9 +2781,9 @@ export default function BookingCheckoutModal({
                           type="button"
                           disabled={applyingCoupon || !couponCode}
                           onClick={() => handleApplyPromo()}
-                          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-extrabold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
+                          className="absolute right-1.5 px-4 py-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-extrabold rounded-lg text-xs transition-colors cursor-pointer shadow-xs shrink-0"
                         >
-                          {applyingCoupon ? 'Checking...' : 'Apply Code'}
+                          {applyingCoupon ? 'Checking...' : 'Apply'}
                         </button>
                       )}
                     </div>
