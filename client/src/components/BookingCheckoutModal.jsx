@@ -1315,7 +1315,7 @@ export default function BookingCheckoutModal({
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
                     {step === 1 && 'Review Travellers'}
                     {step === 2 && 'Select Seats & Meals'}
-                    {step === 3 && 'Review Booking & Offers'}
+                    {step === 3 && 'Review Booking'}
                   </h3>
                   <span className="text-[11px] font-bold text-slate-400">({passengers.length} Pax)</span>
                   {discountAmount > 0 && (
@@ -2567,78 +2567,91 @@ export default function BookingCheckoutModal({
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div className="flex items-center gap-2.5">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <AirlineBadge code={flight.airlineCode} name={flight.airline} size="sm" showDetails={false} />
-                          <div>
-                            <h4 className="font-black text-slate-900 text-sm sm:text-base">
-                              {flight.airline} <span className="font-mono text-sky-700">({flight.flightNumber})</span>
+                          <div className="min-w-0">
+                            <h4 className="font-black text-slate-900 text-sm sm:text-base leading-tight truncate">
+                              {flight.airline} <span className="font-mono text-sky-700 font-bold">({flight.flightNumber})</span>
                             </h4>
-                            <span className="text-[11px] text-slate-500 font-semibold">
-                              Aircraft: {flight.aircraft || 'Airbus A320neo'} • Class: <strong className="text-slate-800">{travelClass.toUpperCase()}</strong>
-                            </span>
+                            <div className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                              Aircraft: {flight.aircraft || 'Boeing 737'} • Class: <strong className="text-slate-700">{travelClass.toUpperCase()}</strong>
+                            </div>
                           </div>
                         </div>
-                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0 whitespace-nowrap">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          Confirmed Schedule
+                          Confirmed
                         </span>
                       </div>
 
-                      {/* Flight Route & Timings */}
-                      <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-                        {/* Departure */}
-                        <div className="text-left">
-                          <div className="text-lg sm:text-xl font-black text-slate-900">
-                            {flight.departureTime}
+                      {/* Flight Route & Timings - Clean Responsive Flight Board */}
+                      <div className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200/80">
+                        <div className="grid grid-cols-3 items-center gap-2">
+                          {/* Departure */}
+                          <div className="text-left min-w-0">
+                            <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight leading-none">
+                              {flight.departureTime}
+                            </div>
+                            <div className="text-xs font-black text-slate-800 mt-1 flex items-center gap-1">
+                              <span>{flight.from}</span>
+                              {flight.terminal?.from && (
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1 rounded">
+                                  T{String(flight.terminal.from).replace(/^T/i, '')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-500 truncate mt-0.5" title={flight.fromCity}>
+                              {flight.fromCity}
+                            </div>
                           </div>
-                          <div className="text-xs font-bold text-slate-800">
-                            {flight.fromCity} ({flight.from})
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            {flight.departureDate || new Date().toISOString().split('T')[0]} • Terminal {flight.terminal?.from || 'T1'}
-                          </div>
-                        </div>
 
-                        {/* Duration Divider */}
-                        <div className="flex-1 max-w-[160px] text-center px-2 py-1 mx-auto">
-                          <span className="text-[11px] font-extrabold text-slate-500 block mb-0.5">
-                            {flight.duration || '2h 15m'}
-                          </span>
-                          <div className="relative flex items-center justify-center my-1">
-                            <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
-                            <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
-                            {flight.stops > 0 && (
-                              <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
-                            )}
-                            <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
-                          </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md inline-block mt-0.5 ${
-                            flight.stops === 0 
-                              ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' 
-                              : 'text-amber-800 bg-amber-50 border border-amber-200'
-                          }`}>
-                            {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop (${flight.layoverAirport || flight.layoverCity || 'Connecting'})`}
-                          </span>
-                          {flight.stops > 0 && flight.layoverDuration && (
-                            <span className="text-[9px] text-slate-400 block font-medium mt-0.5">
-                              {flight.layoverDuration} Layover
+                          {/* Duration Divider */}
+                          <div className="text-center px-1">
+                            <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-500 block mb-0.5 font-mono">
+                              {flight.duration || '2h 15m'}
                             </span>
-                          )}
+                            <div className="relative flex items-center justify-center my-1">
+                              <div className="w-full h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-500"></div>
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-sky-500 -left-0.5"></div>
+                              {flight.stops > 0 && (
+                                <div className="absolute w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white shadow-xs z-10" />
+                              )}
+                              <div className="absolute w-1.5 h-1.5 rounded-full bg-indigo-500 -right-0.5"></div>
+                            </div>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md inline-block ${
+                              flight.stops === 0 
+                                ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' 
+                                : 'text-amber-800 bg-amber-50 border border-amber-200'
+                            }`}>
+                              {flight.stops === 0 ? 'Non-Stop' : `${flight.stops} Stop`}
+                            </span>
+                          </div>
+
+                          {/* Arrival */}
+                          <div className="text-right min-w-0">
+                            <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight leading-none">
+                              {flight.arrivalTime}
+                            </div>
+                            <div className="text-xs font-black text-slate-800 mt-1 flex items-center justify-end gap-1">
+                              <span>{flight.to}</span>
+                              {flight.terminal?.to && (
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-1 rounded">
+                                  T{String(flight.terminal.to).replace(/^T/i, '')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-500 truncate mt-0.5" title={flight.toCity}>
+                              {flight.toCity}
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Arrival */}
-                        <div className="text-left sm:text-right">
-                          <div className="text-lg sm:text-xl font-black text-slate-900">
-                            {flight.arrivalTime}
-                          </div>
-                          <div className="text-xs font-bold text-slate-800">
-                            {flight.toCity} ({flight.to})
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            Terminal {flight.terminal?.to || 'T2'} • Baggage: {flight.baggage || 'Cabin 7kg, Check-in 15kg'}
-                          </div>
+                        {/* Date & Baggage strip */}
+                        <div className="mt-2.5 pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500">
+                          <span>📅 {flight.departureDate || new Date().toISOString().split('T')[0]}</span>
+                          <span>🧳 {flight.baggage || 'Cabin 7kg, Check-in 15kg'}</span>
                         </div>
                       </div>
                     </div>
@@ -2646,14 +2659,14 @@ export default function BookingCheckoutModal({
 
                   {/* 2. Travellers, Assigned Seats & Meals Card */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                      <div className="flex items-center gap-2">
-                        <UserPlus className="w-4 h-4 text-sky-600" />
-                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                          Traveller Details & Seat Assignments ({passengers.length})
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <UserPlus className="w-4 h-4 text-sky-600 shrink-0" />
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">
+                          Travellers & Seats ({passengers.length})
                         </h4>
                       </div>
-                      <div className="flex items-center gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-xs shrink-0">
                         <button
                           type="button"
                           onClick={() => transitionToStep(1)}
@@ -2677,46 +2690,46 @@ export default function BookingCheckoutModal({
                       {passengers.map((p, idx) => (
                         <div
                           key={idx}
-                          className="p-3 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs transition-colors"
+                          className="p-3 bg-slate-50/80 hover:bg-slate-50 rounded-xl border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs transition-colors"
                         >
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-800 font-black text-xs flex items-center justify-center shrink-0">
                               {idx + 1}
                             </span>
-                            <div>
-                              <span className="font-black text-slate-900 text-sm">
+                            <div className="min-w-0">
+                              <span className="font-black text-slate-900 text-sm truncate block sm:inline">
                                 {p.title} {p.firstName} {p.lastName}
                               </span>
-                              <span className="text-[11px] text-slate-500 font-medium ml-2">
+                              <span className="text-[11px] text-slate-500 font-medium sm:ml-2">
                                 ({p.type || 'Adult'}, {p.gender || 'Male'})
                                 {p.passportNumber ? ` • Passport: ${p.passportNumber}` : ''}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 flex-wrap shrink-0">
                             {/* Seat Pill */}
-                            <span className="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 font-bold text-xs flex items-center gap-1">
-                              <Armchair className="w-3.5 h-3.5 text-sky-600" />
+                            <span className="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-900 font-bold text-xs flex items-center gap-1 shrink-0">
+                              <Armchair className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                               <span>Seat: <strong className="font-mono text-sky-700">{p.seat || 'Auto'}</strong></span>
                               {p.seatPrice > 0 ? (
                                 <span className="text-[10px] text-sky-600 font-mono">(+₹{p.seatPrice})</span>
                               ) : p.seat ? (
-                                <span className="text-[10px] text-emerald-700 font-black">
-                                  {selectedFareTier === 'super' ? '(FREE - VIP)' : selectedFareTier === 'flexi' ? '(FREE - Flexi)' : '(FREE)'}
+                                <span className="text-[10px] text-emerald-700 font-black whitespace-nowrap">
+                                  (FREE)
                                 </span>
                               ) : null}
                             </span>
 
                             {/* Meal Pill */}
-                            <span className="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-xs flex items-center gap-1">
-                              <Utensils className="w-3 h-3 text-amber-600" />
-                              <span className="truncate max-w-[140px]">{p.meal || 'No meal'}</span>
+                            <span className="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-xs flex items-center gap-1 shrink-0">
+                              <Utensils className="w-3 h-3 text-amber-600 shrink-0" />
+                              <span className="truncate max-w-[120px] sm:max-w-none">{p.meal || 'No meal'}</span>
                               {p.mealPrice > 0 ? (
                                 <span className="text-[10px] text-amber-700 font-mono">(+₹{p.mealPrice})</span>
                               ) : p.meal && p.meal !== 'No Meal' ? (
-                                <span className="text-[10px] text-emerald-700 font-black">
-                                  {selectedFareTier === 'super' ? '(FREE - VIP)' : '(FREE - Plan)'}
+                                <span className="text-[10px] text-emerald-700 font-black whitespace-nowrap shrink-0">
+                                  (FREE)
                                 </span>
                               ) : null}
                             </span>
@@ -2734,15 +2747,15 @@ export default function BookingCheckoutModal({
 
                   {/* 3. Interactive Coupon Management Section */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-emerald-600" />
-                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                          Apply or Change Coupon / Promo Code
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base truncate">
+                          Apply Promo Code
                         </h4>
                       </div>
-                      <span className="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                        Save Extra on Airfare
+                      <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
+                        Save Extra
                       </span>
                     </div>
 
@@ -2750,7 +2763,7 @@ export default function BookingCheckoutModal({
                     <div className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder="Enter any promo code (e.g. FLYAIRSKY)"
+                        placeholder="Enter promo code (e.g. AIRSKY35)"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                         className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-mono font-bold uppercase focus:ring-2 focus:ring-sky-500 outline-none"
@@ -2759,7 +2772,7 @@ export default function BookingCheckoutModal({
                         <button
                           type="button"
                           onClick={handleRemovePromo}
-                          className="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition-colors cursor-pointer border border-rose-200 shrink-0"
+                          className="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-xl text-xs transition-colors cursor-pointer border border-rose-200 shrink-0 whitespace-nowrap"
                         >
                           Remove
                         </button>
@@ -2768,7 +2781,7 @@ export default function BookingCheckoutModal({
                           type="button"
                           disabled={applyingCoupon || !couponCode}
                           onClick={() => handleApplyPromo()}
-                          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-extrabold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer shadow-xs shrink-0"
+                          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-extrabold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
                         >
                           {applyingCoupon ? 'Checking...' : 'Apply Code'}
                         </button>
@@ -2791,9 +2804,9 @@ export default function BookingCheckoutModal({
 
                     {/* Available Coupons list */}
                     <div className="pt-2 border-t border-slate-100 space-y-2">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
-                        <span>Choose another coupon from available offers:</span>
-                        <span className="text-[10px] text-slate-400 font-normal">Tap to apply instantly</span>
+                      <div className="text-[11px] font-bold text-slate-500 flex items-center justify-between gap-2">
+                        <span className="truncate">Available Offers:</span>
+                        <span className="text-[10px] text-slate-400 font-normal shrink-0 whitespace-nowrap">Tap to apply</span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2814,16 +2827,16 @@ export default function BookingCheckoutModal({
                                   : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                               }`}
                             >
-                              <div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-mono font-black text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-mono font-black text-xs text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 shrink-0">
                                     {c.code}
                                   </span>
-                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
+                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded shrink-0 whitespace-nowrap">
                                     {c.type === 'percent' ? `${c.discount}% OFF` : `₹${c.discount} OFF`}
                                   </span>
                                 </div>
-                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                                <p className="text-[11px] text-slate-500 mt-1 truncate">
                                   {c.description}
                                 </p>
                               </div>
@@ -2834,7 +2847,7 @@ export default function BookingCheckoutModal({
                                   e.stopPropagation();
                                   isApplied ? handleRemovePromo() : handleApplyPromo(c.code);
                                 }}
-                                className={`text-xs font-black px-3 py-1 rounded-lg shrink-0 cursor-pointer ${
+                                className={`text-xs font-black px-3 py-1 rounded-lg shrink-0 cursor-pointer whitespace-nowrap ${
                                   isApplied
                                     ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                                     : 'bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200'
@@ -2851,76 +2864,76 @@ export default function BookingCheckoutModal({
 
                   {/* 4. Complete Fare Breakdown Card */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
-                        <Building className="w-4 h-4 text-sky-600" />
-                        <span>Fare Summary & Total Payable Amount</span>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 gap-2">
+                      <h4 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2 min-w-0">
+                        <Building className="w-4 h-4 text-sky-600 shrink-0" />
+                        <span className="truncate">Fare Summary</span>
                       </h4>
-                      <span className="text-xs font-semibold text-slate-500">
-                        All taxes & charges included
+                      <span className="text-[11px] font-semibold text-slate-400 shrink-0 whitespace-nowrap">
+                        All taxes included
                       </span>
                     </div>
 
                     <div className="space-y-2 text-xs">
-                      <div className="flex justify-between text-slate-600">
-                        <span>Base Airfare ({passengers.length} Traveller{passengers.length > 1 ? 's' : ''})</span>
-                        <span className="font-mono font-bold text-slate-900">₹{baseFare.toLocaleString('en-IN')}</span>
+                      <div className="flex justify-between items-center gap-2 text-slate-600">
+                        <span className="truncate">Base Airfare ({passengers.length} Pax)</span>
+                        <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">₹{baseFare.toLocaleString('en-IN')}</span>
                       </div>
 
-                      <div className="flex justify-between text-slate-600">
-                        <span>Taxes, Aviation Security & Airport Fees</span>
-                        <span className="font-mono font-bold text-slate-900">₹{taxes.toLocaleString('en-IN')}</span>
+                      <div className="flex justify-between items-center gap-2 text-slate-600">
+                        <span className="truncate">Taxes & Airport Fees</span>
+                        <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">+₹{taxes.toLocaleString('en-IN')}</span>
                       </div>
 
                       {totalSeatFee > 0 && (
-                        <div className="flex justify-between text-slate-600">
-                          <span>Seat Selection Charges</span>
-                          <span className="font-mono font-bold text-slate-900">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
+                        <div className="flex justify-between items-center gap-2 text-slate-600">
+                          <span className="truncate">Seat Selection Charges</span>
+                          <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">+₹{totalSeatFee.toLocaleString('en-IN')}</span>
                         </div>
                       )}
 
                       {totalMealsFee > 0 && (
-                        <div className="flex justify-between text-slate-600">
-                          <span>In-Flight Meals</span>
-                          <span className="font-mono font-bold text-slate-900">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
+                        <div className="flex justify-between items-center gap-2 text-slate-600">
+                          <span className="truncate">In-Flight Meals</span>
+                          <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">+₹{totalMealsFee.toLocaleString('en-IN')}</span>
                         </div>
                       )}
 
                       {baggageFee > 0 && (
-                        <div className="flex justify-between text-slate-600">
-                          <span>Extra Baggage</span>
-                          <span className="font-mono font-bold text-slate-900">+₹{baggageFee.toLocaleString('en-IN')}</span>
+                        <div className="flex justify-between items-center gap-2 text-slate-600">
+                          <span className="truncate">Extra Baggage</span>
+                          <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">+₹{baggageFee.toLocaleString('en-IN')}</span>
                         </div>
                       )}
 
                       {insuranceFee > 0 && (
-                        <div className="flex justify-between text-slate-600">
-                          <span>Comprehensive Travel Insurance</span>
-                          <span className="font-mono font-bold text-slate-900">+₹{insuranceFee.toLocaleString('en-IN')}</span>
+                        <div className="flex justify-between items-center gap-2 text-slate-600">
+                          <span className="truncate">Travel Insurance</span>
+                          <span className="font-mono font-bold text-slate-900 shrink-0 whitespace-nowrap">+₹{insuranceFee.toLocaleString('en-IN')}</span>
                         </div>
                       )}
 
                       {discountAmount > 0 && (
-                        <div className="flex justify-between text-emerald-700 font-extrabold bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
-                          <span className="flex items-center gap-1.5">
-                            <Tag className="w-4 h-4 text-emerald-600" />
-                            <span>Promo Code Discount ({couponCode})</span>
+                        <div className="flex justify-between items-center gap-2 text-emerald-700 font-extrabold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200">
+                          <span className="flex items-center gap-1.5 min-w-0">
+                            <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span className="truncate">Promo ({couponCode})</span>
                           </span>
-                          <span className="font-mono font-black text-sm">-₹{discountAmount.toLocaleString('en-IN')}</span>
+                          <span className="font-mono font-black text-sm shrink-0 whitespace-nowrap ml-2">-₹{discountAmount.toLocaleString('en-IN')}</span>
                         </div>
                       )}
 
-                      <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                        <div>
-                          <span className="font-black text-slate-900 text-base sm:text-lg block">
-                            Grand Total Amount
+                      <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="font-black text-slate-900 text-base sm:text-lg block tracking-tight">
+                            Grand Total
                           </span>
-                          <span className="text-[11px] text-slate-400">
-                            Instant PNR Confirmation • No hidden extra fees
+                          <span className="text-[11px] text-slate-400 truncate block">
+                            Instant PNR • No hidden fees
                           </span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-2xl sm:text-3xl font-black text-sky-900 font-mono tracking-tight">
+                        <div className="text-right shrink-0">
+                          <div className="text-2xl sm:text-3xl font-black text-sky-900 font-mono tracking-tight whitespace-nowrap">
                             ₹{grandTotal.toLocaleString('en-IN')}
                           </div>
                         </div>
