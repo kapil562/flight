@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { api } from '../utils/api';
+import { applyGlobalTheme } from '../utils/theme';
 
 const COLOR_PRESETS = [
   {
@@ -308,19 +309,29 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
   }, []);
 
   const handleChange = (field, value) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field.includes('color')) {
+        applyGlobalTheme(updated);
+      }
+      return updated;
+    });
   };
 
   const applyColorPreset = (preset) => {
-    setForm(prev => ({
-      ...prev,
-      primary_color: preset.primary,
-      hover_color: preset.hover,
-      dark_color: preset.dark,
-      light_color: preset.light,
-      brand_text_color: preset.brandText,
-      tagline_color: preset.tagline
-    }));
+    setForm(prev => {
+      const updated = {
+        ...prev,
+        primary_color: preset.primary,
+        hover_color: preset.hover,
+        dark_color: preset.dark,
+        light_color: preset.light,
+        brand_text_color: preset.brandText,
+        tagline_color: preset.tagline
+      };
+      applyGlobalTheme(updated);
+      return updated;
+    });
   };
 
   // Handle local image file upload & optimize/compress via Canvas for ultra-fast loading
@@ -452,12 +463,7 @@ export default function AdminBrandCmsSettings({ onSettingsUpdated, initialSectio
         } catch (storageErr) {}
 
         // Live DOM Root Update
-        document.documentElement.style.setProperty('--brand', form.primary_color);
-        document.documentElement.style.setProperty('--brand-hover', form.hover_color);
-        document.documentElement.style.setProperty('--brand-dark', form.dark_color);
-        document.documentElement.style.setProperty('--brand-light', form.light_color);
-        document.documentElement.style.setProperty('--brand-text', form.brand_text_color);
-        document.documentElement.style.setProperty('--tagline-color', form.tagline_color);
+        applyGlobalTheme(form);
         if (form.name) {
           document.title = `${form.name} - ${form.tagline || 'Premium Luxury Travel'}`;
         }

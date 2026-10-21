@@ -7,6 +7,7 @@ import {
   Palmtree, Clock, ToggleLeft, ToggleRight, Database, QrCode, Key, Sliders, Sparkles
 } from 'lucide-react';
 import { api } from '../utils/api';
+import { applyGlobalTheme } from '../utils/theme';
 import AdminPaymentsUpi from '../components/AdminPaymentsUpi';
 import AdminBrandSettings from '../components/AdminBrandSettings';
 import AdminBrandCmsSettings from '../components/AdminBrandCmsSettings';
@@ -333,6 +334,15 @@ export default function AdminPage() {
     setSettingsForm(updatedForm);
 
     const themeObj = COLOR_THEMES.find(t => t.id === themeId);
+
+    if (themeObj && themeObj.colors) {
+      applyGlobalTheme({
+        primary_color: themeObj.colors[0],
+        hover_color: themeObj.colors[1],
+        light_color: themeObj.colors[2],
+        dark_color: themeObj.colors[3]
+      });
+    }
 
     // 3. Persist to server backend immediately
     try {

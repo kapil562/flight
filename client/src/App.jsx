@@ -28,6 +28,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import TermsPage from './pages/TermsPage';
 import { api } from './utils/api';
+import { applyGlobalTheme } from './utils/theme';
 import defaultAirports from './data/airports.json';
 import { auth, signOut, onAuthStateChanged } from './firebase';
 
@@ -151,13 +152,7 @@ function MainWebsite() {
   // Synchronize dynamic brand styling & CSS root variables across whole application
   useEffect(() => {
     if (brand) {
-      if (brand.primary_color) document.documentElement.style.setProperty('--brand', brand.primary_color);
-      if (brand.hover_color) document.documentElement.style.setProperty('--brand-hover', brand.hover_color);
-      if (brand.dark_color) document.documentElement.style.setProperty('--brand-dark', brand.dark_color);
-      if (brand.light_color) document.documentElement.style.setProperty('--brand-light', brand.light_color);
-      if (brand.brand_text_color) document.documentElement.style.setProperty('--brand-text', brand.brand_text_color);
-      if (brand.tagline_color) document.documentElement.style.setProperty('--tagline-color', brand.tagline_color);
-      
+      applyGlobalTheme(brand);
       if (brand.name) {
         document.title = `${brand.name} - ${brand.tagline || 'Premium Luxury Travel'}`;
       }

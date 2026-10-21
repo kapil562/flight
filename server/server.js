@@ -55,6 +55,8 @@ const BLOB_READ_WRITE_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_
 const BLOB_BOOKINGS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/bookings.json';
 const BLOB_COUPONS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/coupons.json';
 const BLOB_ADMIN_ENC_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/admin_vault.json';
+const BLOB_BRAND_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/brand.json';
+const BLOB_SETTINGS_URL = 'https://xhzm9lpivwyvhr3f.public.blob.vercel-storage.com/settings.json';
 
 // ================= ENCRYPTED ADMIN SECURITY VAULT & SESSIONS =================
 const ADMIN_STORAGE_KEY = process.env.ADMIN_SECRET_KEY || 'asg_flight_master_secret_key_2026_99x';
@@ -179,6 +181,90 @@ const saveLiveAdminCredentials = async (admin) => {
       console.log('Admin credentials synced to encrypted Vercel Blob vault');
     } catch (err) {
       console.error('Error saving admin vault to Vercel Blob:', err.message);
+    }
+  }
+};
+
+const getLiveBrand = async () => {
+  if (memoryStore.has('brand_data')) {
+    return memoryStore.get('brand_data');
+  }
+  try {
+    const res = await fetch(`${BLOB_BRAND_URL}?_t=${Date.now()}`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.primary_color) {
+        memoryStore.set('brand_data', data);
+        return data;
+      }
+    }
+  } catch (err) {}
+  const fallback = readJSON(BRAND_FILE, {
+    name: "AIR SKY GO",
+    short_name: "Air Sky",
+    tagline: "Premium Luxury Travel",
+    primary_color: "#ff6d01",
+    hover_color: "#e65700",
+    dark_color: "#272c33",
+    light_color: "#fff4eb",
+    brand_text_color: "#0B1F3A",
+    tagline_color: "#6b7280"
+  });
+  memoryStore.set('brand_data', fallback);
+  return fallback;
+};
+
+const saveLiveBrand = async (brandData) => {
+  memoryStore.set('brand_data', brandData);
+  writeJSON(BRAND_FILE, brandData);
+  if (putBlob) {
+    try {
+      await putBlob('brand.json', JSON.stringify(brandData), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: BLOB_READ_WRITE_TOKEN
+      });
+      console.log('Brand synced to Vercel Blob cloud');
+    } catch (err) {
+      console.error('Error saving brand to Blob:', err.message);
+    }
+  }
+};
+
+const getLiveSettings = async () => {
+  if (memoryStore.has('settings_data')) {
+    return memoryStore.get('settings_data');
+  }
+  try {
+    const res = await fetch(`${BLOB_SETTINGS_URL}?_t=${Date.now()}`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object') {
+        memoryStore.set('settings_data', data);
+        return data;
+      }
+    }
+  } catch (err) {}
+  const fallback = readJSON(SETTINGS_FILE, {});
+  memoryStore.set('settings_data', fallback);
+  return fallback;
+};
+
+const saveLiveSettings = async (settingsData) => {
+  memoryStore.set('settings_data', settingsData);
+  writeJSON(SETTINGS_FILE, settingsData);
+  if (putBlob) {
+    try {
+      await putBlob('settings.json', JSON.stringify(settingsData), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        token: BLOB_READ_WRITE_TOKEN
+      });
+      console.log('Settings synced to Vercel Blob cloud');
+    } catch (err) {
+      console.error('Error saving settings to Blob:', err.message);
     }
   }
 };
@@ -1397,46 +1483,16 @@ const fetchFlightsFromSerpApi = async (from, to, date, apiKey) => {
 /* ================= PUBLIC API ROUTES ================= */
 
 // 1. Get Live Site Settings (CMS)
-app.get('/api/settings', (req, res) => {
-  const settings = readJSON(SETTINGS_FILE, {});
-  const brand = readJSON(BRAND_FILE, {
-    name: "AIR SKY",
-    short_name: "Air Sky",
-    tagline: "Premium Luxury Travel",
-    primary_color: "#ff6d01",
-    hover_color: "#e65700",
-    dark_color: "#272c33",
-    light_color: "#fff4eb",
-    brand_text_color: "#0B1F3A",
-    tagline_color: "#6b7280",
-    logo: "",
-    email: "care@airskyindia.com",
-    phone: "+91 72248 28030",
-    whatsapp: "+918077680310",
-    address: "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
-  });
+app.get('/api/settings', async (req, res) => {
+  const settings = await getLiveSettings();
+  const brand = await getLiveBrand();
   res.json({ success: true, data: { ...settings, brand } });
 });
 
 // 1.05 Get Live Brand Settings
-app.get('/api/brand', (req, res) => {
-  const brand = readJSON(BRAND_FILE, {
-    name: "AIR SKY",
-    short_name: "Air Sky",
-    tagline: "Premium Luxury Travel",
-    primary_color: "#ff6d01",
-    hover_color: "#e65700",
-    dark_color: "#272c33",
-    light_color: "#fff4eb",
-    brand_text_color: "#0B1F3A",
-    tagline_color: "#6b7280",
-    logo: "",
-    email: "care@airskyindia.com",
-    phone: "+91 72248 28030",
-    whatsapp: "+918077680310",
-    address: "Panchsheel Apartment, Flat No. 204, Plot No. 9, Sector 10, Dwarka, Delhi – 110075"
-  });
-  const settings = readJSON(SETTINGS_FILE, {});
+app.get('/api/brand', async (req, res) => {
+  const brand = await getLiveBrand();
+  const settings = await getLiveSettings();
   brand.enabledServices = brand.enabledServices || settings.enabledServices || {
     flights: true,
     hotels: true,
@@ -1450,12 +1506,12 @@ app.get('/api/brand', (req, res) => {
 });
 
 // 1.06 Save Brand Settings
-app.post('/api/admin/brand', (req, res) => {
+app.post('/api/admin/brand', async (req, res) => {
   try {
-    const currentBrand = readJSON(BRAND_FILE, {});
+    const currentBrand = await getLiveBrand();
     const updatedBrand = {
       ...currentBrand,
-      name: req.body.name || currentBrand.name || "AIR SKY",
+      name: req.body.name || currentBrand.name || "AIR SKY GO",
       short_name: req.body.short_name || currentBrand.short_name || "Air Sky",
       tagline: req.body.tagline || currentBrand.tagline || "Premium Luxury Travel",
       primary_color: req.body.primary_color || currentBrand.primary_color || "#ff6d01",
@@ -1474,11 +1530,11 @@ app.post('/api/admin/brand', (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    writeJSON(BRAND_FILE, updatedBrand);
+    await saveLiveBrand(updatedBrand);
 
     // Sync into settings.json as well
     try {
-      const currentSettings = readJSON(SETTINGS_FILE, {});
+      const currentSettings = await getLiveSettings();
       currentSettings.siteName = updatedBrand.name;
       currentSettings.siteTagline = updatedBrand.tagline;
       currentSettings.supportEmail = updatedBrand.email;
@@ -1486,12 +1542,12 @@ app.post('/api/admin/brand', (req, res) => {
       currentSettings.brand = updatedBrand;
       if (req.body.footer) currentSettings.footer = updatedBrand.footer;
       if (req.body.enabledServices) currentSettings.enabledServices = updatedBrand.enabledServices;
-      writeJSON(SETTINGS_FILE, currentSettings);
+      await saveLiveSettings(currentSettings);
     } catch (e) {}
 
     res.json({
       success: true,
-      message: 'Brand identity, logo & Website CMS saved successfully! Changes are active live across the website.',
+      message: 'Brand identity, theme colors & Website CMS saved successfully! Changes are active live across the website.',
       data: updatedBrand
     });
   } catch (err) {
@@ -2730,10 +2786,10 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 // A2. Admin Update Website Settings (Live CMS for every single detail!)
-app.put('/api/admin/settings', (req, res) => {
-  const currentSettings = readJSON(SETTINGS_FILE, {});
+app.put('/api/admin/settings', async (req, res) => {
+  const currentSettings = await getLiveSettings();
   const updatedSettings = { ...currentSettings, ...req.body };
-  writeJSON(SETTINGS_FILE, updatedSettings);
+  await saveLiveSettings(updatedSettings);
 
   res.json({
     success: true,
