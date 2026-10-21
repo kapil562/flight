@@ -173,6 +173,7 @@ const saveLiveAdminCredentials = async (admin) => {
       await putBlob('admin_vault.json', JSON.stringify(encrypted), {
         access: 'public',
         addRandomSuffix: false,
+        allowOverwrite: true,
         token: BLOB_READ_WRITE_TOKEN
       });
       console.log('Admin credentials synced to encrypted Vercel Blob vault');
