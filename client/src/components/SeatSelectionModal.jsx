@@ -293,15 +293,15 @@ export default function SeatSelectionModal({ flight, passengersCount = 1, onClos
           <div className="flex items-center gap-3">
             <button
               onClick={() => onConfirmSeats([])}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs cursor-pointer"
+              className="px-4 py-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs cursor-pointer"
             >
               Skip Seats
             </button>
             <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleConfirm}
-              className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-sm shadow-md flex items-center gap-2 cursor-pointer transition-all"
+              className="px-6 py-2.5 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm shadow-md flex items-center gap-2 cursor-pointer transition-all"
             >
               <span>Continue with Selected ({selectedSeats.length})</span>
               <ArrowRight className="w-4 h-4" />

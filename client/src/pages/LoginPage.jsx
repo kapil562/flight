@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, Sparkles, ShieldCheck, CheckCircle2, 
   Mail, Lock, User, Eye, EyeOff, Plane, Phone, Star, 
-  ArrowRight, ShieldAlert, Send
+  ArrowRight, ShieldAlert, Send, Shield
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../utils/api';
@@ -127,7 +127,7 @@ export default function LoginPage() {
     }
   };
 
-  // Forgot Password Reset Link
+  // Forgot Password
   const handleForgotPassword = async (e) => {
     e?.preventDefault();
     setErrorMessage('');
@@ -151,20 +151,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50/40 to-slate-100 text-slate-800 flex flex-col justify-between relative overflow-x-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between relative overflow-x-hidden font-sans">
       
-      {/* Subtle Background Decorative Atmosphere */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-sky-200/40 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none" />
-
       {/* TOP NAVBAR */}
       <header className="relative z-20 max-w-7xl mx-auto w-full px-4 sm:px-6 py-4 flex items-center justify-between">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-xs border border-slate-200/80 transition-all hover:scale-102 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-slate-100 text-xs font-bold text-slate-800 shadow-xs border border-slate-200/80 transition-all cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4 text-sky-600" />
-          <span>Back to Home</span>
+          <ArrowLeft className="w-4 h-4 text-slate-700" />
+          <span>Home</span>
         </Link>
 
         {/* Brand Logo */}
@@ -177,24 +173,22 @@ export default function LoginPage() {
             />
           ) : (
             <div
-              className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-md"
-              style={{ background: brand?.primary_color || '#ff6d01' }}
+              className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-md bg-slate-950"
             >
               <Plane className="w-5 h-5 rotate-45" />
             </div>
           )}
           <span
-            className="text-xl font-black tracking-tight"
-            style={{ color: brand?.brand_text_color || '#0B1F3A' }}
+            className="text-xl font-black tracking-tight text-slate-950"
           >
             {brand?.name || 'AIR SKY'}
           </span>
         </Link>
 
         {/* 24x7 Customer Helpline */}
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
-          <Phone className="w-3.5 h-3.5 text-amber-500" />
-          <span>24×7 Support: {brand?.phone || '+91 72248 28030'}</span>
+        <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200/80 text-xs font-semibold text-slate-700 shadow-2xs">
+          <Phone className="w-3.5 h-3.5 text-slate-900" />
+          <span>24×7 Concierge: {brand?.phone || '+91 72248 28030'}</span>
         </div>
       </header>
 
@@ -205,65 +199,65 @@ export default function LoginPage() {
           {/* LEFT COLUMN: Brand Visuals & Member Perks */}
           <div className="hidden md:flex md:col-span-5 relative overflow-hidden flex-col justify-between p-8 text-white">
             <img
-              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=700&q=80"
+              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
               alt="Travel"
               className="absolute inset-0 w-full h-full object-cover scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-sky-900/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-900/40" />
 
             <div className="relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[10px] font-black uppercase tracking-wider text-amber-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-amber-300">
                 <Sparkles className="w-3.5 h-3.5" />
-                Member Club
+                AirSky Club
               </span>
-              <h3 className="text-2xl font-black text-white mt-3 leading-snug">
-                Save Up To ₹1,500 On Every Booking
+              <h3 className="text-2xl font-black text-white mt-3 leading-snug tracking-tight">
+                Unlock Flat ₹500 OFF On Every Flight
               </h3>
-              <p className="text-xs text-sky-100 mt-1.5 leading-relaxed">
-                Join our premium travel community for instant discounts and zero cancellation fees.
+              <p className="text-xs text-slate-300 mt-1.5 leading-relaxed font-medium">
+                Join 2.5M+ savvy travellers booking luxury flights at wholesale rates.
               </p>
             </div>
 
-            <div className="relative z-10 space-y-3 my-auto">
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-xs">
-                <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xs shrink-0">
+            <div className="relative z-10 space-y-3 my-auto py-4">
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/15 text-xs">
+                <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
                   ₹500
                 </div>
                 <div>
-                  <strong className="block text-white">Use Code AIRSKY500</strong>
-                  <span className="text-[11px] text-sky-100">Instant flat discount on 1st flight</span>
+                  <strong className="block text-white font-extrabold text-xs">Use Code AIRSKY500</strong>
+                  <span className="text-[11px] text-slate-300">Instant flat discount on checkout</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-xs">
-                <div className="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/15 text-xs">
+                <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
                   <Plane className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-white">Direct Airline Partner Fares</strong>
-                  <span className="text-[11px] text-sky-100">No hidden fees, real-time seat locks</span>
+                  <strong className="block text-white font-extrabold text-xs">Official Airline Direct Fares</strong>
+                  <span className="text-[11px] text-slate-300">IndiGo, Air India, Akasa &amp; SpiceJet</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-xs">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/15 text-xs">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/90 text-white flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <strong className="block text-white">Fast Web Check-in & PNR</strong>
-                  <span className="text-[11px] text-sky-100">All major domestic & international airlines</span>
+                  <strong className="block text-white font-extrabold text-xs">Free Web Check-In &amp; Boarding Pass</strong>
+                  <span className="text-[11px] text-slate-300">Auto seat confirmation &amp; status</span>
                 </div>
               </div>
             </div>
 
-            <div className="relative z-10 bg-slate-950/70 backdrop-blur-md rounded-2xl p-3 border border-white/15">
+            <div className="relative z-10 bg-slate-900/80 backdrop-blur-md rounded-2xl p-3.5 border border-white/15">
               <div className="flex text-amber-400 mb-1">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3 h-3 fill-current" />
                 ))}
               </div>
-              <p className="text-[11px] text-slate-200 italic leading-relaxed">
-                "Google Sign-in is seamless. Got tickets in 30 seconds."
+              <p className="text-[11px] text-slate-200 leading-snug">
+                "1-click Google login worked instantly. Ticket PDF and boarding pass saved automatically."
               </p>
             </div>
           </div>
@@ -277,10 +271,10 @@ export default function LoginPage() {
                   {authMode === 'forgot'
                     ? 'Reset Password'
                     : authMode === 'register'
-                      ? 'Create Free Account'
+                      ? 'Create Your Account'
                       : 'Welcome Back'}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+                <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-medium">
                   {authMode === 'forgot'
                     ? 'Enter your registered email and we will send you a password reset link.'
                     : 'Access your confirmed flight tickets, PNR status, and member discounts.'}
@@ -292,9 +286,9 @@ export default function LoginPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5"
+                  className="mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2.5"
                 >
-                  <ShieldAlert className="w-4 h-4 shrink-0" />
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-rose-600" />
                   <span>{errorMessage}</span>
                 </motion.div>
               )}
@@ -317,7 +311,7 @@ export default function LoginPage() {
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">Registered Email Address</label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                      <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
                       <input
                         type="email"
                         required
@@ -325,7 +319,7 @@ export default function LoginPage() {
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500 transition-all"
+                        className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -333,7 +327,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
+                    className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
                   >
                     {loading ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -349,7 +343,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => { setAuthMode('login'); setErrorMessage(''); setSuccessMessage(''); }}
-                      className="text-xs font-bold text-sky-600 hover:text-sky-700 hover:underline flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
+                      className="text-xs font-bold text-slate-700 hover:text-black flex items-center justify-center gap-1.5 mx-auto cursor-pointer"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Back to Sign In</span>
@@ -363,7 +357,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={loading}
-                    className="w-full py-3 px-4 rounded-2xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 font-extrabold text-sm transition-all cursor-pointer shadow-xs flex items-center justify-center gap-3 active:scale-98 disabled:opacity-50 mb-2.5"
+                    className="w-full py-3 px-4 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50/80 text-slate-800 font-extrabold text-sm transition-all cursor-pointer shadow-xs flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50 mb-3"
                   >
                     <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -374,24 +368,23 @@ export default function LoginPage() {
                     <span>Continue with Google</span>
                   </button>
 
-
                   {/* Divider */}
                   <div className="relative flex items-center justify-center my-4">
                     <div className="border-t border-slate-200 w-full"></div>
-                    <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider relative shrink-0">
-                      Or with Email & Password
+                    <span className="bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest relative shrink-0">
+                      or continue with email
                     </span>
                   </div>
 
-                  {/* Tabs: Sign In / Create Account */}
-                  <div className="flex border-b border-slate-200 mb-4 text-xs sm:text-sm font-bold">
+                  {/* Segmented Pill Switcher */}
+                  <div className="bg-slate-100 p-1 rounded-2xl flex items-center mb-4">
                     <button
                       type="button"
                       onClick={() => { setAuthMode('login'); setErrorMessage(''); setSuccessMessage(''); }}
-                      className={`pb-2.5 px-4 border-b-2 cursor-pointer transition-all ${
+                      className={`flex-1 py-2 text-xs font-black rounded-xl transition-all cursor-pointer ${
                         authMode === 'login'
-                          ? 'border-sky-600 text-sky-600 font-extrabold'
-                          : 'border-transparent text-slate-500 hover:text-slate-800'
+                          ? 'bg-white text-slate-950 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900'
                       }`}
                     >
                       Sign In
@@ -399,10 +392,10 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => { setAuthMode('register'); setErrorMessage(''); setSuccessMessage(''); }}
-                      className={`pb-2.5 px-4 border-b-2 cursor-pointer transition-all ${
+                      className={`flex-1 py-2 text-xs font-black rounded-xl transition-all cursor-pointer ${
                         authMode === 'register'
-                          ? 'border-sky-600 text-sky-600 font-extrabold'
-                          : 'border-transparent text-slate-500 hover:text-slate-800'
+                          ? 'bg-white text-slate-950 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900'
                       }`}
                     >
                       Create Account
@@ -422,7 +415,7 @@ export default function LoginPage() {
                             placeholder="e.g. Rahul Sharma"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                            className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl pl-10 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -438,7 +431,7 @@ export default function LoginPage() {
                           placeholder="you@example.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                          className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl pl-10 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -450,7 +443,7 @@ export default function LoginPage() {
                           <button
                             type="button"
                             onClick={() => { setAuthMode('forgot'); setErrorMessage(''); setSuccessMessage(''); }}
-                            className="text-xs font-semibold text-sky-600 hover:underline cursor-pointer"
+                            className="text-xs font-semibold text-slate-500 hover:text-slate-950 cursor-pointer"
                           >
                             Forgot Password?
                           </button>
@@ -465,12 +458,12 @@ export default function LoginPage() {
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                          className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none transition-all"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+                          className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700 cursor-pointer"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -480,7 +473,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-sky-700 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 mt-2"
+                      className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 mt-2"
                     >
                       {loading ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -498,10 +491,10 @@ export default function LoginPage() {
 
             {/* Bottom Security Assurance */}
             <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-              <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
-                <CheckCircle2 className="w-4 h-4" /> Firebase Secure Authentication
+              <span className="flex items-center gap-1.5 text-slate-700 font-bold">
+                <Shield className="w-4 h-4 text-emerald-600" /> Firebase 256-Bit SSL Secured
               </span>
-              <span>256-Bit SSL Encrypted</span>
+              <span>Direct Airline Partner</span>
             </div>
           </div>
 
@@ -509,8 +502,8 @@ export default function LoginPage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-20 py-4 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} {brand?.name || 'AIR SKY'}. All rights reserved. Safe & Secure Bookings.
+      <footer className="relative z-20 py-4 text-center text-xs text-slate-400 font-medium">
+        © {new Date().getFullYear()} {brand?.name || 'AIR SKY'}. All rights reserved. Direct Partner Fares.
       </footer>
     </div>
   );

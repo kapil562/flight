@@ -79,40 +79,40 @@ export default function TrainSection() {
     <div className="py-6 sm:py-8 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       
       {/* Banner & PNR Status Box */}
-      <div className="bg-gradient-to-r from-orange-950 via-amber-950 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8">
+      <div className="bg-slate-950 rounded-3xl sm:rounded-4xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8 border border-white/10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
           <div className="lg:col-span-7">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold border border-amber-400/30 mb-3">
-              <Train className="w-3.5 h-3.5" />
-              IRCTC Authorized Railway Booking
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-slate-200 text-xs font-bold border border-white/15 mb-3">
+              <Train className="w-3.5 h-3.5 text-amber-300" />
+              IRCTC Partner Railway Network
             </div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
-              Book Train Tickets & Check Live IRCTC PNR Status
+              Book Trains &amp; Track Live IRCTC PNR Status
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300">
-              Zero payment gateway fees on UPI. Instant refunds & Tatkal ticket assistance.
+            <p className="text-xs sm:text-sm text-slate-400 font-medium">
+              Zero convenience fee on UPI transfers. Instant refunds &amp; live chart confirmation alerts.
             </p>
           </div>
 
           {/* Quick PNR Lookup Widget */}
-          <div className="lg:col-span-5 bg-white text-slate-900 rounded-2xl p-4 sm:p-5 shadow-xl border border-slate-200">
+          <div className="lg:col-span-5 bg-white text-slate-900 rounded-3xl p-5 shadow-2xl border border-slate-200/90">
             <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider mb-2">
-              Check IRCTC 10-Digit PNR Status
+              Check 10-Digit IRCTC PNR
             </h4>
             <form onSubmit={handlePnrCheck} className="flex gap-2">
               <input
                 type="text"
                 maxLength={10}
-                placeholder="Enter 10-digit PNR (e.g. 2489102931)"
+                placeholder="e.g. 2489102931"
                 value={pnrInput}
                 onChange={(e) => setPnrInput(e.target.value.replace(/\D/g, ''))}
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 font-mono"
+                className="flex-1 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-2xl px-3.5 py-2.5 text-xs font-black text-slate-900 focus:outline-none font-mono transition-all"
               />
               <button
                 type="submit"
                 disabled={pnrLoading}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
+                className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white font-black text-xs rounded-2xl shadow-md transition-all cursor-pointer shrink-0 disabled:opacity-50"
               >
                 {pnrLoading ? 'Checking...' : 'Check Status'}
               </button>
@@ -123,15 +123,15 @@ export default function TrainSection() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-mono"
+                className="mt-3.5 p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs font-mono"
               >
-                <div className="flex items-center justify-between font-bold text-emerald-800 mb-1">
-                  <span>{pnrStatus.trainName}</span>
-                  <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 rounded font-black">{pnrStatus.chartStatus}</span>
+                <div className="flex items-center justify-between font-bold text-slate-900 mb-1">
+                  <span className="truncate">{pnrStatus.trainName}</span>
+                  <span className="bg-slate-900 text-white text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">{pnrStatus.chartStatus}</span>
                 </div>
-                <div className="text-slate-600 text-[11px]">{pnrStatus.boarding} ➔ {pnrStatus.destination}</div>
-                <div className="mt-1.5 pt-1.5 border-t border-emerald-200 flex justify-between font-bold text-slate-800">
-                  <span>Status: <strong className="text-emerald-700">{pnrStatus.bookingStatus}</strong></span>
+                <div className="text-slate-500 text-[11px] font-sans mt-0.5">{pnrStatus.boarding} ➔ {pnrStatus.destination}</div>
+                <div className="mt-2 pt-2 border-t border-slate-200 flex justify-between font-bold text-slate-800">
+                  <span>Status: <strong className="text-emerald-600 font-black">{pnrStatus.bookingStatus}</strong></span>
                   <span>Coach: {pnrStatus.coach} • Berth: {pnrStatus.berth}</span>
                 </div>
               </motion.div>
@@ -143,12 +143,12 @@ export default function TrainSection() {
 
       {/* Available Trains List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-extrabold text-slate-900">Popular Express & Rajdhani Trains</h3>
+        <h3 className="text-xl font-black text-slate-900 tracking-tight">Express &amp; Rajdhani Direct Trains</h3>
         
         {loading ? (
           <div className="space-y-3">
             {[1, 2].map(n => (
-              <div key={n} className="bg-white rounded-2xl p-6 border border-slate-200 animate-pulse h-28" />
+              <div key={n} className="bg-white rounded-3xl p-6 border border-slate-200/80 animate-pulse h-28" />
             ))}
           </div>
         ) : (
@@ -157,20 +157,20 @@ export default function TrainSection() {
               key={train.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs hover:border-amber-400 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs hover:border-slate-400 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-black text-sm text-slate-900 bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono font-black text-xs text-white bg-slate-950 px-2.5 py-1 rounded-xl">
                     {train.trainNumber}
                   </span>
-                  <h4 className="font-extrabold text-slate-900 text-base">{train.name}</h4>
+                  <h4 className="font-black text-slate-900 text-base">{train.name}</h4>
                 </div>
                 
-                <div className="flex items-center gap-4 text-xs text-slate-500 mt-2">
-                  <div><strong className="text-slate-800">{train.departureTime}</strong> ({train.from})</div>
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-2 font-medium">
+                  <div><strong className="text-slate-900 font-bold">{train.departureTime}</strong> ({train.from})</div>
                   <span>── {train.duration} ──</span>
-                  <div><strong className="text-slate-800">{train.arrivalTime}</strong> ({train.to})</div>
+                  <div><strong className="text-slate-900 font-bold">{train.arrivalTime}</strong> ({train.to})</div>
                 </div>
               </div>
 
@@ -181,13 +181,13 @@ export default function TrainSection() {
                     key={cls.type}
                     type="button"
                     onClick={() => setSelectedTrain({ ...train, selectedClass: cls })}
-                    className="p-2.5 rounded-xl border border-slate-200 hover:border-amber-500 bg-slate-50 hover:bg-amber-50 text-left transition-all cursor-pointer"
+                    className="p-3 rounded-2xl border border-slate-200/80 hover:border-slate-900 bg-slate-50 hover:bg-slate-100/60 text-left transition-all cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-3 text-xs font-black text-slate-900">
                       <span>{cls.name}</span>
-                      <span className="font-mono text-amber-700">₹{cls.price}</span>
+                      <span className="font-mono font-black">₹{cls.price}</span>
                     </div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-0.5">{cls.status}</div>
+                    <div className="text-[10px] text-emerald-600 font-black mt-0.5">{cls.status}</div>
                   </button>
                 ))}
               </div>
@@ -202,54 +202,54 @@ export default function TrainSection() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md">
             <div className="fixed inset-0" onClick={() => setSelectedTrain(null)} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative z-10 w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 border border-slate-100"
+              className="relative z-10 w-full max-w-lg bg-white rounded-3xl sm:rounded-4xl shadow-2xl p-6 sm:p-7 border border-slate-200/80 max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
                 <div>
-                  <span className="text-[10px] font-bold text-amber-600 uppercase">IRCTC Train Booking</span>
-                  <h3 className="text-base font-black text-slate-900">{selectedTrain.name}</h3>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">IRCTC Railway Desk</span>
+                  <h3 className="text-base font-black text-slate-900 mt-0.5">{selectedTrain.name}</h3>
                 </div>
-                <button onClick={() => setSelectedTrain(null)} className="p-1 rounded-full bg-slate-100 hover:bg-slate-200">
-                  <X className="w-4 h-4 text-slate-600" />
+                <button onClick={() => setSelectedTrain(null)} className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 cursor-pointer">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               <form onSubmit={handleBookTrain} className="space-y-4 py-4">
-                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between text-xs font-bold text-slate-800 font-mono">
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between text-xs font-bold text-slate-800 font-mono">
                   <div>Class: {selectedTrain.selectedClass?.name} ({selectedTrain.selectedClass?.type})</div>
-                  <div className="text-amber-800 text-sm">Fare: ₹{selectedTrain.selectedClass?.price}</div>
+                  <div className="text-slate-900 font-black text-sm">Fare: ₹{selectedTrain.selectedClass?.price}</div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">IRCTC User ID</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">IRCTC User ID</label>
                   <input
                     type="text"
                     required
                     value={irctcId}
                     onChange={(e) => setIrctcId(e.target.value)}
                     placeholder="Enter IRCTC Username"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-amber-500 font-mono"
+                    className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none font-mono transition-all"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Passenger Name</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Passenger Full Name</label>
                     <input
                       type="text"
                       required
                       value={passengerName}
                       onChange={(e) => setPassengerName(e.target.value)}
                       placeholder="e.g. Aman Sharma"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-amber-500"
+                      className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Berth Preference</label>
-                    <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-amber-500">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Berth Preference</label>
+                    <select className="w-full bg-slate-50 border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none cursor-pointer">
                       <option>No Preference</option>
                       <option>Lower Berth</option>
                       <option>Middle Berth</option>
@@ -261,9 +261,9 @@ export default function TrainSection() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black text-sm shadow-md shadow-amber-500/30 transition-all cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-sm shadow-md transition-all cursor-pointer active:scale-[0.98]"
                 >
-                  Pay & Confirm Train Ticket
+                  Pay &amp; Confirm Train Ticket
                 </button>
               </form>
             </motion.div>
@@ -276,26 +276,26 @@ export default function TrainSection() {
         {trainBooked && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl p-6 max-w-md w-full text-center shadow-2xl border border-slate-100"
+              className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-7 max-w-md w-full text-center shadow-2xl border border-slate-200/80"
             >
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+              <div className="w-13 h-13 bg-slate-950 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <CheckCircle2 className="w-7 h-7 text-emerald-400 stroke-[2.5]" />
               </div>
-              <h3 className="text-xl font-black text-slate-900">Train Ticket Confirmed!</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Your ticket has been booked on IRCTC network. PNR has been generated and sent via SMS.
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Train Ticket Confirmed</h3>
+              <p className="text-xs text-slate-500 mt-1 font-medium">
+                Your ticket has been confirmed on IRCTC network. Electronic pass sent via SMS.
               </p>
-              <div className="my-4 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-left font-mono">
-                <div>IRCTC PNR: <strong>2491028472</strong></div>
-                <div>Status: <strong className="text-emerald-600">CNF (Confirmed)</strong></div>
-                <div>Coach & Berth: <strong>B3 / 41 (Lower Berth)</strong></div>
+              <div className="my-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-left font-mono space-y-1.5">
+                <div>IRCTC PNR: <strong className="text-slate-900">2491028472</strong></div>
+                <div>Status: <strong className="text-emerald-600 font-black">CNF (Confirmed)</strong></div>
+                <div>Coach &amp; Berth: <strong className="text-slate-800">B3 / 41 (Lower Berth)</strong></div>
               </div>
               <button
                 type="button"
                 onClick={() => setTrainBooked(false)}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs cursor-pointer"
+                className="w-full py-2.5 bg-slate-900 hover:bg-black text-white font-black rounded-2xl text-xs cursor-pointer"
               >
                 Done
               </button>

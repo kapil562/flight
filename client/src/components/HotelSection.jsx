@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, MapPin, Calendar, Users, Star, Check, Wifi, Coffee, Waves, Sparkles, Building, X, Printer, ShieldCheck, Tag, Compass } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Star, Check, Wifi, Coffee, Waves, Sparkles, Building, X, Printer, ShieldCheck, Tag, Compass, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { api } from '../utils/api';
 
 const POPULAR_DESTINATIONS = [
-  { name: 'Goa', label: '🏖️ Goa' },
-  { name: 'Dubai', label: '🏙️ Dubai' },
-  { name: 'Mumbai', label: '🌆 Mumbai' },
-  { name: 'Manali', label: '🏔️ Manali' },
-  { name: 'Jaipur', label: '🏰 Jaipur' },
-  { name: 'Delhi', label: '🏛️ Delhi' },
-  { name: 'Bangalore', label: '🌳 Bangalore' },
-  { name: 'Kashmir', label: '❄️ Kashmir' }
+  { name: 'Goa', label: 'Goa' },
+  { name: 'Dubai', label: 'Dubai' },
+  { name: 'Mumbai', label: 'Mumbai' },
+  { name: 'Manali', label: 'Manali' },
+  { name: 'Jaipur', label: 'Jaipur' },
+  { name: 'Delhi', label: 'Delhi' },
+  { name: 'Bangalore', label: 'Bangalore' },
+  { name: 'Kashmir', label: 'Kashmir' }
 ];
 
 export default function HotelSection() {
@@ -145,7 +145,6 @@ export default function HotelSection() {
         createdAt: new Date().toISOString()
       };
 
-      // Save to localStorage history for user
       try {
         const prev = JSON.parse(localStorage.getItem('asg_hotel_bookings') || '[]');
         prev.unshift(confirmed);
@@ -168,80 +167,74 @@ export default function HotelSection() {
   return (
     <div className="py-6 sm:py-8 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       
-      {/* Search Header Banner */}
-      <div className="bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8">
-        {/* Background ambient lighting */}
-        <div className="absolute inset-0 opacity-25 pointer-events-none overflow-hidden rounded-3xl">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-400 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-        </div>
-
+      {/* Search Header Banner - Modern Airbnb Floating Style */}
+      <div className="bg-slate-950 rounded-3xl sm:rounded-4xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden mb-8 border border-white/10">
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-sky-200 mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Verified Luxury Hotels &amp; Stays • Best Guaranteed Rates
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-slate-200 mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            Luxury Resorts, 5-Star Stays &amp; Villas
           </div>
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
-            Book Worldwide Hotels at Guaranteed Lowest Fares
+            Stays at Guaranteed Direct Rates
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300">
-            Real-time live Google Places search for over 500,000+ luxury resorts, 5-star hotels & villas with zero advance payment.
+          <p className="text-xs sm:text-sm text-slate-400 font-medium">
+            Over 500,000+ handpicked hotels worldwide. Pay at property with zero advance deposit.
           </p>
         </div>
 
-        {/* Search Input Box */}
-        <form onSubmit={handleSearchSubmit} className="relative z-10 mt-6 bg-white text-slate-800 rounded-2xl p-4 shadow-xl border border-slate-100">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+        {/* Airbnb-style Floating Capsule Form */}
+        <form onSubmit={handleSearchSubmit} className="relative z-10 mt-6 bg-white text-slate-900 rounded-2xl sm:rounded-3xl p-3 shadow-2xl border border-slate-200/90">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center">
             
             {/* City */}
-            <div className="md:col-span-4 p-3 rounded-xl border border-slate-200 bg-slate-50/70 focus-within:bg-white focus-within:border-sky-500 transition-all">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
-                <MapPin className="w-3.5 h-3.5 text-sky-600" />
-                <span>Destination / City</span>
+            <div className="md:col-span-4 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">
+                <MapPin className="w-3.5 h-3.5 text-slate-700" />
+                <span>Where to</span>
               </div>
               <input
                 type="text"
-                placeholder="e.g. Goa, Mumbai, Dubai, Manali, Jaipur..."
+                placeholder="Search city, resort, or landmark..."
                 value={cityInput}
                 onChange={(e) => setCityInput(e.target.value)}
-                className="w-full bg-transparent font-extrabold text-slate-900 text-sm focus:outline-none"
+                className="w-full bg-transparent font-black text-slate-900 text-sm focus:outline-none placeholder:text-slate-400"
               />
             </div>
 
             {/* Check-In */}
-            <div className="md:col-span-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-sky-600" />
-                <span>Check-in Date</span>
+            <div className="md:col-span-3 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">
+                <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                <span>Check-in</span>
               </div>
               <input
                 type="date"
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full bg-transparent font-extrabold text-slate-900 text-sm focus:outline-none cursor-pointer"
+                className="w-full bg-transparent font-black text-slate-900 text-sm focus:outline-none cursor-pointer"
               />
             </div>
 
             {/* Check-Out */}
-            <div className="md:col-span-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-sky-600" />
-                <span>Check-out Date ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+            <div className="md:col-span-3 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">
+                <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                <span>Check-out ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
               </div>
               <input
                 type="date"
                 value={checkOut}
                 min={checkIn}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-transparent font-extrabold text-slate-900 text-sm focus:outline-none cursor-pointer"
+                className="w-full bg-transparent font-black text-slate-900 text-sm focus:outline-none cursor-pointer"
               />
             </div>
 
-            {/* Search CTA */}
-            <div className="md:col-span-2">
+            {/* Search CTA (High contrast Apple Obsidian) */}
+            <div className="md:col-span-2 p-1">
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 <Search className="w-4 h-4" />
                 <span>Search</span>
@@ -251,20 +244,20 @@ export default function HotelSection() {
           </div>
         </form>
 
-        {/* Quick Destinations */}
+        {/* Quick Destinations Capsule Dock */}
         <div className="relative z-10 mt-4 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <span className="text-xs font-bold text-sky-200 shrink-0 flex items-center gap-1">
-            <Compass className="w-3.5 h-3.5" /> Popular:
+          <span className="text-xs font-bold text-slate-400 shrink-0 flex items-center gap-1">
+            <Compass className="w-3.5 h-3.5 text-slate-300" /> Popular:
           </span>
           {POPULAR_DESTINATIONS.map((dest) => (
             <button
               key={dest.name}
               type="button"
               onClick={() => handleQuickDestination(dest.name)}
-              className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer backdrop-blur-md border ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer backdrop-blur-md border ${
                 activeCity.toLowerCase() === dest.name.toLowerCase()
-                  ? 'bg-white text-slate-900 border-white shadow-sm'
-                  : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                  ? 'bg-white text-slate-950 border-white shadow-xs'
+                  : 'bg-white/10 hover:bg-white/20 text-white border-white/15'
               }`}
             >
               {dest.label}
@@ -276,18 +269,18 @@ export default function HotelSection() {
       {/* Results Header & Filter Chips */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-xl font-black text-slate-900">
-              Hotels & Stays in <span className="text-sky-600 capitalize">{activeCity}</span>
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Hotels &amp; Stays in <span className="capitalize">{activeCity}</span>
             </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold">
-              {filteredHotels.length} Found
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+              {filteredHotels.length} Stays
             </span>
           </div>
           {dataSource && (
-            <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+            <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5 font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Feed: <strong>{dataSource}</strong>
+              Live Rates: <strong className="text-slate-700">{dataSource}</strong>
             </p>
           )}
         </div>
@@ -304,9 +297,9 @@ export default function HotelSection() {
               key={chip.id}
               type="button"
               onClick={() => setSelectedStars(chip.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                 selectedStars === chip.id
-                  ? 'bg-sky-600 text-white shadow-xs'
+                  ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
             >
@@ -316,12 +309,12 @@ export default function HotelSection() {
         </div>
       </div>
 
-      {/* Hotel Cards Grid */}
+      {/* Hotel Cards Grid - Airbnb Luxury Cards */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map(n => (
-            <div key={n} className="bg-white rounded-3xl p-4 border border-slate-200 animate-pulse space-y-3">
-              <div className="h-48 bg-slate-200 rounded-2xl"></div>
+            <div key={n} className="bg-white rounded-3xl p-4 border border-slate-200/80 animate-pulse space-y-3">
+              <div className="h-52 bg-slate-100 rounded-2xl"></div>
               <div className="h-5 bg-slate-200 rounded w-3/4"></div>
               <div className="h-4 bg-slate-100 rounded w-1/2"></div>
               <div className="h-10 bg-slate-100 rounded-xl mt-4"></div>
@@ -330,7 +323,7 @@ export default function HotelSection() {
         </div>
       ) : filteredHotels.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs max-w-lg mx-auto">
-          <div className="w-16 h-16 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <Building className="w-8 h-8" />
           </div>
           <h4 className="text-lg font-black text-slate-900 mb-1">No hotels found in "{activeCity}"</h4>
@@ -340,7 +333,7 @@ export default function HotelSection() {
           <button
             type="button"
             onClick={() => handleQuickDestination('Goa')}
-            className="px-5 py-2.5 bg-sky-600 text-white text-xs font-extrabold rounded-xl shadow-md hover:bg-sky-500 transition-all cursor-pointer"
+            className="px-5 py-2.5 bg-slate-900 text-white text-xs font-black rounded-2xl shadow-md hover:bg-black transition-all cursor-pointer"
           >
             Explore Goa Hotels
           </button>
@@ -352,11 +345,11 @@ export default function HotelSection() {
               key={hotel.id}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+              className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
-                {/* Image & Badge */}
-                <div className="relative h-52 overflow-hidden bg-slate-100">
+                {/* Image & Badges */}
+                <div className="relative h-56 overflow-hidden bg-slate-100">
                   <img
                     src={hotel.image}
                     alt={hotel.name}
@@ -364,38 +357,38 @@ export default function HotelSection() {
                     loading="lazy"
                   />
                   {hotel.badge && (
-                    <span className="absolute top-3 left-3 bg-slate-900/85 backdrop-blur-md text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center gap-1 shadow-md">
+                    <span className="absolute top-3.5 left-3.5 bg-slate-950/80 backdrop-blur-md text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center gap-1 shadow-md">
                       <Sparkles className="w-3 h-3 text-amber-400" />
                       {hotel.badge}
                     </span>
                   )}
                   {hotel.verified && (
-                    <span className="absolute top-3 right-3 bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-md">
-                      Verified Stay
+                    <span className="absolute top-3.5 right-3.5 bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md">
+                      Verified Luxury
                     </span>
                   )}
-                  <span className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-slate-900 text-xs font-black px-2.5 py-1 rounded-xl shadow-md flex items-center gap-1">
+                  <span className="absolute bottom-3.5 right-3.5 bg-white/95 backdrop-blur-md text-slate-900 text-xs font-black px-2.5 py-1 rounded-xl shadow-md flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                     <span>{hotel.rating}</span>
-                    <span className="text-[10px] text-slate-400">({hotel.reviewsCount})</span>
+                    <span className="text-[10px] text-slate-400 font-medium">({hotel.reviewsCount})</span>
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-5">
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-sky-600 mb-1">
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <div className="p-5">
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 mb-1">
+                    <MapPin className="w-3.5 h-3.5 text-slate-700 shrink-0" />
                     <span className="truncate">{hotel.location}</span>
                   </div>
-                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-snug line-clamp-1">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug line-clamp-1">
                     {hotel.name}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{hotel.roomType || 'Standard Deluxe Suite'}</p>
+                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 font-medium">{hotel.roomType || 'Standard Deluxe Suite'}</p>
 
                   {/* Amenities */}
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {(hotel.amenities || ['Free Wi-Fi', 'Breakfast', 'Pool']).slice(0, 3).map((amenity, idx) => (
-                      <span key={idx} className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                      <span key={idx} className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg">
                         ✓ {amenity}
                       </span>
                     ))}
@@ -404,7 +397,7 @@ export default function HotelSection() {
               </div>
 
               {/* Price & Book CTA */}
-              <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
+              <div className="p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
                 <div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
@@ -414,7 +407,7 @@ export default function HotelSection() {
                       ₹{(hotel.originalPrice || Math.round(hotel.price * 1.25)).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <span className="text-[10px] text-emerald-600 font-bold">
+                  <span className="text-[10px] text-emerald-600 font-black">
                     {hotel.discount || '20% OFF'} • per night
                   </span>
                 </div>
@@ -422,9 +415,9 @@ export default function HotelSection() {
                 <button
                   type="button"
                   onClick={() => setBookingHotel(hotel)}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs shadow-md shadow-sky-600/30 transition-all cursor-pointer active:scale-95"
+                  className="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs shadow-md transition-all cursor-pointer active:scale-95"
                 >
-                  Book Hotel
+                  Reserve Stay
                 </button>
               </div>
             </motion.div>
@@ -432,96 +425,96 @@ export default function HotelSection() {
         </div>
       )}
 
-      {/* MODAL: Book Hotel */}
+      {/* MODAL: Book Hotel - Luxury Reservation Slip */}
       <AnimatePresence>
         {bookingHotel && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md">
             <div className="fixed inset-0" onClick={() => setBookingHotel(null)} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative z-10 w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 border border-slate-100 max-h-[90vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg bg-white rounded-3xl sm:rounded-4xl shadow-2xl p-6 sm:p-7 border border-slate-200/80 max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
                 <div>
-                  <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Express Hotel Reservation
                   </span>
-                  <h3 className="text-lg font-black text-slate-900">{bookingHotel.name}</h3>
-                  <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-sky-600" /> {bookingHotel.location}
+                  <h3 className="text-lg font-black text-slate-900 mt-0.5">{bookingHotel.name}</h3>
+                  <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5 font-medium">
+                    <MapPin className="w-3 h-3 text-slate-600" /> {bookingHotel.location}
                   </div>
                 </div>
-                <button onClick={() => setBookingHotel(null)} className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 cursor-pointer">
-                  <X className="w-4 h-4 text-slate-600" />
+                <button onClick={() => setBookingHotel(null)} className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 cursor-pointer">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               <form onSubmit={handleBookHotel} className="space-y-4 py-4">
                 {/* Stay Summary Card */}
-                <div className="p-3.5 bg-sky-50/80 rounded-2xl border border-sky-100 flex items-center justify-between text-xs font-bold text-slate-700">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between text-xs font-bold text-slate-800">
                   <div>
-                    <div className="text-[10px] text-slate-400 font-normal">Reservation Stay</div>
-                    <div>{checkIn} to {checkOut}</div>
-                    <div className="text-[10px] text-sky-700 font-semibold mt-0.5">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Stay Dates</div>
+                    <div className="mt-0.5 font-black">{checkIn} to {checkOut}</div>
+                    <div className="text-[10px] text-slate-500 font-semibold mt-0.5">
                       {nights} {nights === 1 ? 'Night' : 'Nights'} • {guests}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-slate-400 font-normal">Total Price</div>
-                    <div className="text-base font-black text-sky-700 font-mono">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Total Price</div>
+                    <div className="text-lg font-black text-slate-950 font-mono">
                       ₹{(bookingHotel.price * nights).toLocaleString('en-IN')}
                     </div>
-                    <span className="text-[9px] text-emerald-600 font-bold">Includes Taxes & Fees</span>
+                    <span className="text-[9px] text-emerald-600 font-black">All Taxes Included</span>
                   </div>
                 </div>
 
                 {/* Primary Guest Details */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Primary Guest Full Name *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Primary Guest Name</label>
                   <input
                     type="text"
                     required
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="e.g. Manish Sharma"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Phone Number</label>
                     <input
                       type="tel"
                       required
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
                       placeholder="+91 98765 43210"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                      className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
                     <input
                       type="email"
                       required
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
                       placeholder="guest@example.com"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500"
+                      className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Guests & Room selection */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Room & Occupancy</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Room &amp; Occupancy</label>
                   <select
                     value={guests}
                     onChange={(e) => setGuests(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-sky-500 cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-slate-900 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none cursor-pointer"
                   >
                     <option value="1 Guest, 1 Room">1 Guest, 1 Room</option>
                     <option value="2 Guests, 1 Room">2 Guests, 1 Room</option>
@@ -531,25 +524,25 @@ export default function HotelSection() {
                 </div>
 
                 {/* Payment Option Note */}
-                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-start gap-2.5 text-xs text-emerald-800">
+                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-start gap-2.5 text-xs text-emerald-800">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <strong className="block font-bold">Zero Prepayment Required!</strong>
-                    <span>Pay ₹{(bookingHotel.price * nights).toLocaleString('en-IN')} directly upon check-in at the hotel desk via Cash / UPI / Card. Free cancellation up to 24h before check-in.</span>
+                    <span className="text-[11px] leading-relaxed">Pay ₹{(bookingHotel.price * nights).toLocaleString('en-IN')} directly upon check-in at the hotel desk via Cash / UPI / Card. Free cancellation up to 24h before check-in.</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 disabled:opacity-50 text-white font-extrabold text-sm shadow-md shadow-sky-600/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-black disabled:opacity-50 text-white font-black text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
                   {isSubmitting ? (
-                    <span>Confirming Reservation...</span>
+                    <span>Securing Reservation...</span>
                   ) : (
                     <>
                       <Check className="w-4 h-4 stroke-[3]" />
-                      <span>Confirm & Book (Pay at Hotel)</span>
+                      <span>Confirm Reservation (Pay at Property)</span>
                     </>
                   )}
                 </button>
@@ -564,26 +557,26 @@ export default function HotelSection() {
         {bookingConfirmed && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl p-6 max-w-md w-full text-center shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-7 max-w-md w-full text-center shadow-2xl border border-slate-200/80 max-h-[90vh] overflow-y-auto"
             >
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Check className="w-8 h-8 stroke-[3]" />
+              <div className="w-13 h-13 bg-slate-950 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Check className="w-7 h-7 text-emerald-400 stroke-[3]" />
               </div>
-              <h3 className="text-xl font-black text-slate-900">Hotel Booking Confirmed!</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Your reservation at <strong className="text-slate-800">{bookingConfirmed.hotel.name}</strong> has been secured and sent to the hotel desk.
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Hotel Reservation Confirmed</h3>
+              <p className="text-xs text-slate-500 mt-1 font-medium">
+                Your reservation at <strong className="text-slate-800">{bookingConfirmed.hotel.name}</strong> has been secured and communicated to the front desk.
               </p>
 
               {/* Voucher Card */}
-              <div className="my-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-left space-y-2">
+              <div className="my-4 p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-left space-y-2">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Booking Reference</span>
-                  <span className="font-mono font-black text-sky-700 text-sm">{bookingConfirmed.bookingId}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirmation ID</span>
+                  <span className="font-mono font-black text-slate-900 text-sm">{bookingConfirmed.bookingId}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Primary Guest:</span>
+                  <span className="text-slate-500">Guest Name:</span>
                   <strong className="text-slate-800">{bookingConfirmed.customerName || 'Valued Guest'}</strong>
                 </div>
                 <div className="flex items-center justify-between">
@@ -599,8 +592,8 @@ export default function HotelSection() {
                   <strong className="text-slate-800">{bookingConfirmed.nights} Nights • {bookingConfirmed.guests}</strong>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                  <span className="text-slate-700 font-bold">Pay at Hotel:</span>
-                  <strong className="text-base font-black text-emerald-600 font-mono">
+                  <span className="text-slate-700 font-bold">Pay at Property:</span>
+                  <strong className="text-base font-black text-slate-950 font-mono">
                     ₹{bookingConfirmed.totalAmount.toLocaleString('en-IN')}
                   </strong>
                 </div>
@@ -610,14 +603,14 @@ export default function HotelSection() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <Printer className="w-3.5 h-3.5" /> Print Voucher
                 </button>
                 <button
                   type="button"
                   onClick={() => setBookingConfirmed(null)}
-                  className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs cursor-pointer"
+                  className="flex-1 py-2.5 bg-slate-900 hover:bg-black text-white font-black rounded-2xl text-xs cursor-pointer transition-colors"
                 >
                   Done
                 </button>

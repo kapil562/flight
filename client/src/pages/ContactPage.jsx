@@ -107,7 +107,6 @@ export default function ContactPage() {
     setErrorMsg('');
     setSubmitting(true);
 
-    // Simulate sending inquiry / ticket generation
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
@@ -161,50 +160,49 @@ export default function ContactPage() {
 
       <main className="flex-1">
         {/* Breadcrumb Bar */}
-        <div className="bg-white border-b border-slate-200 py-3 px-4 sm:px-6">
+        <div className="bg-white border-b border-slate-200/80 py-3 px-4 sm:px-6">
           <div className="max-w-6xl mx-auto flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <Link to="/" className="hover:text-sky-600 transition-colors">Home</Link>
+            <Link to="/" className="hover:text-black transition-colors">Home</Link>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-slate-800 font-bold">Contact Us</span>
+            <span className="text-slate-900 font-bold">Contact Concierge</span>
           </div>
         </div>
 
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-slate-900 via-sky-950 to-blue-900 text-white py-14 sm:py-20 px-4 sm:px-6 text-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+        <section className="bg-slate-950 text-white py-14 sm:py-20 px-4 sm:px-6 text-center relative overflow-hidden border-b border-white/10">
           <div className="max-w-3xl mx-auto relative z-10 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold border border-amber-400/30">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-slate-200 text-xs font-bold border border-white/15">
+              <Clock className="w-3.5 h-3.5 text-amber-300" />
               <span>24x7 PRIORITY AVIATION DESK</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-              We are Here to <span className="text-sky-400">Help You Fly Smoothly</span>
+              We are Here to <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-white to-slate-200">Help You Fly Smoothly</span>
             </h1>
-            <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto">
+            <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto font-medium">
               Have questions about your flight booking, baggage allowances, web check-in, or need emergency travel assistance? Contact our team anytime.
             </p>
           </div>
         </section>
 
-        {/* Contact Cards Grid */}
+        {/* Contact Cards Grid - Apple Floating Pods */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 relative z-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Phone Support */}
-            <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-md flex flex-col justify-between hover:border-emerald-300 transition-all">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md flex flex-col justify-between hover:border-slate-400 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">24x7 Helpline</h3>
-                  <span className="text-emerald-600 text-[11px] font-bold">Instant Connect</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">24x7 Helpline</h3>
+                  <span className="text-emerald-600 text-[11px] font-black">Direct Priority</span>
                 </div>
               </div>
-              <p className="text-sm font-black text-slate-800 mb-3">{phone}</p>
+              <p className="text-sm font-black text-slate-900 mb-3 font-mono">{phone}</p>
               <a
                 href={`tel:${rawPhone}`}
-                className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold text-center transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-black text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <Phone className="w-3.5 h-3.5" />
                 <span>Call Helpline</span>
@@ -212,22 +210,22 @@ export default function ContactPage() {
             </div>
 
             {/* WhatsApp Desk */}
-            <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-md flex flex-col justify-between hover:border-emerald-400 transition-all">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md flex flex-col justify-between hover:border-slate-400 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                   <MessageCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">WhatsApp Support</h3>
-                  <span className="text-emerald-600 text-[11px] font-bold">Quick Resolution</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">WhatsApp Desk</h3>
+                  <span className="text-emerald-600 text-[11px] font-black">Instant Tickets</span>
                 </div>
               </div>
-              <p className="text-sm font-black text-slate-800 mb-3">{whatsapp}</p>
+              <p className="text-sm font-black text-slate-900 mb-3 font-mono">{whatsapp}</p>
               <a
                 href={`https://wa.me/${rawWhatsapp}?text=Hi%20${encodeURIComponent(brandName)},%20I%20need%20assistance%20with%20my%20flight%20booking.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2 px-3 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl text-xs font-extrabold text-center transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-2xl text-xs font-black text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>Chat on WhatsApp</span>
@@ -235,20 +233,20 @@ export default function ContactPage() {
             </div>
 
             {/* Email Support */}
-            <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-md flex flex-col justify-between hover:border-sky-300 transition-all">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md flex flex-col justify-between hover:border-slate-400 transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">Official Email</h3>
-                  <span className="text-sky-600 text-[11px] font-bold">Ticket & Invoices</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Official Email</h3>
+                  <span className="text-slate-600 text-[11px] font-bold">Invoices &amp; PNR</span>
                 </div>
               </div>
               <p className="text-xs font-bold text-slate-800 truncate mb-3">{email}</p>
               <a
                 href={`mailto:${email}?subject=Flight%20Booking%20Inquiry`}
-                className="w-full py-2 px-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-extrabold text-center transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-2xl text-xs font-black text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>Send Email</span>
@@ -256,24 +254,24 @@ export default function ContactPage() {
             </div>
 
             {/* Headquarters */}
-            <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-md flex flex-col justify-between hover:border-amber-300 transition-all">
+            <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md flex flex-col justify-between hover:border-slate-400 transition-all">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">Headquarters</h3>
-                  <span className="text-slate-500 text-[11px] font-bold">New Delhi, India</span>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Headquarters</h3>
+                  <span className="text-slate-600 text-[11px] font-bold">New Delhi, India</span>
                 </div>
               </div>
-              <p className="text-[11px] text-slate-600 leading-snug line-clamp-2 mb-3">{address}</p>
+              <p className="text-[11px] text-slate-600 leading-snug line-clamp-2 mb-3 font-medium">{address}</p>
               <a
                 href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-extrabold text-center transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-2xl text-xs font-black text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                <MapPin className="w-3.5 h-3.5 text-slate-700" />
                 <span>View on Map</span>
               </a>
             </div>
@@ -286,32 +284,32 @@ export default function ContactPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Inquiry Form (7 Cols) */}
-            <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <div className="lg:col-span-7 bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
               <div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-black text-sky-600 uppercase tracking-wider bg-sky-50 px-2.5 py-1 rounded-md mb-2">
+                <div className="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full mb-2">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Direct Communication</span>
+                  <span>Direct Communication Desk</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                  Send us a Message or Booking Inquiry
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                  Send us a Message or Ticket Query
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Fill in your details and our dedicated aviation desk will respond within 30 minutes.
+                <p className="text-xs text-slate-500 mt-1 font-medium">
+                  Fill in your travel details and our aviation desk will respond within 30 minutes.
                 </p>
               </div>
 
               {submitted ? (
-                <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-3">
-                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-7 h-7" />
+                <div className="p-7 bg-slate-50 border border-slate-200/80 rounded-3xl text-center space-y-3">
+                  <div className="w-13 h-13 bg-slate-950 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
                   </div>
-                  <h3 className="text-base font-extrabold text-emerald-900">Inquiry Received Successfully!</h3>
-                  <p className="text-xs text-emerald-700 max-w-md mx-auto leading-relaxed">
-                    Thank you for reaching out. Ticket token <strong>#ASG-{Math.floor(100000 + Math.random() * 900000)}</strong> has been opened. Our support executive will contact you via WhatsApp and Email shortly.
+                  <h3 className="text-lg font-black text-slate-900">Inquiry Received Successfully</h3>
+                  <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                    Thank you for reaching out. Ticket token <strong>#ASG-{Math.floor(100000 + Math.random() * 900000)}</strong> has been opened. Our support concierge will contact you via WhatsApp and Email shortly.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}
-                    className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors"
+                    className="mt-3 px-5 py-2.5 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-black transition-colors cursor-pointer"
                   >
                     Send Another Message
                   </button>
@@ -319,7 +317,7 @@ export default function ContactPage() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {errorMsg && (
-                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2">
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-bold text-rose-700 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{errorMsg}</span>
                     </div>
@@ -327,7 +325,7 @@ export default function ContactPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
                         Full Name <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -335,21 +333,21 @@ export default function ContactPage() {
                         placeholder="e.g. Rahul Sharma"
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-semibold outline-hidden transition-all"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Phone / Mobile <span className="text-rose-500">*</span>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                        Phone Number <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="tel"
                         placeholder="e.g. 9876543210"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-semibold outline-hidden transition-all"
                         required
                       />
                     </div>
@@ -357,7 +355,7 @@ export default function ContactPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
                         Email Address <span className="text-rose-500">*</span>
                       </label>
                       <input
@@ -365,13 +363,13 @@ export default function ContactPage() {
                         placeholder="e.g. rahul@example.com"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-semibold outline-hidden transition-all"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
                         Flight PNR / Booking ID <span className="text-slate-400 font-normal">(Optional)</span>
                       </label>
                       <input
@@ -379,33 +377,33 @@ export default function ContactPage() {
                         placeholder="e.g. Y9WUNS or 6E-955"
                         value={form.pnr}
                         onChange={(e) => setForm({ ...form, pnr: e.target.value.toUpperCase() })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-mono font-medium outline-hidden transition-all uppercase"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-mono font-bold outline-hidden transition-all uppercase"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
                         Inquiry Category
                       </label>
                       <select
                         value={form.category}
                         onChange={(e) => setForm({ ...form, category: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden bg-white cursor-pointer"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-bold outline-hidden bg-white cursor-pointer"
                       >
                         <option value="booking">New Flight Booking / Fare Quote</option>
-                        <option value="cancellation">Cancellation & Refund Request</option>
-                        <option value="checkin">Web Check-in & Boarding Pass Help</option>
-                        <option value="seat">Seat Selection & Special Assistance</option>
+                        <option value="cancellation">Cancellation &amp; Refund Request</option>
+                        <option value="checkin">Web Check-in &amp; Boarding Pass Help</option>
+                        <option value="seat">Seat Selection &amp; Special Assistance</option>
                         <option value="baggage">Baggage Query / Excess Baggage</option>
                         <option value="payment">Payment Confirmation / Invoice</option>
-                        <option value="feedback">Feedback & Complaints</option>
+                        <option value="feedback">Feedback &amp; Complaints</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
                         Subject
                       </label>
                       <input
@@ -413,13 +411,13 @@ export default function ContactPage() {
                         placeholder="Brief summary of your query"
                         value={form.subject}
                         onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-semibold outline-hidden transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
                       Message Details <span className="text-rose-500">*</span>
                     </label>
                     <textarea
@@ -427,7 +425,7 @@ export default function ContactPage() {
                       placeholder="Please describe your flight route, date, passenger details, or issue..."
                       value={form.message}
                       onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-xs text-slate-800 font-medium outline-hidden transition-all resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-slate-900 text-xs text-slate-900 font-medium outline-hidden transition-all resize-none"
                       required
                     />
                   </div>
@@ -435,7 +433,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white font-black text-xs sm:text-sm shadow-md shadow-sky-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98]"
                   >
                     {submitting ? (
                       <span>Sending inquiry...</span>
@@ -452,35 +450,35 @@ export default function ContactPage() {
 
             {/* Quick Resolution FAQ (5 Cols) */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-4">
-                <div className="flex items-center gap-2 text-xs font-black uppercase text-amber-600">
-                  <HelpCircle className="w-4 h-4 text-amber-500" />
+              <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-7 border border-slate-200/80 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 text-xs font-black uppercase text-slate-900">
+                  <HelpCircle className="w-4 h-4 text-slate-700" />
                   <span>Frequently Asked Questions</span>
                 </div>
                 <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                  Instant Answers & Solutions
+                  Instant Answers &amp; Solutions
                 </h3>
 
-                <div className="space-y-2.5 pt-1">
+                <div className="space-y-2 pt-1">
                   {faqs.map((faq, idx) => {
                     const isOpen = openFaq === idx;
                     return (
                       <div
                         key={idx}
-                        className={`rounded-xl border transition-all overflow-hidden ${
-                          isOpen ? 'bg-sky-50/50 border-sky-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                        className={`rounded-2xl border transition-all overflow-hidden ${
+                          isOpen ? 'bg-slate-50 border-slate-300' : 'bg-white border-slate-200/80 hover:border-slate-300'
                         }`}
                       >
                         <button
                           type="button"
                           onClick={() => setOpenFaq(isOpen ? -1 : idx)}
-                          className="w-full p-3.5 text-left flex items-center justify-between gap-2 font-bold text-xs text-slate-800 cursor-pointer"
+                          className="w-full p-4 text-left flex items-center justify-between gap-2 font-bold text-xs text-slate-900 cursor-pointer"
                         >
                           <span>{faq.q}</span>
-                          <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-sky-600' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-black' : ''}`} />
                         </button>
                         {isOpen && (
-                          <div className="px-3.5 pb-3.5 text-[11px] text-slate-600 leading-relaxed font-medium">
+                          <div className="px-4 pb-4 text-[11px] text-slate-600 leading-relaxed font-medium">
                             {faq.a}
                           </div>
                         )}
@@ -491,26 +489,26 @@ export default function ContactPage() {
               </div>
 
               {/* Quick Actions Card */}
-              <div className="bg-gradient-to-br from-slate-900 to-sky-950 text-white rounded-3xl p-6 border border-sky-800/40 space-y-4">
+              <div className="bg-slate-950 text-white rounded-3xl sm:rounded-4xl p-6 border border-white/10 space-y-4">
                 <h4 className="font-black text-sm text-white flex items-center gap-2">
-                  <Ticket className="w-4 h-4 text-amber-400" />
+                  <Ticket className="w-4 h-4 text-amber-300" />
                   <span>Need Immediate Self-Service?</span>
                 </h4>
-                <p className="text-xs text-slate-300">
+                <p className="text-xs text-slate-400 font-medium">
                   Track your flight status or retrieve your boarding pass right now without waiting in queue:
                 </p>
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
                   <button
                     onClick={() => setQuickPnrOpen(true)}
-                    className="py-2.5 px-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-bold text-center text-white transition-colors cursor-pointer"
+                    className="py-2.5 px-3 bg-white/10 hover:bg-white/20 border border-white/15 rounded-2xl text-xs font-bold text-center text-white transition-colors cursor-pointer"
                   >
-                    🔍 Check PNR
+                    Check PNR
                   </button>
                   <button
                     onClick={() => setWebCheckInOpen(true)}
-                    className="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-xs font-bold text-center text-white transition-colors cursor-pointer"
+                    className="py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-2xl text-xs text-center transition-colors cursor-pointer shadow-xs"
                   >
-                    ✅ Web Check-In
+                    Web Check-In
                   </button>
                 </div>
               </div>
